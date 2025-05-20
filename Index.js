@@ -187,7 +187,8 @@ document.getElementById('slot-spin').onclick = function() {
 // --- Plinko ---
 const plinkoRows = 12, plinkoSlots = 13;
 const plinkoPayouts = [0,0.5,1,2,4,6,10,6,4,2,1,0.5,0];
-function buildPlinkoBoard(ballCol=-1, ballRow=-1, ballInSlot=-1) {
+
+function buildPlinkoBoard(ballPositions=[]) {
   const board = document.getElementById('plinko-board');
   board.innerHTML = '';
   // Pins
@@ -198,9 +199,11 @@ function buildPlinkoBoard(ballCol=-1, ballRow=-1, ballInSlot=-1) {
       let cell = document.createElement('div');
       cell.className = 'plinko-cell plinko-pin';
       cell.textContent = '•';
-      if (r === ballRow && c === ballCol) {
+      // Place balls if any at this position
+      let ballsHere = ballPositions.filter(bp => bp.row === r && bp.col === c);
+      if (ballsHere.length > 0) {
         cell.className += ' plinko-ball';
-        cell.textContent = '⬤';
+        cell.textContent = ballsHere.length > 1 ? '⬤'.repeat(Math.min(2, ballsHere.length)) : '⬤';
       }
       row.appendChild(cell);
     }
@@ -213,9 +216,11 @@ function buildPlinkoBoard(ballCol=-1, ballRow=-1, ballInSlot=-1) {
     let cell = document.createElement('div');
     cell.className = 'plinko-cell plinko-slot';
     cell.textContent = plinkoPayouts[s] > 0 ? `x${plinkoPayouts[s]}` : '';
-    if (ballInSlot === s) {
+    // Place balls in slots if any
+    let ballsHere = ballPositions.filter(bp => bp.row === plinkoRows && bp.col === s);
+    if (ballsHere.length > 0) {
       cell.className += ' plinko-ball';
-      cell.textContent = '⬤';
+      cell.textContent = ballsHere.length > 1 ? '⬤'.repeat(Math.min(2, ballsHere.length)) : '⬤';
     }
     slotRow.appendChild(cell);
   }
@@ -225,41 +230,68 @@ buildPlinkoBoard();
 
 document.getElementById('plinko-drop').onclick = function() {
   let bet = getBet('plinko-bet');
-  if (bet > houseBalance) {
+  let numBalls = parseInt(document.getElementById('plinko-balls').value) || 1;
+  if (numBalls < 1) numBalls = 1;
+  if (numBalls > 10) numBalls = 10;
+  if (bet * numBalls > houseBalance) {
     document.getElementById('plinko-result').textContent = "Not enough balance!";
     return;
   }
-  houseBalance -= bet;
+  houseBalance -= bet * numBalls;
   updateBalance();
-  let col = Math.floor((plinkoSlots-1)/2), row = 0;
-  let path = [col];
-  let animSteps = [];
-  // Simulate path
-  for (let r=0; r<plinkoRows; ++r) {
-    let move = Math.random() < 0.5 ? 0 : 1;
-    col = col + move;
-    path.push(col);
-    animSteps.push({row: r+1, col});
+
+  // For each ball, simulate its path
+  let balls = [];
+  for (let b=0; b<numBalls; ++b) {
+    let col = Math.floor((plinkoSlots-1)/2);
+    let path = [{row:0, col}];
+    for (let r=0; r<plinkoRows; ++r) {
+      let move = Math.random() < 0.5 ? 0 : 1;
+      col = col + move;
+      path.push({row:r+1, col});
+    }
+    balls.push(path);
   }
-  // Animate
-  let i = 0;
+
+  // Animate all balls together, step by step
+  let animStep = 0;
+  function getBallPositionsAtStep(step) {
+    let positions = [];
+    balls.forEach(path => {
+      let pos = path[Math.min(step, path.length-1)];
+      positions.push(pos);
+    });
+    return positions;
+  }
+  let maxSteps = plinkoRows+1;
   function anim() {
-    if (i < animSteps.length) {
-      buildPlinkoBoard(animSteps[i].col, animSteps[i].row);
-      i++;
-      setTimeout(anim, 80);
+    if (animStep <= maxSteps) {
+      buildPlinkoBoard(getBallPositionsAtStep(animStep));
+      animStep++;
+      setTimeout(anim, 200); // SLOWER: 200ms per step
     } else {
-      // Win logic
-      let slot = path[path.length-1];
-      let payout = plinkoPayouts[slot] || 0;
-      let win = bet * payout;
-      buildPlinkoBoard(-1, -1, slot);
-      if (win > 0) {
-        document.getElementById('plinko-result').textContent = `You win ${win.toFixed(1)}!`;
+      // Show all balls in their slots and payout
+      let slotCounts = Array(plinkoSlots).fill(0);
+      balls.forEach(path => {
+        let finalCol = path[path.length-1].col;
+        slotCounts[finalCol]++;
+      });
+      let totalWin = 0;
+      slotCounts.forEach((count, slot) => {
+        totalWin += count * bet * (plinkoPayouts[slot] || 0);
+      });
+      // Show balls in slots
+      let ballPositions = [];
+      slotCounts.forEach((count, slot) => {
+        if (count > 0) ballPositions.push({row:plinkoRows, col:slot});
+      });
+      buildPlinkoBoard(ballPositions);
+      if (totalWin > 0) {
+        document.getElementById('plinko-result').textContent = `You win ${totalWin.toFixed(1)}!`;
       } else {
         document.getElementById('plinko-result').textContent = "No win. Try again!";
       }
-      houseBalance += win;
+      houseBalance += totalWin;
       updateBalance();
     }
   }
