@@ -3,21 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cosmic Casino 🌌</title>
+  <title>Amina Casino 🌌</title>
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css?family=Orbitron:700&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="cosmic-bg"></div>
   <header>
-    <h1>✨ Cosmic Casino 🌌</h1>
-    <div class="wallet-bar">
+    <h1>✨ Amina Casino 🌌</h1>
+    <div class="wallet-bar sticky-bar">
       <span class="currency-label">House Coins:</span>
       <span id="house-balance">1000.0</span>
     </div>
   </header>
 
   <main>
+    <!-- Donate Area -->
+    <section class="donate-section">
+      <h2>💖 Support Amina Casino!</h2>
+      <div class="donate-box">
+        <span>Donate Algorand to:</span>
+        <span class="algo-address">6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI</span>
+        <button class="copy-btn" onclick="navigator.clipboard.writeText('6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy Address',1500)">Copy Address</button>
+      </div>
+    </section>
+
     <!-- Blackjack -->
     <section class="game" id="blackjack-section">
       <h2>🃏 Blackjack</h2>
@@ -65,16 +75,20 @@
     <!-- Plinko -->
     <section class="game" id="plinko-section">
       <h2>💥 Plinko</h2>
+      <div class="plinko-controls-row">
+        <div>
+          <label for="plinko-balls">Balls:</label>
+          <input type="number" id="plinko-balls" min="1" max="10" value="1" style="width:50px;"/>
+        </div>
+        <div class="bet-controls">
+          <label for="plinko-bet">Bet:</label>
+          <input type="range" min="1" max="100" step="1" id="plinko-bet" value="10"/>
+          <span id="plinko-bet-display">10</span>
+        </div>
+        <button id="plinko-drop">Drop Ball(s)</button>
+      </div>
       <div id="plinko-board-container">
         <div id="plinko-board"></div>
-      </div>
-      <div class="bet-controls">
-        <label for="plinko-bet">Bet:</label>
-        <input type="range" min="1" max="100" step="1" id="plinko-bet" value="10"/>
-        <span id="plinko-bet-display">10</span>
-      </div>
-      <div class="game-controls">
-        <button id="plinko-drop">Drop Ball</button>
       </div>
       <p id="plinko-result"></p>
     </section>
