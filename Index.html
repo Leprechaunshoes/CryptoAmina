@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cosmic Casino 🌌</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css?family=Orbitron:700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="cosmic-bg"></div>
+  <header>
+    <h1>✨ Cosmic Casino 🌌</h1>
+    <div class="wallet-bar">
+      <span class="currency-label">House Coins:</span>
+      <span id="house-balance">1000.0</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Blackjack -->
+    <section class="game" id="blackjack-section">
+      <h2>🃏 Blackjack</h2>
+      <div id="blackjack-table">
+        <div>
+          <h3>Dealer</h3>
+          <div id="dealer-hand" class="card-hand"></div>
+        </div>
+        <div>
+          <h3>You</h3>
+          <div id="player-hand" class="card-hand"></div>
+        </div>
+      </div>
+      <div class="bet-controls">
+        <label for="bj-bet">Bet:</label>
+        <input type="range" min="1" max="100" step="1" id="bj-bet" value="10"/>
+        <span id="bj-bet-display">10</span>
+      </div>
+      <div class="game-controls">
+        <button id="bj-deal">Deal</button>
+        <button id="bj-hit" disabled>Hit</button>
+        <button id="bj-stand" disabled>Stand</button>
+      </div>
+      <p id="bj-result"></p>
+    </section>
+
+    <!-- Slot Machine -->
+    <section class="game" id="slot-section">
+      <h2>🎰 Slot Machine</h2>
+      <div id="slot-machine">
+        <div id="slot-reels"></div>
+        <div id="slot-paylines"></div>
+      </div>
+      <div class="bet-controls">
+        <label for="slot-bet">Bet:</label>
+        <input type="range" min="1" max="100" step="1" id="slot-bet" value="10"/>
+        <span id="slot-bet-display">10</span>
+      </div>
+      <div class="game-controls">
+        <button id="slot-spin">Spin</button>
+      </div>
+      <p id="slot-result"></p>
+    </section>
+
+    <!-- Plinko -->
+    <section class="game" id="plinko-section">
+      <h2>💥 Plinko</h2>
+      <div id="plinko-board-container">
+        <div id="plinko-board"></div>
+      </div>
+      <div class="bet-controls">
+        <label for="plinko-bet">Bet:</label>
+        <input type="range" min="1" max="100" step="1" id="plinko-bet" value="10"/>
+        <span id="plinko-bet-display">10</span>
+      </div>
+      <div class="game-controls">
+        <button id="plinko-drop">Drop Ball</button>
+      </div>
+      <p id="plinko-result"></p>
+    </section>
+  </main>
+
+  <footer>
+    <p class="cosmic-footer">🚀 May the cosmic luck be with you! 🚀</p>
+  </footer>
+
+  <script src="index.js"></script>
+</body>
+</html>
