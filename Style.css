@@ -1,93 +1,244 @@
+```css
 :root {
-  --cosmic-blue: #00f0ff;
-  --cosmic-pink: #ff00de;
-  --cosmic-purple: #a259ff;
+  --cosmic-bg: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
+  --neon-blue: #00f0ff;
+  --neon-pink: #ff00de;
+  --neon-green: #39ff14;
+  --neon-yellow: #ffe600;
+  --neon-purple: #a259ff;
+  --card-bg: rgba(30, 34, 60, 0.95);
+  --card-border: #fff8;
 }
 
-body {
-  background: radial-gradient(ellipse at center, #0f2027 0%, #2c5364 100%);
-  color: white;
-  font-family: 'Orbitron', sans-serif;
+html, body {
   margin: 0;
-  padding: 20px;
+  padding: 0;
+  font-family: 'Orbitron', Arial, sans-serif;
+  background: var(--cosmic-bg);
+  color: #fff;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 #cosmic-bg {
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: 
-    radial-gradient(circle at 20% 30%, #ff00de22 0%, transparent 25%),
-    radial-gradient(ellipse at center, #0f2027 0%, #2c5364 100%);
+  top: 0; left: 0; right: 0; bottom: 0;
   z-index: -1;
-  animation: nebulaPulse 15s infinite alternate;
+  background: radial-gradient(circle at 20% 20%, #1a237e 0%, transparent 60%),
+              radial-gradient(circle at 80% 80%, #ff00de55 0%, transparent 70%),
+              var(--cosmic-bg);
+  animation: bgmove 30s linear infinite alternate;
+}
+@keyframes bgmove {
+  0% { background-position: 0 0, 100% 100%, 0 0; }
+  100% { background-position: 100% 100%, 0 0, 0 0; }
 }
 
-@keyframes nebulaPulse {
-  0% { opacity: 0.8; }
-  100% { opacity: 1; }
+header {
+  text-align: center;
+  padding: 2rem 0 0.7rem 0;
+  background: transparent;
+  z-index: 10;
+}
+.cosmic-logo {
+  font-size: 2.7rem;
+  color: var(--neon-blue);
+  text-shadow: 0 0 18px var(--neon-pink), 0 0 40px var(--neon-blue);
+  letter-spacing: 0.12em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  animation: cosmicPulse 2.5s infinite alternate;
+}
+@keyframes cosmicPulse {
+  0% { text-shadow: 0 0 18px var(--neon-pink), 0 0 40px var(--neon-blue);}
+  100% { text-shadow: 0 0 30px var(--neon-pink), 0 0 80px var(--neon-blue);}
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.3rem;
+  padding-bottom: 3rem;
 }
 
 .game {
-  background: rgba(20, 25, 50, 0.9);
-  border: 2px solid var(--cosmic-blue);
-  border-radius: 16px;
-  padding: 20px;
-  margin: 20px auto;
-  max-width: 500px;
-  box-shadow: 0 0 30px var(--cosmic-blue);
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: 1.2rem;
+  box-shadow: 0 0 30px 6px #00f0ff33, 0 0 3px 1px #fff2;
+  padding: 1.2rem 1rem 1.2rem 1rem;
+  margin: 0.5rem 0;
+  width: 97vw;
+  max-width: 420px;
+  min-width: 0;
+  transition: box-shadow .2s;
+}
+.game:hover {
+  box-shadow: 0 0 50px 10px var(--neon-pink), 0 0 10px 2px #fff6;
 }
 
-/* Blackjack */
-.cards {
+h2 {
+  font-size: 1.5rem;
+  color: var(--neon-pink);
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 12px var(--neon-pink);
+}
+
+.bet-controls {
+  margin: 1rem 0 .7rem 0;
   display: flex;
-  gap: 10px;
-  margin: 10px 0;
-  min-height: 120px;
+  align-items: center;
+  gap: .7rem;
+  font-size: 1.1rem;
+}
+input[type=range] {
+  accent-color: var(--neon-blue);
+  width: 100px;
+}
+input[type=range]::-webkit-slider-thumb {
+  box-shadow: 0 0 10px var(--neon-blue);
+}
+input[type=number] {
+  font-family: inherit;
+  font-size: 1.1rem;
+  border-radius: 0.5em;
+  border: 1px solid var(--neon-blue);
+  width: 50px;
+  padding: 0.1em 0.2em;
+  background: #111;
+  color: var(--neon-green);
+  margin-left: 0.2em;
 }
 
+.game-controls {
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 1.2rem;
+  justify-content: center;
+}
+button {
+  background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
+  color: #fff;
+  border: none;
+  border-radius: .7rem;
+  font-size: 1.1rem;
+  padding: .6rem 1.3rem;
+  cursor: pointer;
+  box-shadow: 0 0 12px var(--neon-blue), 0 0 2px #fff5;
+  transition: background .2s, box-shadow .2s, transform .1s;
+  font-family: inherit;
+}
+button:active {
+  transform: scale(0.98);
+  box-shadow: 0 0 20px var(--neon-pink);
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#blackjack-table {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.2rem;
+  margin-bottom: .7rem;
+}
+.card-hand {
+  display: flex;
+  gap: .4rem;
+  min-height: 54px;
+}
 .card {
-  width: 80px;
-  height: 120px;
-  background: white;
-  border-radius: 10px;
+  background: linear-gradient(120deg, #fff 70%, #e0e0ff 100%);
+  border: 2px solid var(--neon-blue);
+  border-radius: .5rem;
+  width: 40px;
+  height: 54px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
-  color: black;
-  box-shadow: 0 0 15px var(--cosmic-blue);
+  font-size: 1.4rem;
+  color: #222;
+  font-weight: bold;
+  box-shadow: 0 0 6px var(--neon-blue);
+  transition: box-shadow .2s;
+  animation: cardDeal 0.4s;
 }
+@keyframes cardDeal {
+  0% { transform: scale(0.2) rotate(-20deg); opacity: 0;}
+  100% { transform: scale(1) rotate(0); opacity: 1;}
+}
+.card.red { color: #d8005f; }
 
-/* Slots */
 #slot-machine {
   display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin: 20px 0;
-}
-
-.reel {
-  width: 80px;
-  height: 80px;
-  background: rgba(0,0,0,0.3);
-  border: 2px solid var(--cosmic-pink);
-  border-radius: 10px;
-  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: 40px;
-  box-shadow: 0 0 20px var(--cosmic-pink);
+}
+#slot-canvas {
+  border-radius: 1rem;
+  border: 2px solid var(--neon-blue);
+  box-shadow: 0 0 16px var(--neon-blue), 0 0 2px #fff5;
+  margin-bottom: 0.4rem;
+  background: #181c2c;
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  display: block;
+}
+#slot-paylines {
+  margin-top: .2rem;
+  font-size: 1.1rem;
+  color: var(--neon-yellow);
+  text-shadow: 0 0 6px var(--neon-yellow);
 }
 
-button {
-  background: linear-gradient(45deg, var(--cosmic-blue), var(--cosmic-purple));
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 10px;
-  font-family: 'Orbitron';
-  cursor: pointer;
-  margin: 10px 5px;
-  box-shadow: 0 0 15px var(--cosmic-blue);
+#plinko-board-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  min-height: 270px;
+  margin-bottom: .7rem;
+  overflow-x: auto;
 }
+#plinko-canvas {
+  background: linear-gradient(180deg, #10162a 80%, #191e3a 100%);
+  border-radius: 1.2rem;
+  border: 2px solid var(--neon-green);
+  box-shadow: 0 0 28px var(--neon-green), 0 0 2px #fff5;
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  display: block;
+}
+
+#plinko-result, #slot-result, #bj-result {
+  min-height: 1.5em;
+  font-size: 1.1rem;
+  text-align: center;
+  margin-top: .5rem;
+}
+
+.cosmic-footer {
+  text-align: center;
+  margin: 2.5rem 0 0 0;
+  color: var(--neon-purple);
+  font-size: 1.1rem;
+  text-shadow: 0 0 8px var(--neon-purple);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .game { max-width: 98vw; }
+  #plinko-canvas, #slot-canvas { max-width: 99vw; }
+}
+@media (max-width: 600px) {
+  .cosmic-logo { font-size: 1.3rem; }
+  .game { min-width: 98vw; max-width: 99vw; padding: 0.8rem 0.2rem; }
+  #plinko-canvas, #slot-canvas { min-width: 99vw; }
+  .plinko-controls-row { flex-direction: column; gap: 0.3rem; }
+}
+```
