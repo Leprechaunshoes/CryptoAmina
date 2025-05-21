@@ -1,25 +1,24 @@
 :root {
-  --cosmic-bg: radial-gradient(ellipse at center, #0f2027 0%, #2c5364 100%);
-  --neon-blue: #00f0ff;
-  --neon-pink: #ff00de;
-  --neon-purple: #a259ff;
-  --card-bg: rgba(20, 25, 50, 0.9);
+  --cosmic-blue: #00f0ff;
+  --cosmic-pink: #ff00de;
+  --cosmic-purple: #a259ff;
 }
 
 body {
-  background: var(--cosmic-bg);
+  background: radial-gradient(ellipse at center, #0f2027 0%, #2c5364 100%);
   color: white;
   font-family: 'Orbitron', sans-serif;
+  margin: 0;
+  padding: 20px;
 }
 
-/* Animated Cosmic BG */
 #cosmic-bg {
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
   background: 
     radial-gradient(circle at 20% 30%, #ff00de22 0%, transparent 25%),
-    var(--cosmic-bg);
+    radial-gradient(ellipse at center, #0f2027 0%, #2c5364 100%);
   z-index: -1;
   animation: nebulaPulse 15s infinite alternate;
 }
@@ -29,31 +28,66 @@ body {
   100% { opacity: 1; }
 }
 
-/* Games */
 .game {
-  background: var(--card-bg);
-  border: 2px solid var(--neon-blue);
+  background: rgba(20, 25, 50, 0.9);
+  border: 2px solid var(--cosmic-blue);
   border-radius: 16px;
-  box-shadow: 0 0 30px var(--neon-blue);
   padding: 20px;
   margin: 20px auto;
   max-width: 500px;
+  box-shadow: 0 0 30px var(--cosmic-blue);
 }
 
-/* Cards */
+/* Blackjack */
+.cards {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0;
+  min-height: 120px;
+}
+
 .card {
+  width: 80px;
+  height: 120px;
   background: white;
-  border-radius: 8px;
-  width: 60px;
-  height: 90px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24px;
-  box-shadow: 0 0 15px var(--neon-blue);
-  transition: transform 0.3s;
+  color: black;
+  box-shadow: 0 0 15px var(--cosmic-blue);
 }
 
-.card:hover {
-  transform: translateY(-5px);
+/* Slots */
+#slot-machine {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.reel {
+  width: 80px;
+  height: 80px;
+  background: rgba(0,0,0,0.3);
+  border: 2px solid var(--cosmic-pink);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  box-shadow: 0 0 20px var(--cosmic-pink);
+}
+
+button {
+  background: linear-gradient(45deg, var(--cosmic-blue), var(--cosmic-purple));
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-family: 'Orbitron';
+  cursor: pointer;
+  margin: 10px 5px;
+  box-shadow: 0 0 15px var(--cosmic-blue);
 }
