@@ -1,201 +1,205 @@
-/* Reset & Base */
+/* Cosmic Amina Casino Style */
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Roboto&display=swap');
+
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
 }
 
 body {
-  font-family: 'Trebuchet MS', sans-serif;
-  background: radial-gradient(circle at center, #0c0f38, #05010e);
-  color: #ffffff;
-  text-align: center;
+  margin: 0;
+  background: radial-gradient(circle at center, #0b0c1f, #1c003a);
+  font-family: 'Roboto', sans-serif;
+  color: #eee;
   min-height: 100vh;
-  overflow-x: hidden;
-}
-
-h1, h2 {
-  text-shadow: 0 0 10px #00f0ff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
 }
 
 header {
-  background: linear-gradient(90deg, #0e1a40, #1c2a60);
-  padding: 20px;
-  box-shadow: 0 0 10px #00e0ff;
+  text-align: center;
+  margin-bottom: 1rem;
 }
 
-#connectWallet {
-  background: #00e0ff;
-  border: none;
-  padding: 10px 15px;
-  color: black;
-  font-weight: bold;
-  border-radius: 5px;
-  cursor: pointer;
+h1 {
+  font-family: 'Orbitron', monospace;
+  font-size: 3rem;
+  color: #00ffff;
+  text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
 }
 
-#walletAddress {
-  display: block;
-  margin-top: 10px;
-  font-size: 0.9rem;
-  color: #ccc;
+.tagline {
+  font-style: italic;
+  color: #88ffff;
+  margin-top: -0.5rem;
 }
 
-/* Balance & Toggle */
-#balanceSection {
-  padding: 15px;
-  background: rgba(255, 255, 255, 0.05);
-  margin: 10px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px #00f0ff80;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  flex-wrap: wrap;
-}
-
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 24px;
-}
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0; left: 0;
-  right: 0; bottom: 0;
-  background-color: #ccc;
-  border-radius: 24px;
-  transition: .4s;
-}
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 18px; width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  border-radius: 50%;
-  transition: .4s;
-}
-input:checked + .slider {
-  background-color: #00f0ff;
-}
-input:checked + .slider:before {
-  transform: translateX(26px);
-}
-
-/* Game Tabs */
-#gameTabs {
-  margin: 20px 0;
-}
-#gameTabs button {
-  margin: 5px;
-  padding: 10px 20px;
-  background: #1b1f50;
-  border: none;
-  color: #fff;
-  border-radius: 6px;
-  box-shadow: 0 0 10px #00f0ff80;
-  cursor: pointer;
-}
-#gameTabs button:hover {
-  background: #293272;
-}
-
-/* Game Sections */
-.gameSection {
-  display: none;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.05);
-  margin: 10px auto;
-  max-width: 600px;
+.card {
+  background: rgba(5, 10, 30, 0.9);
   border-radius: 15px;
-  box-shadow: 0 0 15px #00f0ff30;
-}
-.gameSection.active {
-  display: block;
+  box-shadow: 0 0 20px #00ffffaa;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  width: 320px;
+  max-width: 95vw;
 }
 
-/* Slot Machine */
-.slot-machine {
+#walletSection {
+  text-align: center;
+}
+
+.wallet-info,
+.wallet-balance {
+  margin: 0.3rem 0;
+  font-weight: 600;
+}
+
+.toggle-label {
+  display: block;
+  margin-top: 0.8rem;
+  font-weight: 600;
+}
+
+input[type="checkbox"] {
+  margin-left: 0.5rem;
+  transform: scale(1.3);
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+#betSection {
+  text-align: center;
+}
+
+#betSlider {
+  width: 100%;
+  margin-top: 0.3rem;
+}
+
+#betAmountLabel {
+  font-weight: 700;
+  margin-left: 0.5rem;
+  color: #00ffff;
+}
+
+#gamesSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.game-card {
+  text-align: center;
+  border: 1px solid #00ffff66;
+  box-shadow: 0 0 12px #00ffffaa;
+}
+
+.slot-reels {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  margin: 20px 0;
+  gap: 1rem;
+  margin: 1rem 0;
 }
+
 .reel {
+  background: #00001a;
+  border-radius: 10px;
+  width: 60px;
+  height: 60px;
   font-size: 2.5rem;
-  background: #111;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: inset 0 0 10px #00f0ff, 0 0 5px #00f0ff60;
+  line-height: 60px;
+  text-align: center;
+  box-shadow: 0 0 10px #00ffffbb;
+  user-select: none;
 }
 
-/* Blackjack */
-.bj-table {
-  background: #0e1b3b;
-  padding: 15px;
-  margin: 15px auto;
-  border-radius: 10px;
-  box-shadow: inset 0 0 10px #0ff;
-}
-.bj-controls button {
-  margin: 5px;
-  padding: 10px 15px;
-  background: #00e0ff;
-  border: none;
-  color: black;
-  font-weight: bold;
-  border-radius: 5px;
+.btn-primary, .btn-secondary {
   cursor: pointer;
+  border: none;
+  border-radius: 12px;
+  padding: 0.5rem 1.2rem;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: all 0.2s ease-in-out;
 }
 
-/* Plinko */
+.btn-primary {
+  background: #00ffff;
+  color: #000c1a;
+  box-shadow: 0 0 10px #00ffffaa;
+}
+
+.btn-primary:hover {
+  background: #00cccc;
+  box-shadow: 0 0 14px #00ccccff;
+}
+
+.btn-secondary {
+  background: #333344;
+  color: #eee;
+}
+
+.btn-secondary:hover {
+  background: #555566;
+}
+
+.result-text {
+  margin-top: 0.8rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #88ffff;
+  min-height: 24px;
+  user-select: none;
+}
+
+.blackjack-area {
+  margin: 1rem 0;
+  font-size: 1.2rem;
+}
+
+.bj-buttons > button {
+  margin: 0 0.5rem;
+}
+
 #plinkoBoard {
-  width: 100%;
-  height: 300px;
-  background: #1a1a3d;
-  margin: 20px auto;
-  border-radius: 10px;
   position: relative;
-  box-shadow: inset 0 0 15px #0ff;
+  width: 300px;
+  height: 200px;
+  margin: 0 auto 0.5rem;
+  background: radial-gradient(circle at center, #001022, #000017);
+  border-radius: 15px;
+  box-shadow: inset 0 0 20px #00ffff44;
+  overflow: hidden;
 }
 
-/* Bet Sliders */
-input[type="range"] {
-  width: 70%;
-  margin: 10px 0;
-}
-span[id$="BetLabel"] {
-  display: block;
-  margin-bottom: 10px;
+#plinkoPegContainer {
+  position: relative;
+  width: 100%;
+  height: 150px;
+  margin-top: 10px;
 }
 
-/* Footer */
+#plinkoBall {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  font-size: 2rem;
+  color: #00ffff;
+  user-select: none;
+  transition: top 1s ease-in, left 1s ease-in;
+}
+
+.hidden {
+  display: none !important;
+}
+
 footer {
-  padding: 20px;
-  background: #0e1a40;
-}
-footer button {
-  margin: 5px;
-  padding: 10px 15px;
-  background: #00e0ff;
-  border: none;
-  color: black;
-  font-weight: bold;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-/* Audio */
-audio {
-  display: none;
+  margin-top: auto;
+  font-size: 0.8rem;
+  color: #005555cc;
+  padding: 1rem 0;
+  text-align: center;
 }
