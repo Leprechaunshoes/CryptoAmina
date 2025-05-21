@@ -1,86 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Amina Casino - Cosmic Crypto Fun</title>
-<link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Amina Casino 🌌</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css?family=Orbitron:700&display=swap" rel="stylesheet">
 </head>
 <body>
-
-<header>
-  <h1>Amina Casino</h1>
-  <p class="tagline">🎰 Cosmic Crypto Games powered by Amina Coin 🌌</p>
-</header>
-
-<section id="walletSection" class="card">
-  <button id="connectWalletBtn" class="btn-primary">Connect Pera Wallet</button>
-  <div id="walletAddress" class="wallet-info">Wallet: <span id="walletAddrText">Not connected</span></div>
-  <div class="wallet-balance">Balance: <span id="balanceDisplay">-</span> Amina</div>
-  <label class="toggle-label">
-    Play Mode:
-    <input type="checkbox" id="playModeToggle" />
-    <span>House Coins (HC) / Amina Coin</span>
-  </label>
-</section>
-
-<section id="betSection" class="card">
-  <label for="betSlider">Bet Amount:</label>
-  <input type="range" id="betSlider" min="0.01" max="1" step="0.01" value="0.25" />
-  <span id="betAmountLabel">0.25</span> Amina
-</section>
-
-<section id="gamesSection">
-
-  <article id="slotMachine" class="game-card card">
-    <h2>🎰 Slot Machine</h2>
-    <div class="slot-reels">
-      <div class="reel" id="slotReel1">🍒</div>
-      <div class="reel" id="slotReel2">🍋</div>
-      <div class="reel" id="slotReel3">🔔</div>
+  <div id="cosmic-bg"></div>
+  <header>
+    <div class="cosmic-logo">
+      <span class="star-glow">✨</span>
+      <span class="casino-title">Amina Casino</span>
+      <span class="star-glow">🌌</span>
     </div>
-    <button id="slotSpinBtn" class="btn-primary">Spin</button>
-    <div id="slotResult" class="result-text"></div>
-  </article>
-
-  <article id="blackjackGame" class="game-card card">
-    <h2>🃏 Blackjack</h2>
-    <div class="blackjack-area">
-      <div><strong>Dealer:</strong> <span id="dealerCards"></span></div>
-      <div><strong>Player:</strong> <span id="playerCards"></span></div>
-      <div><strong>Player Total:</strong> <span id="playerTotal">0</span></div>
+    <div class="wallet-bar sticky-bar">
+      <span class="currency-label">House Coins:</span>
+      <span id="house-balance">1000.0</span>
     </div>
-    <div class="bj-buttons">
-      <button id="bjHitBtn" class="btn-primary">Hit</button>
-      <button id="bjStandBtn" class="btn-primary">Stand</button>
-      <button id="bjNewGameBtn" class="btn-secondary">New Game</button>
+    <div class="ticker" id="winners-ticker"></div>
+  </header>
+
+  <main>
+    <!-- Onboarding Modal -->
+    <div id="onboarding-modal" class="modal-bg">
+      <div class="modal">
+        <h2>Welcome to <span class="neon">Amina Casino</span>!</h2>
+        <p>
+          Experience the ultimate cosmic casino with Blackjack, Slots, and a physics-powered Plinko!<br>
+          <strong>Win coins, enjoy cosmic effects, and support us with Algorand donations.</strong>
+        </p>
+        <ul>
+          <li><b>Blackjack:</b> Classic 21, animated cards.</li>
+          <li><b>Slots:</b> Spin for cosmic combos!</li>
+          <li><b>Plinko:</b> Drop balls, watch cosmic physics, win big!</li>
+        </ul>
+        <button onclick="document.getElementById('onboarding-modal').style.display='none'">Let's Play!</button>
+      </div>
     </div>
-    <div id="bjResult" class="result-text"></div>
-  </article>
 
-  <article id="plinkoGame" class="game-card card">
-    <h2>🎯 Plinko</h2>
-    <div id="plinkoBoard">
-      <!-- simple plinko visual will be here -->
-      <div id="plinkoPegContainer"></div>
-      <div id="plinkoBall" class="hidden">⬤</div>
-    </div>
-    <button id="plinkoDropBtn" class="btn-primary">Drop Ball</button>
-    <div id="plinkoResult" class="result-text"></div>
-  </article>
+    <!-- Donate Area -->
+    <section class="donate-section">
+      <h2>💖 Support Amina Casino!</h2>
+      <div class="donate-box">
+        <img src="https://cryptologos.cc/logos/algorand-algo-logo.png?v=026" alt="Algorand" class="algo-logo"/>
+        <span>Donate Algorand to:</span>
+        <span class="algo-address">6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI</span>
+        <button class="copy-btn" onclick="navigator.clipboard.writeText('6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy Address',1500)">Copy Address</button>
+      </div>
+    </section>
 
-</section>
+    <!-- Blackjack -->
+    <section class="game" id="blackjack-section">
+      <h2>🃏 Blackjack</h2>
+      <div id="blackjack-table">
+        <div>
+          <h3>Dealer</h3>
+          <div id="dealer-hand" class="card-hand"></div>
+        </div>
+        <div>
+          <h3>You</h3>
+          <div id="player-hand" class="card-hand"></div>
+        </div>
+      </div>
+      <div class="bet-controls">
+        <label for="bj-bet">Bet:</label>
+        <input type="range" min="1" max="100" step="1" id="bj-bet" value="10"/>
+        <span id="bj-bet-display">10</span>
+      </div>
+      <div class="game-controls">
+        <button id="bj-deal">Deal</button>
+        <button id="bj-hit" disabled>Hit</button>
+        <button id="bj-stand" disabled>Stand</button>
+      </div>
+      <p id="bj-result"></p>
+    </section>
 
-<section id="donationSection" class="card">
-  <h3>Support the House</h3>
-  <button id="donateBtn" class="btn-primary">Donate Amina Coin</button>
-  <div>Address: <code>6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI</code></div>
-</section>
+    <!-- Slot Machine -->
+    <section class="game" id="slot-section">
+      <h2>🎰 Slot Machine</h2>
+      <div id="slot-machine">
+        <canvas id="slot-canvas" width="270" height="120"></canvas>
+        <div id="slot-paylines"></div>
+      </div>
+      <div class="bet-controls">
+        <label for="slot-bet">Bet:</label>
+        <input type="range" min="1" max="100" step="1" id="slot-bet" value="10"/>
+        <span id="slot-bet-display">10</span>
+      </div>
+      <div class="game-controls">
+        <button id="slot-spin">Spin</button>
+      </div>
+      <p id="slot-result"></p>
+    </section>
 
-<footer>
-  <small>© 2025 Amina Casino - All cosmic rights reserved 🌠</small>
-</footer>
+    <!-- Plinko -->
+    <section class="game" id="plinko-section">
+      <h2>💥 Cosmic Plinko</h2>
+      <div class="plinko-controls-row">
+        <div>
+          <label for="plinko-balls">Balls:</label>
+          <input type="number" id="plinko-balls" min="1" max="10" value="1" style="width:50px;"/>
+        </div>
+        <div class="bet-controls">
+          <label for="plinko-bet">Bet:</label>
+          <input type="range" min="1" max="100" step="1" id="plinko-bet" value="10"/>
+          <span id="plinko-bet-display">10</span>
+        </div>
+        <button id="plinko-drop">Drop Ball(s)</button>
+      </div>
+      <div id="plinko-board-container">
+        <canvas id="plinko-canvas" width="340" height="340"></canvas>
+      </div>
+      <p id="plinko-result"></p>
+    </section>
+  </main>
 
-<script src="index.js"></script>
+  <footer>
+    <p class="cosmic-footer">🚀 May the cosmic luck be with you! 🚀</p>
+  </footer>
+
+  <audio id="sound-win" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa4c24.mp3"></audio>
+  <audio id="sound-lose" src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b9b1e3b.mp3"></audio>
+  <audio id="sound-slot" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa4c24.mp3"></audio>
+  <audio id="sound-deal" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa4c24.mp3"></audio>
+  <audio id="sound-plinko" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa4c24.mp3"></audio>
+
+  <script src="index.js"></script>
 </body>
 </html>
