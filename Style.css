@@ -1,4 +1,4 @@
-
+```css
 :root {
   --cosmic-bg: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
   --neon-blue: #00f0ff;
@@ -237,3 +237,5 @@ button {
 }
 button:active {
   transform: scale(0.98);
+}
+button:disabled {
