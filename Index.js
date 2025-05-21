@@ -1,231 +1,448 @@
-// --- Amina Casino v1.0 ---
-// Cosmic Crypto Casino powered by Amina Coin
+// --- State ---
+let houseBalance = 1000.0;
+function updateBalance() {
+  document.getElementById('house-balance').textContent = houseBalance.toFixed(1);
+}
+function getBet(id) {
+  return parseInt(document.getElementById(id).value);
+}
+function setBetDisplay(id, value) {
+  document.getElementById(id + '-display').textContent = value;
+}
+['bj', 'slot', 'plinko'].forEach(prefix => {
+  let range = document.getElementById(`${prefix}-bet`);
+  range.addEventListener('input', () => setBetDisplay(`${prefix}-bet`, range.value));
+  setBetDisplay(`${prefix}-bet`, range.value);
+});
+updateBalance();
 
-// --- Global Variables ---
-let walletConnected = false;
-let walletAddress = null;
-let balance = 100; // Placeholder balance in Amina Coin or HC based on mode
-let playModeHC = false; // false = Amina, true = House Coins
-let betAmount = 0.25;
-
-// SLOT MACHINE Data
-const slotSymbols = ['🍒', '🍋', '🔔', '🍉', '⭐', '💎', '7️⃣'];
-
-// BLACKJACK Cards
-const suits = ['♠', '♥', '♦', '♣'];
-const ranks = [
-  { rank: 'A', value: 11 },
-  { rank: '2', value: 2 },
-  { rank: '3', value: 3 },
-  { rank: '4', value: 4 },
-  { rank: '5', value: 5 },
-  { rank: '6', value: 6 },
-  { rank: '7', value: 7 },
-  { rank: '8', value: 8 },
-  { rank: '9', value: 9 },
-  { rank: '10', value: 10 },
-  { rank: 'J', value: 10 },
-  { rank: 'Q', value: 10 },
-  { rank: 'K', value: 10 },
-];
-
-// Blackjack State
-let deck = [];
-let playerHand = [];
-let dealerHand = [];
-let bjInProgress = false;
-
-// PLINKO Settings
-const plinkoSlots = [0, 0.25, 0.5, 0.75, 1]; // payout multipliers
-const plinkoPositions = 5;
-let plinkoBallDropped = false;
-
-// --- DOM Elements ---
-const connectWalletBtn = document.getElementById('connectWalletBtn');
-const walletAddrText = document.getElementById('walletAddrText');
-const balanceDisplay = document.getElementById('balanceDisplay');
-const playModeToggle = document.getElementById('playModeToggle');
-const betSlider = document.getElementById('betSlider');
-const betAmountLabel = document.getElementById('betAmountLabel');
-
-// Slot Machine Elements
-const slotReels = [
-  document.getElementById('slotReel1'),
-  document.getElementById('slotReel2'),
-  document.getElementById('slotReel3'),
-];
-const slotSpinBtn = document.getElementById('slotSpinBtn');
-const slotResult = document.getElementById('slotResult');
-
-// Blackjack Elements
-const dealerCardsSpan = document.getElementById('dealerCards');
-const playerCardsSpan = document.getElementById('playerCards');
-const playerTotalSpan = document.getElementById('playerTotal');
-const bjHitBtn = document.getElementById('bjHitBtn');
-const bjStandBtn = document.getElementById('bjStandBtn');
-const bjNewGameBtn = document.getElementById('bjNewGameBtn');
-const bjResultDiv = document.getElementById('bjResult');
-
-// Plinko Elements
-const plinkoPegContainer = document.getElementById('plinkoPegContainer');
-const plinkoBall = document.getElementById('plinkoBall');
-const plinkoDropBtn = document.getElementById('plinkoDropBtn');
-const plinkoResult = document.getElementById('plinkoResult');
-
-// --- Initialization ---
-function init() {
-  updateBalanceDisplay();
-  updateBetLabel();
-  setupEventListeners();
-  buildPlinkoPegs();
-  resetBlackjack();
+// --- Sounds ---
+function playSound(id) {
+  try {
+    let el = document.getElementById(id);
+    el.currentTime = 0;
+    el.play();
+  } catch (e) {}
 }
 
-function setupEventListeners() {
-  connectWalletBtn.addEventListener('click', connectWallet);
-  playModeToggle.addEventListener('change', togglePlayMode);
-  betSlider.addEventListener('input', onBetSliderChange);
-  slotSpinBtn.addEventListener('click', spinSlotMachine);
-  bjHitBtn.addEventListener('click', blackjackHit);
-  bjStandBtn.addEventListener('click', blackjackStand);
-  bjNewGameBtn.addEventListener('click', resetBlackjack);
-  plinkoDropBtn.addEventListener('click', plinkoDropBall);
-  donateBtn.addEventListener('click', donateToHouse);
+// --- Winners Ticker ---
+const fakeNames = ["Starman","Luna","Nebula","Astro","Comet","Orion","Vega","Nova","Cosmo","Galaxia"];
+const fakeGames = ["Plinko","Blackjack","Slots"];
+function randomTickerMsg() {
+  let name = fakeNames[Math.floor(Math.random()*fakeNames.length)];
+  let game = fakeGames[Math.floor(Math.random()*fakeGames.length)];
+  let win = (Math.random()*400+50).toFixed(1);
+  return `🌟 ${name} won ${win} coins on ${game}!`;
+}
+function updateTicker() {
+  let ticker = document.getElementById('winners-ticker');
+  let msg = randomTickerMsg();
+  ticker.innerHTML = `<span>${msg}</span>`;
+}
+setInterval(updateTicker, 6500);
+updateTicker();
+
+// --- Blackjack ---
+const suits = ['♠','♥','♦','♣'];
+const ranks = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+function drawCard() {
+  let suit = suits[Math.floor(Math.random()*4)];
+  let rank = ranks[Math.floor(Math.random()*13)];
+  return {suit, rank};
+}
+function handValue(hand) {
+  let val = 0, aces = 0;
+  hand.forEach(card => {
+    if (card.rank === 'A') { val += 11; aces++; }
+    else if (['K','Q','J'].includes(card.rank)) val += 10;
+    else val += parseInt(card.rank);
+  });
+  while (val > 21 && aces > 0) { val -= 10; aces--; }
+  return val;
+}
+function renderHand(div, hand, hideFirst=false) {
+  div.innerHTML = '';
+  hand.forEach((card, i) => {
+    let c = document.createElement('div');
+    c.className = 'card';
+    if (['♥','♦'].includes(card.suit)) c.classList.add('red');
+    c.textContent = (hideFirst && i === 0) ? '🂠' : card.rank + card.suit;
+    div.appendChild(c);
+  });
 }
 
-// --- Wallet Connect Placeholder ---
-function connectWallet() {
-  // TODO: Implement Pera Wallet Connect here
-  walletConnected = true;
-  walletAddress = 'ALGO_WALLET_XXXX1234';
-  updateWalletDisplay();
-  alert('Wallet connected: ' + walletAddress);
-}
-
-function updateWalletDisplay() {
-  walletAddrText.textContent = walletAddress || 'Not connected';
-}
-
-// --- Balance Display ---
-function updateBalanceDisplay() {
-  let display = playModeHC ? `${balance.toFixed(2)} HC` : `${balance.toFixed(2)} Amina`;
-  balanceDisplay.textContent = display;
-}
-
-// --- Play Mode Toggle ---
-function togglePlayMode() {
-  playModeHC = playModeToggle.checked;
-  updateBalanceDisplay();
-  updateBetLabel();
-}
-
-// --- Bet Slider Change ---
-function onBetSliderChange() {
-  betAmount = parseFloat(betSlider.value);
-  updateBetLabel();
-}
-
-function updateBetLabel() {
-  betAmountLabel.textContent = betAmount.toFixed(2);
-}
-
-// --- SLOT MACHINE Logic ---
-function spinSlotMachine() {
-  if (!checkBalance(betAmount)) return;
-  slotSpinBtn.disabled = true;
-  slotResult.textContent = 'Spinning... 🎰';
-
-  let spins = [];
-  for (let i = 0; i < 3; i++) {
-    spins.push(slotSymbols[Math.floor(Math.random() * slotSymbols.length)]);
-  }
-
-  // Animate reels (simplified)
-  let frame = 0;
-  const maxFrames = 15;
-  const animationInterval = setInterval(() => {
-    slotReels.forEach((reel, idx) => {
-      reel.textContent = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
-    });
-    frame++;
-    if (frame >= maxFrames) {
-      clearInterval(animationInterval);
-      // Show final spin results
-      for (let i = 0; i < 3; i++) {
-        slotReels[i].textContent = spins[i];
-      }
-      evaluateSlotResult(spins);
-      slotSpinBtn.disabled = false;
-    }
-  }, 80);
-}
-
-function evaluateSlotResult(spins) {
-  // Simple payout:
-  // 3 of the same symbol: 5x bet
-  // 2 of the same symbol: 2x bet
-  // else no payout
-
-  const counts = {};
-  spins.forEach(s => counts[s] = (counts[s] || 0) + 1);
-
-  let payout = 0;
-  if (Object.values(counts).includes(3)) {
-    payout = betAmount * 5;
-    slotResult.textContent = `JACKPOT! 3 ${spins[0]}! You win ${payout.toFixed(2)} Amina 🎉`;
-  } else if (Object.values(counts).includes(2)) {
-    payout = betAmount * 2;
-    slotResult.textContent = `Nice! 2 matching symbols! You win ${payout.toFixed(2)} Amina 😊`;
-  } else {
-    payout = 0;
-    slotResult.textContent = `No match. Better luck next time!`;
-  }
-
-  updateBalance(-betAmount + payout);
-}
-
-// --- BALANCE CHECK ---
-function checkBalance(amount) {
-  if (amount > balance) {
-    alert('Insufficient balance!');
-    return false;
-  }
-  return true;
-}
-
-function updateBalance(change) {
-  balance += change;
-  if (balance < 0) balance = 0;
-  updateBalanceDisplay();
-}
-
-// --- BLACKJACK Logic ---
-
-function createDeck() {
-  const deck = [];
-  for (const suit of suits) {
-    for (const rankObj of ranks) {
-      deck.push({ suit, rank: rankObj.rank, value: rankObj.value });
-    }
-  }
-  return deck;
-}
-
-function shuffleDeck(deck) {
-  for (let i = deck.length -1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i+1));
-    [deck[i], deck[j]] = [deck[j], deck[i]];
-  }
-}
-
+let bjPlayer = [], bjDealer = [], bjBet = 0;
 function resetBlackjack() {
-  if (!checkBalance(betAmount)) return;
-  bjInProgress = true;
-  deck = createDeck();
-  shuffleDeck(deck);
-  playerHand = [];
-  dealerHand = [];
+  bjPlayer = [drawCard(), drawCard()];
+  bjDealer = [drawCard(), drawCard()];
+  renderHand(document.getElementById('player-hand'), bjPlayer);
+  renderHand(document.getElementById('dealer-hand'), bjDealer, true);
+  document.getElementById('bj-result').textContent = '';
+  document.getElementById('bj-hit').disabled = false;
+  document.getElementById('bj-stand').disabled = false;
+}
+document.getElementById('bj-deal').onclick = function() {
+  bjBet = getBet('bj-bet');
+  if (bjBet > houseBalance) {
+    document.getElementById('bj-result').textContent = "Not enough balance!";
+    playSound('sound-lose');
+    return;
+  }
+  houseBalance -= bjBet;
+  updateBalance();
+  resetBlackjack();
+  playSound('sound-deal');
+};
+document.getElementById('bj-hit').onclick = function() {
+  bjPlayer.push(drawCard());
+  renderHand(document.getElementById('player-hand'), bjPlayer);
+  if (handValue(bjPlayer) > 21) {
+    endBlackjack("Bust! You lose.");
+    playSound('sound-lose');
+  }
+};
+document.getElementById('bj-stand').onclick = function() {
+  // Dealer's turn: hit until 17+
+  while (handValue(bjDealer) < 17) bjDealer.push(drawCard());
+  renderHand(document.getElementById('dealer-hand'), bjDealer);
+  let playerVal = handValue(bjPlayer), dealerVal = handValue(bjDealer);
+  if (dealerVal > 21 || playerVal > dealerVal) {
+    endBlackjack("You win!", true);
+    playSound('sound-win');
+  } else if (playerVal === dealerVal) {
+    endBlackjack("Push (tie).", null, true);
+  } else {
+    endBlackjack("Dealer wins.");
+    playSound('sound-lose');
+  }
+};
+function endBlackjack(msg, win=false, push=false) {
+  document.getElementById('bj-hit').disabled = true;
+  document.getElementById('bj-stand').disabled = true;
+  document.getElementById('bj-result').textContent = msg;
+  if (win) {
+    houseBalance += bjBet * 2;
+    updateBalance();
+  }
+  if (push) {
+    houseBalance += bjBet;
+    updateBalance();
+  }
+}
 
-  // Deal initial cards
-  playerHand.push(deck.pop());
-  dealerHand
+// --- Slot Machine (Canvas, Animated) ---
+const slotSymbols = ['🍒','🍋','🔔','💎','7️⃣','🍀','🌌','👽'];
+const slotRows = 3, slotCols = 3;
+const slotW = 70, slotH = 40;
+const slotCanvas = document.getElementById('slot-canvas');
+const slotCtx = slotCanvas.getContext('2d');
+function drawSlotGrid(grid, highlightLines=[]) {
+  slotCtx.clearRect(0,0,slotCanvas.width,slotCanvas.height);
+  for (let r=0; r<slotRows; r++) {
+    for (let c=0; c<slotCols; c++) {
+      let x = c*slotW+15, y = r*slotH+15;
+      slotCtx.save();
+      // Highlight winning lines
+      let isHighlight = highlightLines.some(line => line.includes(`${r},${c}`));
+      slotCtx.shadowColor = isHighlight ? "#ffe600" : "#00f0ff";
+      slotCtx.shadowBlur = isHighlight ? 30 : 12;
+      slotCtx.fillStyle = isHighlight ? "#ffe60033" : "#222";
+      slotCtx.strokeStyle = "#00f0ff";
+      slotCtx.lineWidth = 3;
+      slotCtx.beginPath();
+      slotCtx.roundRect(x, y, slotW-18, slotH-18, 12);
+      slotCtx.fill();
+      slotCtx.stroke();
+      slotCtx.font = "2rem Arial";
+      slotCtx.textAlign = "center";
+      slotCtx.textBaseline = "middle";
+      slotCtx.fillStyle = isHighlight ? "#fff" : "#fff";
+      slotCtx.shadowBlur = 0;
+      slotCtx.fillText(grid[r][c], x+(slotW-18)/2, y+(slotH-18)/2+2);
+      slotCtx.restore();
+    }
+  }
+}
+function randomSlotGrid() {
+  let grid = [];
+  for (let r=0; r<slotRows; r++) {
+    grid[r] = [];
+    for (let c=0; c<slotCols; c++) {
+      grid[r][c] = slotSymbols[Math.floor(Math.random()*slotSymbols.length)];
+    }
+  }
+  return grid;
+}
+function slotWinLines(grid) {
+  let lines = [], highlight = [];
+  // Rows
+  for (let r=0; r<slotRows; r++) {
+    if (grid[r][0] === grid[r][1] && grid[r][1] === grid[r][2]) {
+      lines.push(`Row ${r+1}`);
+      highlight.push([`${r},0`,`${r},1`,`${r},2`]);
+    }
+  }
+  // Diagonals
+  if (grid[0][0] === grid[1][1] && grid[1][1] === grid[2][2]) {
+    lines.push("↘ Diagonal");
+    highlight.push([`0,0`,`1,1`,`2,2`]);
+  }
+  if (grid[2][0] === grid[1][1] && grid[1][1] === grid[0][2]) {
+    lines.push("↗ Diagonal");
+    highlight.push([`2,0`,`1,1`,`0,2`]);
+  }
+  // Center line bonus
+  if (grid[1][0] === grid[1][1] && grid[1][1] === grid[1][2]) {
+    if (!lines.includes("Row 2")) lines.push("Row 2");
+    highlight.push([`1,0`,`1,1`,`1,2`]);
+  }
+  return {lines, highlight};
+}
+function slotPayout(grid, bet) {
+  let payout = 0;
+  let {lines} = slotWinLines(grid);
+  lines.forEach(line => {
+    if (line === "Row 2" || line.includes("Diagonal")) payout += bet * 10;
+    else payout += bet * 5;
+  });
+  return payout;
+}
+let slotGrid = randomSlotGrid();
+drawSlotGrid(slotGrid);
+
+document.getElementById('slot-spin').onclick = function() {
+  let bet = getBet('slot-bet');
+  if (bet > houseBalance) {
+    document.getElementById('slot-result').textContent = "Not enough balance!";
+    playSound('sound-lose');
+    return;
+  }
+  houseBalance -= bet;
+  updateBalance();
+  playSound('sound-slot');
+  // Animate spin
+  let spins = 24, grid;
+  let anim = setInterval(() => {
+    grid = randomSlotGrid();
+    drawSlotGrid(grid);
+    spins--;
+    if (spins === 0) {
+      clearInterval(anim);
+      slotGrid = grid;
+      let {lines, highlight} = slotWinLines(slotGrid);
+      drawSlotGrid(slotGrid, highlight);
+      let payout = slotPayout(slotGrid, bet);
+      if (payout > 0) {
+        document.getElementById('slot-result').textContent = `Win! +${payout} (${lines.join(', ')})`;
+        houseBalance += payout;
+        updateBalance();
+        playSound('sound-win');
+      } else {
+        document.getElementById('slot-result').textContent = "No win. Try again!";
+        playSound('sound-lose');
+      }
+    }
+  }, 50);
+};
+
+// --- Cosmic Plinko (Canvas, Physics) ---
+const plinkoCanvas = document.getElementById('plinko-canvas');
+const plinkoCtx = plinkoCanvas.getContext('2d');
+const plinkoRows = 12, plinkoSlots = 13;
+const plinkoPayouts = [0,0.5,1,2,4,6,10,6,4,2,1,0.5,0];
+const pinRadius = 7, slotHeight = 24;
+const plinkoW = plinkoCanvas.width, plinkoH = plinkoCanvas.height;
+const boardLeft = 20, boardTop = 20, boardW = plinkoW-40, boardH = plinkoH-40-slotHeight;
+function drawPlinkoBoard(balls=[], highlightSlots=[]) {
+  plinkoCtx.clearRect(0,0,plinkoW,plinkoH);
+  // Draw pins
+  for (let r=0; r<plinkoRows; r++) {
+    let y = boardTop + r * (boardH/(plinkoRows-1));
+    for (let c=0; c<=r; c++) {
+      let x = boardLeft + (boardW/(plinkoRows))*(c+((plinkoRows-r)/2));
+      plinkoCtx.save();
+      plinkoCtx.beginPath();
+      plinkoCtx.arc(x, y, pinRadius, 0, 2*Math.PI);
+      plinkoCtx.shadowColor = "#ffe600";
+      plinkoCtx.shadowBlur = 16;
+      plinkoCtx.fillStyle = "#ffe600";
+      plinkoCtx.fill();
+      plinkoCtx.restore();
+    }
+  }
+  // Draw slots
+  for (let s=0; s<plinkoSlots; s++) {
+    let x = boardLeft + (boardW/(plinkoSlots-1))*s;
+    let y = boardTop + boardH + slotHeight/2;
+    plinkoCtx.save();
+    plinkoCtx.beginPath();
+    plinkoCtx.arc(x, y, pinRadius+2, 0, Math.PI, true);
+    plinkoCtx.lineTo(x+pinRadius+2, y+slotHeight/2);
+    plinkoCtx.lineTo(x-pinRadius-2, y+slotHeight/2);
+    plinkoCtx.closePath();
+    plinkoCtx.shadowColor = highlightSlots.includes(s) ? "#39ff14" : "#00f0ff";
+    plinkoCtx.shadowBlur = highlightSlots.includes(s) ? 30 : 10;
+    plinkoCtx.fillStyle = highlightSlots.includes(s) ? "#39ff1444" : "#00f0ff33";
+    plinkoCtx.fill();
+    plinkoCtx.strokeStyle = "#00f0ff";
+    plinkoCtx.lineWidth = 2;
+    plinkoCtx.stroke();
+    plinkoCtx.restore();
+
+    // Payout label
+    plinkoCtx.save();
+    plinkoCtx.font = "1.1rem Arial";
+    plinkoCtx.textAlign = "center";
+    plinkoCtx.textBaseline = "top";
+    plinkoCtx.fillStyle = highlightSlots.includes(s) ? "#39ff14" : "#fff";
+    if (plinkoPayouts[s] > 0)
+      plinkoCtx.fillText("x"+plinkoPayouts[s], x, y+8);
+    plinkoCtx.restore();
+  }
+  // Draw balls
+  balls.forEach(ball => {
+    plinkoCtx.save();
+    plinkoCtx.beginPath();
+    plinkoCtx.arc(ball.x, ball.y, 10, 0, 2*Math.PI);
+    let grad = plinkoCtx.createRadialGradient(ball.x, ball.y, 2, ball.x, ball.y, 10);
+    grad.addColorStop(0, "#fff");
+    grad.addColorStop(0.3, "#ff00de");
+    grad.addColorStop(1, "#00f0ff");
+    plinkoCtx.fillStyle = grad;
+    plinkoCtx.shadowColor = "#ff00de";
+    plinkoCtx.shadowBlur = 24;
+    plinkoCtx.fill();
+    // Trail
+    if (ball.trail) {
+      for (let i=0; i<ball.trail.length; i++) {
+        let t = ball.trail[i];
+        plinkoCtx.globalAlpha = 0.15*(1-i/ball.trail.length);
+        plinkoCtx.beginPath();
+        plinkoCtx.arc(t.x, t.y, 8, 0, 2*Math.PI);
+        plinkoCtx.fill();
+      }
+      plinkoCtx.globalAlpha = 1;
+    }
+    plinkoCtx.restore();
+  });
+}
+drawPlinkoBoard();
+
+function plinkoSimulateDrop(numBalls, callback) {
+  // Physics: balls fall, bounce left/right at each row, land in slot
+  let balls = [];
+  let slotXs = [];
+  for (let s=0; s<plinkoSlots; s++) {
+    slotXs[s] = boardLeft + (boardW/(plinkoSlots-1))*s;
+  }
+  for (let i=0; i<numBalls; i++) {
+    let x = slotXs[Math.floor(plinkoSlots/2)];
+    let y = boardTop-10;
+    balls.push({
+      x, y,
+      vx: 0,
+      vy: 0.5+Math.random()*0.3,
+      row: 0,
+      col: Math.floor(plinkoSlots/2),
+      trail: []
+    });
+  }
+  let animFrame = 0;
+  let finished = 0;
+  let slots = Array(plinkoSlots).fill(0);
+
+  function step() {
+    let moving = false;
+    balls.forEach(ball => {
+      if (ball.row < plinkoRows) {
+        // Move down
+        ball.y += ball.vy;
+        // At pin row?
+        let targetY = boardTop + ball.row * (boardH/(plinkoRows-1));
+        if (ball.y >= targetY) {
+          // Bounce left/right
+          let move = Math.random() < 0.5 ? -1 : 1;
+          ball.col += move;
+          if (ball.col < 0) ball.col = 0;
+          if (ball.col > plinkoSlots-1) ball.col = plinkoSlots-1;
+          ball.x = slotXs[ball.col];
+          ball.row++;
+          playSound('sound-plinko');
+        }
+        moving = true;
+      } else if (!ball.landed) {
+        // Land in slot
+        let targetY = boardTop + boardH + slotHeight/2 - 10;
+        if (ball.y < targetY) {
+          ball.y += 2.2;
+          moving = true;
+        } else {
+          ball.y = targetY;
+          ball.landed = true;
+          slots[ball.col]++;
+          finished++;
+        }
+      }
+      // Trail
+      ball.trail.unshift({x: ball.x, y: ball.y});
+      if (ball.trail.length > 12) ball.trail.pop();
+    });
+    drawPlinkoBoard(balls, []);
+    if (moving) {
+      requestAnimationFrame(step);
+    } else {
+      callback(slots);
+    }
+  }
+  step();
+}
+
+document.getElementById('plinko-drop').onclick = function() {
+  let bet = getBet('plinko-bet');
+  let numBalls = parseInt(document.getElementById('plinko-balls').value) || 1;
+  if (numBalls < 1) numBalls = 1;
+  if (numBalls > 10) numBalls = 10;
+  if (bet * numBalls > houseBalance) {
+    document.getElementById('plinko-result').textContent = "Not enough balance!";
+    playSound('sound-lose');
+    return;
+  }
+  houseBalance -= bet * numBalls;
+  updateBalance();
+  document.getElementById('plinko-result').textContent = "";
+  plinkoSimulateDrop(numBalls, function(slots) {
+    // Animate slot highlight and payout
+    let totalWin = 0;
+    let highlight = [];
+    for (let s=0; s<plinkoSlots; s++) {
+      if (slots[s]) {
+        highlight.push(s);
+        totalWin += slots[s] * bet * (plinkoPayouts[s]||0);
+      }
+    }
+    drawPlinkoBoard([], highlight);
+    setTimeout(()=>{
+      if (totalWin > 0) {
+        document.getElementById('plinko-result').textContent = `You win ${totalWin.toFixed(1)}!`;
+        houseBalance += totalWin;
+        updateBalance();
+        playSound('sound-win');
+      } else {
+        document.getElementById('plinko-result').textContent = "No win. Try again!";
+        playSound('sound-lose');
+      }
+      drawPlinkoBoard([], highlight);
+    }, 700);
+  });
+};
+
+// --- Onboarding Modal ---
+if (localStorage.getItem('amina_onboarded') !== '1') {
+  document.getElementById('onboarding-modal').style.display = 'flex';
+  document.getElementById('onboarding-modal').querySelector('button').onclick = function() {
+    document.getElementById('onboarding-modal').style.display = 'none';
+    localStorage.setItem('amina_onboarded','1');
+  };
+} else {
+  document.getElementById('onboarding-modal').style.display = 'none';
+}
