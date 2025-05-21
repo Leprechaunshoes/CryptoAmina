@@ -16,6 +16,32 @@ function setBetDisplay(id, value) {
 });
 updateBalance();
 
+// --- Sounds ---
+function playSound(id) {
+  try {
+    let el = document.getElementById(id);
+    el.currentTime = 0;
+    el.play();
+  } catch (e) {}
+}
+
+// --- Winners Ticker ---
+const fakeNames = ["Starman","Luna","Nebula","Astro","Comet","Orion","Vega","Nova","Cosmo","Galaxia"];
+const fakeGames = ["Plinko","Blackjack","Slots"];
+function randomTickerMsg() {
+  let name = fakeNames[Math.floor(Math.random()*fakeNames.length)];
+  let game = fakeGames[Math.floor(Math.random()*fakeGames.length)];
+  let win = (Math.random()*400+50).toFixed(1);
+  return `🌟 ${name} won ${win} coins on ${game}!`;
+}
+function updateTicker() {
+  let ticker = document.getElementById('winners-ticker');
+  let msg = randomTickerMsg();
+  ticker.innerHTML = `<span>${msg}</span>`;
+}
+setInterval(updateTicker, 6500);
+updateTicker();
+
 // --- Blackjack ---
 const suits = ['♠','♥','♦','♣'];
 const ranks = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
@@ -59,17 +85,20 @@ document.getElementById('bj-deal').onclick = function() {
   bjBet = getBet('bj-bet');
   if (bjBet > houseBalance) {
     document.getElementById('bj-result').textContent = "Not enough balance!";
+    playSound('sound-lose');
     return;
   }
   houseBalance -= bjBet;
   updateBalance();
   resetBlackjack();
+  playSound('sound-deal');
 };
 document.getElementById('bj-hit').onclick = function() {
   bjPlayer.push(drawCard());
   renderHand(document.getElementById('player-hand'), bjPlayer);
   if (handValue(bjPlayer) > 21) {
     endBlackjack("Bust! You lose.");
+    playSound('sound-lose');
   }
 };
 document.getElementById('bj-stand').onclick = function() {
@@ -79,10 +108,12 @@ document.getElementById('bj-stand').onclick = function() {
   let playerVal = handValue(bjPlayer), dealerVal = handValue(bjDealer);
   if (dealerVal > 21 || playerVal > dealerVal) {
     endBlackjack("You win!", true);
+    playSound('sound-win');
   } else if (playerVal === dealerVal) {
     endBlackjack("Push (tie).", null, true);
   } else {
     endBlackjack("Dealer wins.");
+    playSound('sound-lose');
   }
 };
 function endBlackjack(msg, win=false, push=false) {
@@ -99,134 +130,272 @@ function endBlackjack(msg, win=false, push=false) {
   }
 }
 
-// --- Slot Machine ---
+// --- Slot Machine (Canvas, Animated) ---
 const slotSymbols = ['🍒','🍋','🔔','💎','7️⃣','🍀','🌌','👽'];
 const slotRows = 3, slotCols = 3;
-function createSlotReels() {
-  let reelsDiv = document.getElementById('slot-reels');
-  reelsDiv.innerHTML = '';
+const slotW = 70, slotH = 40;
+const slotCanvas = document.getElementById('slot-canvas');
+const slotCtx = slotCanvas.getContext('2d');
+function drawSlotGrid(grid, highlightLines=[]) {
+  slotCtx.clearRect(0,0,slotCanvas.width,slotCanvas.height);
   for (let r=0; r<slotRows; r++) {
-    let row = document.createElement('div');
-    row.className = 'slot-row';
     for (let c=0; c<slotCols; c++) {
-      let reel = document.createElement('div');
-      reel.className = 'slot-reel';
-      reel.id = `slot-${r}-${c}`;
-      row.appendChild(reel);
+      let x = c*slotW+15, y = r*slotH+15;
+      slotCtx.save();
+      // Highlight winning lines
+      let isHighlight = highlightLines.some(line => line.includes(`${r},${c}`));
+      slotCtx.shadowColor = isHighlight ? "#ffe600" : "#00f0ff";
+      slotCtx.shadowBlur = isHighlight ? 30 : 12;
+      slotCtx.fillStyle = isHighlight ? "#ffe60033" : "#222";
+      slotCtx.strokeStyle = "#00f0ff";
+      slotCtx.lineWidth = 3;
+      slotCtx.beginPath();
+      slotCtx.roundRect(x, y, slotW-18, slotH-18, 12);
+      slotCtx.fill();
+      slotCtx.stroke();
+      slotCtx.font = "2rem Arial";
+      slotCtx.textAlign = "center";
+      slotCtx.textBaseline = "middle";
+      slotCtx.fillStyle = isHighlight ? "#fff" : "#fff";
+      slotCtx.shadowBlur = 0;
+      slotCtx.fillText(grid[r][c], x+(slotW-18)/2, y+(slotH-18)/2+2);
+      slotCtx.restore();
     }
-    reelsDiv.appendChild(row);
   }
 }
-function randomSymbol() {
-  return slotSymbols[Math.floor(Math.random()*slotSymbols.length)];
-}
-function spinSlots() {
+function randomSlotGrid() {
   let grid = [];
   for (let r=0; r<slotRows; r++) {
     grid[r] = [];
     for (let c=0; c<slotCols; c++) {
-      grid[r][c] = randomSymbol();
-      let reel = document.getElementById(`slot-${r}-${c}`);
-      reel.innerHTML = `<span class="slot-symbol">${grid[r][c]}</span>`;
+      grid[r][c] = slotSymbols[Math.floor(Math.random()*slotSymbols.length)];
     }
   }
   return grid;
 }
-function checkSlotWins(grid, bet) {
-  let wins = 0, lines = [];
-  // Horizontal lines
+function slotWinLines(grid) {
+  let lines = [], highlight = [];
+  // Rows
   for (let r=0; r<slotRows; r++) {
     if (grid[r][0] === grid[r][1] && grid[r][1] === grid[r][2]) {
-      wins += bet * 5;
       lines.push(`Row ${r+1}`);
+      highlight.push([`${r},0`,`${r},1`,`${r},2`]);
     }
   }
   // Diagonals
   if (grid[0][0] === grid[1][1] && grid[1][1] === grid[2][2]) {
-    wins += bet * 10;
     lines.push("↘ Diagonal");
+    highlight.push([`0,0`,`1,1`,`2,2`]);
   }
   if (grid[2][0] === grid[1][1] && grid[1][1] === grid[0][2]) {
-    wins += bet * 10;
     lines.push("↗ Diagonal");
+    highlight.push([`2,0`,`1,1`,`0,2`]);
   }
   // Center line bonus
   if (grid[1][0] === grid[1][1] && grid[1][1] === grid[1][2]) {
-    wins += bet * 10;
     if (!lines.includes("Row 2")) lines.push("Row 2");
+    highlight.push([`1,0`,`1,1`,`1,2`]);
   }
-  return {wins, lines};
+  return {lines, highlight};
 }
-createSlotReels();
+function slotPayout(grid, bet) {
+  let payout = 0;
+  let {lines} = slotWinLines(grid);
+  lines.forEach(line => {
+    if (line === "Row 2" || line.includes("Diagonal")) payout += bet * 10;
+    else payout += bet * 5;
+  });
+  return payout;
+}
+let slotGrid = randomSlotGrid();
+drawSlotGrid(slotGrid);
+
 document.getElementById('slot-spin').onclick = function() {
   let bet = getBet('slot-bet');
   if (bet > houseBalance) {
     document.getElementById('slot-result').textContent = "Not enough balance!";
+    playSound('sound-lose');
     return;
   }
   houseBalance -= bet;
   updateBalance();
-  let spins = 18, grid;
+  playSound('sound-slot');
+  // Animate spin
+  let spins = 24, grid;
   let anim = setInterval(() => {
-    grid = spinSlots();
+    grid = randomSlotGrid();
+    drawSlotGrid(grid);
     spins--;
     if (spins === 0) {
       clearInterval(anim);
-      let {wins, lines} = checkSlotWins(grid, bet);
-      if (wins > 0) {
-        document.getElementById('slot-result').textContent = `Win! +${wins} (${lines.join(', ')})`;
-        houseBalance += wins;
+      slotGrid = grid;
+      let {lines, highlight} = slotWinLines(slotGrid);
+      drawSlotGrid(slotGrid, highlight);
+      let payout = slotPayout(slotGrid, bet);
+      if (payout > 0) {
+        document.getElementById('slot-result').textContent = `Win! +${payout} (${lines.join(', ')})`;
+        houseBalance += payout;
         updateBalance();
+        playSound('sound-win');
       } else {
         document.getElementById('slot-result').textContent = "No win. Try again!";
+        playSound('sound-lose');
       }
     }
-  }, 60);
+  }, 50);
 };
 
-// --- Plinko ---
+// --- Cosmic Plinko (Canvas, Physics) ---
+const plinkoCanvas = document.getElementById('plinko-canvas');
+const plinkoCtx = plinkoCanvas.getContext('2d');
 const plinkoRows = 12, plinkoSlots = 13;
 const plinkoPayouts = [0,0.5,1,2,4,6,10,6,4,2,1,0.5,0];
+const pinRadius = 7, slotHeight = 24;
+const plinkoW = plinkoCanvas.width, plinkoH = plinkoCanvas.height;
+const boardLeft = 20, boardTop = 20, boardW = plinkoW-40, boardH = plinkoH-40-slotHeight;
+function drawPlinkoBoard(balls=[], highlightSlots=[]) {
+  plinkoCtx.clearRect(0,0,plinkoW,plinkoH);
+  // Draw pins
+  for (let r=0; r<plinkoRows; r++) {
+    let y = boardTop + r * (boardH/(plinkoRows-1));
+    for (let c=0; c<=r; c++) {
+      let x = boardLeft + (boardW/(plinkoRows))*(c+((plinkoRows-r)/2));
+      plinkoCtx.save();
+      plinkoCtx.beginPath();
+      plinkoCtx.arc(x, y, pinRadius, 0, 2*Math.PI);
+      plinkoCtx.shadowColor = "#ffe600";
+      plinkoCtx.shadowBlur = 16;
+      plinkoCtx.fillStyle = "#ffe600";
+      plinkoCtx.fill();
+      plinkoCtx.restore();
+    }
+  }
+  // Draw slots
+  for (let s=0; s<plinkoSlots; s++) {
+    let x = boardLeft + (boardW/(plinkoSlots-1))*s;
+    let y = boardTop + boardH + slotHeight/2;
+    plinkoCtx.save();
+    plinkoCtx.beginPath();
+    plinkoCtx.arc(x, y, pinRadius+2, 0, Math.PI, true);
+    plinkoCtx.lineTo(x+pinRadius+2, y+slotHeight/2);
+    plinkoCtx.lineTo(x-pinRadius-2, y+slotHeight/2);
+    plinkoCtx.closePath();
+    plinkoCtx.shadowColor = highlightSlots.includes(s) ? "#39ff14" : "#00f0ff";
+    plinkoCtx.shadowBlur = highlightSlots.includes(s) ? 30 : 10;
+    plinkoCtx.fillStyle = highlightSlots.includes(s) ? "#39ff1444" : "#00f0ff33";
+    plinkoCtx.fill();
+    plinkoCtx.strokeStyle = "#00f0ff";
+    plinkoCtx.lineWidth = 2;
+    plinkoCtx.stroke();
+    plinkoCtx.restore();
 
-function buildPlinkoBoard(ballPositions=[]) {
-  const board = document.getElementById('plinko-board');
-  board.innerHTML = '';
-  // Pins
-  for (let r=0; r<plinkoRows; ++r) {
-    let row = document.createElement('div');
-    row.className = 'plinko-row';
-    for (let c=0; c<=r; ++c) {
-      let cell = document.createElement('div');
-      cell.className = 'plinko-cell plinko-pin';
-      cell.textContent = '•';
-      // Place balls if any at this position
-      let ballsHere = ballPositions.filter(bp => bp.row === r && bp.col === c);
-      if (ballsHere.length > 0) {
-        cell.className += ' plinko-ball';
-        cell.textContent = ballsHere.length > 1 ? '⬤'.repeat(Math.min(2, ballsHere.length)) : '⬤';
+    // Payout label
+    plinkoCtx.save();
+    plinkoCtx.font = "1.1rem Arial";
+    plinkoCtx.textAlign = "center";
+    plinkoCtx.textBaseline = "top";
+    plinkoCtx.fillStyle = highlightSlots.includes(s) ? "#39ff14" : "#fff";
+    if (plinkoPayouts[s] > 0)
+      plinkoCtx.fillText("x"+plinkoPayouts[s], x, y+8);
+    plinkoCtx.restore();
+  }
+  // Draw balls
+  balls.forEach(ball => {
+    plinkoCtx.save();
+    plinkoCtx.beginPath();
+    plinkoCtx.arc(ball.x, ball.y, 10, 0, 2*Math.PI);
+    let grad = plinkoCtx.createRadialGradient(ball.x, ball.y, 2, ball.x, ball.y, 10);
+    grad.addColorStop(0, "#fff");
+    grad.addColorStop(0.3, "#ff00de");
+    grad.addColorStop(1, "#00f0ff");
+    plinkoCtx.fillStyle = grad;
+    plinkoCtx.shadowColor = "#ff00de";
+    plinkoCtx.shadowBlur = 24;
+    plinkoCtx.fill();
+    // Trail
+    if (ball.trail) {
+      for (let i=0; i<ball.trail.length; i++) {
+        let t = ball.trail[i];
+        plinkoCtx.globalAlpha = 0.15*(1-i/ball.trail.length);
+        plinkoCtx.beginPath();
+        plinkoCtx.arc(t.x, t.y, 8, 0, 2*Math.PI);
+        plinkoCtx.fill();
       }
-      row.appendChild(cell);
+      plinkoCtx.globalAlpha = 1;
     }
-    board.appendChild(row);
-  }
-  // Slots
-  let slotRow = document.createElement('div');
-  slotRow.className = 'plinko-row';
-  for (let s=0; s<plinkoSlots; ++s) {
-    let cell = document.createElement('div');
-    cell.className = 'plinko-cell plinko-slot';
-    cell.textContent = plinkoPayouts[s] > 0 ? `x${plinkoPayouts[s]}` : '';
-    // Place balls in slots if any
-    let ballsHere = ballPositions.filter(bp => bp.row === plinkoRows && bp.col === s);
-    if (ballsHere.length > 0) {
-      cell.className += ' plinko-ball';
-      cell.textContent = ballsHere.length > 1 ? '⬤'.repeat(Math.min(2, ballsHere.length)) : '⬤';
-    }
-    slotRow.appendChild(cell);
-  }
-  board.appendChild(slotRow);
+    plinkoCtx.restore();
+  });
 }
-buildPlinkoBoard();
+drawPlinkoBoard();
+
+function plinkoSimulateDrop(numBalls, callback) {
+  // Physics: balls fall, bounce left/right at each row, land in slot
+  let balls = [];
+  let slotXs = [];
+  for (let s=0; s<plinkoSlots; s++) {
+    slotXs[s] = boardLeft + (boardW/(plinkoSlots-1))*s;
+  }
+  for (let i=0; i<numBalls; i++) {
+    let x = slotXs[Math.floor(plinkoSlots/2)];
+    let y = boardTop-10;
+    balls.push({
+      x, y,
+      vx: 0,
+      vy: 0.5+Math.random()*0.3,
+      row: 0,
+      col: Math.floor(plinkoSlots/2),
+      trail: []
+    });
+  }
+  let animFrame = 0;
+  let finished = 0;
+  let slots = Array(plinkoSlots).fill(0);
+
+  function step() {
+    let moving = false;
+    balls.forEach(ball => {
+      if (ball.row < plinkoRows) {
+        // Move down
+        ball.y += ball.vy;
+        // At pin row?
+        let targetY = boardTop + ball.row * (boardH/(plinkoRows-1));
+        if (ball.y >= targetY) {
+          // Bounce left/right
+          let move = Math.random() < 0.5 ? -1 : 1;
+          ball.col += move;
+          if (ball.col < 0) ball.col = 0;
+          if (ball.col > plinkoSlots-1) ball.col = plinkoSlots-1;
+          ball.x = slotXs[ball.col];
+          ball.row++;
+          playSound('sound-plinko');
+        }
+        moving = true;
+      } else if (!ball.landed) {
+        // Land in slot
+        let targetY = boardTop + boardH + slotHeight/2 - 10;
+        if (ball.y < targetY) {
+          ball.y += 2.2;
+          moving = true;
+        } else {
+          ball.y = targetY;
+          ball.landed = true;
+          slots[ball.col]++;
+          finished++;
+        }
+      }
+      // Trail
+      ball.trail.unshift({x: ball.x, y: ball.y});
+      if (ball.trail.length > 12) ball.trail.pop();
+    });
+    drawPlinkoBoard(balls, []);
+    if (moving) {
+      requestAnimationFrame(step);
+    } else {
+      callback(slots);
+    }
+  }
+  step();
+}
 
 document.getElementById('plinko-drop').onclick = function() {
   let bet = getBet('plinko-bet');
@@ -235,65 +404,45 @@ document.getElementById('plinko-drop').onclick = function() {
   if (numBalls > 10) numBalls = 10;
   if (bet * numBalls > houseBalance) {
     document.getElementById('plinko-result').textContent = "Not enough balance!";
+    playSound('sound-lose');
     return;
   }
   houseBalance -= bet * numBalls;
   updateBalance();
-
-  // For each ball, simulate its path
-  let balls = [];
-  for (let b=0; b<numBalls; ++b) {
-    let col = Math.floor((plinkoSlots-1)/2);
-    let path = [{row:0, col}];
-    for (let r=0; r<plinkoRows; ++r) {
-      let move = Math.random() < 0.5 ? 0 : 1;
-      col = col + move;
-      path.push({row:r+1, col});
+  document.getElementById('plinko-result').textContent = "";
+  plinkoSimulateDrop(numBalls, function(slots) {
+    // Animate slot highlight and payout
+    let totalWin = 0;
+    let highlight = [];
+    for (let s=0; s<plinkoSlots; s++) {
+      if (slots[s]) {
+        highlight.push(s);
+        totalWin += slots[s] * bet * (plinkoPayouts[s]||0);
+      }
     }
-    balls.push(path);
-  }
-
-  // Animate all balls together, step by step
-  let animStep = 0;
-  function getBallPositionsAtStep(step) {
-    let positions = [];
-    balls.forEach(path => {
-      let pos = path[Math.min(step, path.length-1)];
-      positions.push(pos);
-    });
-    return positions;
-  }
-  let maxSteps = plinkoRows+1;
-  function anim() {
-    if (animStep <= maxSteps) {
-      buildPlinkoBoard(getBallPositionsAtStep(animStep));
-      animStep++;
-      setTimeout(anim, 200); // SLOWER: 200ms per step
-    } else {
-      // Show all balls in their slots and payout
-      let slotCounts = Array(plinkoSlots).fill(0);
-      balls.forEach(path => {
-        let finalCol = path[path.length-1].col;
-        slotCounts[finalCol]++;
-      });
-      let totalWin = 0;
-      slotCounts.forEach((count, slot) => {
-        totalWin += count * bet * (plinkoPayouts[slot] || 0);
-      });
-      // Show balls in slots
-      let ballPositions = [];
-      slotCounts.forEach((count, slot) => {
-        if (count > 0) ballPositions.push({row:plinkoRows, col:slot});
-      });
-      buildPlinkoBoard(ballPositions);
+    drawPlinkoBoard([], highlight);
+    setTimeout(()=>{
       if (totalWin > 0) {
         document.getElementById('plinko-result').textContent = `You win ${totalWin.toFixed(1)}!`;
+        houseBalance += totalWin;
+        updateBalance();
+        playSound('sound-win');
       } else {
         document.getElementById('plinko-result').textContent = "No win. Try again!";
+        playSound('sound-lose');
       }
-      houseBalance += totalWin;
-      updateBalance();
-    }
-  }
-  anim();
+      drawPlinkoBoard([], highlight);
+    }, 700);
+  });
 };
+
+// --- Onboarding Modal ---
+if (localStorage.getItem('amina_onboarded') !== '1') {
+  document.getElementById('onboarding-modal').style.display = 'flex';
+  document.getElementById('onboarding-modal').querySelector('button').onclick = function() {
+    document.getElementById('onboarding-modal').style.display = 'none';
+    localStorage.setItem('amina_onboarded','1');
+  };
+} else {
+  document.getElementById('onboarding-modal').style.display = 'none';
+}
