@@ -2,26 +2,49 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Amina Casino 🌌</title>
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css?family=Orbitron:700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="cosmic-bg"></div>
+  <div id="cosmic-bg"></div>
   <header>
-    <h1>✨ Amina Casino 🌌</h1>
+    <div class="cosmic-logo">
+      <span class="star-glow">✨</span>
+      <span class="casino-title">Amina Casino</span>
+      <span class="star-glow">🌌</span>
+    </div>
     <div class="wallet-bar sticky-bar">
       <span class="currency-label">House Coins:</span>
       <span id="house-balance">1000.0</span>
     </div>
+    <div class="ticker" id="winners-ticker"></div>
   </header>
 
   <main>
+    <!-- Onboarding Modal -->
+    <div id="onboarding-modal" class="modal-bg">
+      <div class="modal">
+        <h2>Welcome to <span class="neon">Amina Casino</span>!</h2>
+        <p>
+          Experience the ultimate cosmic casino with Blackjack, Slots, and a physics-powered Plinko!<br>
+          <strong>Win coins, enjoy cosmic effects, and support us with Algorand donations.</strong>
+        </p>
+        <ul>
+          <li><b>Blackjack:</b> Classic 21, animated cards.</li>
+          <li><b>Slots:</b> Spin for cosmic combos!</li>
+          <li><b>Plinko:</b> Drop balls, watch cosmic physics, win big!</li>
+        </ul>
+        <button onclick="document.getElementById('onboarding-modal').style.display='none'">Let's Play!</button>
+      </div>
+    </div>
+
     <!-- Donate Area -->
     <section class="donate-section">
       <h2>💖 Support Amina Casino!</h2>
       <div class="donate-box">
+        <img src="https://cryptologos.cc/logos/algorand-algo-logo.png?v=026" alt="Algorand" class="algo-logo"/>
         <span>Donate Algorand to:</span>
         <span class="algo-address">6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI</span>
         <button class="copy-btn" onclick="navigator.clipboard.writeText('6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy Address',1500)">Copy Address</button>
@@ -58,7 +81,7 @@
     <section class="game" id="slot-section">
       <h2>🎰 Slot Machine</h2>
       <div id="slot-machine">
-        <div id="slot-reels"></div>
+        <canvas id="slot-canvas" width="270" height="120"></canvas>
         <div id="slot-paylines"></div>
       </div>
       <div class="bet-controls">
@@ -74,7 +97,7 @@
 
     <!-- Plinko -->
     <section class="game" id="plinko-section">
-      <h2>💥 Plinko</h2>
+      <h2>💥 Cosmic Plinko</h2>
       <div class="plinko-controls-row">
         <div>
           <label for="plinko-balls">Balls:</label>
@@ -88,7 +111,7 @@
         <button id="plinko-drop">Drop Ball(s)</button>
       </div>
       <div id="plinko-board-container">
-        <div id="plinko-board"></div>
+        <canvas id="plinko-canvas" width="340" height="340"></canvas>
       </div>
       <p id="plinko-result"></p>
     </section>
@@ -97,6 +120,12 @@
   <footer>
     <p class="cosmic-footer">🚀 May the cosmic luck be with you! 🚀</p>
   </footer>
+
+  <audio id="sound-win" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa4c24.mp3"></audio>
+  <audio id="sound-lose" src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b9b1e3b.mp3"></audio>
+  <audio id="sound-slot" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa4c24.mp3"></audio>
+  <audio id="sound-deal" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa4c24.mp3"></audio>
+  <audio id="sound-plinko" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa4c24.mp3"></audio>
 
   <script src="index.js"></script>
 </body>
