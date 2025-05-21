@@ -206,4 +206,3 @@ document.getElementById('slot-spin').onclick = function() {
 };
 
 // --- Cosmic Plinko (Canvas, Physics) ---
-const plinkoCanvas =
