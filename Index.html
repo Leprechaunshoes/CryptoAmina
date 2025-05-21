@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Amina Casino 🌌</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css?family=Orbitron:700&display=swap" rel="stylesheet">
@@ -15,36 +15,27 @@
       <span class="casino-title">Amina Casino</span>
       <span class="star-glow">🌌</span>
     </div>
-    <div class="wallet-bar sticky-bar">
-      <span class="currency-label">House Coins:</span>
-      <span id="house-balance">1000.0</span>
+    <div class="wallet-bar">
+      <span>Coins: </span>
+      <span id="balance">1000</span>
     </div>
   </header>
 
   <main>
-    <!-- Onboarding Modal -->
-    <div id="onboarding-modal" class="modal-bg">
-      <div class="modal">
-        <h2>Welcome to <span class="neon">Amina Casino</span>!</h2>
-        <p>Experience the ultimate cosmic casino with Blackjack, Slots, and Plinko!</p>
-        <button onclick="closeOnboarding()">Let's Play!</button>
-      </div>
-    </div>
-
-    <!-- Games -->
-    <section class="game" id="blackjack-section">
+    <!-- Blackjack -->
+    <section class="game" id="blackjack">
       <h2>🃏 Cosmic Blackjack</h2>
-      <div id="blackjack-table">
-        <div class="hand-container">
+      <div id="bj-table">
+        <div class="hand">
           <h3>Dealer</h3>
-          <div id="dealer-hand" class="card-hand"></div>
+          <div id="dealer-hand" class="cards"></div>
         </div>
-        <div class="hand-container">
-          <h3>You</h3>
-          <div id="player-hand" class="card-hand"></div>
+        <div class="hand">
+          <h3>Player</h3>
+          <div id="player-hand" class="cards"></div>
         </div>
       </div>
-      <div class="game-controls">
+      <div class="controls">
         <button id="bj-deal">Deal</button>
         <button id="bj-hit" disabled>Hit</button>
         <button id="bj-stand" disabled>Stand</button>
@@ -52,28 +43,26 @@
       <p id="bj-result"></p>
     </section>
 
-    <section class="game" id="slot-section">
+    <!-- Slots -->
+    <section class="game" id="slots">
       <h2>🎰 Galactic Slots</h2>
       <div id="slot-machine">
-        <canvas id="slot-canvas" width="300" height="150"></canvas>
+        <div class="reel" id="reel1">🌌</div>
+        <div class="reel" id="reel2">🪐</div>
+        <div class="reel" id="reel3">☄️</div>
       </div>
-      <button id="slot-spin">Spin</button>
+      <button id="spin">Spin (Cost: 10)</button>
       <p id="slot-result"></p>
     </section>
 
-    <section class="game" id="plinko-section">
+    <!-- Plinko -->
+    <section class="game" id="plinko">
       <h2>💥 Nebula Plinko</h2>
-      <div id="plinko-board-container">
-        <canvas id="plinko-canvas" width="400" height="400"></canvas>
-      </div>
-      <button id="plinko-drop">Drop Ball</button>
+      <div id="plinko-board"></div>
+      <button id="drop-ball">Drop Ball (Cost: 20)</button>
       <p id="plinko-result"></p>
     </section>
   </main>
-
-  <footer>
-    <p class="cosmic-footer">🚀 Powered by Algorand 🌌</p>
-  </footer>
 
   <script src="index.js"></script>
 </body>
