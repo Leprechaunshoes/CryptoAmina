@@ -1,4 +1,4 @@
-```javascript
+
 // --- State ---
 let houseBalance = 1000.0;
 function updateBalance() {
