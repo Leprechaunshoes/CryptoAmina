@@ -1,4 +1,4 @@
-
+```javascript
 // --- State ---
 let houseBalance = 1000.0;
 function updateBalance() {
@@ -74,7 +74,6 @@ document.getElementById('bj-hit').onclick = function() {
   }
 };
 document.getElementById('bj-stand').onclick = function() {
-  // Dealer's turn: hit until 17+
   while (handValue(bjDealer) < 17) bjDealer.push(drawCard());
   renderHand(document.getElementById('dealer-hand'), bjDealer);
   let playerVal = handValue(bjPlayer), dealerVal = handValue(bjDealer);
@@ -112,7 +111,6 @@ function drawSlotGrid(grid, highlightLines=[]) {
     for (let c=0; c<slotCols; c++) {
       let x = c*slotW+15, y = r*slotH+15;
       slotCtx.save();
-      // Highlight winning lines
       let isHighlight = highlightLines.some(line => line.includes(`${r},${c}`));
       slotCtx.shadowColor = isHighlight ? "#ffe600" : "#00f0ff";
       slotCtx.shadowBlur = isHighlight ? 30 : 12;
@@ -145,14 +143,12 @@ function randomSlotGrid() {
 }
 function slotWinLines(grid) {
   let lines = [], highlight = [];
-  // Rows
   for (let r=0; r<slotRows; r++) {
     if (grid[r][0] === grid[r][1] && grid[r][1] === grid[r][2]) {
       lines.push(`Row ${r+1}`);
       highlight.push([`${r},0`,`${r},1`,`${r},2`]);
     }
   }
-  // Diagonals
   if (grid[0][0] === grid[1][1] && grid[1][1] === grid[2][2]) {
     lines.push("↘ Diagonal");
     highlight.push([`0,0`,`1,1`,`2,2`]);
@@ -161,7 +157,6 @@ function slotWinLines(grid) {
     lines.push("↗ Diagonal");
     highlight.push([`2,0`,`1,1`,`0,2`]);
   }
-  // Center line bonus
   if (grid[1][0] === grid[1][1] && grid[1][1] === grid[1][2]) {
     if (!lines.includes("Row 2")) lines.push("Row 2");
     highlight.push([`1,0`,`1,1`,`1,2`]);
@@ -188,7 +183,6 @@ document.getElementById('slot-spin').onclick = function() {
   }
   houseBalance -= bet;
   updateBalance();
-  // Animate spin
   let spins = 24, grid;
   let anim = setInterval(() => {
     grid = randomSlotGrid();
@@ -205,4 +199,11 @@ document.getElementById('slot-spin').onclick = function() {
         houseBalance += payout;
         updateBalance();
       } else {
-        
+        document.getElementById('slot-result').textContent = "No win. Try again!";
+      }
+    }
+  }, 50);
+};
+
+// --- Cosmic Plinko (Canvas, Physics) ---
+const plinkoCanvas =
