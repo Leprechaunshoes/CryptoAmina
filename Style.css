@@ -1,4 +1,4 @@
-```css
+
 :root {
   --cosmic-bg: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
   --neon-blue: #00f0ff;
@@ -55,6 +55,48 @@ header {
   0% { text-shadow: 0 0 18px var(--neon-pink), 0 0 40px var(--neon-blue);}
   100% { text-shadow: 0 0 30px var(--neon-pink), 0 0 80px var(--neon-blue);}
 }
+.star-glow {
+  animation: starTwinkle 1.8s infinite alternate;
+}
+@keyframes starTwinkle {
+  0% { filter: brightness(1); }
+  100% { filter: brightness(2.2); }
+}
+.casino-title {
+  font-family: 'Orbitron', Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.wallet-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.2rem;
+  font-size: 1.3rem;
+}
+.sticky-bar {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #10162aee;
+  z-index: 100;
+  padding: 0.7rem 0;
+  border-bottom: 2px solid var(--neon-blue);
+  box-shadow: 0 2px 18px 0 var(--neon-blue);
+}
+.currency-label {
+  color: var(--neon-yellow);
+  text-shadow: 0 0 5px var(--neon-yellow);
+}
+#house-balance {
+  font-size: 1.5rem;
+  color: var(--neon-green);
+  text-shadow: 0 0 8px var(--neon-green);
+}
 
 main {
   display: flex;
@@ -63,6 +105,68 @@ main {
   gap: 1.3rem;
   padding-bottom: 3rem;
 }
+
+.donate-section {
+  background: var(--card-bg);
+  border: 2px solid var(--neon-purple);
+  border-radius: 1.2rem;
+  box-shadow: 0 0 30px 6px #a259ff33, 0 0 3px 1px #fff2;
+  padding: 1.2rem 1rem 1.2rem 1rem;
+  margin: 1rem 0 0.5rem 0;
+  width: 97vw;
+  max-width: 420px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.donate-section h2 {
+  color: var(--neon-purple);
+  margin-bottom: 0.5rem;
+  font-size: 1.3rem;
+  text-shadow: 0 0 8px var(--neon-purple);
+}
+.donate-box {
+  background: #191e3aee;
+  border-radius: 0.7rem;
+  padding: 0.6rem 0.4rem;
+  margin: 0.2rem 0 0.1rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1.07rem;
+  position: relative;
+}
+.algo-logo {
+  width: 38px;
+  height: 38px;
+  margin-bottom: 0.1rem;
+  filter: drop-shadow(0 0 8px var(--neon-purple));
+}
+.algo-address {
+  font-family: monospace;
+  color: var(--neon-yellow);
+  word-break: break-all;
+  font-size: 1.05rem;
+  background: #111;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.3rem;
+  margin-bottom: 0.2rem;
+  letter-spacing: 0.03em;
+}
+.copy-btn {
+  background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
+  color: #fff;
+  border: none;
+  border-radius: .5rem;
+  font-size: 1rem;
+  padding: .4rem 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 0 10px var(--neon-purple), 0 0 2px #fff5;
+  transition: background .2s, box-shadow .2s, transform .1s;
+  font-family: inherit;
+}
+.copy-btn:active { transform: scale(0.97); }
 
 .game {
   background: var(--card-bg);
@@ -133,112 +237,3 @@ button {
 }
 button:active {
   transform: scale(0.98);
-  box-shadow: 0 0 20px var(--neon-pink);
-}
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-#blackjack-table {
-  display: flex;
-  justify-content: space-between;
-  gap: 1.2rem;
-  margin-bottom: .7rem;
-}
-.card-hand {
-  display: flex;
-  gap: .4rem;
-  min-height: 54px;
-}
-.card {
-  background: linear-gradient(120deg, #fff 70%, #e0e0ff 100%);
-  border: 2px solid var(--neon-blue);
-  border-radius: .5rem;
-  width: 40px;
-  height: 54px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4rem;
-  color: #222;
-  font-weight: bold;
-  box-shadow: 0 0 6px var(--neon-blue);
-  transition: box-shadow .2s;
-  animation: cardDeal 0.4s;
-}
-@keyframes cardDeal {
-  0% { transform: scale(0.2) rotate(-20deg); opacity: 0;}
-  100% { transform: scale(1) rotate(0); opacity: 1;}
-}
-.card.red { color: #d8005f; }
-
-#slot-machine {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-#slot-canvas {
-  border-radius: 1rem;
-  border: 2px solid var(--neon-blue);
-  box-shadow: 0 0 16px var(--neon-blue), 0 0 2px #fff5;
-  margin-bottom: 0.4rem;
-  background: #181c2c;
-  width: 100%;
-  max-width: 340px;
-  height: auto;
-  display: block;
-}
-#slot-paylines {
-  margin-top: .2rem;
-  font-size: 1.1rem;
-  color: var(--neon-yellow);
-  text-shadow: 0 0 6px var(--neon-yellow);
-}
-
-#plinko-board-container {
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  min-height: 270px;
-  margin-bottom: .7rem;
-  overflow-x: auto;
-}
-#plinko-canvas {
-  background: linear-gradient(180deg, #10162a 80%, #191e3a 100%);
-  border-radius: 1.2rem;
-  border: 2px solid var(--neon-green);
-  box-shadow: 0 0 28px var(--neon-green), 0 0 2px #fff5;
-  width: 100%;
-  max-width: 340px;
-  height: auto;
-  display: block;
-}
-
-#plinko-result, #slot-result, #bj-result {
-  min-height: 1.5em;
-  font-size: 1.1rem;
-  text-align: center;
-  margin-top: .5rem;
-}
-
-.cosmic-footer {
-  text-align: center;
-  margin: 2.5rem 0 0 0;
-  color: var(--neon-purple);
-  font-size: 1.1rem;
-  text-shadow: 0 0 8px var(--neon-purple);
-}
-
-/* Responsive */
-@media (max-width: 900px) {
-  .game { max-width: 98vw; }
-  #plinko-canvas, #slot-canvas { max-width: 99vw; }
-}
-@media (max-width: 600px) {
-  .cosmic-logo { font-size: 1.3rem; }
-  .game { min-width: 98vw; max-width: 99vw; padding: 0.8rem 0.2rem; }
-  #plinko-canvas, #slot-canvas { min-width: 99vw; }
-  .plinko-controls-row { flex-direction: column; gap: 0.3rem; }
-}
-```
