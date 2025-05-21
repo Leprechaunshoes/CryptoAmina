@@ -1,205 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amina Casino - Cosmic Luxury</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Amina Casino - Cosmic Luxury</title>
+<link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
 <body>
-    <div class="stars"></div>
-    <div class="twinkling"></div>
-    
-    <header>
-        <div class="logo">
-            <i class="fas fa-rocket"></i>
-            <h1>Amina Casino</h1>
-        </div>
-        <div class="wallet-container">
-            <button id="connect-wallet" class="glow-button">
-                <i class="fas fa-wallet"></i> Connect Wallet
-            </button>
-            <div id="wallet-info" class="hidden">
-                <span id="wallet-address"></span>
-                <span id="wallet-balance">0 Amina</span>
-            </div>
-            <div class="currency-toggle">
-                <span>House Coins</span>
-                <label class="switch">
-                    <input type="checkbox" id="currency-toggle">
-                    <span class="slider round"></span>
-                </label>
-                <span>Amina</span>
-            </div>
-            <div id="house-balance">1000 HC</div>
-        </div>
-        <div class="music-controls">
-            <button id="toggle-music" class="glow-button">
-                <i class="fas fa-volume-up"></i>
-            </button>
-        </div>
-    </header>
+<div class="stars"></div>
+<div class="twinkling"></div>
 
-    <main>
-        <div class="game-menu">
-            <button class="game-tab active" data-game="slots">
-                <i class="fas fa-spinner"></i> Slots
-            </button>
-            <button class="game-tab" data-game="blackjack">
-                <i class="fas fa-crown"></i> Blackjack
-            </button>
-            <button class="game-tab" data-game="plinko">
-                <i class="fas fa-meteor"></i> Plinko
-            </button>
+<header>
+  <div class="logo">
+    <i class="fas fa-rocket"></i>
+    <h1>Amina Casino</h1>
+  </div>
+  <div class="wallet-container">
+    <button id="connect-wallet" class="glow-button">
+      <i class="fas fa-wallet"></i> Connect Wallet
+    </button>
+    <div id="wallet-info" class="hidden">
+      <span id="wallet-address"></span>
+      <span id="wallet-balance">0 Amina</span>
+    </div>
+    <div class="currency-toggle">
+      <span>House Coins</span>
+      <label class="switch">
+        <input type="checkbox" id="currency-toggle" />
+        <span class="slider round"></span>
+      </label>
+      <span>Amina</span>
+    </div>
+    <div id="house-balance">1000 HC</div>
+  </div>
+  <div class="music-controls">
+    <button id="toggle-music" class="glow-button">
+      <i class="fas fa-volume-up"></i>
+    </button>
+  </div>
+</header>
+
+<main>
+  <div class="game-menu">
+    <button class="game-tab active" data-game="slots">
+      <i class="fas fa-spinner"></i> Slots
+    </button>
+    <button class="game-tab" data-game="blackjack">
+      <i class="fas fa-crown"></i> Blackjack
+    </button>
+    <button class="game-tab" data-game="plinko">
+      <i class="fas fa-meteor"></i> Plinko
+    </button>
+  </div>
+
+  <div class="game-container">
+    <!-- Slots Game -->
+    <div id="slots-game" class="game-content active">
+      <div class="slot-machine">
+        <div class="slot-display">
+          <div class="reel"><div class="symbol" id="reel1">🚀</div></div>
+          <div class="reel"><div class="symbol" id="reel2">💫</div></div>
+          <div class="reel"><div class="symbol" id="reel3">🌟</div></div>
         </div>
-
-        <div class="game-container">
-            <!-- Slots Game -->
-            <div id="slots-game" class="game-content active">
-                <div class="slot-machine">
-                    <div class="slot-display">
-                        <div class="reel">
-                            <div class="symbol" id="reel1">🚀</div>
-                        </div>
-                        <div class="reel">
-                            <div class="symbol" id="reel2">💫</div>
-                        </div>
-                        <div class="reel">
-                            <div class="symbol" id="reel3">🌟</div>
-                        </div>
-                    </div>
-                    <div class="result-message" id="slots-result"></div>
-                    <div class="slots-controls">
-                        <div class="bet-controls">
-                            <button id="decrease-bet" class="bet-btn">-</button>
-                            <span id="bet-amount">0.25</span>
-                            <button id="increase-bet" class="bet-btn">+</button>
-                        </div>
-                        <button id="spin-button" class="spin-btn glow-button">SPIN</button>
-                    </div>
-                </div>
-                <div class="slot-legend">
-                    <h3>Payouts</h3>
-                    <div class="payout-item">
-                        <div class="payout-symbols">🚀 🚀 🚀</div>
-                        <div class="payout-value">5x</div>
-                    </div>
-                    <div class="payout-item">
-                        <div class="payout-symbols">💫 💫 💫</div>
-                        <div class="payout-value">3x</div>
-                    </div>
-                    <div class="payout-item">
-                        <div class="payout-symbols">🌟 🌟 🌟</div>
-                        <div class="payout-value">2x</div>
-                    </div>
-                    <div class="payout-item">
-                        <div class="payout-symbols">🪐 🪐 🪐</div>
-                        <div class="payout-value">10x</div>
-                    </div>
-                    <div class="payout-item">
-                        <div class="payout-symbols">👽 👽 👽</div>
-                        <div class="payout-value">7x</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Blackjack Game -->
-            <div id="blackjack-game" class="game-content">
-                <div class="blackjack-table">
-                    <div class="dealer-area">
-                        <h3>Dealer's Hand</h3>
-                        <div id="dealer-cards" class="cards"></div>
-                        <div id="dealer-score" class="score">0</div>
-                    </div>
-                    <div class="player-area">
-                        <h3>Your Hand</h3>
-                        <div id="player-cards" class="cards"></div>
-                        <div id="player-score" class="score">0</div>
-                        <div id="blackjack-result" class="result-message"></div>
-                    </div>
-                    <div class="blackjack-controls">
-                        <div class="bet-controls">
-                            <button id="bj-decrease-bet" class="bet-btn">-</button>
-                            <span id="bj-bet-amount">0.25</span>
-                            <button id="bj-increase-bet" class="bet-btn">+</button>
-                        </div>
-                        <div class="action-buttons">
-                            <button id="deal-button" class="bj-btn glow-button">Deal</button>
-                            <button id="hit-button" class="bj-btn glow-button" disabled>Hit</button>
-                            <button id="stand-button" class="bj-btn glow-button" disabled>Stand</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Plinko Game -->
-            <div id="plinko-game" class="game-content">
-                <div class="plinko-container">
-                    <div class="plinko-controls">
-                        <div class="row-selector">
-                            <label for="plinko-rows">Rows:</label>
-                            <input type="range" id="plinko-rows" min="8" max="16" value="12">
-                            <span id="rows-value">12</span>
-                        </div>
-                        <div class="bet-controls">
-                            <button id="plinko-decrease-bet" class="bet-btn">-</button>
-                            <span id="plinko-bet-amount">0.25</span>
-                            <button id="plinko-increase-bet" class="bet-btn">+</button>
-                        </div>
-                        <button id="drop-button" class="plinko-btn glow-button">Drop Ball</button>
-                    </div>
-                    <div class="plinko-board">
-                        <canvas id="plinko-canvas"></canvas>
-                    </div>
-                    <div class="plinko-multipliers" id="plinko-multipliers"></div>
-                    <div id="plinko-result" class="result-message"></div>
-                </div>
-            </div>
+        <div class="result-message" id="slots-result"></div>
+        <div class="slots-controls">
+          <div class="bet-controls">
+            <button id="decrease-bet" class="bet-btn">-</button>
+            <span id="bet-amount">0.25</span>
+            <button id="increase-bet" class="bet-btn">+</button>
+          </div>
+          <button id="spin-button" class="spin-btn glow-button">SPIN</button>
         </div>
-    </main>
-
-    <footer>
-        <div class="donation-container">
-            <button id="donate-button" class="glow-button">
-                <i class="fas fa-gift"></i> Donate
-            </button>
-            <div id="donation-modal" class="modal">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <h2>Donate Amina</h2>
-                    <div class="donation-controls">
-                        <input type="number" id="donation-amount" min="0.25" step="0.25" value="1">
-                        <button id="confirm-donation" class="glow-button">Send</button>
-                    </div>
-                    <p>All donations are sent to: 6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI</p>
-                </div>
-            </div>
+      </div>
+      <div class="slot-legend">
+        <h3>Payouts</h3>
+        <div class="payout-item">
+          <div class="payout-symbols">🚀 🚀 🚀</div>
+          <div class="payout-value">5x</div>
         </div>
-        <div class="info">
-            <p>© 2025 Amina Casino | Algorand ASA ID: 1107424865</p>
-            <p>5% house rake on all wins</p>
+        <div class="payout-item">
+          <div class="payout-symbols">💫 💫 💫</div>
+          <div class="payout-value">3x</div>
         </div>
-    </footer>
+        <div class="payout-item">
+          <div class="payout-symbols">🌟 🌟 🌟</div>
+          <div class="payout-value">2x</div>
+        </div>
+        <div class="payout-item">
+          <div class="payout-symbols">🪐 🪐 🪐</div>
+          <div class="payout-value">10x</div>
+        </div>
+        <div class="payout-item">
+          <div class="payout-symbols">👽 👽 👽</div>
+          <div class="payout-value">7x</div>
+        </div>
+      </div>
+    </div>
 
-    <audio id="background-music" loop>
-        <source src="https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="win-sound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-slot-machine-win-alert-1931.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="spin-sound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-slot-machine-spin-1932.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="card-sound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-fast-small-sweep-transition-166.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="plinko-sound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-plastic-bubble-click-1124.mp3" type="audio/mpeg">
-    </audio>
-    
-    <script src="index.js"></script>
-    <script src="scripts.js"></script>
+    <!-- Blackjack Game -->
+    <div id="blackjack-game" class="game-content">
+      <div class="blackjack-table">
+        <div class="dealer-area">
+          <h3>Dealer's Hand</h3>
+          <div id="dealer-cards" class="cards"></div>
+          <div id="dealer-score" class="score">0</div>
+        </div>
+        <div class="player-area">
+          <h3>Your Hand</h3>
+          <div id="player-cards" class="cards"></div>
+          <div id="player-score" class="score">0</div>
+          <div id="blackjack-result" class="result-message"></div>
+        </div>
+        <div class="blackjack-controls">
+          <div class="bet-controls">
+            <button id="bj-decrease-bet" class="bet-btn">-</button>
+            <span id="bj-bet-amount">0.25</span>
+            <button id="bj-increase-bet" class="bet-btn">+</button>
+          </div>
+          <div class="action-buttons">
+            <button id="deal-button" class="bj-btn glow-button">Deal</button>
+            <button id="hit-button" class="bj-btn glow-button" disabled>Hit</button>
+            <button id="stand-button" class="bj-btn glow-button" disabled>Stand</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Plinko Game -->
+    <div id="plinko-game" class="game-content">
+      <div class="plinko-container">
+        <div class="plinko-controls">
+          <div class="row-selector">
+            <label for="plinko-rows">Rows:</label>
+            <input type="range" id="plinko-rows" min="8" max="16" value="12" />
+            <span id="rows-value">12</span>
+          </div>
+          <div class="bet-controls">
+            <button id="plinko-decrease-bet" class="bet-btn">-</button>
+            <span id="plinko-bet-amount">0.25</span>
+            <button id="plinko-increase-bet" class="bet-btn">+</button>
+          </div>
+          <button id="drop-button" class="plinko-btn glow-button">Drop Ball</button>
+        </div>
+        <div class="plinko-board">
+          <canvas id="plinko-canvas"></canvas>
+        </div>
+        <div class="plinko-multipliers" id="plinko-multipliers"></div>
+        <div id="plinko-result" class="result-message"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="donation-container">
+    <button id="donate-button" class="glow-button">
+      <i class="fas fa-gift"></i> Donate
+    </button>
+    <div id="donation-modal" class="modal">
+      <div class="modal-content">
+        <span class="close">×</span>
+        <h2>Donate Amina</h2>
+        <div class="donation-controls">
+          <input type="number" id="donation-amount" min="0.25" step="0.25" value="1" />
+          <button id="confirm-donation" class="glow-button">Send</button>
+        </div>
+        <p>
+          All donations are sent to: 6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="info">
+    <p>© 2025 Amina Casino | Algorand ASA ID: 1107424865</p>
+    <p>5% house rake on all wins</p>
+  </div>
+</footer>
+
+<audio id="background-music" loop>
+  <source src="https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3" type="audio/mpeg" />
+</audio>
+<audio id="win-sound">
+  <source src="https://assets.mixkit.co/sfx/preview/mixkit-slot-machine-win-alert-1931.mp3" type="audio/mpeg" />
+</audio>
+<audio id="spin-sound">
+  <source src="https://assets.mixkit.co/sfx/preview/mixkit-slot-machine-spin-1932.mp3" type="audio/mpeg" />
+</audio>
+<audio id="card-sound">
+  <source src="https://assets.mixkit.co/sfx/preview/mixkit-fast-small-sweep-transition-166.mp3" type="audio/mpeg" />
+</audio>
+<audio id="plinko-sound">
+  <source src="https://assets.mixkit.co/sfx/preview/mixkit-plastic-bubble-click-1124.mp3" type="audio/mpeg" />
+</audio>
+
+<script src="index.js"></script>
+<script src="scripts.js"></script>
 </body>
 </html>
