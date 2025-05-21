@@ -2,130 +2,80 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Amina Casino 🌌</title>
   <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css?family=Orbitron:700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div id="cosmic-bg"></div>
   <header>
-    <div class="cosmic-logo">
-      <span class="star-glow">✨</span>
-      <span class="casino-title">Amina Casino</span>
-      <span class="star-glow">🌌</span>
-    </div>
-    <div class="wallet-bar sticky-bar">
-      <span class="currency-label">House Coins:</span>
-      <span id="house-balance">1000.0</span>
-    </div>
-    <div class="ticker" id="winners-ticker"></div>
+    <h1>🎰 Amina Casino 🌌</h1>
+    <button id="connectWallet">🔗 Connect Wallet</button>
+    <span id="walletAddress"></span>
   </header>
 
+  <section id="balanceSection">
+    <div>Balance: <span id="balance">0</span> <span id="currencyLabel">Amina</span></div>
+    <label class="switch">
+      <input type="checkbox" id="toggleHC">
+      <span class="slider"></span>
+    </label>
+    <span id="toggleLabel">Use House Coins</span>
+  </section>
+
+  <section id="gameTabs">
+    <button onclick="showGame('slot')">🎰 Slot</button>
+    <button onclick="showGame('blackjack')">🃏 Blackjack</button>
+    <button onclick="showGame('plinko')">🔵 Plinko</button>
+  </section>
+
   <main>
-    <!-- Onboarding Modal -->
-    <div id="onboarding-modal" class="modal-bg">
-      <div class="modal">
-        <h2>Welcome to <span class="neon">Amina Casino</span>!</h2>
-        <p>
-          Experience the ultimate cosmic casino with Blackjack, Slots, and a physics-powered Plinko!<br>
-          <strong>Win coins, enjoy cosmic effects, and support us with Algorand donations.</strong>
-        </p>
-        <ul>
-          <li><b>Blackjack:</b> Classic 21, animated cards.</li>
-          <li><b>Slots:</b> Spin for cosmic combos!</li>
-          <li><b>Plinko:</b> Drop balls, watch cosmic physics, win big!</li>
-        </ul>
-        <button onclick="document.getElementById('onboarding-modal').style.display='none'">Let's Play!</button>
+    <div id="slot" class="gameSection">
+      <h2>🎰 Cosmic Slot</h2>
+      <div class="slot-machine">
+        <div class="reel" id="reel1">🍒</div>
+        <div class="reel" id="reel2">🍋</div>
+        <div class="reel" id="reel3">🔔</div>
       </div>
+      <input type="range" min="0.1" max="1" step="0.05" value="0.25" id="slotBet"/>
+      <span id="slotBetLabel">Bet: 0.25</span>
+      <button onclick="spinSlot()">🎰 Spin</button>
+      <div id="slotResult"></div>
     </div>
 
-    <!-- Donate Area -->
-    <section class="donate-section">
-      <h2>💖 Support Amina Casino!</h2>
-      <div class="donate-box">
-        <img src="https://cryptologos.cc/logos/algorand-algo-logo.png?v=026" alt="Algorand" class="algo-logo"/>
-        <span>Donate Algorand to:</span>
-        <span class="algo-address">6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI</span>
-        <button class="copy-btn" onclick="navigator.clipboard.writeText('6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy Address',1500)">Copy Address</button>
-      </div>
-    </section>
-
-    <!-- Blackjack -->
-    <section class="game" id="blackjack-section">
+    <div id="blackjack" class="gameSection">
       <h2>🃏 Blackjack</h2>
-      <div id="blackjack-table">
-        <div>
-          <h3>Dealer</h3>
-          <div id="dealer-hand" class="card-hand"></div>
-        </div>
-        <div>
-          <h3>You</h3>
-          <div id="player-hand" class="card-hand"></div>
-        </div>
+      <div class="bj-table">
+        <div>Dealer: <span id="dealerHand"></span></div>
+        <div>You: <span id="playerHand"></span></div>
       </div>
-      <div class="bet-controls">
-        <label for="bj-bet">Bet:</label>
-        <input type="range" min="1" max="100" step="1" id="bj-bet" value="10"/>
-        <span id="bj-bet-display">10</span>
+      <input type="range" min="0.1" max="1" step="0.05" value="0.25" id="bjBet"/>
+      <span id="bjBetLabel">Bet: 0.25</span>
+      <div class="bj-controls">
+        <button onclick="deal()">🔄 Deal</button>
+        <button onclick="hit()">➕ Hit</button>
+        <button onclick="stand()">✋ Stand</button>
       </div>
-      <div class="game-controls">
-        <button id="bj-deal">Deal</button>
-        <button id="bj-hit" disabled>Hit</button>
-        <button id="bj-stand" disabled>Stand</button>
-      </div>
-      <p id="bj-result"></p>
-    </section>
+      <div id="bjResult"></div>
+    </div>
 
-    <!-- Slot Machine -->
-    <section class="game" id="slot-section">
-      <h2>🎰 Slot Machine</h2>
-      <div id="slot-machine">
-        <canvas id="slot-canvas" width="270" height="120"></canvas>
-        <div id="slot-paylines"></div>
-      </div>
-      <div class="bet-controls">
-        <label for="slot-bet">Bet:</label>
-        <input type="range" min="1" max="100" step="1" id="slot-bet" value="10"/>
-        <span id="slot-bet-display">10</span>
-      </div>
-      <div class="game-controls">
-        <button id="slot-spin">Spin</button>
-      </div>
-      <p id="slot-result"></p>
-    </section>
-
-    <!-- Plinko -->
-    <section class="game" id="plinko-section">
-      <h2>💥 Cosmic Plinko</h2>
-      <div class="plinko-controls-row">
-        <div>
-          <label for="plinko-balls">Balls:</label>
-          <input type="number" id="plinko-balls" min="1" max="10" value="1" style="width:50px;"/>
-        </div>
-        <div class="bet-controls">
-          <label for="plinko-bet">Bet:</label>
-          <input type="range" min="1" max="100" step="1" id="plinko-bet" value="10"/>
-          <span id="plinko-bet-display">10</span>
-        </div>
-        <button id="plinko-drop">Drop Ball(s)</button>
-      </div>
-      <div id="plinko-board-container">
-        <canvas id="plinko-canvas" width="340" height="340"></canvas>
-      </div>
-      <p id="plinko-result"></p>
-    </section>
+    <div id="plinko" class="gameSection">
+      <h2>🔵 Plinko</h2>
+      <div id="plinkoBoard"></div>
+      <input type="range" min="0.1" max="1" step="0.05" value="0.25" id="plinkoBet"/>
+      <span id="plinkoBetLabel">Bet: 0.25</span>
+      <button onclick="dropPlinko()">⬇️ Drop Ball</button>
+      <div id="plinkoResult"></div>
+    </div>
   </main>
 
   <footer>
-    <p class="cosmic-footer">🚀 May the cosmic luck be with you! 🚀</p>
+    <button onclick="donate()">❤️ Donate</button>
+    <button onclick="toggleMusic()">🎵 Toggle Music</button>
   </footer>
 
-  <audio id="sound-win" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa4c24.mp3"></audio>
-  <audio id="sound-lose" src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b9b1e3b.mp3"></audio>
-  <audio id="sound-slot" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa4c24.mp3"></audio>
-  <audio id="sound-deal" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa4c24.mp3"></audio>
-  <audio id="sound-plinko" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa4c24.mp3"></audio>
+  <audio id="popcornMusic" loop autoplay>
+    <source src="https://cdn.pixabay.com/download/audio/2022/08/18/audio_48e0d86c5e.mp3?filename=popcorn-113194.mp3" type="audio/mpeg">
+  </audio>
 
   <script src="index.js"></script>
 </body>
