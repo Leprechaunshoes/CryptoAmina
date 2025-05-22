@@ -791,3 +791,130 @@ function playNotificationSound(type) {
 }
 
 function playCosmicSpinSound() {
+    playNotificationSound('spin');
+}
+
+function playCosmicWinSound() {
+    playNotificationSound('win');
+}
+
+function playCosmicLoseSound() {
+    playNotificationSound('lose');
+}
+
+function playClickSound() {
+    if (!gameState.audioContext) return;
+    
+    const oscillator = gameState.audioContext.createOscillator();
+    const gainNode = gameState.audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(gameState.audioContext.destination);
+    
+    oscillator.frequency.setValueAtTime(800, gameState.audioContext.currentTime);
+    gainNode.gain.setValueAtTime(0.05, gameState.audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, gameState.audioContext.currentTime + 0.1);
+    
+    oscillator.start();
+    oscillator.stop(gameState.audioContext.currentTime + 0.1);
+}
+
+function playCardDealSound() {
+    playClickSound();
+}
+
+// ============================================
+// COSMIC EFFECTS
+// ============================================
+
+function createCosmicParticles() {
+    // Add floating cosmic particles effect
+    const particleCount = 20;
+    
+    for (let i = 0; i < particleCount; i++) {
+        setTimeout(() => {
+            createParticle();
+        }, i * 200);
+    }
+}
+
+function createParticle() {
+    const particle = document.createElement('div');
+    particle.style.cssText = `
+        position: fixed;
+        width: 4px;
+        height: 4px;
+        background: radial-gradient(circle, #ffd700, transparent);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 0;
+        left: ${Math.random() * 100}vw;
+        top: 100vh;
+        opacity: 0.8;
+    `;
+    
+    document.body.appendChild(particle);
+    
+    const duration = 8000 + Math.random() * 4000;
+    const drift = (Math.random() - 0.5) * 200;
+    
+    particle.animate([
+        { transform: `translateY(0px) translateX(0px)`, opacity: 0 },
+        { transform: `translateY(-50px) translateX(${drift * 0.2}px)`, opacity: 0.8 },
+        { transform: `translateY(-100vh) translateX(${drift}px)`, opacity: 0 }
+    ], {
+        duration: duration,
+        easing: 'linear'
+    }).addEventListener('finish', () => {
+        particle.remove();
+        // Create new particle to maintain count
+        setTimeout(createParticle, Math.random() * 2000);
+    });
+}
+
+// ============================================
+// SAVE/LOAD SYSTEM
+// ============================================
+
+function saveGameProgress() {
+    try {
+        const saveData = {
+            aminaBalance: gameState.aminaBalance,
+            algoBalance: gameState.algoBalance,
+            missions: gameState.missions,
+            walletConnected: gameState.walletConnected
+        };
+        localStorage.setItem('aminaCasinoSave', JSON.stringify(saveData));
+    } catch (e) {
+        console.log('Could not save game progress');
+    }
+}
+
+function loadGameProgress() {
+    try {
+        const saveData = localStorage.getItem('aminaCasinoSave');
+        if (saveData) {
+            const parsed = JSON.parse(saveData);
+            gameState.aminaBalance = parsed.aminaBalance || 1000;
+            gameState.algoBalance = parsed.algoBalance || 100;
+            gameState.missions = { ...gameState.missions, ...parsed.missions };
+            gameState.walletConnected = parsed.walletConnected || false;
+            
+            if (gameState.walletConnected) {
+                const btn = document.getElementById('connectWallet');
+                btn.textContent = '✅ Wallet Connected';
+                btn.classList.add('connected');
+                document.getElementById('conversionPanel').classList.add('active');
+                document.getElementById('conversionPanel').style.display = 'block';
+            }
+        }
+    } catch (e) {
+        console.log('Could not load game progress');
+    }
+}
+
+// Auto-save every 30 seconds
+setInterval(saveGameProgress, 30000);
+
+// Save when page is closed
+window.addEventListener('beforeunload', saveGameProgress);
