@@ -450,6 +450,7 @@ main {
 .card.red {
     color: #d12121;
 }
+
 .card.black {
     color: #222;
 }
@@ -574,10 +575,114 @@ footer {
     text-align: right;
 }
 
-/* Modal styles omitted for brevity - same as above, you can copy from the previous message */
-
-@media (max-width: 768px) {
-  /* Responsive styles omitted for brevity - same as above */
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
 }
 
-/* Animation Effects omitted for brevity - same as above */
+.modal-content {
+    background: linear-gradient(145deg, #140724, #2a0f4d);
+    border: 2px solid var(--neon-blue);
+    border-radius: 15px;
+    width: 90%;
+    max-width: 400px;
+    margin: 15% auto;
+    padding: 2rem;
+    box-shadow: 0 0 25px rgba(76, 201, 240, 0.4);
+    position: relative;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    color: var(--silver);
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.donation-controls {
+    display: flex;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+#donation-amount {
+    background: rgba(10, 3, 20, 0.8);
+    border: 1px solid var(--neon-blue);
+    color: var(--gold);
+    padding: 0.5rem;
+    border-radius: 5px;
+    width: 100%;
+    font-size: 1rem;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .slot-display {
+        padding: 1rem;
+    }
+    
+    .reel {
+        width: 80px;
+        height: 100px;
+    }
+    
+    .game-menu {
+        width: 100%;
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding: 0.5rem;
+    }
+    
+    .game-container {
+        padding: 1rem;
+    }
+    
+    .plinko-controls {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    footer {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .info {
+        text-align: center;
+    }
+    
+    .card {
+        width: 60px;
+        height: 90px;
+    }
+    
+    .plinko-board {
+        height: 350px;
+    }
+}
+
+/* Animation Effects */
+@keyframes glow {
+    0% { box-shadow: 0 0 5px var(--neon-blue); }
+    50% { box-shadow: 0 0 20px var(--neon-blue), 0 0 30px var(--gold); }
+    100% { box-shadow: 0 0 5px var(--neon-blue); }
+}
+
+@keyframes win-pulse {
+    0% { transform
