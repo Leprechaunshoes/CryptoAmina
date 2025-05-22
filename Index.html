@@ -1,104 +1,224 @@
-<!DOCTYPE html>  
-<html lang="en">  
-<head>  
-    <meta charset="UTF-8">  
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-    <title>Amina Casino - Cosmic Galactic Adventure</title>  
-    <link rel="stylesheet" href="style.css">  
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">  
-</head>  
-<body>  
-    <div class="stars"></div>  
-    <div class="twinkling"></div>  
-      
-    <div class="container">  
-        <!-- Header Section -->  
-        <div class="header">  
-            <div class="logo">  
-                <h1>🚀 AMINA CASINO 🌌</h1>  
-                <p class="tagline">Cosmic Galactic Adventure</p>  
-            </div>  
-              
-            <div class="wallet-section">  
-                <div class="balance-display">  
-                    <div class="coin-info">  
-                        <span class="amina-balance">AMINA: <span id="aminaBalance">1000</span></span>  
-                        <span class="algo-balance">ALGO: <span id="algoBalance">100</span></span>  
-                    </div>  
-                    <button class="connect-wallet-btn" id="connectWallet">🔗 Connect Pera Wallet</button>  
-                </div>  
-                  
-                <div class="conversion-panel" id="conversionPanel">  
-                    <h3>🔄 Algo ↔ Amina Exchange</h3>  
-                    <div class="exchange-controls">  
-                        <input type="number" id="exchangeAmount" placeholder="Amount" min="1">  
-                        <select id="exchangeType">  
-                            <option value="algoToAmina">ALGO → AMINA (1:10)</option>  
-                            <option value="aminaToAlgo">AMINA → ALGO (10:1)</option>  
-                        </select>  
-                        <button class="exchange-btn" onclick="exchangeCoins()">Exchange</button>  
-                    </div>  
-                </div>  
-            </div>  
-        </div>  
-  
-        <!-- Navigation Tabs -->  
-        <div class="nav-tabs">  
-            <button class="nav-tab active" onclick="showGame('slots')" id="slotsTab">  
-                🎰 Cosmic Slots  
-            </button>  
-            <button class="nav-tab" onclick="showGame('roulette')" id="rouletteTab">  
-                🌟 Stellar Roulette  
-            </button>  
-            <button class="nav-tab" onclick="showGame('blackjack')" id="blackjackTab">  
-                🃏 Galaxy Blackjack  
-            </button>  
-            <button class="nav-tab" onclick="showGame('missions')" id="missionsTab">  
-                🚀 Space Missions  
-            </button>  
-        </div>  
-  
-        <!-- Game Containers -->  
-        <div id="slots" class="game-container active">  
-            <div class="game-header">  
-                <h2>🎰 Cosmic Slots</h2>  
-                <p>Spin the cosmic reels for galactic wins!</p>  
-            </div>  
-            <div class="slot-machine">  
-                <div class="slot-reels">  
-                    <div class="reel" id="reel1">🚀</div>  
-                    <div class="reel" id="reel2">🌟</div>  
-                    <div class="reel" id="reel3">🌍</div>  
-                </div>  
-                <div class="slot-controls">  
-                    <input type="number" id="slotBet" min="10" max="1000" value="10" step="10">  
-                    <button onclick="spinSlots()" class="spin-btn">SPIN</button>  
-                </div>  
-                <div id="slotResult" class="result-display"></div>  
-            </div>  
-        </div>  
-  
-        <div id="roulette" class="game-container">  
-            <div class="game-header">  
-                <h2>🌟 Stellar Roulette</h2>  
-                <p>Place your bets on the cosmic wheel!</p>  
-            </div>  
-            <div class="roulette-game">  
-                <div class="roulette-wheel"></div>  
-                <div class="bet-options">  
-                    <button onclick="placeBet('red')" class="bet-btn red">Red</button>  
-                    <button onclick="placeBet('black')" class="bet-btn black">Black</button>  
-                    <button onclick="placeBet('green')" class="bet-btn green">Green</button>  
-                </div>  
-                <div class="roulette-controls">  
-                    <input type="number" id="rouletteBet" min="10" max="1000" value="10" step="10">  
-                    <button onclick="spinRoulette()" class="spin-btn">SPIN</button>  
-                </div>  
-                <div id="rouletteResult" class="result-display"></div>  
-            </div>  
-        </div>  
-  
-        <div id="blackjack" class="game-container">  
-            <div class="game-header">  
-                <h2>🃏 Galaxy Blackjack</h2>  
-                <p>Beat the cosmic
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 AMINA CASINO 🌌</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="cosmic-header">
+        <h1>🚀 AMINA CASINO 🌌</h1>
+        <p class="subtitle">Cosmic Galactic Adventure</p>
+        
+        <!-- Balance Display -->
+        <div class="balance-container">
+            <div class="balance-item">
+                <span class="currency">AMINA:</span>
+                <span id="amina-balance">1000</span>
+            </div>
+            <div class="balance-item">
+                <span class="currency">ALGO:</span>
+                <span id="algo-balance">100</span>
+            </div>
+        </div>
+        
+        <!-- Wallet & Exchange Controls -->
+        <div class="header-controls">
+            <button id="connect-wallet" class="cosmic-btn primary">🔗 Connect Pera Wallet</button>
+            <button id="toggle-exchange" class="cosmic-btn secondary">🔄 Algo ↔ Amina Exchange</button>
+        </div>
+        
+        <!-- Exchange Panel -->
+        <div id="exchange-panel" class="exchange-panel hidden">
+            <h3>🔄 Currency Exchange</h3>
+            <div class="exchange-options">
+                <div class="exchange-rate">ALGO → AMINA (1:10)</div>
+                <div class="exchange-rate">AMINA → ALGO (10:1)</div>
+            </div>
+            <div class="exchange-controls">
+                <input type="number" id="exchange-amount" placeholder="Amount" min="1">
+                <select id="exchange-direction">
+                    <option value="algo-to-amina">ALGO → AMINA</option>
+                    <option value="amina-to-algo">AMINA → ALGO</option>
+                </select>
+                <button id="execute-exchange" class="cosmic-btn">Exchange</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="game-nav">
+        <button class="nav-btn active" data-game="slots">🎰 Cosmic Slots</button>
+        <button class="nav-btn" data-game="roulette">🌟 Stellar Roulette</button>
+        <button class="nav-btn" data-game="blackjack">🃏 Galaxy Blackjack</button>
+        <button class="nav-btn" data-game="missions">🚀 Space Missions</button>
+    </nav>
+
+    <!-- Game Sections -->
+    <main class="game-container">
+        
+        <!-- Slots Game -->
+        <section id="slots-game" class="game-section active">
+            <h2>🎰 Cosmic Slot Machine</h2>
+            <p>Spin the cosmic reels across the galaxy!</p>
+            
+            <div class="slot-machine">
+                <div class="slot-reels">
+                    <div class="reel" id="reel1">🌟</div>
+                    <div class="reel" id="reel2">🚀</div>
+                    <div class="reel" id="reel3">🌌</div>
+                </div>
+                
+                <div class="slot-controls">
+                    <label for="slot-bet">Bet Amount (AMINA):</label>
+                    <input type="number" id="slot-bet" value="10" min="1" max="100">
+                    <button id="spin-btn" class="cosmic-btn primary large">🌟 SPIN THE COSMOS 🌟</button>
+                </div>
+                
+                <div class="slot-result" id="slot-result"></div>
+            </div>
+            
+            <div class="payout-table">
+                <h3>🏆 Cosmic Payouts</h3>
+                <div class="payout-list">
+                    <div>🌟🌟🌟 = 15x</div>
+                    <div>🚀🚀🚀 = 12x</div>
+                    <div>🌌🌌🌌 = 10x</div>
+                    <div>👽👽👽 = 8x</div>
+                    <div>🛸🛸🛸 = 6x</div>
+                    <div>Any Match = 3x</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Roulette Game -->
+        <section id="roulette-game" class="game-section">
+            <h2>🌟 Stellar Roulette</h2>
+            <p>Bet on the cosmic wheel of fortune!</p>
+            
+            <div class="roulette-wheel">
+                <div class="wheel" id="roulette-wheel">
+                    <div class="wheel-number">0</div>
+                </div>
+                <div class="wheel-result" id="wheel-result">🌟</div>
+            </div>
+            
+            <div class="betting-table">
+                <h3>🎯 Place Your Cosmic Bets</h3>
+                <div class="bet-options">
+                    <button class="bet-btn" data-bet="red">Red Nebula</button>
+                    <button class="bet-btn" data-bet="black">Black Hole</button>
+                    <button class="bet-btn" data-bet="even">Even Stars</button>
+                    <button class="bet-btn" data-bet="odd">Odd Planets</button>
+                    <button class="bet-btn" data-bet="low">Low Orbit (1-18)</button>
+                    <button class="bet-btn" data-bet="high">High Orbit (19-36)</button>
+                </div>
+                
+                <div class="roulette-controls">
+                    <label for="roulette-bet">Bet Amount (AMINA):</label>
+                    <input type="number" id="roulette-bet" value="10" min="1" max="100">
+                    <button id="spin-roulette-btn" class="cosmic-btn primary">🌌 SPIN THE GALAXY 🌌</button>
+                </div>
+                
+                <div class="selected-bets" id="selected-bets"></div>
+                <div class="roulette-result" id="roulette-result"></div>
+            </div>
+        </section>
+
+        <!-- Blackjack Game -->
+        <section id="blackjack-game" class="game-section">
+            <h2>🃏 Galaxy Blackjack</h2>
+            <p>Beat the cosmic dealer at 21!</p>
+            
+            <div class="blackjack-table">
+                <div class="dealer-area">
+                    <h3>🤖 Cosmic Dealer (<span id="dealer-score">0</span>)</h3>
+                    <div class="cards" id="dealer-cards"></div>
+                </div>
+                
+                <div class="player-area">
+                    <h3>👨‍🚀 Space Explorer (<span id="player-score">0</span>)</h3>
+                    <div class="cards" id="player-cards"></div>
+                </div>
+                
+                <div class="blackjack-controls">
+                    <label for="blackjack-bet">Mission Bet (AMINA):</label>
+                    <input type="number" id="blackjack-bet" value="10" min="1" max="100">
+                    <div class="action-buttons">
+                        <button id="deal-btn" class="cosmic-btn primary">🚀 START MISSION</button>
+                        <button id="hit-btn" class="cosmic-btn secondary" disabled>⚡ HIT</button>
+                        <button id="stand-btn" class="cosmic-btn secondary" disabled>🛡️ STAND</button>
+                        <button id="double-btn" class="cosmic-btn secondary" disabled>💥 DOUBLE</button>
+                    </div>
+                </div>
+                
+                <div class="blackjack-result" id="blackjack-result"></div>
+            </div>
+        </section>
+
+        <!-- Missions -->
+        <section id="missions-game" class="game-section">
+            <h2>🚀 Space Missions</h2>
+            <p>Complete cosmic challenges for bonus rewards!</p>
+            
+            <div class="missions-list">
+                <div class="mission" id="mission-slots">
+                    <div class="mission-icon">🌟</div>
+                    <div class="mission-info">
+                        <h3>Stellar Collector</h3>
+                        <p>Win 5 slot games in a row</p>
+                        <div class="progress">Progress: <span id="slots-progress">0</span>/5</div>
+                        <div class="reward">Reward: 500 AMINA</div>
+                    </div>
+                    <button class="mission-btn" id="complete-slots" disabled>Complete</button>
+                </div>
+                
+                <div class="mission" id="mission-roulette">
+                    <div class="mission-icon">🎯</div>
+                    <div class="mission-info">
+                        <h3>Roulette Master</h3>
+                        <p>Hit the same color 3 times</p>
+                        <div class="progress">Progress: <span id="roulette-progress">0</span>/3</div>
+                        <div class="reward">Reward: 300 AMINA</div>
+                    </div>
+                    <button class="mission-btn" id="complete-roulette" disabled>Complete</button>
+                </div>
+                
+                <div class="mission" id="mission-blackjack">
+                    <div class="mission-icon">🃏</div>
+                    <div class="mission-info">
+                        <h3>Blackjack Champion</h3>
+                        <p>Get 3 blackjacks (21 with 2 cards)</p>
+                        <div class="progress">Progress: <span id="blackjack-progress">0</span>/3</div>
+                        <div class="reward">Reward: 1000 AMINA</div>
+                    </div>
+                    <button class="mission-btn" id="complete-blackjack" disabled>Complete</button>
+                </div>
+                
+                <div class="mission" id="mission-roller">
+                    <div class="mission-icon">💎</div>
+                    <div class="mission-info">
+                        <h3>High Roller</h3>
+                        <p>Win over 2000 AMINA total</p>
+                        <div class="progress">Progress: <span id="roller-progress">0</span>/2000</div>
+                        <div class="reward">Reward: 2000 AMINA</div>
+                    </div>
+                    <button class="mission-btn" id="complete-roller" disabled>Complete</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="cosmic-footer">
+        <p>🌌 Amina Casino - Where Cosmic Dreams Come True 🌌</p>
+        <p>Powered by Pera Wallet & Algorand Blockchain</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="index.js"></script>
+    <script src="scripts.js"></script>
+</body>
+</html>
