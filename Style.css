@@ -431,4 +431,84 @@ body {
         #000000 54deg 72deg,
         #dc143c 72deg 90deg,
         #000000 90deg 108deg,
-        #dc143c 108deg
+        #dc143c 108deg 126deg,
+        #000000 126deg 144deg,
+        #dc143c 144deg 162deg,
+        #000000 162deg 180deg,
+        #dc143c 180deg 198deg,
+        #000000 198deg 216deg,
+        #dc143c 216deg 234deg,
+        #000000 234deg 252deg,
+        #dc143c 252deg 270deg,
+        #000000 270deg 288deg,
+        #dc143c 288deg 306deg,
+        #000000 306deg 324deg,
+        #dc143c 324deg 342deg,
+        #000000 342deg 360deg
+    );
+    transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+}
+
+.wheel-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(45deg, #ffd700, #ffed4e);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: #000;
+    font-weight: bold;
+    border: 3px solid #000;
+}
+
+.wheel-pointer {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-top: 40px solid #ffd700;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+}
+
+.winning-number {
+    font-size: 2rem;
+    color: #ffd700;
+    font-weight: bold;
+    margin-top: 20px;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+}
+
+/* Betting Board */
+.betting-board {
+    margin: 30px 0;
+}
+
+.bet-section-title {
+    text-align: center;
+    color: #ffd700;
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.bet-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.bet-option {
+    background: rgba(255, 255, 255,
