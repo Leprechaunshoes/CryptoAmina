@@ -82,7 +82,7 @@ body {
 }
 
 .casino-title {
-    font-size: 2.5rem;
+    font-size: 3rem;
     text-shadow: 0 0 20px #ff6b9d, 0 0 40px #c44569;
     margin-bottom: 20px;
     background: linear-gradient(45deg, #ff6b9d, #c44569, #f8b500, #ff6b9d);
@@ -177,21 +177,24 @@ input:checked + .slider:before {
 }
 
 .balance-display {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 12px 24px;
     border-radius: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     font-weight: bold;
+    font-size: 1.1rem;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
 .wallet-btn, .donate-btn, .daily-btn {
-    padding: 10px 20px;
+    padding: 12px 24px;
     border: none;
     border-radius: 15px;
     cursor: pointer;
     font-weight: bold;
     transition: all 0.3s ease;
     text-transform: uppercase;
+    font-size: 0.9rem;
 }
 
 .wallet-btn {
@@ -201,7 +204,7 @@ input:checked + .slider:before {
 
 .wallet-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
 }
 
 .donate-btn {
@@ -211,7 +214,7 @@ input:checked + .slider:before {
 
 .donate-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(240, 147, 251, 0.4);
+    box-shadow: 0 8px 25px rgba(240, 147, 251, 0.4);
 }
 
 .daily-btn {
@@ -221,37 +224,41 @@ input:checked + .slider:before {
 
 .daily-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(79, 172, 254, 0.4);
+    box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
 }
 
 /* Games Container */
 .games-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
     gap: 30px;
 }
 
 /* Game Cards */
 .game-card {
     background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
+    backdrop-filter: blur(15px);
+    border-radius: 25px;
     padding: 30px;
     border: 2px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    transition: transform 0.3s ease;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
 }
 
 .game-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 .game-card h2 {
     text-align: center;
-    margin-bottom: 20px;
-    font-size: 1.5rem;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+    background: linear-gradient(45deg, #ff6b9d, #f8b500);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 /* Slot Machine */
@@ -262,26 +269,26 @@ input:checked + .slider:before {
 .reels {
     display: flex;
     justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 15px;
+    margin-bottom: 25px;
 }
 
 .reel {
-    width: 80px;
-    height: 80px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 10px;
+    width: 90px;
+    height: 90px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
+    font-size: 2.5rem;
     animation: glow 2s ease-in-out infinite alternate;
 }
 
 @keyframes glow {
-    from { box-shadow: 0 0 10px rgba(255, 255, 255, 0.2); }
-    to { box-shadow: 0 0 20px rgba(255, 107, 157, 0.6), 0 0 30px rgba(255, 107, 157, 0.4); }
+    from { box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); }
+    to { box-shadow: 0 0 30px rgba(255, 107, 157, 0.6), 0 0 40px rgba(255, 107, 157, 0.4); }
 }
 
 /* Blackjack */
@@ -291,31 +298,40 @@ input:checked + .slider:before {
 
 .dealer-section, .player-section {
     margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+}
+
+.dealer-section h3, .player-section h3 {
+    margin-bottom: 10px;
+    font-size: 1.2rem;
 }
 
 .cards {
     display: flex;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     margin-top: 10px;
-    min-height: 60px;
+    min-height: 70px;
     flex-wrap: wrap;
 }
 
 .card {
-    width: 40px;
-    height: 60px;
-    background: rgba(255, 255, 255, 0.9);
+    width: 45px;
+    height: 65px;
+    background: rgba(255, 255, 255, 0.95);
     color: #333;
-    border-radius: 5px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 12px;
+    font-size: 11px;
     text-align: center;
-    border: 1px solid #ccc;
-    animation: cardFlip 0.5s ease;
+    border: 2px solid #ddd;
+    animation: cardFlip 0.6s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 @keyframes cardFlip {
@@ -330,18 +346,18 @@ input:checked + .slider:before {
 
 .plinko-container {
     position: relative;
-    width: 300px;
-    height: 400px;
-    margin: 0 auto 20px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    width: 350px;
+    height: 450px;
+    margin: 0 auto 25px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 15px;
+    border: 3px solid rgba(255, 255, 255, 0.2);
     overflow: hidden;
 }
 
 .drop-zone {
     position: absolute;
-    top: 10px;
+    top: 15px;
     left: 50%;
     transform: translateX(-50%);
     width: 30px;
@@ -349,33 +365,33 @@ input:checked + .slider:before {
 }
 
 .ball {
-    width: 15px;
-    height: 15px;
+    width: 18px;
+    height: 18px;
     background: radial-gradient(circle, #ff6b9d, #c44569);
     border-radius: 50%;
     position: absolute;
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    box-shadow: 0 0 10px rgba(255, 107, 157, 0.8);
-    transition: all 0.1s ease;
+    box-shadow: 0 0 15px rgba(255, 107, 157, 0.8);
+    transition: all 0.15s ease;
 }
 
 .pegs-container {
     position: absolute;
-    top: 50px;
+    top: 60px;
     left: 0;
     right: 0;
-    bottom: 60px;
+    bottom: 70px;
 }
 
 .peg {
     position: absolute;
-    width: 8px;
-    height: 8px;
-    background: rgba(255, 255, 255, 0.8);
+    width: 10px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 50%;
-    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
 }
 
 .multipliers {
@@ -384,7 +400,7 @@ input:checked + .slider:before {
     left: 0;
     right: 0;
     display: flex;
-    height: 40px;
+    height: 50px;
 }
 
 .multiplier {
@@ -392,18 +408,21 @@ input:checked + .slider:before {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: bold;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
 }
 
 .multiplier[data-multiplier="5"] {
     background: linear-gradient(45deg, #f093fb, #f5576c);
+    box-shadow: 0 0 15px rgba(240, 147, 251, 0.5);
 }
 
 .multiplier[data-multiplier="2"] {
     background: linear-gradient(45deg, #4facfe, #00f2fe);
+    box-shadow: 0 0 10px rgba(79, 172, 254, 0.5);
 }
 
 /* Bet Controls */
@@ -412,71 +431,92 @@ input:checked + .slider:before {
     align-items: center;
     justify-content: center;
     gap: 15px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
 }
 
 .bet-controls label {
     font-weight: bold;
+    font-size: 1rem;
 }
 
 .bet-controls input {
-    padding: 8px 12px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 8px;
+    padding: 10px 15px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
     background: rgba(255, 255, 255, 0.1);
     color: white;
-    width: 100px;
+    width: 120px;
     text-align: center;
+    font-size: 1rem;
+    font-weight: bold;
 }
 
 .bet-controls input:focus {
     outline: none;
     border-color: #ff6b9d;
-    box-shadow: 0 0 10px rgba(255, 107, 157, 0.3);
+    box-shadow: 0 0 15px rgba(255, 107, 157, 0.4);
 }
 
 .game-btn {
-    padding: 10px 20px;
+    padding: 12px 25px;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     background: linear-gradient(45deg, #667eea, #764ba2);
     color: white;
     cursor: pointer;
     font-weight: bold;
     transition: all 0.3s ease;
     text-transform: uppercase;
+    font-size: 1rem;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .game-btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
 }
 
 .game-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
 }
 
 /* Game Results */
 .game-result {
     text-align: center;
     font-weight: bold;
-    min-height: 30px;
-    padding: 10px;
-    border-radius: 10px;
+    min-height: 40px;
+    padding: 15px;
+    border-radius: 12px;
     background: rgba(255, 255, 255, 0.1);
-    margin-top: 15px;
+    margin-top: 20px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .win {
     color: #4ade80;
-    text-shadow: 0 0 10px #4ade80;
+    text-shadow: 0 0 15px #4ade80;
+    background: rgba(74, 222, 128, 0.1);
+    border: 2px solid rgba(74, 222, 128, 0.3);
 }
 
 .lose {
     color: #f87171;
-    text-shadow: 0 0 10px #f87171;
+    text-shadow: 0 0 15px #f87171;
+    background: rgba(248, 113, 113, 0.1);
+    border: 2px solid rgba(248, 113, 113, 0.3);
+}
+
+.info {
+    color: #60a5fa;
+    text-shadow: 0 0 15px #60a5fa;
+    background: rgba(96, 165, 250, 0.1);
+    border: 2px solid rgba(96, 165, 250, 0.3);
 }
 
 /* Responsive */
@@ -491,11 +531,35 @@ input:checked + .slider:before {
     }
     
     .casino-title {
-        font-size: 2rem;
+        font-size: 2.2rem;
     }
     
     .plinko-container {
-        width: 250px;
-        height: 350px;
+        width: 300px;
+        height: 400px;
+    }
+    
+    .reels {
+        gap: 10px;
+    }
+    
+    .reel {
+        width: 75px;
+        height: 75px;
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .game-card {
+        padding: 20px;
+    }
+    
+    .casino-title {
+        font-size: 1.8rem;
     }
 }
