@@ -320,7 +320,7 @@ class CosmicCasino {
         // Create pegs in a pyramid pattern
         for (let row = 0; row < 12; row++) {
             const pegsInRow = row + 3;
-            const startX = (300 - (pegsInRow * 25)) / 2;
+            const startX = (350 - (pegsInRow * 25)) / 2;
             
             for (let col = 0; col < pegsInRow; col++) {
                 const peg = document.createElement('div');
@@ -381,6 +381,8 @@ class CosmicCasino {
         multiplierElements.forEach((el, index) => {
             el.style.background = index === finalSlot ? 
                 'linear-gradient(45deg, #4ade80, #22c55e)' : 
+                index === 4 ? 'linear-gradient(45deg, #f093fb, #f5576c)' :
+                [3, 5].includes(index) ? 'linear-gradient(45deg, #4facfe, #00f2fe)' :
                 'rgba(255, 255, 255, 0.1)';
         });
         
@@ -396,12 +398,10 @@ class CosmicCasino {
         setTimeout(() => {
             ball.style.top = '0px';
             ball.style.left = '50%';
-            multiplierElements.forEach(el => {
-                const originalMultiplier = parseFloat(el.dataset.multiplier);
-                el.style.background = originalMultiplier === 5 ? 
+            multiplierElements.forEach((el, index) => {
+                el.style.background = index === 4 ? 
                     'linear-gradient(45deg, #f093fb, #f5576c)' :
-                    originalMultiplier === 2 ? 
-                    'linear-gradient(45deg, #4facfe, #00f2fe)' :
+                    [3, 5].includes(index) ? 'linear-gradient(45deg, #4facfe, #00f2fe)' :
                     'rgba(255, 255, 255, 0.1)';
             });
             dropBtn.disabled = false;
