@@ -16,11 +16,15 @@ class CasinoWallet {
 
     initializeWallet() {
         // Load saved data from localStorage (if available)
-        const savedData = localStorage.getItem('casinoWallet');
-        if (savedData) {
-            const data = JSON.parse(savedData);
-            this.houseCoins = data.houseCoins || 1000;
-            this.lastDailyBonus = data.lastDailyBonus;
+        try {
+            const savedData = localStorage.getItem('casinoWallet');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                this.houseCoins = data.houseCoins || 1000;
+                this.lastDailyBonus = data.lastDailyBonus;
+            }
+        } catch (e) {
+            console.log('LocalStorage not available, using default values');
         }
         
         this.updateUI();
@@ -61,7 +65,7 @@ class CasinoWallet {
     async connectWallet() {
         try {
             // Mock wallet connection for demo
-            // In real implementation, this would connect to Pera Wallet
+            // Replace this section with actual Pera Wallet integration
             if (!this.isConnected) {
                 this.showMessage('Connecting to Pera Wallet... (Demo Mode)', 'info');
                 
@@ -70,7 +74,7 @@ class CasinoWallet {
                 
                 // Mock wallet connection success
                 this.isConnected = true;
-                this.walletAddress = 'MOCK_ADDRESS_FOR_DEMO_' + Math.random().toString(36).substr(2, 9);
+                this.walletAddress = 'DEMO_' + Math.random().toString(36).substr(2, 9);
                 this.aminaBalance = 10; // Mock balance
                 
                 this.showMessage('Wallet connected successfully! (Demo Mode)', 'success');
@@ -107,6 +111,7 @@ class CasinoWallet {
 
         try {
             // Mock donation transaction
+            // Replace with actual Algorand transaction to donation address
             this.showMessage(`Donating ${amount} Amina Coins... (Demo Mode)`, 'info');
             
             // Simulate transaction delay
@@ -178,9 +183,25 @@ class CasinoWallet {
 
     async sendAminaTransaction(amount) {
         // Mock Amina transaction for demo
-        // In real implementation, this would use Algorand SDK
+        // Replace with actual Algorand SDK transaction
         await new Promise(resolve => setTimeout(resolve, 1000));
         console.log(`Mock Amina transaction: ${amount} AMINA`);
+        
+        /* Real implementation would look like:
+        const algodClient = new algosdk.Algodv2(token, server, port);
+        const params = await algodClient.getTransactionParams().do();
+        const txn = algosdk.makeAssetTransferTxnWithSuggestedParams(
+            this.walletAddress,
+            houseWalletAddress,
+            undefined,
+            undefined,
+            amount * 1000000, // Convert to microAmina
+            undefined,
+            this.aminaAsaId,
+            params
+        );
+        // Sign and send transaction through Pera Wallet
+        */
     }
 
     async payoutWin(betAmount, multiplier) {
@@ -209,6 +230,7 @@ class CasinoWallet {
 
     async receiveAminaTransaction(amount) {
         // Mock Amina receive for demo
+        // Replace with actual Algorand transaction from house wallet
         await new Promise(resolve => setTimeout(resolve, 500));
         console.log(`Mock Amina receive: ${amount} AMINA`);
     }
@@ -300,11 +322,15 @@ class CasinoWallet {
     }
 
     saveData() {
-        const data = {
-            houseCoins: this.houseCoins,
-            lastDailyBonus: this.lastDailyBonus
-        };
-        localStorage.setItem('casinoWallet', JSON.stringify(data));
+        try {
+            const data = {
+                houseCoins: this.houseCoins,
+                lastDailyBonus: this.lastDailyBonus
+            };
+            localStorage.setItem('casinoWallet', JSON.stringify(data));
+        } catch (e) {
+            console.log('Unable to save to localStorage');
+        }
     }
 }
 
@@ -312,7 +338,5 @@ class CasinoWallet {
 let wallet;
 document.addEventListener('DOMContentLoaded', () => {
     wallet = new CasinoWallet();
+    window.wallet = wallet;
 });
-
-// Export for use in other scripts
-window.wallet = wallet;
