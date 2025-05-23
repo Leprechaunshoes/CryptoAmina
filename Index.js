@@ -1,399 +1,431 @@
-// Algorand and Pera Wallet Integration
-const AMINA_ASSET_ID = 1107424865;
-const HOUSE_ADDRESS = '6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI';
-const HOUSE_RAKE = 0.05; // 5%
-
-// Simulated Pera Wallet SDK for the context of this demo
-class PeraWalletConnect {
+// Game Mechanics
+class CosmicCasino {
     constructor() {
-        this.connected = false;
-        this.accounts = [];
-        this.balances = {};
+        this.slotSymbols = ['🌟', '💫', '🌙', '🪐', '🌌', '☄️', '🛸'];
+        this.blackjackDeck = [];
+        this.playerHand = [];
+        this.dealerHand = [];
+        this.gameInProgress = false;
+        
+        this.initializeGames();
     }
 
-    // Connect to Pera Wallet
-    async connect() {
-        try {
-            // In a real implementation, this would interact with the actual Pera wallet
-            console.log("Connecting to Pera Wallet...");
+    initializeGames() {
+        this.setupSlotMachine();
+        this.setupBlackjack();
+        this.setupPlinko();
+    }
+
+    // SLOT MACHINE
+    setupSlotMachine() {
+        document.getElementById('spinBtn').addEventListener('click', () => {
+            this.spinSlots();
+        });
+    }
+
+    async spinSlots() {
+        const betAmount = parseFloat(document.getElementById('slotBet').value);
+        const spinBtn = document.getElementById('spinBtn');
+        
+        if (isNaN(betAmount) || betAmount <= 0) {
+            this.showGameMessage('slotResult', 'Please enter a valid bet amount', 'error');
+            return;
+        }
+
+        // Check if wallet is available and place bet
+        if (!window.wallet || !await window.wallet.placeBet(betAmount)) {
+            return;
+        }
+
+        spinBtn.disabled = true;
+        this.showGameMessage('slotResult', 'Spinning...', 'info');
+
+        // Animate reels
+        const reels = ['reel1', 'reel2', 'reel3'];
+        const results = [];
+
+        // Spin animation
+        for (let i = 0; i < 20; i++) {
+            reels.forEach(reelId => {
+                const reel = document.getElementById(reelId);
+                reel.textContent = this.slotSymbols[Math.floor(Math.random() * this.slotSymbols.length)];
+            });
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+
+        // Final results
+        reels.forEach((reelId, index) => {
+            const symbol = this.slotSymbols[Math.floor(Math.random() * this.slotSymbols.length)];
+            document.getElementById(reelId).textContent = symbol;
+            results.push(symbol);
+        });
+
+        // Check for wins
+        const { win, multiplier, message } = this.checkSlotWin(results);
+        
+        if (win) {
+            const payout = await window.wallet.payoutWin(betAmount, multiplier);
+            this.showGameMessage('slotResult', `${message} | Won: ${payout.toFixed(2)}`, 'win');
+        } else {
+            this.showGameMessage('slotResult', message, 'lose');
+        }
+
+        spinBtn.disabled = false;
+    }
+
+    checkSlotWin(results) {
+        const [first, second, third] = results;
+        
+        // Three matching symbols
+        if (first === second && second === third) {
+            if (first === '🌟') return { win: true, multiplier: 10, message: '⭐ JACKPOT! Three Stars!' };
+            if (first === '💫') return { win: true, multiplier: 8, message: '💫 STELLAR! Three Sparkles!' };
+            if (first === '🌙') return { win: true, multiplier: 6, message: '🌙 LUNAR WIN! Three Moons!' };
+            return { win: true, multiplier: 4, message: '🎉 Three of a Kind!' };
+        }
+        
+        // Two matching symbols
+        if (first === second || second === third || first === third) {
+            return { win: true, multiplier: 2, message: '✨ Pair Match!' };
+        }
+        
+        // Special combinations
+        if (results.includes('🌟') && results.includes('💫')) {
+            return { win: true, multiplier: 3, message: '🌟💫 Cosmic Combo!' };
+        }
+
+        return { win: false, multiplier: 0, message: 'No match - Try again!' };
+    }
+
+    // BLACKJACK
+    setupBlackjack() {
+        document.getElementById('dealBtn').addEventListener('click', () => {
+            this.dealBlackjack();
+        });
+        
+        document.getElementById('hitBtn').addEventListener('click', () => {
+            this.hitBlackjack();
+        });
+        
+        document.getElementById('standBtn').addEventListener('click', () => {
+            this.standBlackjack();
+        });
+
+        this.createDeck();
+    }
+
+    createDeck() {
+        const suits = ['♠️', '♥️', '♦️', '♣️'];
+        const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        
+        this.blackjackDeck = [];
+        suits.forEach(suit => {
+            values.forEach(value => {
+                this.blackjackDeck.push({ suit, value, score: this.getCardValue(value) });
+            });
+        });
+        
+        this.shuffleDeck();
+    }
+
+    shuffleDeck() {
+        for (let i = this.blackjackDeck.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [this.blackjackDeck[i], this.blackjackDeck[j]] = [this.blackjackDeck[j], this.blackjackDeck[i]];
+        }
+    }
+
+    getCardValue(value) {
+        if (value === 'A') return 11;
+        if (['J', 'Q', 'K'].includes(value)) return 10;
+        return parseInt(value);
+    }
+
+    async dealBlackjack() {
+        const betAmount = parseFloat(document.getElementById('blackjackBet').value);
+        
+        if (isNaN(betAmount) || betAmount <= 0) {
+            this.showGameMessage('blackjackResult', 'Please enter a valid bet amount', 'error');
+            return;
+        }
+
+        if (!window.wallet || !await window.wallet.placeBet(betAmount)) {
+            return;
+        }
+
+        // Reset game
+        this.playerHand = [];
+        this.dealerHand = [];
+        this.gameInProgress = true;
+        
+        // Deal initial cards
+        this.playerHand.push(this.drawCard());
+        this.dealerHand.push(this.drawCard());
+        this.playerHand.push(this.drawCard());
+        this.dealerHand.push(this.drawCard());
+        
+        this.updateBlackjackDisplay();
+        
+        // Check for blackjack
+        if (this.calculateScore(this.playerHand) === 21) {
+            this.endBlackjackGame();
+        } else {
+            this.toggleBlackjackButtons(true);
+        }
+    }
+
+    drawCard() {
+        if (this.blackjackDeck.length < 10) {
+            this.createDeck();
+        }
+        return this.blackjackDeck.pop();
+    }
+
+    hitBlackjack() {
+        if (!this.gameInProgress) return;
+        
+        this.playerHand.push(this.drawCard());
+        this.updateBlackjackDisplay();
+        
+        const playerScore = this.calculateScore(this.playerHand);
+        if (playerScore >= 21) {
+            this.endBlackjackGame();
+        }
+    }
+
+    standBlackjack() {
+        if (!this.gameInProgress) return;
+        
+        // Dealer plays
+        while (this.calculateScore(this.dealerHand) < 17) {
+            this.dealerHand.push(this.drawCard());
+        }
+        
+        this.endBlackjackGame();
+    }
+
+    calculateScore(hand) {
+        let score = 0;
+        let aces = 0;
+        
+        hand.forEach(card => {
+            if (card.value === 'A') {
+                aces++;
+                score += 11;
+            } else {
+                score += card.score;
+            }
+        });
+        
+        // Adjust for aces
+        while (score > 21 && aces > 0) {
+            score -= 10;
+            aces--;
+        }
+        
+        return score;
+    }
+
+    updateBlackjackDisplay() {
+        const playerScore = this.calculateScore(this.playerHand);
+        const dealerScore = this.gameInProgress ? 
+            this.calculateScore([this.dealerHand[0]]) : 
+            this.calculateScore(this.dealerHand);
+
+        document.getElementById('playerScore').textContent = playerScore;
+        document.getElementById('dealerScore').textContent = this.gameInProgress ? '?' : dealerScore;
+
+        // Update cards display
+        this.displayCards('playerCards', this.playerHand);
+        this.displayCards('dealerCards', this.dealerHand, this.gameInProgress);
+    }
+
+    displayCards(containerId, hand, hideSecond = false) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        
+        hand.forEach((card, index) => {
+            const cardEl = document.createElement('div');
+            cardEl.className = 'card';
             
-            // Simulate connection process
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            if (hideSecond && index === 1) {
+                cardEl.textContent = '🂠';
+                cardEl.style.background = 'linear-gradient(45deg, #667eea, #764ba2)';
+                cardEl.style.color = 'white';
+            } else {
+                cardEl.textContent = `${card.value}${card.suit}`;
+                cardEl.style.color = ['♥️', '♦️'].includes(card.suit) ? '#ef4444' : '#1f2937';
+            }
             
-            // Generate a random wallet address for demo purposes
-            const walletAddress = this.generateRandomAddress();
-            this.accounts = [walletAddress];
+            container.appendChild(cardEl);
+        });
+    }
+
+    async endBlackjackGame() {
+        this.gameInProgress = false;
+        this.toggleBlackjackButtons(false);
+        this.updateBlackjackDisplay();
+        
+        const playerScore = this.calculateScore(this.playerHand);
+        const dealerScore = this.calculateScore(this.dealerHand);
+        const betAmount = parseFloat(document.getElementById('blackjackBet').value);
+        
+        let result, multiplier = 0;
+        
+        if (playerScore > 21) {
+            result = 'Player Bust! Dealer Wins';
+        } else if (dealerScore > 21) {
+            result = 'Dealer Bust! Player Wins';
+            multiplier = 2;
+        } else if (playerScore === 21 && this.playerHand.length === 2) {
+            result = 'BLACKJACK! Player Wins';
+            multiplier = 2.5;
+        } else if (playerScore > dealerScore) {
+            result = 'Player Wins!';
+            multiplier = 2;
+        } else if (dealerScore > playerScore) {
+            result = 'Dealer Wins';
+        } else {
+            result = 'Push - Tie Game';
+            multiplier = 1; // Return bet
+        }
+        
+        if (multiplier > 0) {
+            const payout = await window.wallet.payoutWin(betAmount, multiplier);
+            this.showGameMessage('blackjackResult', `${result} | Won: ${payout.toFixed(2)}`, 'win');
+        } else {
+            this.showGameMessage('blackjackResult', result, 'lose');
+        }
+    }
+
+    toggleBlackjackButtons(gameActive) {
+        document.getElementById('dealBtn').disabled = gameActive;
+        document.getElementById('hitBtn').disabled = !gameActive;
+        document.getElementById('standBtn').disabled = !gameActive;
+    }
+
+    // PLINKO
+    setupPlinko() {
+        document.getElementById('dropBtn').addEventListener('click', () => {
+            this.dropPlinkoBall();
+        });
+        
+        this.createPlinkoBoard();
+    }
+
+    createPlinkoBoard() {
+        const container = document.getElementById('pegsContainer');
+        container.innerHTML = '';
+        
+        // Create pegs in a pyramid pattern
+        for (let row = 0; row < 12; row++) {
+            const pegsInRow = row + 3;
+            const startX = (300 - (pegsInRow * 25)) / 2;
             
-            // Set a random Amina balance
-            this.balances[AMINA_ASSET_ID] = (Math.random() * 50 + 5).toFixed(2);
+            for (let col = 0; col < pegsInRow; col++) {
+                const peg = document.createElement('div');
+                peg.className = 'peg';
+                peg.style.left = `${startX + (col * 25)}px`;
+                peg.style.top = `${row * 25}px`;
+                container.appendChild(peg);
+            }
+        }
+    }
+
+    async dropPlinkoBall() {
+        const betAmount = parseFloat(document.getElementById('plinkoBet').value);
+        const dropBtn = document.getElementById('dropBtn');
+        
+        if (isNaN(betAmount) || betAmount <= 0) {
+            this.showGameMessage('plinkoResult', 'Please enter a valid bet amount', 'error');
+            return;
+        }
+
+        if (!window.wallet || !await window.wallet.placeBet(betAmount)) {
+            return;
+        }
+
+        dropBtn.disabled = true;
+        this.showGameMessage('plinkoResult', 'Ball dropping...', 'info');
+
+        const ball = document.getElementById('plinkoBall');
+        const multipliers = [0.1, 0.5, 1, 2, 5, 2, 1, 0.5, 0.1];
+        
+        // Animate ball drop
+        let position = 4; // Start in middle (0-8 range)
+        ball.style.display = 'block';
+        ball.style.left = '50%';
+        
+        // Simulate ball bouncing through pegs
+        for (let drop = 0; drop < 12; drop++) {
+            // Random bounce left or right
+            const bounce = Math.random() < 0.5 ? -1 : 1;
+            position += bounce * 0.5;
             
-            this.connected = true;
-            return this.accounts;
-        } catch (error) {
-            console.error("Connection failed:", error);
-            throw error;
-        }
-    }
-
-    // Disconnect from Pera Wallet
-    async disconnect() {
-        this.connected = false;
-        this.accounts = [];
-        this.balances = {};
-        console.log("Disconnected from Pera Wallet");
-    }
-
-    // Check if connected
-    isConnected() {
-        return this.connected;
-    }
-
-    // Get the connected accounts
-    getAccounts() {
-        return this.accounts;
-    }
-
-    // Get asset balance
-    async getAssetBalance(account, assetId) {
-        if (!this.connected || !this.accounts.includes(account)) {
-            throw new Error("Not connected or invalid account");
+            // Keep within bounds
+            position = Math.max(0, Math.min(8, position));
+            
+            // Animate position
+            ball.style.left = `${(position / 8) * 80 + 10}%`;
+            ball.style.top = `${40 + (drop * 25)}px`;
+            
+            await new Promise(resolve => setTimeout(resolve, 200));
         }
         
-        return this.balances[assetId] || '0';
+        // Final position determines multiplier
+        const finalSlot = Math.floor(position);
+        const multiplier = multipliers[finalSlot];
+        
+        // Highlight winning slot
+        const multiplierElements = document.querySelectorAll('.multiplier');
+        multiplierElements.forEach((el, index) => {
+            el.style.background = index === finalSlot ? 
+                'linear-gradient(45deg, #4ade80, #22c55e)' : 
+                'rgba(255, 255, 255, 0.1)';
+        });
+        
+        if (multiplier >= 1) {
+            const payout = await window.wallet.payoutWin(betAmount, multiplier);
+            this.showGameMessage('plinkoResult', `${multiplier}x Multiplier! Won: ${payout.toFixed(2)}`, 'win');
+        } else {
+            const payout = await window.wallet.payoutWin(betAmount, multiplier);
+            this.showGameMessage('plinkoResult', `${multiplier}x Multiplier | Won: ${payout.toFixed(2)}`, 'lose');
+        }
+        
+        // Reset ball position
+        setTimeout(() => {
+            ball.style.top = '0px';
+            ball.style.left = '50%';
+            multiplierElements.forEach(el => {
+                const originalMultiplier = parseFloat(el.dataset.multiplier);
+                el.style.background = originalMultiplier === 5 ? 
+                    'linear-gradient(45deg, #f093fb, #f5576c)' :
+                    originalMultiplier === 2 ? 
+                    'linear-gradient(45deg, #4facfe, #00f2fe)' :
+                    'rgba(255, 255, 255, 0.1)';
+            });
+            dropBtn.disabled = false;
+        }, 2000);
     }
 
-    // Simulate sending assets (for betting)
-    async sendAssets(from, to, amount, assetId) {
-        if (!this.connected || !this.accounts.includes(from)) {
-            throw new Error("Not connected or invalid account");
-        }
+    showGameMessage(elementId, message, type) {
+        const element = document.getElementById(elementId);
+        element.textContent = message;
+        element.className = `game-result ${type}`;
         
-        // Check if user has enough balance
-        const balance = parseFloat(this.balances[assetId] || '0');
-        if (balance < amount) {
-            throw new Error("Insufficient balance");
-        }
-        
-        console.log(`Sending ${amount} of asset ${assetId} from ${from} to ${to}`);
-        
-        // Update balance
-        this.balances[assetId] = (balance - amount).toFixed(2);
-        
-        // Return a mock transaction ID
-        return {
-            txId: this.generateRandomTxId(),
-            balance: this.balances[assetId]
-        };
-    }
-
-    // Simulate receiving assets (for winning)
-    async receiveAssets(to, amount, assetId) {
-        if (!this.connected || !this.accounts.includes(to)) {
-            throw new Error("Not connected or invalid account");
-        }
-        
-        const balance = parseFloat(this.balances[assetId] || '0');
-        
-        // Apply house rake
-        const rakeAmount = amount * HOUSE_RAKE;
-        const netAmount = amount - rakeAmount;
-        
-        console.log(`Receiving ${netAmount} of asset ${assetId} to ${to} (Rake: ${rakeAmount})`);
-        
-        // Update balance
-        this.balances[assetId] = (balance + netAmount).toFixed(2);
-        
-        // Simulate sending rake to house address
-        console.log(`Sending rake ${rakeAmount} to ${HOUSE_ADDRESS}`);
-        
-        // Return a mock transaction ID
-        return {
-            txId: this.generateRandomTxId(),
-            balance: this.balances[assetId]
-        };
-    }
-
-    // Helper to generate random wallet address for demo
-    generateRandomAddress() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-        let address = '';
-        for (let i = 0; i < 58; i++) {
-            address += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return address;
-    }
-
-    // Helper to generate random transaction ID for demo
-    generateRandomTxId() {
-        const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-        let txId = '';
-        for (let i = 0; i < 52; i++) {
-            txId += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return txId;
+        // Add animation
+        element.style.transform = 'scale(1.05)';
+        setTimeout(() => {
+            element.style.transform = 'scale(1)';
+        }, 300);
     }
 }
 
-// Create wallet instance 
-const peraWallet = new PeraWalletConnect();
-// ===== AMINA CASINO - ALGORAND INTEGRATION =====
-
-// Configuration
-const AMINA_ASSET_ID = 1107424865;
-const HOUSE_ADDRESS = '6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI';
-const HOUSE_RAKE_PERCENTAGE = 0.05; // 5%
-const MIN_BET = 0.25;
-const MAX_BET = 1.0;
-
-// Simulated Pera Wallet Connection (for demo purposes)
-// In production, you would use the actual Pera Wallet Connect SDK
-class MockPeraWallet {
-    constructor() {
-        this.connected = false;
-        this.accounts = [];
-        this.balances = new Map();
-        this.isConnecting = false;
-    }
-
-    // Generate a realistic-looking Algorand address
-    generateAddress() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-        let address = '';
-        for (let i = 0; i < 58; i++) {
-            address += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return address;
-    }
-
-    // Generate a random transaction ID
-    generateTxId() {
-        const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-        let txId = '';
-        for (let i = 0; i < 52; i++) {
-            txId += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return txId;
-    }
-
-    // Connect to wallet
-    async connect() {
-        if (this.isConnecting) return this.accounts;
-        
-        this.isConnecting = true;
-        
-        try {
-            // Simulate connection delay
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
-            // Generate a mock wallet address
-            const address = this.generateAddress();
-            this.accounts = [address];
-            
-            // Set initial Amina balance (random between 5-50)
-            const initialBalance = (Math.random() * 45 + 5).toFixed(2);
-            this.balances.set(AMINA_ASSET_ID, parseFloat(initialBalance));
-            
-            this.connected = true;
-            this.isConnecting = false;
-            
-            console.log(`Connected to wallet: ${address}`);
-            console.log(`Initial Amina balance: ${initialBalance}`);
-            
-            return this.accounts;
-        } catch (error) {
-            this.isConnecting = false;
-            throw new Error('Failed to connect to Pera Wallet');
-        }
-    }
-
-    // Disconnect from wallet
-    async disconnect() {
-        this.connected = false;
-        this.accounts = [];
-        this.balances.clear();
-        console.log('Disconnected from wallet');
-    }
-
-    // Check if connected
-    isConnected() {
-        return this.connected && this.accounts.length > 0;
-    }
-
-    // Get connected accounts
-    getAccounts() {
-        return this.accounts;
-    }
-
-    // Get asset balance
-    async getBalance(assetId = AMINA_ASSET_ID) {
-        if (!this.isConnected()) {
-            throw new Error('Wallet not connected');
-        }
-        
-        return this.balances.get(assetId) || 0;
-    }
-
-    // Send transaction (for betting)
-    async sendTransaction(amount, assetId = AMINA_ASSET_ID) {
-        if (!this.isConnected()) {
-            throw new Error('Wallet not connected');
-        }
-
-        const currentBalance = this.balances.get(assetId) || 0;
-        
-        if (currentBalance < amount) {
-            throw new Error('Insufficient balance');
-        }
-
-        // Simulate transaction processing
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Update balance
-        this.balances.set(assetId, currentBalance - amount);
-        
-        const txId = this.generateTxId();
-        console.log(`Transaction sent: ${amount} Amina, TxID: ${txId}`);
-        
-        return {
-            txId: txId,
-            amount: amount,
-            newBalance: this.balances.get(assetId)
-        };
-    }
-
-    // Receive winnings (with house rake applied)
-    async receiveWinnings(amount, assetId = AMINA_ASSET_ID) {
-        if (!this.isConnected()) {
-            throw new Error('Wallet not connected');
-        }
-
-        // Calculate house rake
-        const rake = amount * HOUSE_RAKE_PERCENTAGE;
-        const netWinnings = amount - rake;
-
-        // Simulate transaction processing
-        await new Promise(resolve => setTimeout(resolve, 800));
-
-        // Update balance
-        const currentBalance = this.balances.get(assetId) || 0;
-        this.balances.set(assetId, currentBalance + netWinnings);
-
-        console.log(`Winnings received: ${netWinnings} Amina (${rake} rake to house)`);
-        
-        return {
-            grossWinnings: amount,
-            rake: rake,
-            netWinnings: netWinnings,
-            newBalance: this.balances.get(assetId)
-        };
-    }
-
-    // Send donation
-    async sendDonation(amount, assetId = AMINA_ASSET_ID) {
-        if (!this.isConnected()) {
-            throw new Error('Wallet not connected');
-        }
-
-        const currentBalance = this.balances.get(assetId) || 0;
-        
-        if (currentBalance < amount) {
-            throw new Error('Insufficient balance for donation');
-        }
-
-        // Simulate donation transaction
-        await new Promise(resolve => setTimeout(resolve, 1200));
-
-        // Update balance
-        this.balances.set(assetId, currentBalance - amount);
-        
-        const txId = this.generateTxId();
-        console.log(`Donation sent: ${amount} Amina to ${HOUSE_ADDRESS}, TxID: ${txId}`);
-        
-        return {
-            txId: txId,
-            amount: amount,
-            newBalance: this.balances.get(assetId)
-        };
-    }
-}
-
-// Create wallet instance
-const peraWallet = new MockPeraWallet();
-
-// Wallet connection functions
-async function connectWallet() {
-    try {
-        const accounts = await peraWallet.connect();
-        return accounts[0];
-    } catch (error) {
-        console.error('Wallet connection failed:', error);
-        throw error;
-    }
-}
-
-async function disconnectWallet() {
-    try {
-        await peraWallet.disconnect();
-    } catch (error) {
-        console.error('Wallet disconnection failed:', error);
-    }
-}
-
-async function getWalletBalance() {
-    try {
-        return await peraWallet.getBalance();
-    } catch (error) {
-        console.error('Failed to get wallet balance:', error);
-        return 0;
-    }
-}
-
-async function placeBet(amount) {
-    try {
-        return await peraWallet.sendTransaction(amount);
-    } catch (error) {
-        console.error('Failed to place bet:', error);
-        throw error;
-    }
-}
-
-async function receiveWinnings(amount) {
-    try {
-        return await peraWallet.receiveWinnings(amount);
-    } catch (error) {
-        console.error('Failed to receive winnings:', error);
-        throw error;
-    }
-}
-
-async function sendDonation(amount) {
-    try {
-        return await peraWallet.sendDonation(amount);
-    } catch (error) {
-        console.error('Failed to send donation:', error);
-        throw error;
-    }
-}
-
-// Export functions for use in main script
-window.AlgorandWallet = {
-    connect: connectWallet,
-    disconnect: disconnectWallet,
-    isConnected: () => peraWallet.isConnected(),
-    getAccounts: () => peraWallet.getAccounts(),
-    getBalance: getWalletBalance,
-    placeBet: placeBet,
-    receiveWinnings: receiveWinnings,
-    sendDonation: sendDonation,
-    AMINA_ASSET_ID,
-    HOUSE_ADDRESS,
-    HOUSE_RAKE_PERCENTAGE,
-    MIN_BET,
-    MAX_BET
-};
-
-// Log initialization
-console.log('🚀 Amina Casino - Algorand Integration Initialized');
-console.log(`Asset ID: ${AMINA_ASSET_ID}`);
-console.log(`House Address: ${HOUSE_ADDRESS}`);
-console.log(`House Rake: ${HOUSE_RAKE_PERCENTAGE * 100}%`);
+// Initialize casino when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    // Wait for wallet to be initialized
+    setTimeout(() => {
+        const casino = new CosmicCasino();
+        window.casino = casino;
+    }, 100);
+});
