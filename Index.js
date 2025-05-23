@@ -1,20 +1,22 @@
-// Amina Casino Game Mechanics
-// Professional-grade gaming engine with enhanced features
+// Amina Casino Luxury Game Mechanics
+// Royal-grade gaming engine with enhanced luxury features
 
 class AminaCasinoGames {
     constructor() {
         // Game Configuration
         this.isInitialized = false;
         
-        // Enhanced Slot Machine Configuration
+        // Enhanced Luxury Slot Machine Configuration
         this.slotSymbols = [
-            { symbol: '🌟', name: 'Star', value: 10, rarity: 0.05 },
-            { symbol: '💫', name: 'Sparkle', value: 8, rarity: 0.08 },
-            { symbol: '🌙', name: 'Moon', value: 6, rarity: 0.12 },
-            { symbol: '🪐', name: 'Planet', value: 5, rarity: 0.15 },
-            { symbol: '🌌', name: 'Galaxy', value: 4, rarity: 0.20 },
-            { symbol: '☄️', name: 'Comet', value: 3, rarity: 0.25 },
-            { symbol: '🛸', name: 'UFO', value: 2, rarity: 0.15 }
+            { symbol: '🌟', name: 'Royal Star', value: 15, rarity: 0.04 },
+            { symbol: '💫', name: 'Cosmic Sparkle', value: 12, rarity: 0.06 },
+            { symbol: '🌙', name: 'Lunar Crown', value: 10, rarity: 0.08 },
+            { symbol: '🪐', name: 'Royal Planet', value: 8, rarity: 0.12 },
+            { symbol: '🌌', name: 'Galaxy Jewel', value: 6, rarity: 0.18 },
+            { symbol: '☄️', name: 'Golden Comet', value: 4, rarity: 0.22 },
+            { symbol: '🛸', name: 'Royal Ship', value: 3, rarity: 0.20 },
+            { symbol: '👑', name: 'Imperial Crown', value: 25, rarity: 0.02 }, // New luxury symbol
+            { symbol: '💎', name: 'Royal Diamond', value: 20, rarity: 0.03 }  // New luxury symbol
         ];
         
         this.slotState = {
@@ -23,10 +25,11 @@ class AminaCasinoGames {
             isAutoSpinning: false,
             reels: [[], [], [], [], []],
             paylines: [],
-            lastWin: null
+            lastWin: null,
+            luxuryMode: true // New luxury feature
         };
         
-        // Enhanced Blackjack Configuration
+        // Enhanced Royal Blackjack Configuration
         this.blackjackState = {
             deck: [],
             playerHand: [],
@@ -35,10 +38,11 @@ class AminaCasinoGames {
             playerScore: 0,
             dealerScore: 0,
             canDouble: false,
-            gameResult: null
+            gameResult: null,
+            royalMode: true // New luxury feature
         };
         
-        // Professional Plinko Configuration
+        // Professional Luxury Plinko Configuration
         this.plinkoState = {
             isDropping: false,
             ballPosition: { x: 0, y: 0 },
@@ -46,10 +50,11 @@ class AminaCasinoGames {
             multipliers: [0.1, 0.5, 1, 2, 3, 10, 3, 2, 1, 0.5, 0.1],
             ballPath: [],
             physics: {
-                gravity: 0.5,
-                bounce: 0.7,
-                friction: 0.98
-            }
+                gravity: 0.6,
+                bounce: 0.8,
+                friction: 0.95
+            },
+            celestialMode: true // New luxury feature
         };
         
         this.initializeGames();
@@ -60,16 +65,19 @@ class AminaCasinoGames {
             // Wait for wallet to be ready
             await this.waitForWallet();
             
-            // Setup all games
-            this.setupSlotMachine();
-            this.setupBlackjack();
-            this.setupPlinko();
+            // Setup all luxury games
+            this.setupLuxurySlotMachine();
+            this.setupRoyalBlackjack();
+            this.setupCelestialPlinko();
+            
+            // Initialize luxury effects
+            this.initializeLuxuryGameEffects();
             
             this.isInitialized = true;
-            console.log('Amina Casino Games initialized successfully');
+            console.log('👑 Amina Casino Royal Games initialized successfully');
             
         } catch (error) {
-            console.error('Failed to initialize games:', error);
+            console.error('Failed to initialize royal games:', error);
         }
     }
 
@@ -86,43 +94,110 @@ class AminaCasinoGames {
         });
     }
 
-    // =================== ENHANCED SLOT MACHINE ===================
+    initializeLuxuryGameEffects() {
+        // Add royal sparkle effects to game elements
+        this.addSparkleEffects();
+        
+        // Initialize luxury sound effects (visual feedback)
+        this.initializeLuxuryFeedback();
+    }
 
-    setupSlotMachine() {
-        // Initialize reels with symbols
-        this.generateReelSymbols();
+    addSparkleEffects() {
+        // Add sparkle effects to reels
+        document.querySelectorAll('.reel').forEach(reel => {
+            setInterval(() => {
+                if (!this.slotState.isSpinning) {
+                    this.addReelSparkle(reel);
+                }
+            }, 3000 + Math.random() * 2000);
+        });
+    }
+
+    addReelSparkle(reel) {
+        const sparkle = document.createElement('div');
+        sparkle.textContent = '✨';
+        sparkle.style.cssText = `
+            position: absolute;
+            top: ${Math.random() * 100}%;
+            left: ${Math.random() * 100}%;
+            font-size: 1.2rem;
+            pointer-events: none;
+            animation: reelSparkle 2s ease-out forwards;
+            z-index: 10;
+        `;
+        
+        reel.style.position = 'relative';
+        reel.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 2000);
+    }
+
+    initializeLuxuryFeedback() {
+        // Add luxury visual feedback for interactions
+        document.querySelectorAll('.game-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.createLuxuryClickEffect(btn);
+            });
+        });
+    }
+
+    createLuxuryClickEffect(element) {
+        const effect = document.createElement('div');
+        effect.style.cssText = `
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.8), transparent);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: luxuryClick 0.6s ease-out forwards;
+            pointer-events: none;
+            z-index: 1000;
+        `;
+        
+        element.style.position = 'relative';
+        element.appendChild(effect);
+        setTimeout(() => effect.remove(), 600);
+    }
+
+    // =================== LUXURY SLOT MACHINE ===================
+
+    setupLuxurySlotMachine() {
+        // Initialize reels with luxury symbols
+        this.generateLuxuryReelSymbols();
         
         // Event listeners
         document.getElementById('spinBtn')?.addEventListener('click', () => {
-            this.spinSlots();
+            this.spinLuxurySlots();
         });
         
         document.getElementById('autoSpinBtn')?.addEventListener('click', () => {
             this.toggleAutoSpin();
         });
         
-        // Generate paylines
-        this.generatePaylines();
+        // Generate luxury paylines
+        this.generateLuxuryPaylines();
         
-        console.log('Enhanced Slot Machine initialized');
+        console.log('👑 Imperial Slot Machine initialized');
     }
 
-    generateReelSymbols() {
-        // Fill each reel with weighted symbols
+    generateLuxuryReelSymbols() {
+        // Fill each reel with weighted luxury symbols
         for (let reel = 0; reel < 5; reel++) {
             this.slotState.reels[reel] = [];
             
             // Generate 3 visible symbols per reel
             for (let position = 0; position < 3; position++) {
-                const symbol = this.getWeightedSymbol();
+                const symbol = this.getWeightedLuxurySymbol();
                 this.slotState.reels[reel].push(symbol);
             }
         }
         
-        this.updateSlotDisplay();
+        this.updateLuxurySlotDisplay();
     }
 
-    getWeightedSymbol() {
+    getWeightedLuxurySymbol() {
         const random = Math.random();
         let cumulativeWeight = 0;
         
@@ -134,25 +209,27 @@ class AminaCasinoGames {
         }
         
         // Fallback to most common symbol
-        return this.slotSymbols[this.slotSymbols.length - 1];
+        return this.slotSymbols[this.slotSymbols.length - 3];
     }
 
-    generatePaylines() {
-        // Define winning paylines for 5-reel slot
+    generateLuxuryPaylines() {
+        // Define winning paylines for luxury 5-reel slot
         this.slotState.paylines = [
-            [1, 1, 1, 1, 1], // Middle row
-            [0, 0, 0, 0, 0], // Top row
-            [2, 2, 2, 2, 2], // Bottom row
-            [0, 1, 2, 1, 0], // V shape
-            [2, 1, 0, 1, 2], // Inverted V
-            [0, 0, 1, 2, 2], // Diagonal
-            [2, 2, 1, 0, 0], // Inverted diagonal
-            [1, 0, 1, 2, 1], // Zigzag
-            [1, 2, 1, 0, 1], // Inverted zigzag
+            [1, 1, 1, 1, 1], // Middle row - Royal Line
+            [0, 0, 0, 0, 0], // Top row - Crown Line
+            [2, 2, 2, 2, 2], // Bottom row - Foundation Line
+            [0, 1, 2, 1, 0], // V shape - Victory Line
+            [2, 1, 0, 1, 2], // Inverted V - Diamond Line
+            [0, 0, 1, 2, 2], // Diagonal - Ascending Line
+            [2, 2, 1, 0, 0], // Inverted diagonal - Descending Line
+            [1, 0, 1, 2, 1], // Zigzag - Lightning Line
+            [1, 2, 1, 0, 1], // Inverted zigzag - Thunder Line
+            [0, 1, 1, 1, 0], // Crown shape - Imperial Line
+            [2, 1, 1, 1, 2], // Inverted crown - Royal Line
         ];
     }
 
-    async spinSlots() {
+    async spinLuxurySlots() {
         if (this.slotState.isSpinning) return;
         
         const betAmount = parseFloat(document.getElementById('slotBet')?.value || 0.25);
@@ -163,28 +240,33 @@ class AminaCasinoGames {
 
         this.slotState.isSpinning = true;
         this.updateSlotControls(false);
-        this.showGameMessage('slotResult', 'Spinning the cosmic reels...', 'info');
+        this.showLuxuryGameMessage('slotResult', '👑 Spinning the royal reels of fortune...', 'info');
 
-        // Enhanced spinning animation
-        await this.animateSlotSpin();
+        // Enhanced luxury spinning animation
+        await this.animateLuxurySlotSpin();
         
         // Generate final results
-        this.generateReelSymbols();
+        this.generateLuxuryReelSymbols();
         
         // Check for wins
-        const winResult = this.checkSlotWins();
+        const winResult = this.checkLuxurySlotWins();
         
         if (winResult.totalWin > 0) {
             const payout = await window.aminaWallet.payoutWin(betAmount, winResult.totalWin / betAmount);
-            this.showGameMessage('slotResult', 
-                `${winResult.message} | Won: ${payout.toFixed(2)} ${window.aminaWallet.getCurrency()}`, 
+            this.showLuxuryGameMessage('slotResult', 
+                `👑 ${winResult.message} | Royal Win: ${payout.toFixed(2)} ${window.aminaWallet.getCurrency()}`, 
                 'win'
             );
             
-            // Highlight winning paylines
-            this.highlightWinningPaylines(winResult.winningLines);
+            // Highlight winning paylines with luxury effect
+            this.highlightLuxuryWinningPaylines(winResult.winningLines);
+            
+            // Royal celebration for big wins
+            if (winResult.totalWin >= betAmount * 5) {
+                this.triggerRoyalSlotCelebration();
+            }
         } else {
-            this.showGameMessage('slotResult', 'No winning combinations - Try again!', 'lose');
+            this.showLuxuryGameMessage('slotResult', '👑 The stars align differently - Try your royal luck again!', 'lose');
         }
 
         this.slotState.isSpinning = false;
@@ -196,65 +278,67 @@ class AminaCasinoGames {
             document.getElementById('autoCount').textContent = this.slotState.autoSpinCount;
             
             if (this.slotState.autoSpinCount > 0) {
-                setTimeout(() => this.spinSlots(), 1000);
+                setTimeout(() => this.spinLuxurySlots(), 1500);
             } else {
                 this.toggleAutoSpin();
             }
         }
     }
 
-    async animateSlotSpin() {
-        const spinDuration = 3000; // 3 seconds
-        const spinsPerReel = 20;
+    async animateLuxurySlotSpin() {
+        const spinDuration = 3500; // Longer for luxury experience
+        const spinsPerReel = 25;
         
         for (let reel = 0; reel < 5; reel++) {
             const reelElement = document.getElementById(`reel${reel + 1}`);
             if (!reelElement) continue;
             
-            // Animate each reel with staggered timing
+            // Animate each reel with staggered luxury timing
             setTimeout(() => {
-                this.animateReel(reelElement, reel, spinsPerReel);
-            }, reel * 200);
+                this.animateLuxuryReel(reelElement, reel, spinsPerReel);
+            }, reel * 250);
         }
         
         // Wait for all reels to finish
-        await new Promise(resolve => setTimeout(resolve, spinDuration + 1000));
+        await new Promise(resolve => setTimeout(resolve, spinDuration + 1200));
     }
 
-    animateReel(reelElement, reelIndex, spins) {
+    animateLuxuryReel(reelElement, reelIndex, spins) {
         let spinCount = 0;
         
         const spinInterval = setInterval(() => {
             const symbols = reelElement.querySelectorAll('.symbol');
             symbols.forEach(symbolEl => {
-                const randomSymbol = this.getWeightedSymbol();
+                const randomSymbol = this.getWeightedLuxurySymbol();
                 symbolEl.textContent = randomSymbol.symbol;
-                symbolEl.style.transform = `scale(${0.8 + Math.random() * 0.4})`;
+                symbolEl.style.transform = `scale(${0.9 + Math.random() * 0.3})`;
+                symbolEl.style.filter = `hue-rotate(${Math.random() * 60}deg)`;
             });
             
             spinCount++;
             if (spinCount >= spins) {
                 clearInterval(spinInterval);
-                // Reset transform
+                // Reset transform and filter
                 symbols.forEach(symbolEl => {
                     symbolEl.style.transform = 'scale(1)';
+                    symbolEl.style.filter = 'none';
                 });
             }
-        }, 100);
+        }, 80);
     }
 
-    checkSlotWins() {
+    checkLuxurySlotWins() {
         let totalWin = 0;
         let winningLines = [];
         let messages = [];
         
-        // Check each payline
+        // Check each luxury payline
         this.slotState.paylines.forEach((payline, lineIndex) => {
             const lineSymbols = payline.map((row, reel) => 
                 this.slotState.reels[reel][row]
             );
             
-            const winData = this.evaluatePayline(lineSymbols);
+            const winData = this.evaluateLuxuryPayline(lineSymbols);
             if (winData.win > 0) {
                 totalWin += winData.win;
                 winningLines.push(lineIndex);
@@ -265,11 +349,11 @@ class AminaCasinoGames {
         return {
             totalWin,
             winningLines,
-            message: messages.join(' | ') || 'No wins'
+            message: messages.join(' | ') || 'No royal wins'
         };
     }
 
-    evaluatePayline(symbols) {
+    evaluateLuxuryPayline(symbols) {
         // Count consecutive matching symbols from left
         let matchCount = 1;
         const firstSymbol = symbols[0];
@@ -288,16 +372,21 @@ class AminaCasinoGames {
             const multiplier = Math.pow(2, matchCount - 3); // 3=1x, 4=2x, 5=4x
             const win = baseWin * multiplier;
             
+            // Special luxury bonus for rare symbols
+            let bonusMultiplier = 1;
+            if (firstSymbol.symbol === '👑') bonusMultiplier = 2;
+            if (firstSymbol.symbol === '💎') bonusMultiplier = 1.5;
+            
             return {
-                win,
-                message: `${matchCount}x ${firstSymbol.name} (${win}x)`
+                win: win * bonusMultiplier,
+                message: `${matchCount}x ${firstSymbol.name} (${(win * bonusMultiplier).toFixed(1)}x)`
             };
         }
         
         return { win: 0, message: '' };
     }
 
-    updateSlotDisplay() {
+    updateLuxurySlotDisplay() {
         for (let reel = 0; reel < 5; reel++) {
             const reelElement = document.getElementById(`reel${reel + 1}`);
             if (!reelElement) continue;
@@ -311,8 +400,8 @@ class AminaCasinoGames {
         }
     }
 
-    highlightWinningPaylines(winningLines) {
-        // Visual highlight for winning combinations
+    highlightLuxuryWinningPaylines(winningLines) {
+        // Enhanced visual highlight for winning combinations
         winningLines.forEach(lineIndex => {
             const payline = this.slotState.paylines[lineIndex];
             payline.forEach((row, reel) => {
@@ -320,25 +409,54 @@ class AminaCasinoGames {
                 if (reelElement) {
                     const symbolEl = reelElement.querySelectorAll('.symbol')[row];
                     if (symbolEl) {
-                        symbolEl.style.animation = 'winHighlight 2s ease-in-out';
+                        symbolEl.style.animation = 'luxuryWinHighlight 3s ease-in-out';
+                        symbolEl.style.filter = 'drop-shadow(0 0 20px rgba(255, 215, 0, 1))';
                         setTimeout(() => {
                             symbolEl.style.animation = '';
-                        }, 2000);
+                            symbolEl.style.filter = '';
+                        }, 3000);
                     }
                 }
             });
         });
     }
 
+    triggerRoyalSlotCelebration() {
+        // Create royal celebration for big slot wins
+        for (let i = 0; i < 15; i++) {
+            setTimeout(() => {
+                this.createSlotCelebrationParticle();
+            }, i * 100);
+        }
+    }
+
+    createSlotCelebrationParticle() {
+        const particle = document.createElement('div');
+        particle.textContent = ['👑', '💎', '✨', '🌟', '💫'][Math.floor(Math.random() * 5)];
+        particle.style.cssText = `
+            position: fixed;
+            font-size: 2rem;
+            pointer-events: none;
+            z-index: 9999;
+            left: ${Math.random() * window.innerWidth}px;
+            top: ${window.innerHeight}px;
+            animation: slotCelebration 3s ease-out forwards;
+            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 1));
+        `;
+
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 3000);
+    }
+
     toggleAutoSpin() {
         if (!this.slotState.isAutoSpinning) {
-            const count = parseInt(prompt('Enter number of auto spins (1-100):') || '10');
+            const count = parseInt(prompt('👑 Enter number of royal auto spins (1-100):') || '10');
             if (count > 0 && count <= 100) {
                 this.slotState.autoSpinCount = count;
                 this.slotState.isAutoSpinning = true;
                 document.getElementById('autoSpinBtn').textContent = 'STOP';
                 document.getElementById('autoCount').textContent = count;
-                this.spinSlots();
+                this.spinLuxurySlots();
             }
         } else {
             this.slotState.isAutoSpinning = false;
@@ -349,40 +467,43 @@ class AminaCasinoGames {
     }
 
     updateSlotControls(enabled) {
-        document.getElementById('spinBtn').disabled = !enabled;
-        document.getElementById('autoSpinBtn').disabled = !enabled || this.slotState.isAutoSpinning;
+        const spinBtn = document.getElementById('spinBtn');
+        const autoBtn = document.getElementById('autoSpinBtn');
+        
+        if (spinBtn) spinBtn.disabled = !enabled;
+        if (autoBtn) autoBtn.disabled = !enabled || this.slotState.isAutoSpinning;
     }
 
-    // =================== ENHANCED BLACKJACK ===================
+    // =================== ROYAL BLACKJACK ===================
 
-    setupBlackjack() {
+    setupRoyalBlackjack() {
         // Event listeners
         document.getElementById('dealBtn')?.addEventListener('click', () => {
-            this.dealBlackjack();
+            this.dealRoyalBlackjack();
         });
         
         document.getElementById('hitBtn')?.addEventListener('click', () => {
-            this.hitBlackjack();
+            this.hitRoyalBlackjack();
         });
         
         document.getElementById('standBtn')?.addEventListener('click', () => {
-            this.standBlackjack();
+            this.standRoyalBlackjack();
         });
         
         document.getElementById('doubleBtn')?.addEventListener('click', () => {
-            this.doubleBlackjack();
+            this.doubleRoyalBlackjack();
         });
         
-        this.createDeck();
-        console.log('Enhanced Blackjack initialized');
+        this.createRoyalDeck();
+        console.log('👑 Royal Blackjack initialized');
     }
 
-    createDeck() {
+    createRoyalDeck() {
         const suits = [
-            { symbol: '♠️', name: 'Spades', color: '#000' },
-            { symbol: '♥️', name: 'Hearts', color: '#ff0000' },
-            { symbol: '♦️', name: 'Diamonds', color: '#ff0000' },
-            { symbol: '♣️', name: 'Clubs', color: '#000' }
+            { symbol: '♠️', name: 'Spades', color: '#2d1b69' },
+            { symbol: '♥️', name: 'Hearts', color: '#dc2626' },
+            { symbol: '♦️', name: 'Diamonds', color: '#dc2626' },
+            { symbol: '♣️', name: 'Clubs', color: '#2d1b69' }
         ];
         
         const values = [
@@ -403,8 +524,8 @@ class AminaCasinoGames {
         
         this.blackjackState.deck = [];
         
-        // Create multiple decks for better gameplay
-        for (let deckCount = 0; deckCount < 6; deckCount++) {
+        // Create multiple luxury decks for better gameplay
+        for (let deckCount = 0; deckCount < 8; deckCount++) {
             suits.forEach(suit => {
                 values.forEach(value => {
                     this.blackjackState.deck.push({
@@ -414,17 +535,18 @@ class AminaCasinoGames {
                         value: value.symbol,
                         valueName: value.name,
                         numericValue: value.value,
-                        id: `${value.symbol}${suit.symbol}_${deckCount}`
+                        id: `${value.symbol}${suit.symbol}_${deckCount}`,
+                        isRoyal: ['J', 'Q', 'K'].includes(value.symbol) // Royal cards
                     });
                 });
             });
         }
         
-        this.shuffleDeck();
+        this.shuffleRoyalDeck();
     }
 
-    shuffleDeck() {
-        // Enhanced Fisher-Yates shuffle
+    shuffleRoyalDeck() {
+        // Enhanced Fisher-Yates shuffle for royal deck
         for (let i = this.blackjackState.deck.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [this.blackjackState.deck[i], this.blackjackState.deck[j]] = 
@@ -432,7 +554,7 @@ class AminaCasinoGames {
         }
     }
 
-    async dealBlackjack() {
+    async dealRoyalBlackjack() {
         const betAmount = parseFloat(document.getElementById('blackjackBet')?.value || 0.25);
         
         if (!await window.aminaWallet.placeBet(betAmount)) {
@@ -445,45 +567,50 @@ class AminaCasinoGames {
         this.blackjackState.gameInProgress = true;
         this.blackjackState.canDouble = true;
         
-        // Clear existing cards display
-        document.getElementById('playerCards').innerHTML = '';
-        document.getElementById('dealerCards').innerHTML = '';
+        // Clear existing cards display immediately
+        const playerCards = document.getElementById('playerCards');
+        const dealerCards = document.getElementById('dealerCards');
+        if (playerCards) playerCards.innerHTML = '';
+        if (dealerCards) dealerCards.innerHTML = '';
         
         // Update UI immediately
         this.updateBlackjackControls(false);
-        this.showGameMessage('blackjackResult', 'Dealing cards...', 'info');
+        this.showLuxuryGameMessage('blackjackResult', '👑 Dealing royal cards from the cosmic deck...', 'info');
         
         try {
-            // Deal initial cards with proper sequence
-            await this.dealCard('player', true);
-            await this.dealCard('dealer', true);
-            await this.dealCard('player', true);
-            await this.dealCard('dealer', false); // Dealer's second card face down
+            // Deal initial cards with proper sequence and delays
+            await this.dealRoyalCard('player', true);
+            await this.dealRoyalCard('dealer', true);
+            await this.dealRoyalCard('player', true);
+            await this.dealRoyalCard('dealer', false); // Dealer's second card face down
+            
+            // Final display update
+            this.updateRoyalBlackjackDisplay();
             
             // Check for natural blackjack
             const playerScore = this.calculateBlackjackScore(this.blackjackState.playerHand);
             if (playerScore === 21) {
-                this.showGameMessage('blackjackResult', 'Blackjack! Checking dealer...', 'info');
-                await this.endBlackjackGame();
+                this.showLuxuryGameMessage('blackjackResult', '👑 Royal Blackjack! Checking dealer...', 'info');
+                setTimeout(() => this.endRoyalBlackjackGame(), 1500);
             } else {
                 this.updateBlackjackControls(true);
-                this.showGameMessage('blackjackResult', 'Make your move: Hit, Stand, or Double', 'info');
+                this.showLuxuryGameMessage('blackjackResult', '👑 Make your royal move: Hit, Stand, or Double', 'info');
             }
         } catch (error) {
-            console.error('Error dealing cards:', error);
-            this.showGameMessage('blackjackResult', 'Error dealing cards. Please try again.', 'error');
+            console.error('Error dealing royal cards:', error);
+            this.showLuxuryGameMessage('blackjackResult', '👑 Error dealing cards. Please try again.', 'error');
             this.updateBlackjackControls(false);
         }
     }
 
-    async dealCard(recipient, faceUp = true) {
+    async dealRoyalCard(recipient, faceUp = true) {
         if (this.blackjackState.deck.length < 20) {
-            this.createDeck();
+            this.createRoyalDeck();
         }
         
         const card = this.blackjackState.deck.pop();
         if (!card) {
-            console.error('No cards available in deck');
+            console.error('No royal cards available in deck');
             return;
         }
         
@@ -495,42 +622,44 @@ class AminaCasinoGames {
             this.blackjackState.dealerHand.push(card);
         }
         
-        // Add a small delay for card dealing animation
-        await new Promise(resolve => setTimeout(resolve, 300));
-        this.updateBlackjackDisplay();
+        // Add card dealing animation delay
+        await new Promise(resolve => setTimeout(resolve, 600));
+        this.updateRoyalBlackjackDisplay();
     }
 
-    async hitBlackjack() {
+    async hitRoyalBlackjack() {
         if (!this.blackjackState.gameInProgress) return;
         
         this.blackjackState.canDouble = false;
-        await this.dealCard('player');
+        await this.dealRoyalCard('player');
         
         const playerScore = this.calculateBlackjackScore(this.blackjackState.playerHand);
         if (playerScore >= 21) {
-            await this.endBlackjackGame();
+            setTimeout(() => this.endRoyalBlackjackGame(), 1000);
         } else {
             this.updateBlackjackControls(true);
         }
     }
 
-    async standBlackjack() {
+    async standRoyalBlackjack() {
         if (!this.blackjackState.gameInProgress) return;
         
         // Reveal dealer's hidden card
-        this.blackjackState.dealerHand[1].faceUp = true;
-        this.updateBlackjackDisplay();
+        if (this.blackjackState.dealerHand.length > 1) {
+            this.blackjackState.dealerHand[1].faceUp = true;
+        }
+        this.updateRoyalBlackjackDisplay();
         
         // Dealer draws until 17 or higher
         while (this.calculateBlackjackScore(this.blackjackState.dealerHand) < 17) {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            await this.dealCard('dealer');
+            await new Promise(resolve => setTimeout(resolve, 1200));
+            await this.dealRoyalCard('dealer');
         }
         
-        await this.endBlackjackGame();
+        setTimeout(() => this.endRoyalBlackjackGame(), 1000);
     }
 
-    async doubleBlackjack() {
+    async doubleRoyalBlackjack() {
         if (!this.blackjackState.gameInProgress || !this.blackjackState.canDouble) return;
         
         const betAmount = parseFloat(document.getElementById('blackjackBet')?.value || 0.25);
@@ -540,11 +669,14 @@ class AminaCasinoGames {
         }
         
         // Double the bet display
-        document.getElementById('currentBet').textContent = (betAmount * 2).toFixed(2);
+        const currentBetEl = document.getElementById('currentBet');
+        if (currentBetEl) {
+            currentBetEl.textContent = (betAmount * 2).toFixed(2);
+        }
         
         // Deal one more card and stand
-        await this.dealCard('player');
-        await this.standBlackjack();
+        await this.dealRoyalCard('player');
+        await this.standRoyalBlackjack();
     }
 
     calculateBlackjackScore(hand) {
@@ -569,150 +701,225 @@ class AminaCasinoGames {
         return score;
     }
 
-    updateBlackjackDisplay() {
+    updateRoyalBlackjackDisplay() {
         const playerScore = this.calculateBlackjackScore(this.blackjackState.playerHand);
         const dealerScore = this.blackjackState.gameInProgress ? 
             this.calculateBlackjackScore([this.blackjackState.dealerHand[0]]) : 
             this.calculateBlackjackScore(this.blackjackState.dealerHand);
 
-        document.getElementById('playerScore').textContent = playerScore;
-        document.getElementById('dealerScore').textContent = 
-            this.blackjackState.gameInProgress ? '?' : dealerScore;
+        const playerScoreEl = document.getElementById('playerScore');
+        const dealerScoreEl = document.getElementById('dealerScore');
+        
+        if (playerScoreEl) playerScoreEl.textContent = playerScore;
+        if (dealerScoreEl) {
+            dealerScoreEl.textContent = this.blackjackState.gameInProgress ? '?' : dealerScore;
+        }
 
-        this.displayCards('playerCards', this.blackjackState.playerHand);
-        this.displayCards('dealerCards', this.blackjackState.dealerHand, this.blackjackState.gameInProgress);
+        this.displayRoyalCards('playerCards', this.blackjackState.playerHand);
+        this.displayRoyalCards('dealerCards', this.blackjackState.dealerHand, this.blackjackState.gameInProgress);
     }
 
-    displayCards(containerId, hand, hideSecond = false) {
+    displayRoyalCards(containerId, hand, hideSecond = false) {
         const container = document.getElementById(containerId);
         if (!container) return;
         
-        container.innerHTML = '';
+        // Don't clear existing cards, just add new ones
+        const existingCards = container.children.length;
         
         hand.forEach((card, index) => {
+            // Skip if card already displayed
+            if (index < existingCards) return;
+            
             const cardEl = document.createElement('div');
-            cardEl.className = 'card';
+            cardEl.className = 'card royal-card';
             
             if (hideSecond && index === 1 && !card.faceUp) {
                 cardEl.innerHTML = '🂠';
-                cardEl.style.background = 'linear-gradient(135deg, #4169E1, #1E90FF)';
-                cardEl.style.color = 'white';
+                cardEl.style.background = 'linear-gradient(135deg, #9370db, #8a2be2, #4b0082)';
+                cardEl.style.color = '#ffd700';
                 cardEl.style.display = 'flex';
                 cardEl.style.alignItems = 'center';
                 cardEl.style.justifyContent = 'center';
-                cardEl.style.fontSize = '1.5rem';
+                cardEl.style.fontSize = '1.8rem';
+                cardEl.style.textShadow = '0 0 10px rgba(255, 215, 0, 0.8)';
             } else {
                 cardEl.innerHTML = `${card.value}${card.suit}`;
-                cardEl.style.color = card.suitColor || (['♥️', '♦️'].includes(card.suit) ? '#ef4444' : '#1f2937');
-                cardEl.style.background = 'linear-gradient(135deg, #fff 0%, #f0f0f0 100%)';
+                cardEl.style.color = card.suitColor;
+                cardEl.style.background = 'linear-gradient(135deg, #fff 0%, #f8f8f8 100%)';
                 cardEl.style.display = 'flex';
                 cardEl.style.alignItems = 'center';
                 cardEl.style.justifyContent = 'center';
-                cardEl.style.fontSize = '0.9rem';
+                cardEl.style.fontSize = '1rem';
                 cardEl.style.fontWeight = 'bold';
+                
+                // Add royal glow for royal cards
+                if (card.isRoyal) {
+                    cardEl.style.boxShadow += ', 0 0 15px rgba(255, 215, 0, 0.5)';
+                }
             }
             
             container.appendChild(cardEl);
         });
     }
 
-    async endBlackjackGame() {
+    async endRoyalBlackjackGame() {
         this.blackjackState.gameInProgress = false;
         this.updateBlackjackControls(false);
         
-        // Reveal dealer's hidden card
+        // Reveal dealer's hidden cards
         this.blackjackState.dealerHand.forEach(card => card.faceUp = true);
-        this.updateBlackjackDisplay();
+        this.updateRoyalBlackjackDisplay();
         
         const playerScore = this.calculateBlackjackScore(this.blackjackState.playerHand);
         const dealerScore = this.calculateBlackjackScore(this.blackjackState.dealerHand);
         const betAmount = parseFloat(document.getElementById('blackjackBet')?.value || 0.25);
-        const isDoubled = document.getElementById('currentBet').textContent !== betAmount.toFixed(2);
+        const currentBetEl = document.getElementById('currentBet');
+        const isDoubled = currentBetEl && currentBetEl.textContent !== betAmount.toFixed(2);
         const actualBet = isDoubled ? betAmount * 2 : betAmount;
         
         let result, multiplier = 0;
         
         if (playerScore > 21) {
-            result = 'Player Bust! Dealer Wins';
+            result = '👑 Player Bust! Dealer Claims Victory';
         } else if (dealerScore > 21) {
-            result = 'Dealer Bust! Player Wins';
+            result = '👑 Dealer Bust! Royal Victory to Player';
             multiplier = 2;
         } else if (playerScore === 21 && this.blackjackState.playerHand.length === 2) {
-            result = 'BLACKJACK! Player Wins';
+            result = '👑 ROYAL BLACKJACK! Magnificent Victory';
             multiplier = 2.5;
         } else if (playerScore > dealerScore) {
-            result = 'Player Wins!';
+            result = '👑 Player Achieves Royal Victory!';
             multiplier = 2;
         } else if (dealerScore > playerScore) {
-            result = 'Dealer Wins';
+            result = '👑 Dealer Claims the Royal Crown';
         } else {
-            result = 'Push - Tie Game';
+            result = '👑 Royal Tie - A Noble Draw';
             multiplier = 1;
         }
         
         if (multiplier > 0) {
             const payout = await window.aminaWallet.payoutWin(actualBet, multiplier);
-            this.showGameMessage('blackjackResult', 
-                `${result} | Won: ${payout.toFixed(2)} ${window.aminaWallet.getCurrency()}`, 
+            this.showLuxuryGameMessage('blackjackResult', 
+                `${result} | Royal Payout: ${payout.toFixed(2)} ${window.aminaWallet.getCurrency()}`, 
                 'win'
             );
+            
+            if (multiplier >= 2.5) {
+                this.triggerRoyalBlackjackCelebration();
+            }
         } else {
-            this.showGameMessage('blackjackResult', result, 'lose');
+            this.showLuxuryGameMessage('blackjackResult', result, 'lose');
         }
         
         // Reset bet display
-        document.getElementById('currentBet').textContent = betAmount.toFixed(2);
+        if (currentBetEl) {
+            currentBetEl.textContent = betAmount.toFixed(2);
+        }
+    }
+
+    triggerRoyalBlackjackCelebration() {
+        // Create royal celebration for blackjack
+        for (let i = 0; i < 12; i++) {
+            setTimeout(() => {
+                this.createBlackjackCelebrationParticle();
+            }, i * 150);
+        }
+    }
+
+    createBlackjackCelebrationParticle() {
+        const particle = document.createElement('div');
+        particle.textContent = ['👑', '🃏', '♠️', '♥️', '♦️', '♣️'][Math.floor(Math.random() * 6)];
+        particle.style.cssText = `
+            position: fixed;
+            font-size: 2.2rem;
+            pointer-events: none;
+            z-index: 9999;
+            left: ${Math.random() * window.innerWidth}px;
+            top: ${window.innerHeight}px;
+            animation: blackjackCelebration 3.5s ease-out forwards;
+            filter: drop-shadow(0 0 12px rgba(255, 215, 0, 1));
+        `;
+
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 3500);
     }
 
     updateBlackjackControls(gameActive) {
-        document.getElementById('dealBtn').disabled = gameActive;
-        document.getElementById('hitBtn').disabled = !gameActive;
-        document.getElementById('standBtn').disabled = !gameActive;
-        document.getElementById('doubleBtn').disabled = !gameActive || !this.blackjackState.canDouble;
+        const dealBtn = document.getElementById('dealBtn');
+        const hitBtn = document.getElementById('hitBtn');
+        const standBtn = document.getElementById('standBtn');
+        const doubleBtn = document.getElementById('doubleBtn');
+        
+        if (dealBtn) dealBtn.disabled = gameActive;
+        if (hitBtn) hitBtn.disabled = !gameActive;
+        if (standBtn) standBtn.disabled = !gameActive;
+        if (doubleBtn) doubleBtn.disabled = !gameActive || !this.blackjackState.canDouble;
     }
 
-    // =================== PROFESSIONAL PLINKO ===================
+    // =================== CELESTIAL PLINKO ===================
 
-    setupPlinko() {
+    setupCelestialPlinko() {
         document.getElementById('dropBtn')?.addEventListener('click', () => {
-            this.dropPlinkoBall();
+            this.dropCelestialBall();
         });
         
-        this.createPlinkoBoard();
-        console.log('Professional Plinko initialized');
+        this.createCelestialPlinkoBoard();
+        console.log('👑 Celestial Plinko initialized');
     }
 
-    createPlinkoBoard() {
+    createCelestialPlinkoBoard() {
         const container = document.getElementById('pegsContainer');
         if (!container) return;
         
         container.innerHTML = '';
         this.plinkoState.pegs = [];
         
-        // Simplified peg layout for better mobile performance
-        const rows = 10;
-        const containerWidth = container.parentElement.offsetWidth || 350;
+        // Create luxury peg layout
+        const rows = 12;
+        const containerWidth = container.parentElement.offsetWidth || 400;
         
         for (let row = 0; row < rows; row++) {
-            const pegsInRow = Math.min(row + 3, 12); // Max 12 pegs per row
+            const pegsInRow = Math.min(row + 3, 14); // Max 14 pegs per row
             const spacing = containerWidth / (pegsInRow + 1);
             
             for (let col = 0; col < pegsInRow; col++) {
                 const x = spacing * (col + 1);
-                const y = 60 + (row * 25);
+                const y = 70 + (row * 28);
                 
                 const peg = document.createElement('div');
-                peg.className = 'peg';
+                peg.className = 'peg celestial-peg';
                 peg.style.left = `${x}px`;
                 peg.style.top = `${y}px`;
                 container.appendChild(peg);
                 
                 this.plinkoState.pegs.push({ x, y, element: peg });
+                
+                // Add sparkle effect to random pegs
+                if (Math.random() < 0.1) {
+                    setTimeout(() => this.addPegSparkle(peg), Math.random() * 5000);
+                }
             }
         }
     }
 
-    async dropPlinkoBall() {
+    addPegSparkle(peg) {
+        const sparkle = document.createElement('div');
+        sparkle.textContent = '✨';
+        sparkle.style.cssText = `
+            position: absolute;
+            top: -15px;
+            left: -10px;
+            font-size: 1rem;
+            pointer-events: none;
+            animation: pegSparkle 1.5s ease-out forwards;
+            z-index: 10;
+        `;
+        
+        peg.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 1500);
+    }
+
+    async dropCelestialBall() {
         if (this.plinkoState.isDropping) return;
         
         const betAmount = parseFloat(document.getElementById('plinkoBet')?.value || 0.25);
@@ -723,77 +930,89 @@ class AminaCasinoGames {
 
         this.plinkoState.isDropping = true;
         document.getElementById('dropBtn').disabled = true;
-        this.showGameMessage('plinkoResult', 'Ball dropping through the galaxy...', 'info');
+        this.showLuxuryGameMessage('plinkoResult', '👑 The celestial orb descends through the cosmic realm...', 'info');
 
         const ball = document.getElementById('plinkoBall');
         if (!ball) return;
         
-        // Enhanced physics simulation
-        await this.simulateBallPhysics(ball);
+        // Enhanced celestial physics simulation
+        await this.simulateCelestialBallPhysics(ball);
         
         // Determine final slot
         const finalSlot = this.determineFinalSlot();
         const multiplier = this.plinkoState.multipliers[finalSlot];
         
-        // Highlight winning slot
-        this.highlightMultiplierSlot(finalSlot);
+        // Highlight winning slot with luxury effect
+        this.highlightCelestialMultiplierSlot(finalSlot);
         
         // Calculate and award payout
         if (multiplier >= 1) {
             const payout = await window.aminaWallet.payoutWin(betAmount, multiplier);
-            this.showGameMessage('plinkoResult', 
-                `${multiplier}x Multiplier! Won: ${payout.toFixed(2)} ${window.aminaWallet.getCurrency()}`, 
+            this.showLuxuryGameMessage('plinkoResult', 
+                `👑 ${multiplier}x Celestial Multiplier! Royal Payout: ${payout.toFixed(2)} ${window.aminaWallet.getCurrency()}`, 
                 'win'
             );
+            
+            if (multiplier >= 5) {
+                this.triggerCelestialCelebration();
+            }
         } else {
             const payout = await window.aminaWallet.payoutWin(betAmount, multiplier);
-            this.showGameMessage('plinkoResult', 
-                `${multiplier}x Multiplier | Won: ${payout.toFixed(2)} ${window.aminaWallet.getCurrency()}`, 
+            this.showLuxuryGameMessage('plinkoResult', 
+                `👑 ${multiplier}x Multiplier | Consolation: ${payout.toFixed(2)} ${window.aminaWallet.getCurrency()}`, 
                 'lose'
             );
         }
         
         // Reset after delay
         setTimeout(() => {
-            this.resetPlinko();
-        }, 3000);
+            this.resetCelestialPlinko();
+        }, 4000);
     }
 
-    async simulateBallPhysics(ball) {
-        // Simplified, more reliable physics simulation
-        let position = 4; // Start in middle (0-10 range for 11 slots)
+    async simulateCelestialBallPhysics(ball) {
+        // Enhanced celestial physics simulation
+        let position = 5; // Start in middle (0-10 range for 11 slots)
         ball.style.display = 'block';
         ball.style.left = '50%';
         ball.style.top = '30px';
         
-        // Simulate ball bouncing through pegs
-        const drops = 14; // Number of peg rows
+        // Add glow effect to ball
+        ball.style.boxShadow = '0 0 30px rgba(255, 215, 0, 1), 0 0 50px rgba(255, 215, 0, 0.8)';
+        
+        // Simulate celestial ball bouncing through pegs
+        const drops = 16; // More drops for luxury experience
         for (let drop = 0; drop < drops; drop++) {
-            // Random bounce left or right with some bias toward center
-            const bounce = Math.random() < 0.5 ? -0.5 : 0.5;
+            // Enhanced bounce physics with bias toward center
+            const bounceIntensity = 0.6 + (Math.random() * 0.4);
+            const bounce = Math.random() < 0.5 ? -bounceIntensity : bounceIntensity;
             position += bounce;
             
             // Keep within bounds (0-10 for 11 multiplier slots)
             position = Math.max(0, Math.min(10, position));
             
-            // Visual ball movement
-            const ballX = (position / 10) * 80 + 10; // Convert to percentage
-            const ballY = 30 + (drop * 20); // Move down
+            // Visual celestial ball movement
+            const ballX = (position / 10) * 85 + 7.5; // Convert to percentage
+            const ballY = 30 + (drop * 22); // Move down
             
             ball.style.left = `${ballX}%`;
             ball.style.top = `${ballY}px`;
             
-            // Add visual peg hit effect
-            const pegRow = Math.floor(drop / 2);
-            const pegs = document.querySelectorAll('.peg');
-            if (pegs[pegRow]) {
-                pegs[pegRow].style.transform = 'scale(1.3)';
-                setTimeout(() => {
-                    pegs[pegRow].style.transform = 'scale(1)';
-                }, 200);
-            }
+            // Add enhanced peg hit effects
+            const affectedPegs = this.plinkoState.pegs.filter(peg => 
+                Math.abs(peg.y - ballY) < 30 && Math.abs(peg.x - (ballX * 4)) < 40
+            );
             
-            await new Promise(resolve => setTimeout(resolve, 200));
+            affectedPegs.forEach(peg => {
+                peg.element.style.transform = 'scale(1.4)';
+                peg.element.style.boxShadow = '0 0 20px rgba(255, 215, 0, 1)';
+                setTimeout(() => {
+                    peg.element.style.transform = 'scale(1)';
+                    peg.element.style.boxShadow = '';
+                }, 300);
+            });
+            
+            await new Promise(resolve => setTimeout(resolve, 250));
         }
         
         // Store final position
@@ -801,19 +1020,19 @@ class AminaCasinoGames {
     }
 
     determineFinalSlot() {
-        // Use the position directly from the simplified physics
+        // Use the position directly from the celestial physics
         const position = this.plinkoState.ballPosition.x;
         return Math.max(0, Math.min(10, Math.floor(position)));
     }
 
-    highlightMultiplierSlot(slotIndex) {
+    highlightCelestialMultiplierSlot(slotIndex) {
         const multiplierElements = document.querySelectorAll('.multiplier');
         
         multiplierElements.forEach((el, index) => {
             if (index === slotIndex) {
-                el.style.transform = 'scale(1.2)';
-                el.style.boxShadow = '0 0 30px rgba(255, 255, 255, 0.8)';
-                el.style.animation = 'winMultiplier 2s ease-in-out';
+                el.style.transform = 'scale(1.3)';
+                el.style.boxShadow = '0 0 40px rgba(255, 215, 0, 1), 0 0 60px rgba(255, 215, 0, 0.8)';
+                el.style.animation = 'celestialMultiplier 3s ease-in-out';
             } else {
                 el.style.transform = 'scale(1)';
                 el.style.boxShadow = '';
@@ -822,11 +1041,39 @@ class AminaCasinoGames {
         });
     }
 
-    resetPlinko() {
+    triggerCelestialCelebration() {
+        // Create celestial celebration for big plinko wins
+        for (let i = 0; i < 20; i++) {
+            setTimeout(() => {
+                this.createCelestialCelebrationParticle();
+            }, i * 100);
+        }
+    }
+
+    createCelestialCelebrationParticle() {
+        const particle = document.createElement('div');
+        particle.textContent = ['👑', '💎', '✨', '🌟', '⭐', '💫', '🎯'][Math.floor(Math.random() * 7)];
+        particle.style.cssText = `
+            position: fixed;
+            font-size: 2.3rem;
+            pointer-events: none;
+            z-index: 9999;
+            left: ${Math.random() * window.innerWidth}px;
+            top: ${window.innerHeight}px;
+            animation: celestialCelebration 4s ease-out forwards;
+            filter: drop-shadow(0 0 18px rgba(255, 215, 0, 1));
+        `;
+
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 4000);
+    }
+
+    resetCelestialPlinko() {
         const ball = document.getElementById('plinkoBall');
         if (ball) {
             ball.style.left = '50%';
             ball.style.top = '50%';
+            ball.style.boxShadow = '';
         }
         
         // Reset multiplier highlights
@@ -840,101 +1087,215 @@ class AminaCasinoGames {
         document.getElementById('dropBtn').disabled = false;
     }
 
-    // =================== UTILITY METHODS ===================
+    // =================== LUXURY UTILITY METHODS ===================
 
-    showGameMessage(elementId, message, type) {
+    showLuxuryGameMessage(elementId, message, type) {
         const element = document.getElementById(elementId);
         if (!element) return;
         
         element.textContent = message;
-        element.className = `game-result ${type}`;
+        element.className = `game-result luxury-result ${type}`;
         
-        // Enhanced animation
-        element.style.transform = 'scale(1.1)';
-        element.style.transition = 'all 0.3s cubic-bezier(0.23, 1, 0.32, 1)';
+        // Enhanced luxury animation
+        element.style.transform = 'scale(1.08)';
+        element.style.transition = 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)';
         
         setTimeout(() => {
             element.style.transform = 'scale(1)';
-        }, 300);
+        }, 400);
         
-        // Add particle effects for wins
+        // Add luxury particle effects for wins
         if (type === 'win') {
-            this.createWinParticles(element);
+            this.createLuxuryWinParticles(element);
         }
     }
 
-    createWinParticles(element) {
+    createLuxuryWinParticles(element) {
         const rect = element.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
         
-        for (let i = 0; i < 15; i++) {
+        for (let i = 0; i < 20; i++) {
             setTimeout(() => {
                 const particle = document.createElement('div');
-                particle.textContent = ['✨', '💫', '⭐', '🌟', '💰'][Math.floor(Math.random() * 5)];
+                particle.textContent = ['✨', '💫', '⭐', '🌟', '💰', '👑', '💎'][Math.floor(Math.random() * 7)];
                 particle.style.cssText = `
                     position: fixed;
-                    font-size: 1.5rem;
+                    font-size: 1.8rem;
                     pointer-events: none;
                     z-index: 9999;
-                    left: ${centerX + (Math.random() - 0.5) * 100}px;
-                    top: ${centerY + (Math.random() - 0.5) * 50}px;
-                    animation: winParticle 2s ease-out forwards;
+                    left: ${centerX + (Math.random() - 0.5) * 120}px;
+                    top: ${centerY + (Math.random() - 0.5) * 60}px;
+                    animation: luxuryWinParticle 2.5s ease-out forwards;
+                    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 1));
                 `;
                 
                 document.body.appendChild(particle);
-                setTimeout(() => particle.remove(), 2000);
-            }, i * 50);
+                setTimeout(() => particle.remove(), 2500);
+            }, i * 60);
         }
     }
 
-    // Get game statistics
-    getGameStats() {
+    // Get luxury game statistics
+    getLuxuryGameStats() {
         return {
             slot: this.slotState,
             blackjack: this.blackjackState,
-            plinko: this.plinkoState
+            plinko: this.plinkoState,
+            luxuryLevel: 'Imperial'
         };
     }
 }
 
-// Add win particle animation CSS
-const gameStyle = document.createElement('style');
-gameStyle.textContent = `
-    @keyframes winParticle {
+// Add luxury game animation CSS
+const luxuryGameStyle = document.createElement('style');
+luxuryGameStyle.textContent = `
+    @keyframes luxuryWinParticle {
         0% {
             transform: translateY(0) rotate(0deg) scale(1);
             opacity: 1;
         }
         100% {
-            transform: translateY(-100px) rotate(360deg) scale(0);
+            transform: translateY(-120px) rotate(360deg) scale(0);
             opacity: 0;
         }
     }
     
-    @keyframes winHighlight {
+    @keyframes luxuryWinHighlight {
         0%, 100% { 
             transform: scale(1);
             filter: brightness(1);
         }
         50% { 
-            transform: scale(1.2);
-            filter: brightness(1.5) drop-shadow(0 0 20px gold);
+            transform: scale(1.3);
+            filter: brightness(1.8) drop-shadow(0 0 25px gold);
         }
     }
     
-    @keyframes winMultiplier {
+    @keyframes celestialMultiplier {
         0%, 100% { 
-            transform: scale(1.2);
+            transform: scale(1.3);
         }
         50% { 
-            transform: scale(1.4);
+            transform: scale(1.5);
         }
     }
+    
+    @keyframes slotCelebration {
+        0% {
+            transform: translateY(0) rotate(0deg) scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: translateY(-40vh) rotate(180deg) scale(1.2);
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(-80vh) rotate(360deg) scale(0.8);
+            opacity: 0;
+        }
+    }
+    
+    @keyframes blackjackCelebration {
+        0% {
+            transform: translateY(0) rotate(0deg) scale(1);
+            opacity: 1;
+        }
+        25% {
+            transform: translateY(-20vh) rotate(90deg) scale(1.1);
+            opacity: 1;
+        }
+        75% {
+            transform: translateY(-60vh) rotate(270deg) scale(1.1);
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(-80vh) rotate(360deg) scale(0.8);
+            opacity: 0;
+        }
+    }
+    
+    @keyframes celestialCelebration {
+        0% {
+            transform: translateY(0) rotate(0deg) scale(1);
+            opacity: 1;
+        }
+        33% {
+            transform: translateY(-30vh) rotate(120deg) scale(1.3);
+            opacity: 1;
+        }
+        66% {
+            transform: translateY(-60vh) rotate(240deg) scale(1.1);
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(-90vh) rotate(360deg) scale(0.7);
+            opacity: 0;
+        }
+    }
+    
+    @keyframes luxuryClick {
+        0% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0.8;
+        }
+        100% {
+            transform: translate(-50%, -50%) scale(3);
+            opacity: 0;
+        }
+    }
+    
+    @keyframes reelSparkle {
+        0% {
+            transform: scale(0) rotate(0deg);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.2) rotate(180deg);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(0) rotate(360deg);
+            opacity: 0;
+        }
+    }
+    
+    @keyframes pegSparkle {
+        0% {
+            transform: scale(0) rotate(0deg);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.5) rotate(180deg);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(0) rotate(360deg);
+            opacity: 0;
+        }
+    }
+    
+    .royal-card {
+        transition: all 0.3s ease;
+    }
+    
+    .royal-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(255, 215, 0, 0.4) !important;
+    }
+    
+    .celestial-peg {
+        transition: all 0.2s ease;
+    }
+    
+    .luxury-result {
+        font-family: 'Cinzel', serif !important;
+        letter-spacing: 1px;
+    }
 `;
-document.head.appendChild(gameStyle);
+document.head.appendChild(luxuryGameStyle);
 
-// Initialize games when DOM is ready
+// Initialize luxury games when DOM is ready
 let aminaCasinoGames;
 document.addEventListener('DOMContentLoaded', () => {
     aminaCasinoGames = new AminaCasinoGames();
