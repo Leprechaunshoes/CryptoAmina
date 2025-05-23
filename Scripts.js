@@ -1,808 +1,552 @@
-// Amina Casino Luxury Wallet Integration & Transaction Management
-// Royal-grade crypto casino backend logic
+// Global Game State
+const gameState = {
+    balance: 1000,
+    currency: 'HC', // HC or AMINA
+    currentGame: 'home',
+    isPlaying: false
+};
 
-class AminaCasinoWallet {
-    constructor() {
-        // Wallet Configuration
-        this.isConnected = false;
-        this.isAminaMode = false;
-        this.walletAddress = null;
-        this.peraWallet = null;
-        
-        // Balance Management
-        this.houseCoins = 1000;
-        this.aminaBalance = 0;
-        this.lastDailyBonus = null;
-        
-        // Casino Economics
-        this.houseRake = 0.05; // 5% house edge
-        this.minBet = 0.25;
-        this.maxBet = 100;
-        
-        // Amina Coin Configuration
-        this.aminaAsaId = 1107424865;
-        this.donationAddress = '6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI';
-        this.houseWalletAddress = null; // Set this to your house wallet
-        
-        // Statistics Tracking
-        this.stats = {
-            totalBets: 0,
-            totalWins: 0,
-            biggestWin: 0,
-            sessionsPlayed: 0,
-            luxuryLevel: 'Royal' // New luxury feature
-        };
-        
-        this.initializeWallet();
+// Currency Management
+function toggleCurrency() {
+    const toggle = document.getElementById('currencyToggle');
+    const currencyText = toggle.querySelector('.currency-text');
+    const currencySymbol = document.getElementById('currencySymbol');
+    const allCurrencySpans = document.querySelectorAll('#slotsCurrency, #plinkoCurrency, #blackjackCurrency');
+    
+    if (gameState.currency === 'HC') {
+        gameState.currency = 'AMINA';
+        gameState.balance = parseFloat((gameState.balance * 0.001).toFixed(6));
+        currencyText.textContent = 'AMINA';
+        toggle.classList.add('active');
+    } else {
+        gameState.currency = 'HC';
+        gameState.balance = parseFloat((gameState.balance * 1000).toFixed(2));
+        currencyText.textContent = 'HC';
+        toggle.classList.remove('active');
     }
+    
+    currencySymbol.textContent = gameState.currency;
+    allCurrencySpans.forEach(span => span.textContent = gameState.currency);
+    updateBalance();
+}
 
-    async initializeWallet() {
-        try {
-            // Load saved data
-            this.loadSavedData();
-            
-            // Initialize Pera Wallet connection (mock for now)
-            // In production, replace with: this.peraWallet = new PeraWalletConnect();
-            
-            // Update UI
-            this.updateUI();
-            this.setupEventListeners();
-            this.initializeLuxuryEffects();
-            
-            console.log('👑 Amina Casino Royal Wallet initialized successfully');
-        } catch (error) {
-            console.error('Wallet initialization failed:', error);
-            this.showLuxuryNotification('Wallet initialization failed', 'error');
-        }
-    }
-
-    loadSavedData() {
-        try {
-            const savedData = localStorage.getItem('aminaCasinoWallet');
-            if (savedData) {
-                const data = JSON.parse(savedData);
-                this.houseCoins = data.houseCoins || 1000;
-                this.lastDailyBonus = data.lastDailyBonus;
-                this.stats = { ...this.stats, ...data.stats };
-            }
-        } catch (error) {
-            console.log('No saved data found, using royal defaults');
-        }
-    }
-
-    setupEventListeners() {
-        // Mode Toggle
-        document.getElementById('modeToggle')?.addEventListener('change', (e) => {
-            this.toggleMode(e.target.checked);
-        });
-
-        // Wallet Connection
-        document.getElementById('connectWallet')?.addEventListener('click', () => {
-            this.handleWalletConnection();
-        });
-
-        // Donation
-        document.getElementById('donateBtn')?.addEventListener('click', () => {
-            this.handleDonation();
-        });
-
-        // Daily Bonus
-        document.getElementById('dailyBonus')?.addEventListener('click', () => {
-            this.claimDailyBonus();
-        });
-
-        // Bet Adjustment Controls
-        document.querySelectorAll('.bet-adjust').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.adjustBet(e.target);
-            });
-        });
-    }
-
-    initializeLuxuryEffects() {
-        // Add royal particle effects on page load
-        this.createLuxuryParticles();
-        
-        // Add subtle animations to luxury elements
-        this.enhanceLuxuryElements();
-    }
-
-    createLuxuryParticles() {
-        for (let i = 0; i < 5; i++) {
-            setTimeout(() => {
-                this.createRoyalParticle();
-            }, i * 1000);
-        }
-    }
-
-    createRoyalParticle() {
-        const particle = document.createElement('div');
-        particle.textContent = ['✨', '💎', '👑', '🌟', '⭐'][Math.floor(Math.random() * 5)];
-        particle.style.cssText = `
-            position: fixed;
-            font-size: 2rem;
-            pointer-events: none;
-            z-index: 9998;
-            left: ${Math.random() * window.innerWidth}px;
-            top: ${window.innerHeight + 50}px;
-            animation: royalFloat 8s ease-out forwards;
-            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
-        `;
-
-        document.body.appendChild(particle);
-        setTimeout(() => particle.remove(), 8000);
-    }
-
-    enhanceLuxuryElements() {
-        // Add luxury hover effects to buttons
-        document.querySelectorAll('.game-btn, .wallet-btn, .donate-btn, .daily-btn').forEach(btn => {
-            btn.addEventListener('mouseenter', () => {
-                this.addLuxuryHoverEffect(btn);
-            });
-        });
-    }
-
-    addLuxuryHoverEffect(element) {
-        const sparkle = document.createElement('div');
-        sparkle.textContent = '✨';
-        sparkle.style.cssText = `
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            font-size: 1.2rem;
-            pointer-events: none;
-            animation: sparkleHover 0.6s ease-out forwards;
-            z-index: 1000;
-        `;
-        
-        element.style.position = 'relative';
-        element.appendChild(sparkle);
-        
-        setTimeout(() => sparkle.remove(), 600);
-    }
-
-    toggleMode(isAminaMode) {
-        this.isAminaMode = isAminaMode;
-        
-        if (isAminaMode && !this.isConnected) {
-            this.showLuxuryNotification('Connect your royal Pera Wallet to access Amina treasures', 'warning');
-            // Reset toggle if wallet not connected
-            setTimeout(() => {
-                document.getElementById('modeToggle').checked = false;
-                this.isAminaMode = false;
-            }, 100);
-            return;
-        }
-        
-        this.updateUI();
-        this.showLuxuryNotification(
-            `Switched to ${isAminaMode ? 'Amina Royal' : 'House Coins'} mode`, 
-            'success'
-        );
-        
-        // Add luxury mode switch effect
-        this.triggerLuxuryModeEffect();
-    }
-
-    triggerLuxuryModeEffect() {
-        // Create royal transition effect
-        for (let i = 0; i < 10; i++) {
-            setTimeout(() => {
-                this.createRoyalParticle();
-            }, i * 100);
-        }
-    }
-
-    async handleWalletConnection() {
-        try {
-            if (!this.isConnected) {
-                await this.connectWallet();
-            } else {
-                this.disconnectWallet();
-            }
-        } catch (error) {
-            console.error('Royal wallet connection error:', error);
-            this.showLuxuryNotification('Royal wallet connection failed', 'error');
-        }
-    }
-
-    async connectWallet() {
-        this.showLuxuryNotification('Connecting to your royal Pera Wallet...', 'info');
-        
-        try {
-            // PRODUCTION CODE: Replace this mock connection with real Pera Wallet integration
-            /*
-            this.peraWallet = new PeraWalletConnect();
-            const accounts = await this.peraWallet.connect();
-            this.walletAddress = accounts[0];
-            
-            // Get Amina balance
-            const algodClient = new algosdk.Algodv2(algodToken, algodServer, algodPort);
-            const accountInfo = await algodClient.accountInformation(this.walletAddress).do();
-            
-            // Find Amina asset balance
-            const aminaAsset = accountInfo.assets?.find(asset => asset['asset-id'] === this.aminaAsaId);
-            this.aminaBalance = aminaAsset ? aminaAsset.amount / 1000000 : 0; // Convert from microAmina
-            */
-            
-            // DEMO MODE: Mock wallet connection
-            await new Promise(resolve => setTimeout(resolve, 2500));
-            this.isConnected = true;
-            this.walletAddress = 'ROYAL_' + this.generateMockAddress();
-            this.aminaBalance = 42.75; // Mock balance for demo
-            
-            this.showLuxuryNotification('👑 Royal wallet connected successfully!', 'success');
-            this.updateUI();
-            
-            // Track connection
-            this.stats.sessionsPlayed++;
-            this.saveData();
-            
-            // Celebration effect
-            this.triggerRoyalCelebration();
-            
-        } catch (error) {
-            console.error('Connection failed:', error);
-            this.showLuxuryNotification('Failed to connect royal wallet', 'error');
-        }
-    }
-
-    disconnectWallet() {
-        // PRODUCTION CODE: Disconnect Pera Wallet
-        // if (this.peraWallet) {
-        //     this.peraWallet.disconnect();
-        // }
-        
-        this.isConnected = false;
-        this.walletAddress = null;
-        this.aminaBalance = 0;
-        this.isAminaMode = false;
-        
-        // Reset UI
-        document.getElementById('modeToggle').checked = false;
-        this.updateUI();
-        
-        this.showLuxuryNotification('👑 Royal wallet disconnected', 'info');
-    }
-
-    async handleDonation() {
-        if (!this.isConnected) {
-            this.showLuxuryNotification('Please connect your royal wallet first', 'error');
-            return;
-        }
-
-        const amount = this.promptForAmount('Enter your royal donation amount in Amina Coins:');
-        if (!amount) return;
-
-        if (amount > this.aminaBalance) {
-            this.showLuxuryNotification('Insufficient Amina treasures for donation', 'error');
-            return;
-        }
-
-        try {
-            this.showLuxuryNotification(`Processing royal donation of ${amount} Amina...`, 'info');
-            
-            // PRODUCTION CODE: Send actual Algorand transaction
-            /*
-            const algodClient = new algosdk.Algodv2(algodToken, algodServer, algodPort);
-            const params = await algodClient.getTransactionParams().do();
-            
-            const txn = algosdk.makeAssetTransferTxnWithSuggestedParams(
-                this.walletAddress,
-                this.donationAddress,
-                undefined,
-                undefined,
-                amount * 1000000, // Convert to microAmina
-                undefined,
-                this.aminaAsaId,
-                params
-            );
-            
-            const signedTxn = await this.peraWallet.signTransaction([txn]);
-            const { txId } = await algodClient.sendRawTransaction(signedTxn).do();
-            await algosdk.waitForConfirmation(algodClient, txId, 4);
-            */
-            
-            // DEMO MODE: Mock transaction
-            await new Promise(resolve => setTimeout(resolve, 3500));
-            
-            this.showLuxuryNotification(
-                `👑 Thank you for your generous royal donation of ${amount} Amina! ✨`, 
-                'success'
-            );
-            
-            // Royal celebration for donation
-            this.triggerRoyalCelebration();
-            
-        } catch (error) {
-            console.error('Donation failed:', error);
-            this.showLuxuryNotification('Royal donation transaction failed', 'error');
-        }
-    }
-
-    claimDailyBonus() {
-        const today = new Date().toDateString();
-        
-        if (this.lastDailyBonus === today) {
-            this.showLuxuryNotification('👑 Daily royal bonus already claimed today!', 'warning');
-            return;
-        }
-
-        const bonusAmount = 1000;
-        this.houseCoins += bonusAmount;
-        this.lastDailyBonus = today;
-        
-        this.saveData();
-        this.updateUI();
-        
-        this.showLuxuryNotification(`👑 Daily royal bonus claimed! +${bonusAmount} House Coins`, 'success');
-        
-        // Royal celebration effect
-        this.triggerRoyalCelebration();
-    }
-
-    adjustBet(button) {
-        const action = button.getAttribute('data-action');
-        const game = button.getAttribute('data-game') || 'slot';
-        
-        let inputId;
-        switch (game) {
-            case 'blackjack': inputId = 'blackjackBet'; break;
-            case 'plinko': inputId = 'plinkoBet'; break;
-            default: inputId = 'slotBet'; break;
-        }
-        
-        const input = document.getElementById(inputId);
-        if (!input) return;
-        
-        let currentValue = parseFloat(input.value) || this.minBet;
-        const step = 0.25;
-        
-        if (action === 'increase') {
-            currentValue = Math.min(currentValue + step, this.maxBet);
-        } else {
-            currentValue = Math.max(currentValue - step, this.minBet);
-        }
-        
-        input.value = currentValue.toFixed(2);
-        
-        // Update betting circle for blackjack
-        if (game === 'blackjack') {
-            const betDisplay = document.getElementById('currentBet');
-            if (betDisplay) {
-                betDisplay.textContent = currentValue.toFixed(2);
-            }
-        }
-        
-        // Add luxury effect to bet adjustment
-        this.addLuxuryHoverEffect(button);
-    }
-
-    getBalance() {
-        return this.isAminaMode ? this.aminaBalance : this.houseCoins;
-    }
-
-    getCurrency() {
-        return this.isAminaMode ? 'AMINA' : 'HC';
-    }
-
-    async canPlaceBet(amount) {
-        if (!amount || isNaN(amount) || amount < this.minBet) {
-            this.showLuxuryNotification(`👑 Minimum royal bet is ${this.minBet} ${this.getCurrency()}`, 'error');
-            return false;
-        }
-
-        if (amount > this.maxBet) {
-            this.showLuxuryNotification(`👑 Maximum royal bet is ${this.maxBet} ${this.getCurrency()}`, 'error');
-            return false;
-        }
-
-        if (this.isAminaMode && !this.isConnected) {
-            this.showLuxuryNotification('Please connect your royal wallet for Amina mode', 'error');
-            return false;
-        }
-        
-        const balance = this.getBalance();
-        if (amount > balance) {
-            this.showLuxuryNotification(
-                `👑 Insufficient royal treasury. You have ${balance.toFixed(2)} ${this.getCurrency()}`, 
-                'error'
-            );
-            return false;
-        }
-        
-        return true;
-    }
-
-    async placeBet(amount) {
-        if (!await this.canPlaceBet(amount)) {
-            return false;
-        }
-
-        try {
-            if (this.isAminaMode) {
-                await this.processAminaTransaction(amount, 'bet');
-                this.aminaBalance -= amount;
-            } else {
-                this.houseCoins -= amount;
-            }
-            
-            // Update statistics
-            this.stats.totalBets++;
-            
-            this.updateUI();
-            this.saveData();
-            return true;
-            
-        } catch (error) {
-            console.error('Bet placement failed:', error);
-            this.showLuxuryNotification('Royal bet placement failed', 'error');
-            return false;
-        }
-    }
-
-    async payoutWin(betAmount, multiplier) {
-        const grossWin = betAmount * multiplier;
-        const rake = grossWin * this.houseRake;
-        const netWin = grossWin - rake;
-
-        try {
-            if (this.isAminaMode) {
-                await this.processAminaTransaction(netWin, 'payout');
-                this.aminaBalance += netWin;
-            } else {
-                this.houseCoins += netWin;
-            }
-            
-            // Update statistics
-            this.stats.totalWins++;
-            if (netWin > this.stats.biggestWin) {
-                this.stats.biggestWin = netWin;
-            }
-            
-            this.updateUI();
-            this.saveData();
-            
-            // Royal celebration for big wins
-            if (multiplier >= 5) {
-                this.triggerRoyalCelebration();
-            }
-            
-            return netWin;
-            
-        } catch (error) {
-            console.error('Payout failed:', error);
-            this.showLuxuryNotification('Royal payout failed', 'error');
-            return 0;
-        }
-    }
-
-    async processAminaTransaction(amount, type) {
-        // PRODUCTION CODE: Handle real Algorand transactions
-        /*
-        const algodClient = new algosdk.Algodv2(algodToken, algodServer, algodPort);
-        const params = await algodClient.getTransactionParams().do();
-        
-        let txn;
-        if (type === 'bet') {
-            // Transfer from player to house
-            txn = algosdk.makeAssetTransferTxnWithSuggestedParams(
-                this.walletAddress,
-                this.houseWalletAddress,
-                undefined,
-                undefined,
-                amount * 1000000,
-                undefined,
-                this.aminaAsaId,
-                params
-            );
-        } else if (type === 'payout') {
-            // Transfer from house to player (requires house wallet signature)
-            txn = algosdk.makeAssetTransferTxnWithSuggestedParams(
-                this.houseWalletAddress,
-                this.walletAddress,
-                undefined,
-                undefined,
-                amount * 1000000,
-                undefined,
-                this.aminaAsaId,
-                params
-            );
-        }
-        
-        const signedTxn = await this.peraWallet.signTransaction([txn]);
-        const { txId } = await algodClient.sendRawTransaction(signedTxn).do();
-        await algosdk.waitForConfirmation(algodClient, txId, 4);
-        
-        return txId;
-        */
-        
-        // DEMO MODE: Mock transaction processing
-        await new Promise(resolve => setTimeout(resolve, 1200));
-        console.log(`👑 Mock royal ${type} transaction: ${amount} AMINA`);
-        return 'royal_tx_' + Date.now();
-    }
-
-    updateUI() {
-        // Update balance display
-        const balanceLabel = document.getElementById('balanceLabel');
-        const balanceAmount = document.getElementById('balanceAmount');
-        
-        if (balanceLabel && balanceAmount) {
-            balanceLabel.textContent = this.isAminaMode ? 'Amina Coins' : 'House Coins';
-            balanceAmount.textContent = this.getBalance().toFixed(2);
-        }
-
-        // Update wallet button
-        const connectButton = document.getElementById('connectWallet');
-        if (connectButton) {
-            connectButton.innerHTML = this.isConnected ? 
-                '<span class="btn-icon">🔮</span> Disconnect Wallet<div class="btn-shimmer"></div>' : 
-                '<span class="btn-icon">🔮</span> Connect Pera Wallet<div class="btn-shimmer"></div>';
-            
-            connectButton.style.background = this.isConnected ? 
-                'linear-gradient(45deg, #f87171, #ef4444, #dc2626)' : 
-                'linear-gradient(45deg, #9370db, #8a2be2, #4b0082)';
-        }
-
-        // Update daily bonus button
-        const dailyButton = document.getElementById('dailyBonus');
-        if (dailyButton) {
-            const today = new Date().toDateString();
-            const claimed = this.lastDailyBonus === today;
-            
-            dailyButton.innerHTML = claimed ? 
-                '<span class="btn-icon">✅</span> Claimed Today<div class="btn-shimmer"></div>' : 
-                '<span class="btn-icon">👑</span> Daily 1000 HC<div class="btn-shimmer"></div>';
-            
-            dailyButton.disabled = claimed;
-            dailyButton.style.opacity = claimed ? '0.6' : '1';
-            dailyButton.style.display = this.isAminaMode ? 'none' : 'flex';
-        }
-    }
-
-    showLuxuryNotification(message, type = 'info', duration = 5000) {
-        // Remove existing notification
-        const existing = document.getElementById('luxuryNotification');
-        if (existing) {
-            existing.remove();
-        }
-
-        // Create luxury notification element
-        const notification = document.createElement('div');
-        notification.id = 'luxuryNotification';
-        notification.className = `luxury-notification ${type}`;
-        notification.innerHTML = `
-            <div class="notification-content">
-                <div class="notification-icon">${this.getNotificationIcon(type)}</div>
-                <div class="notification-text">${message}</div>
-            </div>
-            <div class="notification-glow"></div>
-        `;
-
-        // Luxury styling
-        notification.style.cssText = `
-            position: fixed;
-            top: 30px;
-            right: 30px;
-            padding: 25px 35px;
-            border-radius: 20px;
-            color: white;
-            font-weight: bold;
-            font-family: 'Cinzel', serif;
-            z-index: 10000;
-            max-width: 450px;
-            word-wrap: break-word;
-            transform: translateX(500px);
-            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(15px);
-            border: 2px solid rgba(255, 215, 0, 0.3);
-            font-size: 1rem;
-        `;
-
-        // Type-specific luxury styling
-        switch (type) {
-            case 'success':
-                notification.style.background = 'linear-gradient(135deg, rgba(0, 255, 0, 0.3), rgba(50, 205, 50, 0.2))';
-                notification.style.boxShadow += ', 0 0 40px rgba(0, 255, 0, 0.4)';
-                break;
-            case 'error':
-                notification.style.background = 'linear-gradient(135deg, rgba(255, 68, 68, 0.3), rgba(220, 20, 60, 0.2))';
-                notification.style.boxShadow += ', 0 0 40px rgba(255, 68, 68, 0.4)';
-                break;
-            case 'warning':
-                notification.style.background = 'linear-gradient(135deg, rgba(255, 165, 0, 0.3), rgba(255, 140, 0, 0.2))';
-                notification.style.boxShadow += ', 0 0 40px rgba(255, 165, 0, 0.4)';
-                break;
-            case 'info':
-                notification.style.background = 'linear-gradient(135deg, rgba(147, 112, 219, 0.3), rgba(138, 43, 226, 0.2))';
-                notification.style.boxShadow += ', 0 0 40px rgba(147, 112, 219, 0.4)';
-                break;
-        }
-
-        document.body.appendChild(notification);
-
-        // Animate in
-        setTimeout(() => {
-            notification.style.transform = 'translateX(0)';
-        }, 100);
-
-        // Auto remove
-        setTimeout(() => {
-            notification.style.transform = 'translateX(500px)';
-            setTimeout(() => notification.remove(), 500);
-        }, duration);
-    }
-
-    getNotificationIcon(type) {
-        switch (type) {
-            case 'success': return '👑';
-            case 'error': return '⚠️';
-            case 'warning': return '💫';
-            case 'info': return '✨';
-            default: return '🌟';
-        }
-    }
-
-    triggerRoyalCelebration() {
-        // Create royal celebration particles
-        for (let i = 0; i < 25; i++) {
-            setTimeout(() => {
-                this.createRoyalCelebrationParticle();
-            }, i * 100);
-        }
-    }
-
-    createRoyalCelebrationParticle() {
-        const particle = document.createElement('div');
-        particle.textContent = ['👑', '💎', '✨', '🌟', '⭐', '💫', '🎉'][Math.floor(Math.random() * 7)];
-        particle.style.cssText = `
-            position: fixed;
-            font-size: 2.5rem;
-            pointer-events: none;
-            z-index: 9999;
-            left: ${Math.random() * window.innerWidth}px;
-            top: ${window.innerHeight}px;
-            animation: royalCelebration 4s ease-out forwards;
-            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 1));
-        `;
-
-        document.body.appendChild(particle);
-        setTimeout(() => particle.remove(), 4000);
-    }
-
-    promptForAmount(message) {
-        const amount = prompt(message);
-        if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
-            if (amount !== null) {
-                this.showLuxuryNotification('👑 Invalid royal amount entered', 'error');
-            }
-            return null;
-        }
-        return parseFloat(amount);
-    }
-
-    generateMockAddress() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-        let result = '';
-        for (let i = 0; i < 58; i++) {
-            result += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return result;
-    }
-
-    saveData() {
-        try {
-            const data = {
-                houseCoins: this.houseCoins,
-                lastDailyBonus: this.lastDailyBonus,
-                stats: this.stats
-            };
-            localStorage.setItem('aminaCasinoWallet', JSON.stringify(data));
-        } catch (error) {
-            console.log('Unable to save royal wallet data');
-        }
-    }
-
-    // Public API for games
-    getWalletInfo() {
-        return {
-            isConnected: this.isConnected,
-            isAminaMode: this.isAminaMode,
-            balance: this.getBalance(),
-            currency: this.getCurrency(),
-            walletAddress: this.walletAddress,
-            stats: this.stats
-        };
+function updateBalance() {
+    const balanceElement = document.getElementById('balanceAmount');
+    if (gameState.currency === 'AMINA') {
+        balanceElement.textContent = gameState.balance.toFixed(6);
+    } else {
+        balanceElement.textContent = gameState.balance.toFixed(2);
     }
 }
 
-// Add royal particle animation CSS
-const luxuryStyle = document.createElement('style');
-luxuryStyle.textContent = `
-    @keyframes royalFloat {
-        0% {
-            transform: translateY(0) rotate(0deg);
-            opacity: 1;
-        }
-        100% {
-            transform: translateY(-120vh) rotate(360deg);
-            opacity: 0;
-        }
+function deductBalance(amount) {
+    if (gameState.balance >= amount) {
+        gameState.balance -= amount;
+        updateBalance();
+        return true;
     }
-    
-    @keyframes royalCelebration {
-        0% {
-            transform: translateY(0) rotate(0deg) scale(1);
-            opacity: 1;
-        }
-        50% {
-            transform: translateY(-60vh) rotate(180deg) scale(1.2);
-            opacity: 1;
-        }
-        100% {
-            transform: translateY(-120vh) rotate(360deg) scale(0.8);
-            opacity: 0;
-        }
-    }
-    
-    @keyframes sparkleHover {
-        0% {
-            transform: scale(0) rotate(0deg);
-            opacity: 1;
-        }
-        50% {
-            transform: scale(1.2) rotate(180deg);
-            opacity: 1;
-        }
-        100% {
-            transform: scale(0) rotate(360deg);
-            opacity: 0;
-        }
-    }
-    
-    .notification-content {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        position: relative;
-        z-index: 2;
-    }
-    
-    .notification-icon {
-        font-size: 1.5rem;
-        filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
-    }
-    
-    .notification-text {
-        flex: 1;
-        line-height: 1.4;
-    }
-    
-    .notification-glow {
-        position: absolute;
-        top: -2px;
-        left: -2px;
-        right: -2px;
-        bottom: -2px;
-        background: linear-gradient(45deg, #ffd700, #dda0dd, #9370db, #ffd700);
-        border-radius: 22px;
-        z-index: -1;
-        opacity: 0.6;
-        animation: notificationGlow 3s ease-in-out infinite alternate;
-    }
-    
-    @keyframes notificationGlow {
-        0% { opacity: 0.4; }
-        100% { opacity: 0.8; }
-    }
-`;
-document.head.appendChild(luxuryStyle);
+    return false;
+}
 
-// Initialize royal wallet system
-let aminaWallet;
-document.addEventListener('DOMContentLoaded', () => {
-    aminaWallet = new AminaCasinoWallet();
-    window.aminaWallet = aminaWallet; // Make globally accessible
+function addBalance(amount) {
+    gameState.balance += amount;
+    updateBalance();
+}
+
+// Navigation
+function switchGame(gameName) {
+    document.querySelectorAll('.game-screen').forEach(screen => {
+        screen.classList.remove('active');
+    });
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    document.getElementById(gameName).classList.add('active');
+    document.querySelector(`[data-game="${gameName}"]`).classList.add('active');
+    gameState.currentGame = gameName;
+}
+
+// SLOTS GAME
+const slotsGame = {
+    symbols: ['🌟', '🪐', '🌌', '☄️', '🚀', '🛸', '🌙', '⭐'],
+    grid: [],
+    payouts: {
+        '🌟': { 5: 100, 4: 20, 3: 5 },
+        '🪐': { 5: 50, 4: 15, 3: 3 },
+        '🌌': { 5: 25, 4: 10, 3: 2 },
+        '☄️': { 5: 15, 4: 8, 3: 2 },
+        '🚀': { 5: 10, 4: 5, 3: 1 }
+    },
+    
+    init() {
+        this.createGrid();
+        document.getElementById('spinBtn').addEventListener('click', () => this.spin());
+    },
+    
+    createGrid() {
+        const gridElement = document.getElementById('slotsGrid');
+        gridElement.innerHTML = '';
+        this.grid = [];
+        
+        for (let i = 0; i < 15; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'slot-cell';
+            cell.textContent = this.symbols[Math.floor(Math.random() * this.symbols.length)];
+            gridElement.appendChild(cell);
+            this.grid.push(cell);
+        }
+    },
+    
+    spin() {
+        if (gameState.isPlaying) return;
+        
+        const betAmount = parseFloat(document.getElementById('slotsBet').value);
+        if (!deductBalance(betAmount)) {
+            alert('Insufficient stellar balance!');
+            return;
+        }
+        
+        gameState.isPlaying = true;
+        document.getElementById('spinBtn').disabled = true;
+        
+        // Spinning animation
+        this.grid.forEach((cell, index) => {
+            cell.classList.add('spinning');
+            
+            const spinInterval = setInterval(() => {
+                cell.textContent = this.symbols[Math.floor(Math.random() * this.symbols.length)];
+            }, 100);
+            
+            setTimeout(() => {
+                clearInterval(spinInterval);
+                cell.classList.remove('spinning');
+                cell.textContent = this.symbols[Math.floor(Math.random() * this.symbols.length)];
+            }, 1000 + Math.random() * 1000);
+        });
+        
+        setTimeout(() => {
+            this.checkWins(betAmount);
+            gameState.isPlaying = false;
+            document.getElementById('spinBtn').disabled = false;
+        }, 2500);
+    },
+    
+    checkWins(betAmount) {
+        const rows = [
+            [this.grid[0], this.grid[1], this.grid[2], this.grid[3], this.grid[4]],
+            [this.grid[5], this.grid[6], this.grid[7], this.grid[8], this.grid[9]],
+            [this.grid[10], this.grid[11], this.grid[12], this.grid[13], this.grid[14]]
+        ];
+        
+        let totalWin = 0;
+        
+        rows.forEach(row => {
+            const symbols = row.map(cell => cell.textContent);
+            const counts = {};
+            symbols.forEach(symbol => counts[symbol] = (counts[symbol] || 0) + 1);
+            
+            Object.entries(counts).forEach(([symbol, count]) => {
+                if (this.payouts[symbol] && this.payouts[symbol][count]) {
+                    totalWin += betAmount * this.payouts[symbol][count];
+                    row.forEach(cell => {
+                        if (cell.textContent === symbol) {
+                            cell.classList.add('winning');
+                            setTimeout(() => cell.classList.remove('winning'), 3000);
+                        }
+                    });
+                }
+            });
+        });
+        
+        if (totalWin > 0) {
+            addBalance(totalWin);
+            setTimeout(() => {
+                alert(`🌟 Cosmic Win! You won ${totalWin.toFixed(gameState.currency === 'AMINA' ? 6 : 2)} ${gameState.currency}!`);
+            }, 500);
+        }
+    }
+};
+
+// PLINKO GAME
+const plinkoGame = {
+    canvas: null,
+    ctx: null,
+    balls: [],
+    pegs: [],
+    
+    init() {
+        this.canvas = document.getElementById('plinkoCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.setupPegs();
+        
+        document.getElementById('dropBtn').addEventListener('click', () => this.dropBall());
+        document.getElementById('dropZone').addEventListener('click', () => this.dropBall());
+        
+        this.animate();
+    },
+    
+    setupPegs() {
+        this.pegs = [];
+        const rows = 8;
+        const pegSpacing = 60;
+        const startX = this.canvas.width / 2;
+        const startY = 80;
+        
+        for (let row = 0; row < rows; row++) {
+            const pegsInRow = row + 3;
+            const rowWidth = (pegsInRow - 1) * pegSpacing;
+            const rowStartX = startX - rowWidth / 2;
+            
+            for (let col = 0; col < pegsInRow; col++) {
+                this.pegs.push({
+                    x: rowStartX + col * pegSpacing,
+                    y: startY + row * 50,
+                    radius: 6
+                });
+            }
+        }
+    },
+    
+    dropBall() {
+        if (gameState.isPlaying) return;
+        
+        const betAmount = parseFloat(document.getElementById('plinkoBet').value);
+        if (!deductBalance(betAmount)) {
+            alert('Insufficient cosmic energy!');
+            return;
+        }
+        
+        gameState.isPlaying = true;
+        document.getElementById('dropBtn').disabled = true;
+        
+        const ball = {
+            x: this.canvas.width / 2 + (Math.random() - 0.5) * 20,
+            y: 30,
+            vx: (Math.random() - 0.5) * 2,
+            vy: 0,
+            radius: 8,
+            bounces: 0,
+            betAmount: betAmount
+        };
+        
+        this.balls.push(ball);
+    },
+    
+    animate() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // Draw pegs
+        this.ctx.fillStyle = '#FFD700';
+        this.pegs.forEach(peg => {
+            this.ctx.beginPath();
+            this.ctx.arc(peg.x, peg.y, peg.radius, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // Add glow effect
+            this.ctx.shadowColor = '#FFD700';
+            this.ctx.shadowBlur = 10;
+            this.ctx.fill();
+            this.ctx.shadowBlur = 0;
+        });
+        
+        // Update and draw balls
+        this.balls.forEach((ball, index) => {
+            // Physics
+            ball.vy += 0.5; // gravity
+            ball.x += ball.vx;
+            ball.y += ball.vy;
+            
+            // Collision with pegs
+            this.pegs.forEach(peg => {
+                const dx = ball.x - peg.x;
+                const dy = ball.y - peg.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < ball.radius + peg.radius) {
+                    const angle = Math.atan2(dy, dx);
+                    ball.vx = Math.cos(angle) * 3;
+                    ball.vy = Math.abs(Math.sin(angle)) * 3;
+                    ball.bounces++;
+                }
+            });
+            
+            // Side walls
+            if (ball.x < ball.radius || ball.x > this.canvas.width - ball.radius) {
+                ball.vx *= -0.8;
+                ball.x = Math.max(ball.radius, Math.min(this.canvas.width - ball.radius, ball.x));
+            }
+            
+            // Bottom detection
+            if (ball.y > this.canvas.height - 60) {
+                const slotWidth = this.canvas.width / 9;
+                const slot = Math.floor(ball.x / slotWidth);
+                const multipliers = [10, 3, 1.5, 1, 0.5, 1, 1.5, 3, 10];
+                const multiplier = multipliers[Math.min(slot, 8)];
+                
+                const winAmount = ball.betAmount * multiplier;
+                addBalance(winAmount);
+                
+                setTimeout(() => {
+                    alert(`🌌 Quantum result! Ball landed in ${multiplier}x slot! Won ${winAmount.toFixed(gameState.currency === 'AMINA' ? 6 : 2)} ${gameState.currency}!`);
+                }, 100);
+                
+                this.balls.splice(index, 1);
+                gameState.isPlaying = false;
+                document.getElementById('dropBtn').disabled = false;
+            }
+            
+            // Draw ball
+            this.ctx.fillStyle = '#8A2BE2';
+            this.ctx.beginPath();
+            this.ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // Glow effect
+            this.ctx.shadowColor = '#8A2BE2';
+            this.ctx.shadowBlur = 15;
+            this.ctx.fill();
+            this.ctx.shadowBlur = 0;
+        });
+        
+        requestAnimationFrame(() => this.animate());
+    }
+};
+
+// BLACKJACK GAME
+const blackjackGame = {
+    deck: [],
+    playerHand: [],
+    dealerHand: [],
+    gameOver: false,
+    playerScore: 0,
+    dealerScore: 0,
+    currentBet: 0,
+    
+    init() {
+        document.getElementById('dealBtn').addEventListener('click', () => this.deal());
+        document.getElementById('hitBtn').addEventListener('click', () => this.hit());
+        document.getElementById('standBtn').addEventListener('click', () => this.stand());
+        document.getElementById('newGameBtn').addEventListener('click', () => this.newGame());
+    },
+    
+    createDeck() {
+        const suits = ['♠️', '♥️', '♦️', '♣️'];
+        const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        this.deck = [];
+        
+        suits.forEach(suit => {
+            ranks.forEach(rank => {
+                this.deck.push({ suit, rank });
+            });
+        });
+        
+        // Shuffle deck
+        for (let i = this.deck.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
+        }
+    },
+    
+    getCardValue(card) {
+        if (card.rank === 'A') return 11;
+        if (['J', 'Q', 'K'].includes(card.rank)) return 10;
+        return parseInt(card.rank);
+    },
+    
+    calculateScore(hand) {
+        let score = 0;
+        let aces = 0;
+        
+        hand.forEach(card => {
+            if (card.rank === 'A') {
+                aces++;
+                score += 11;
+            } else if (['J', 'Q', 'K'].includes(card.rank)) {
+                score += 10;
+            } else {
+                score += parseInt(card.rank);
+            }
+        });
+        
+        while (score > 21 && aces > 0) {
+            score -= 10;
+            aces--;
+        }
+        
+        return score;
+    },
+    
+    createCardElement(card, hidden = false) {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'card';
+        
+        if (hidden) {
+            cardEl.className += ' card-back';
+            cardEl.textContent = '🌌';
+        } else {
+            if (card.suit === '♥️' || card.suit === '♦️') {
+                cardEl.classList.add('red');
+            }
+            cardEl.innerHTML = `<div>${card.rank}</div><div>${card.suit}</div>`;
+        }
+        
+        return cardEl;
+    },
+    
+    deal() {
+        const betAmount = parseFloat(document.getElementById('blackjackBet').value);
+        if (!deductBalance(betAmount)) {
+            alert('Insufficient galactic credits!');
+            return;
+        }
+        
+        this.currentBet = betAmount;
+        this.createDeck();
+        this.playerHand = [];
+        this.dealerHand = [];
+        this.gameOver = false;
+        
+        // Deal initial cards
+        this.playerHand.push(this.deck.pop(), this.deck.pop());
+        this.dealerHand.push(this.deck.pop(), this.deck.pop());
+        
+        this.updateDisplay();
+        this.checkBlackjack();
+        
+        document.getElementById('dealBtn').disabled = true;
+        document.getElementById('hitBtn').disabled = false;
+        document.getElementById('standBtn').disabled = false;
+    },
+    
+    hit() {
+        if (this.gameOver) return;
+        
+        this.playerHand.push(this.deck.pop());
+        this.updateDisplay();
+        
+        if (this.playerScore > 21) {
+            this.endGame('💥 Bust! The cosmic dealer wins.');
+        }
+    },
+    
+    stand() {
+        if (this.gameOver) return;
+        
+        // Dealer plays
+        while (this.calculateScore(this.dealerHand) < 17) {
+            this.dealerHand.push(this.deck.pop());
+        }
+        
+        this.updateDisplay();
+        this.determineWinner();
+    },
+    
+    checkBlackjack() {
+        if (this.playerScore === 21) {
+            if (this.calculateScore(this.dealerHand) === 21) {
+                this.endGame('🌌 Push! Both have blackjack in the cosmos.');
+                addBalance(this.currentBet); // Return bet
+            } else {
+                this.endGame('⭐ Blackjack! The stars align for you!');
+                addBalance(this.currentBet * 2.5); // 3:2 payout
+            }
+        }
+    },
+    
+    determineWinner() {
+        const dealerScore = this.calculateScore(this.dealerHand);
+        
+        if (dealerScore > 21) {
+            this.endGame('💥 Dealer busts! Victory among the stars!');
+            addBalance(this.currentBet * 2);
+        } else if (this.playerScore > dealerScore) {
+            this.endGame('🚀 You win! The galaxy rewards you!');
+            addBalance(this.currentBet * 2);
+        } else if (this.playerScore < dealerScore) {
+            this.endGame('🌑 Dealer wins this cosmic battle.');
+        } else {
+            this.endGame('🌌 Push! The cosmic forces are balanced.');
+            addBalance(this.currentBet); // Return bet
+        }
+    },
+    
+    endGame(message) {
+        this.gameOver = true;
+        document.getElementById('gameMessage').textContent = message;
+        document.getElementById('hitBtn').disabled = true;
+        document.getElementById('standBtn').disabled = true;
+        document.getElementById('newGameBtn').style.display = 'inline-block';
+        
+        if (message.includes('win') || message.includes('Victory') || message.includes('Blackjack')) {
+            document.getElementById('gameMessage').className = 'game-message win';
+        } else if (message.includes('Push') || message.includes('balanced')) {
+            document.getElementById('gameMessage').className = 'game-message';
+        } else {
+            document.getElementById('gameMessage').className = 'game-message lose';
+        }
+    },
+    
+    newGame() {
+        document.getElementById('dealBtn').disabled = false;
+        document.getElementById('hitBtn').disabled = true;
+        document.getElementById('standBtn').disabled = true;
+        document.getElementById('newGameBtn').style.display = 'none';
+        document.getElementById('gameMessage').textContent = '';
+        document.getElementById('gameMessage').className = 'game-message';
+        
+        document.getElementById('playerCards').innerHTML = '';
+        document.getElementById('dealerCards').innerHTML = '';
+        document.getElementById('playerScore').textContent = '0';
+        document.getElementById('dealerScore').textContent = '0';
+    },
+    
+    updateDisplay() {
+        this.playerScore = this.calculateScore(this.playerHand);
+        this.dealerScore = this.calculateScore(this.dealerHand);
+        
+        // Update player cards
+        const playerContainer = document.getElementById('playerCards');
+        playerContainer.innerHTML = '';
+        this.playerHand.forEach(card => {
+            playerContainer.appendChild(this.createCardElement(card));
+        });
+        
+        // Update dealer cards
+        const dealerContainer = document.getElementById('dealerCards');
+        dealerContainer.innerHTML = '';
+        this.dealerHand.forEach((card, index) => {
+            const hidden = !this.gameOver && index === 1;
+            dealerContainer.appendChild(this.createCardElement(card, hidden));
+        });
+        
+        document.getElementById('playerScore').textContent = this.playerScore;
+        document.getElementById('dealerScore').textContent = this.gameOver ? this.dealerScore : this.getCardValue(this.dealerHand[0]);
+    }
+};
+
+// Initialize everything when DOM loads
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🌌 Amina Casino - Cosmic systems online!');
+    
+    // Currency toggle
+    document.getElementById('currencyToggle').addEventListener('click', toggleCurrency);
+    
+    // Navigation
+    document.querySelectorAll('.nav-btn, .game-card').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const game = e.target.closest('[data-game]').dataset.game;
+            switchGame(game);
+        });
+    });
+    
+    // Initialize games
+    slotsGame.init();
+    plinkoGame.init();
+    blackjackGame.init();
+    
+    // Update initial balance display
+    updateBalance();
+    
+    console.log('🚀 All cosmic gaming systems initialized!');
 });
