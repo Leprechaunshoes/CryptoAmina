@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amina Casino - Cosmic Luxury</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+    <div class="stars"></div>
+    <div class="twinkling"></div>
+    
+    <header>
+        <div class="logo">
+            <i class="fas fa-rocket"></i>
+            <h1>Amina Casino</h1>
+        </div>
+        <div class="wallet-container">
+            <button id="connect-wallet" class="glow-button">
+                <i class="fas fa-wallet"></i> Connect Wallet
+            </button>
+            <div id="wallet-info" class="hidden">
+                <span id="wallet-address"></span>
+                <span id="wallet-balance">0 Amina</span>
+            </div>
+            <div class="currency-toggle">
+                <span>House Coins</span>
+                <label class="switch">
+                    <input type="checkbox" id="currency-toggle">
+                    <span class="slider round"></span>
+                </label>
+                <span>Amina</span>
+            </div>
+            <div id="house-balance">1000 HC</div>
+        </div>
+        <div class="music-controls">
+            <button id="toggle-music" class="glow-button">
+                <i class="fas fa-volume-up"></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <div class="game-menu">
+            <button class="game-tab active" data-game="slots">
+                <i class="fas fa-spinner"></i> Slots
+            </button>
+            <button class="game-tab" data-game="blackjack">
+                <i class="fas fa-crown"></i> Blackjack
+            </button>
+            <button class="game-tab" data-game="plinko">
+                <i class="fas fa-meteor"></i> Plinko
+            </button>
+        </div>
+
+        <div class="game-container">
+            <!-- Slots Game -->
+            <div id="slots-game" class="game-content active">
+                <div class="slot-machine">
+                    <div class="slot-display">
+                        <div class="reel">
+                            <div class="symbol" id="reel1">🚀</div>
+                        </div>
+                        <div class="reel">
+                            <div class="symbol" id="reel2">💫</div>
+                        </div>
+                        <div class="reel">
+                            <div class="symbol" id="reel3">🌟</div>
+                        </div>
+                    </div>
+                    <div class="result-message" id="slots-result"></div>
+                    <div class="slots-controls">
+                        <div class="bet-controls">
+                            <button id="decrease-bet" class="bet-btn">-</button>
+                            <span id="bet-amount">0.25</span>
+                            <button id="increase-bet" class="bet-btn">+</button>
+                        </div>
+                        <button id="spin-button" class="spin-btn glow-button">SPIN</button>
+                    </div>
+                </div>
+                <div class="slot-legend">
+                    <h3>Payouts</h3>
+                    <div class="payout-item">
+                        <div class="payout-symbols">🚀 🚀 🚀</div>
+                        <div class="payout-value">5x</div>
+                    </div>
+                    <div class="payout-item">
+                        <div class="payout-symbols">💫 💫 💫</div>
+                        <div class="payout-value">3x</div>
+                    </div>
+                    <div class="payout-item">
+                        <div class="payout-symbols">🌟 🌟 🌟</div>
+                        <div class="payout-value">2x</div>
+                    </div>
+                    <div class="payout-item">
+                        <div class="payout-symbols">🪐 🪐 🪐</div>
+                        <div class="payout-value">10x</div>
+                    </div>
+                    <div class="payout-item">
+                        <div class="payout-symbols">👽 👽 👽</div>
+                        <div class="payout-value">7x</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blackjack Game -->
+            <div id="blackjack-game" class="game-content">
+                <div class="blackjack-table">
+                    <div class="dealer-area">
+                        <h3>Dealer's Hand</h3>
+                        <div id="dealer-cards" class="cards"></div>
+                        <div id="dealer-score" class="score">0</div>
+                    </div>
+                    <div class="player-area">
+                        <h3>Your Hand</h3>
+                        <div id="player-cards" class="cards"></div>
+                        <div id="player-score" class="score">0</div>
+                        <div id="blackjack-result" class="result-message"></div>
+                    </div>
+                    <div class="blackjack-controls">
+                        <div class="bet-controls">
+                            <button id="bj-decrease-bet" class="bet-btn">-</button>
+                            <span id="bj-bet-amount">0.25</span>
+                            <button id="bj-increase-bet" class="bet-btn">+</button>
+                        </div>
+                        <div class="action-buttons">
+                            <button id="deal-button" class="bj-btn glow-button">Deal</button>
+                            <button id="hit-button" class="bj-btn glow-button" disabled>Hit</button>
+                            <button id="stand-button" class="bj-btn glow-button" disabled>Stand</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plinko Game -->
+            <div id="plinko-game" class="game-content">
+                <div class="plinko-container">
+                    <div class="plinko-controls">
+                        <div class="row-selector">
+                            <label for="plinko-rows">Rows:</label>
+                            <input type="range" id="plinko-rows" min="8" max="16" value="12">
+                            <span id="rows-value">12</span>
+                        </div>
+                        <div class="bet-controls">
+                            <button id="plinko-decrease-bet" class="bet-btn">-</button>
+                            <span id="plinko-bet-amount">0.25</span>
+                            <button id="plinko-increase-bet" class="bet-btn">+</button>
+                        </div>
+                        <button id="drop-button" class="plinko-btn glow-button">Drop Ball</button>
+                    </div>
+                    <div class="plinko-board">
+                        <canvas id="plinko-canvas"></canvas>
+                    </div>
+                    <div class="plinko-multipliers" id="plinko-multipliers"></div>
+                    <div id="plinko-result" class="result-message"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="donation-container">
+            <button id="donate-button" class="glow-button">
+                <i class="fas fa-gift"></i> Donate
+            </button>
+            <div id="donation-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Donate Amina</h2>
+                    <div class="donation-controls">
+                        <input type="number" id="donation-amount" min="0.25" step="0.25" value="1">
+                        <button id="confirm-donation" class="glow-button">Send</button>
+                    </div>
+                    <p>All donations are sent to: 6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI</p>
+                </div>
+            </div>
+        </div>
+        <div class="info">
+            <p>© 2025 Amina Casino | Algorand ASA ID: 1107424865</p>
+            <p>5% house rake on all wins</p>
+        </div>
+    </footer>
+
+    <audio id="background-music" loop>
+        <source src="https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="win-sound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-slot-machine-win-alert-1931.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="spin-sound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-slot-machine-spin-1932.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="card-sound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-fast-small-sweep-transition-166.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="plinko-sound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-plastic-bubble-click-1124.mp3" type="audio/mpeg">
+    </audio>
+    
+    <script src="index.js"></script>
+    <script src="scripts.js"></script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Amina Casino - Cosmic Luxury Gaming</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Cosmic Background -->
+    <div class="cosmic-bg">
+        <div class="stars"></div>
+        <div class="twinkling"></div>
+        <div class="nebula"></div>
+    </div>
+    
+    <!-- Header -->
+    <header class="cosmic-header">
+        <div class="logo-container">
+            <div class="logo-animation">
+                <i class="fas fa-rocket rocket-icon"></i>
+                <div class="logo-text">
+                    <h1>AMINA CASINO</h1>
+                    <span class="tagline">Cosmic Luxury Gaming</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls-container">
+            <div class="wallet-section">
+                <button id="connect-wallet" class="cosmic-btn primary">
+                    <i class="fas fa-wallet"></i>
+                    <span>Connect Wallet</span>
+                </button>
+                <div id="wallet-info" class="wallet-info hidden">
+                    <div class="wallet-address" id="wallet-address"></div>
+                    <div class="wallet-balance" id="wallet-balance">0 Amina</div>
+                </div>
+            </div>
+            
+            <div class="currency-toggle-container">
+                <div class="toggle-label">House Coins</div>
+                <div class="cosmic-toggle">
+                    <input type="checkbox" id="currency-toggle" class="toggle-input">
+                    <label for="currency-toggle" class="toggle-label-switch">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-label">Amina</div>
+            </div>
+            
+            <div class="balance-display">
+                <div id="house-balance" class="balance">1000 HC</div>
+            </div>
+            
+            <button id="music-toggle" class="cosmic-btn secondary">
+                <i class="fas fa-volume-up"></i>
+            </button>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="casino-main">
+        <!-- Game Selection -->
+        <nav class="game-nav">
+            <button class="game-tab active" data-game="slots">
+                <i class="fas fa-coins"></i>
+                <span>Cosmic Slots</span>
+            </button>
+            <button class="game-tab" data-game="blackjack">
+                <i class="fas fa-crown"></i>
+                <span>Stellar Blackjack</span>
+            </button>
+            <button class="game-tab" data-game="plinko">
+                <i class="fas fa-meteor"></i>
+                <span>Galactic Plinko</span>
+            </button>
+        </nav>
+        
+        <!-- Game Container -->
+        <div class="game-area">
+            <!-- Slots Game -->
+            <div id="slots-game" class="game-panel active">
+                <div class="game-title">
+                    <h2>🎰 Cosmic Slots</h2>
+                    <p>Spin the cosmic reels for stellar rewards!</p>
+                </div>
+                
+                <div class="slot-machine">
+                    <div class="slot-frame">
+                        <div class="slot-reels">
+                            <div class="reel" id="reel1">
+                                <div class="symbol">🚀</div>
+                            </div>
+                            <div class="reel" id="reel2">
+                                <div class="symbol">⭐</div>
+                            </div>
+                            <div class="reel" id="reel3">
+                                <div class="symbol">🌌</div>
+                            </div>
+                        </div>
+                        <div class="slot-lights">
+                            <div class="light"></div>
+                            <div class="light"></div>
+                            <div class="light"></div>
+                            <div class="light"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="game-controls">
+                        <div class="bet-section">
+                            <label>Bet Amount:</label>
+                            <div class="bet-controls">
+                                <button class="bet-btn" id="slots-bet-down">-</button>
+                                <span class="bet-amount" id="slots-bet">0.25</span>
+                                <button class="bet-btn" id="slots-bet-up">+</button>
+                            </div>
+                        </div>
+                        <button id="spin-btn" class="cosmic-btn action">
+                            <i class="fas fa-play"></i>
+                            <span>SPIN</span>
+                        </button>
+                    </div>
+                    
+                    <div class="result-display" id="slots-result"></div>
+                </div>
+                
+                <div class="payout-table">
+                    <h3>Payout Table</h3>
+                    <div class="payout-grid">
+                        <div class="payout-row">
+                            <span class="symbols">🚀 🚀 🚀</span>
+                            <span class="multiplier">10x</span>
+                        </div>
+                        <div class="payout-row">
+                            <span class="symbols">👽 👽 👽</span>
+                            <span class="multiplier">8x</span>
+                        </div>
+                        <div class="payout-row">
+                            <span class="symbols">🌌 🌌 🌌</span>
+                            <span class="multiplier">5x</span>
+                        </div>
+                        <div class="payout-row">
+                            <span class="symbols">⭐ ⭐ ⭐</span>
+                            <span class="multiplier">3x</span>
+                        </div>
+                        <div class="payout-row">
+                            <span class="symbols">🪐 🪐 🪐</span>
+                            <span class="multiplier">2x</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Blackjack Game -->
+            <div id="blackjack-game" class="game-panel">
+                <div class="game-title">
+                    <h2>👑 Stellar Blackjack</h2>
+                    <p>Beat the house in this cosmic card game!</p>
+                </div>
+                
+                <div class="blackjack-table">
+                    <div class="dealer-section">
+                        <h3>Dealer</h3>
+                        <div class="cards-area" id="dealer-cards"></div>
+                        <div class="score-display" id="dealer-score">0</div>
+                    </div>
+                    
+                    <div class="player-section">
+                        <h3>Your Hand</h3>
+                        <div class="cards-area" id="player-cards"></div>
+                        <div class="score-display" id="player-score">0</div>
+                    </div>
+                    
+                    <div class="game-controls">
+                        <div class="bet-section">
+                            <label>Bet Amount:</label>
+                            <div class="bet-controls">
+                                <button class="bet-btn" id="bj-bet-down">-</button>
+                                <span class="bet-amount" id="bj-bet">0.25</span>
+                                <button class="bet-btn" id="bj-bet-up">+</button>
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <button id="deal-btn" class="cosmic-btn action">Deal</button>
+                            <button id="hit-btn" class="cosmic-btn secondary" disabled>Hit</button>
+                            <button id="stand-btn" class="cosmic-btn secondary" disabled>Stand</button>
+                        </div>
+                    </div>
+                    
+                    <div class="result-display" id="bj-result"></div>
+                </div>
+            </div>
+            
+            <!-- Plinko Game -->
+            <div id="plinko-game" class="game-panel">
+                <div class="game-title">
+                    <h2>🌠 Galactic Plinko</h2>
+                    <p>Drop your cosmic ball through the galaxy!</p>
+                </div>
+                
+                <div class="plinko-container">
+                    <div class="plinko-controls">
+                        <div class="control-group">
+                            <label>Rows:</label>
+                            <input type="range" id="plinko-rows" min="8" max="16" value="12" class="cosmic-slider">
+                            <span id="rows-display">12</span>
+                        </div>
+                        <div class="bet-section">
+                            <label>Bet Amount:</label>
+                            <div class="bet-controls">
+                                <button class="bet-btn" id="plinko-bet-down">-</button>
+                                <span class="bet-amount" id="plinko-bet">0.25</span>
+                                <button class="bet-btn" id="plinko-bet-up">+</button>
+                            </div>
+                        </div>
+                        <button id="drop-btn" class="cosmic-btn action">
+                            <i class="fas fa-meteor"></i>
+                            <span>DROP BALL</span>
+                        </button>
+                    </div>
+                    
+                    <div class="plinko-board">
+                        <canvas id="plinko-canvas"></canvas>
+                    </div>
+                    
+                    <div class="multipliers" id="multipliers-display"></div>
+                    <div class="result-display" id="plinko-result"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="cosmic-footer">
+        <div class="footer-content">
+            <button id="donate-btn" class="cosmic-btn secondary">
+                <i class="fas fa-gift"></i>
+                <span>Donate</span>
+            </button>
+            <div class="casino-info">
+                <p>🚀 Amina Casino - Algorand ASA ID: 1107424865</p>
+                <p>5% house rake applied to all wins</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Donation Modal -->
+    <div id="donation-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🎁 Make a Donation</h3>
+                <button class="close-btn" id="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Support the cosmic casino!</p>
+                <div class="donation-controls">
+                    <input type="number" id="donation-amount" min="0.25" step="0.25" value="1" class="cosmic-input">
+                    <button id="confirm-donation" class="cosmic-btn primary">Send</button>
+                </div>
+                <small>Destination: 6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Audio Elements -->
+    <audio id="bg-music" loop>
+        <source src="https://www.soundjay.com/miscellaneous/sounds/bell-ringing-05.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="win-sound">
+        <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="spin-sound">
+        <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- Scripts -->
+    <script src="index.js"></script>
+    <script src="scripts.js"></script>
+</body>
+</html>
+
+
