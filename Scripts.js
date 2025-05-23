@@ -1,5 +1,5 @@
-// Amina Casino Wallet Integration & Transaction Management
-// Professional-grade crypto casino backend logic
+// Amina Casino Luxury Wallet Integration & Transaction Management
+// Royal-grade crypto casino backend logic
 
 class AminaCasinoWallet {
     constructor() {
@@ -29,7 +29,8 @@ class AminaCasinoWallet {
             totalBets: 0,
             totalWins: 0,
             biggestWin: 0,
-            sessionsPlayed: 0
+            sessionsPlayed: 0,
+            luxuryLevel: 'Royal' // New luxury feature
         };
         
         this.initializeWallet();
@@ -46,11 +47,12 @@ class AminaCasinoWallet {
             // Update UI
             this.updateUI();
             this.setupEventListeners();
+            this.initializeLuxuryEffects();
             
-            console.log('Amina Casino Wallet initialized successfully');
+            console.log('👑 Amina Casino Royal Wallet initialized successfully');
         } catch (error) {
             console.error('Wallet initialization failed:', error);
-            this.showNotification('Wallet initialization failed', 'error');
+            this.showLuxuryNotification('Wallet initialization failed', 'error');
         }
     }
 
@@ -64,7 +66,7 @@ class AminaCasinoWallet {
                 this.stats = { ...this.stats, ...data.stats };
             }
         } catch (error) {
-            console.log('No saved data found, using defaults');
+            console.log('No saved data found, using royal defaults');
         }
     }
 
@@ -97,11 +99,73 @@ class AminaCasinoWallet {
         });
     }
 
+    initializeLuxuryEffects() {
+        // Add royal particle effects on page load
+        this.createLuxuryParticles();
+        
+        // Add subtle animations to luxury elements
+        this.enhanceLuxuryElements();
+    }
+
+    createLuxuryParticles() {
+        for (let i = 0; i < 5; i++) {
+            setTimeout(() => {
+                this.createRoyalParticle();
+            }, i * 1000);
+        }
+    }
+
+    createRoyalParticle() {
+        const particle = document.createElement('div');
+        particle.textContent = ['✨', '💎', '👑', '🌟', '⭐'][Math.floor(Math.random() * 5)];
+        particle.style.cssText = `
+            position: fixed;
+            font-size: 2rem;
+            pointer-events: none;
+            z-index: 9998;
+            left: ${Math.random() * window.innerWidth}px;
+            top: ${window.innerHeight + 50}px;
+            animation: royalFloat 8s ease-out forwards;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+        `;
+
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 8000);
+    }
+
+    enhanceLuxuryElements() {
+        // Add luxury hover effects to buttons
+        document.querySelectorAll('.game-btn, .wallet-btn, .donate-btn, .daily-btn').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                this.addLuxuryHoverEffect(btn);
+            });
+        });
+    }
+
+    addLuxuryHoverEffect(element) {
+        const sparkle = document.createElement('div');
+        sparkle.textContent = '✨';
+        sparkle.style.cssText = `
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 1.2rem;
+            pointer-events: none;
+            animation: sparkleHover 0.6s ease-out forwards;
+            z-index: 1000;
+        `;
+        
+        element.style.position = 'relative';
+        element.appendChild(sparkle);
+        
+        setTimeout(() => sparkle.remove(), 600);
+    }
+
     toggleMode(isAminaMode) {
         this.isAminaMode = isAminaMode;
         
         if (isAminaMode && !this.isConnected) {
-            this.showNotification('Connect your Pera Wallet to use Amina mode', 'warning');
+            this.showLuxuryNotification('Connect your royal Pera Wallet to access Amina treasures', 'warning');
             // Reset toggle if wallet not connected
             setTimeout(() => {
                 document.getElementById('modeToggle').checked = false;
@@ -111,10 +175,22 @@ class AminaCasinoWallet {
         }
         
         this.updateUI();
-        this.showNotification(
-            `Switched to ${isAminaMode ? 'Amina' : 'House Coins'} mode`, 
+        this.showLuxuryNotification(
+            `Switched to ${isAminaMode ? 'Amina Royal' : 'House Coins'} mode`, 
             'success'
         );
+        
+        // Add luxury mode switch effect
+        this.triggerLuxuryModeEffect();
+    }
+
+    triggerLuxuryModeEffect() {
+        // Create royal transition effect
+        for (let i = 0; i < 10; i++) {
+            setTimeout(() => {
+                this.createRoyalParticle();
+            }, i * 100);
+        }
     }
 
     async handleWalletConnection() {
@@ -125,13 +201,13 @@ class AminaCasinoWallet {
                 this.disconnectWallet();
             }
         } catch (error) {
-            console.error('Wallet connection error:', error);
-            this.showNotification('Wallet connection failed', 'error');
+            console.error('Royal wallet connection error:', error);
+            this.showLuxuryNotification('Royal wallet connection failed', 'error');
         }
     }
 
     async connectWallet() {
-        this.showNotification('Connecting to Pera Wallet...', 'info');
+        this.showLuxuryNotification('Connecting to your royal Pera Wallet...', 'info');
         
         try {
             // PRODUCTION CODE: Replace this mock connection with real Pera Wallet integration
@@ -150,21 +226,24 @@ class AminaCasinoWallet {
             */
             
             // DEMO MODE: Mock wallet connection
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 2500));
             this.isConnected = true;
-            this.walletAddress = 'DEMO_' + this.generateMockAddress();
-            this.aminaBalance = 25.50; // Mock balance for demo
+            this.walletAddress = 'ROYAL_' + this.generateMockAddress();
+            this.aminaBalance = 42.75; // Mock balance for demo
             
-            this.showNotification('Wallet connected successfully!', 'success');
+            this.showLuxuryNotification('👑 Royal wallet connected successfully!', 'success');
             this.updateUI();
             
             // Track connection
             this.stats.sessionsPlayed++;
             this.saveData();
             
+            // Celebration effect
+            this.triggerRoyalCelebration();
+            
         } catch (error) {
             console.error('Connection failed:', error);
-            this.showNotification('Failed to connect wallet', 'error');
+            this.showLuxuryNotification('Failed to connect royal wallet', 'error');
         }
     }
 
@@ -183,25 +262,25 @@ class AminaCasinoWallet {
         document.getElementById('modeToggle').checked = false;
         this.updateUI();
         
-        this.showNotification('Wallet disconnected', 'info');
+        this.showLuxuryNotification('👑 Royal wallet disconnected', 'info');
     }
 
     async handleDonation() {
         if (!this.isConnected) {
-            this.showNotification('Please connect your wallet first', 'error');
+            this.showLuxuryNotification('Please connect your royal wallet first', 'error');
             return;
         }
 
-        const amount = this.promptForAmount('Enter donation amount in Amina Coins:');
+        const amount = this.promptForAmount('Enter your royal donation amount in Amina Coins:');
         if (!amount) return;
 
         if (amount > this.aminaBalance) {
-            this.showNotification('Insufficient Amina balance for donation', 'error');
+            this.showLuxuryNotification('Insufficient Amina treasures for donation', 'error');
             return;
         }
 
         try {
-            this.showNotification(`Processing donation of ${amount} Amina...`, 'info');
+            this.showLuxuryNotification(`Processing royal donation of ${amount} Amina...`, 'info');
             
             // PRODUCTION CODE: Send actual Algorand transaction
             /*
@@ -225,16 +304,19 @@ class AminaCasinoWallet {
             */
             
             // DEMO MODE: Mock transaction
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            await new Promise(resolve => setTimeout(resolve, 3500));
             
-            this.showNotification(
-                `Thank you for your generous donation of ${amount} Amina! 💫`, 
+            this.showLuxuryNotification(
+                `👑 Thank you for your generous royal donation of ${amount} Amina! ✨`, 
                 'success'
             );
             
+            // Royal celebration for donation
+            this.triggerRoyalCelebration();
+            
         } catch (error) {
             console.error('Donation failed:', error);
-            this.showNotification('Donation transaction failed', 'error');
+            this.showLuxuryNotification('Royal donation transaction failed', 'error');
         }
     }
 
@@ -242,7 +324,7 @@ class AminaCasinoWallet {
         const today = new Date().toDateString();
         
         if (this.lastDailyBonus === today) {
-            this.showNotification('Daily bonus already claimed today!', 'warning');
+            this.showLuxuryNotification('👑 Daily royal bonus already claimed today!', 'warning');
             return;
         }
 
@@ -253,10 +335,10 @@ class AminaCasinoWallet {
         this.saveData();
         this.updateUI();
         
-        this.showNotification(`Daily bonus claimed! +${bonusAmount} House Coins`, 'success');
+        this.showLuxuryNotification(`👑 Daily royal bonus claimed! +${bonusAmount} House Coins`, 'success');
         
-        // Add celebration effect
-        this.triggerCelebration();
+        // Royal celebration effect
+        this.triggerRoyalCelebration();
     }
 
     adjustBet(button) {
@@ -291,6 +373,9 @@ class AminaCasinoWallet {
                 betDisplay.textContent = currentValue.toFixed(2);
             }
         }
+        
+        // Add luxury effect to bet adjustment
+        this.addLuxuryHoverEffect(button);
     }
 
     getBalance() {
@@ -303,24 +388,24 @@ class AminaCasinoWallet {
 
     async canPlaceBet(amount) {
         if (!amount || isNaN(amount) || amount < this.minBet) {
-            this.showNotification(`Minimum bet is ${this.minBet} ${this.getCurrency()}`, 'error');
+            this.showLuxuryNotification(`👑 Minimum royal bet is ${this.minBet} ${this.getCurrency()}`, 'error');
             return false;
         }
 
         if (amount > this.maxBet) {
-            this.showNotification(`Maximum bet is ${this.maxBet} ${this.getCurrency()}`, 'error');
+            this.showLuxuryNotification(`👑 Maximum royal bet is ${this.maxBet} ${this.getCurrency()}`, 'error');
             return false;
         }
 
         if (this.isAminaMode && !this.isConnected) {
-            this.showNotification('Please connect your wallet for Amina mode', 'error');
+            this.showLuxuryNotification('Please connect your royal wallet for Amina mode', 'error');
             return false;
         }
         
         const balance = this.getBalance();
         if (amount > balance) {
-            this.showNotification(
-                `Insufficient balance. You have ${balance.toFixed(2)} ${this.getCurrency()}`, 
+            this.showLuxuryNotification(
+                `👑 Insufficient royal treasury. You have ${balance.toFixed(2)} ${this.getCurrency()}`, 
                 'error'
             );
             return false;
@@ -351,7 +436,7 @@ class AminaCasinoWallet {
             
         } catch (error) {
             console.error('Bet placement failed:', error);
-            this.showNotification('Bet placement failed', 'error');
+            this.showLuxuryNotification('Royal bet placement failed', 'error');
             return false;
         }
     }
@@ -378,16 +463,16 @@ class AminaCasinoWallet {
             this.updateUI();
             this.saveData();
             
-            // Celebration for big wins
+            // Royal celebration for big wins
             if (multiplier >= 5) {
-                this.triggerCelebration();
+                this.triggerRoyalCelebration();
             }
             
             return netWin;
             
         } catch (error) {
             console.error('Payout failed:', error);
-            this.showNotification('Payout failed', 'error');
+            this.showLuxuryNotification('Royal payout failed', 'error');
             return 0;
         }
     }
@@ -433,9 +518,9 @@ class AminaCasinoWallet {
         */
         
         // DEMO MODE: Mock transaction processing
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        console.log(`Mock ${type} transaction: ${amount} AMINA`);
-        return 'mock_tx_' + Date.now();
+        await new Promise(resolve => setTimeout(resolve, 1200));
+        console.log(`👑 Mock royal ${type} transaction: ${amount} AMINA`);
+        return 'royal_tx_' + Date.now();
     }
 
     updateUI() {
@@ -452,12 +537,12 @@ class AminaCasinoWallet {
         const connectButton = document.getElementById('connectWallet');
         if (connectButton) {
             connectButton.innerHTML = this.isConnected ? 
-                '<span class="btn-icon">🔗</span> Disconnect Wallet' : 
-                '<span class="btn-icon">🔗</span> Connect Pera Wallet';
+                '<span class="btn-icon">🔮</span> Disconnect Wallet<div class="btn-shimmer"></div>' : 
+                '<span class="btn-icon">🔮</span> Connect Pera Wallet<div class="btn-shimmer"></div>';
             
             connectButton.style.background = this.isConnected ? 
-                'linear-gradient(45deg, #f87171, #ef4444)' : 
-                'linear-gradient(45deg, #4169E1, #1E90FF)';
+                'linear-gradient(45deg, #f87171, #ef4444, #dc2626)' : 
+                'linear-gradient(45deg, #9370db, #8a2be2, #4b0082)';
         }
 
         // Update daily bonus button
@@ -467,64 +552,72 @@ class AminaCasinoWallet {
             const claimed = this.lastDailyBonus === today;
             
             dailyButton.innerHTML = claimed ? 
-                '<span class="btn-icon">✅</span> Claimed Today' : 
-                '<span class="btn-icon">🎁</span> Daily 1000 HC';
+                '<span class="btn-icon">✅</span> Claimed Today<div class="btn-shimmer"></div>' : 
+                '<span class="btn-icon">👑</span> Daily 1000 HC<div class="btn-shimmer"></div>';
             
             dailyButton.disabled = claimed;
-            dailyButton.style.opacity = claimed ? '0.5' : '1';
+            dailyButton.style.opacity = claimed ? '0.6' : '1';
             dailyButton.style.display = this.isAminaMode ? 'none' : 'flex';
         }
     }
 
-    showNotification(message, type = 'info', duration = 4000) {
+    showLuxuryNotification(message, type = 'info', duration = 5000) {
         // Remove existing notification
-        const existing = document.getElementById('notification');
+        const existing = document.getElementById('luxuryNotification');
         if (existing) {
             existing.remove();
         }
 
-        // Create notification element
+        // Create luxury notification element
         const notification = document.createElement('div');
-        notification.id = 'notification';
-        notification.className = `notification ${type}`;
-        notification.textContent = message;
+        notification.id = 'luxuryNotification';
+        notification.className = `luxury-notification ${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <div class="notification-icon">${this.getNotificationIcon(type)}</div>
+                <div class="notification-text">${message}</div>
+            </div>
+            <div class="notification-glow"></div>
+        `;
 
-        // Styling
+        // Luxury styling
         notification.style.cssText = `
             position: fixed;
             top: 30px;
             right: 30px;
-            padding: 20px 30px;
-            border-radius: 15px;
+            padding: 25px 35px;
+            border-radius: 20px;
             color: white;
             font-weight: bold;
-            font-family: 'Exo 2', sans-serif;
+            font-family: 'Cinzel', serif;
             z-index: 10000;
-            max-width: 400px;
+            max-width: 450px;
             word-wrap: break-word;
-            transform: translateX(450px);
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
+            transform: translateX(500px);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            font-size: 1rem;
         `;
 
-        // Type-specific styling
+        // Type-specific luxury styling
         switch (type) {
             case 'success':
-                notification.style.background = 'linear-gradient(135deg, #00ff00, #32cd32)';
-                notification.style.boxShadow += ', 0 0 30px rgba(0, 255, 0, 0.3)';
+                notification.style.background = 'linear-gradient(135deg, rgba(0, 255, 0, 0.3), rgba(50, 205, 50, 0.2))';
+                notification.style.boxShadow += ', 0 0 40px rgba(0, 255, 0, 0.4)';
                 break;
             case 'error':
-                notification.style.background = 'linear-gradient(135deg, #ff4444, #cc0000)';
-                notification.style.boxShadow += ', 0 0 30px rgba(255, 68, 68, 0.3)';
+                notification.style.background = 'linear-gradient(135deg, rgba(255, 68, 68, 0.3), rgba(220, 20, 60, 0.2))';
+                notification.style.boxShadow += ', 0 0 40px rgba(255, 68, 68, 0.4)';
                 break;
             case 'warning':
-                notification.style.background = 'linear-gradient(135deg, #ffa500, #ff8c00)';
-                notification.style.boxShadow += ', 0 0 30px rgba(255, 165, 0, 0.3)';
+                notification.style.background = 'linear-gradient(135deg, rgba(255, 165, 0, 0.3), rgba(255, 140, 0, 0.2))';
+                notification.style.boxShadow += ', 0 0 40px rgba(255, 165, 0, 0.4)';
                 break;
             case 'info':
-                notification.style.background = 'linear-gradient(135deg, #4169e1, #1e90ff)';
-                notification.style.boxShadow += ', 0 0 30px rgba(65, 105, 225, 0.3)';
+                notification.style.background = 'linear-gradient(135deg, rgba(147, 112, 219, 0.3), rgba(138, 43, 226, 0.2))';
+                notification.style.boxShadow += ', 0 0 40px rgba(147, 112, 219, 0.4)';
                 break;
         }
 
@@ -537,42 +630,53 @@ class AminaCasinoWallet {
 
         // Auto remove
         setTimeout(() => {
-            notification.style.transform = 'translateX(450px)';
-            setTimeout(() => notification.remove(), 400);
+            notification.style.transform = 'translateX(500px)';
+            setTimeout(() => notification.remove(), 500);
         }, duration);
     }
 
-    triggerCelebration() {
-        // Create celebration particles
-        for (let i = 0; i < 20; i++) {
+    getNotificationIcon(type) {
+        switch (type) {
+            case 'success': return '👑';
+            case 'error': return '⚠️';
+            case 'warning': return '💫';
+            case 'info': return '✨';
+            default: return '🌟';
+        }
+    }
+
+    triggerRoyalCelebration() {
+        // Create royal celebration particles
+        for (let i = 0; i < 25; i++) {
             setTimeout(() => {
-                this.createParticle();
+                this.createRoyalCelebrationParticle();
             }, i * 100);
         }
     }
 
-    createParticle() {
+    createRoyalCelebrationParticle() {
         const particle = document.createElement('div');
-        particle.textContent = ['🎉', '✨', '💫', '⭐', '🌟'][Math.floor(Math.random() * 5)];
+        particle.textContent = ['👑', '💎', '✨', '🌟', '⭐', '💫', '🎉'][Math.floor(Math.random() * 7)];
         particle.style.cssText = `
             position: fixed;
-            font-size: 2rem;
+            font-size: 2.5rem;
             pointer-events: none;
             z-index: 9999;
             left: ${Math.random() * window.innerWidth}px;
             top: ${window.innerHeight}px;
-            animation: particleFloat 3s ease-out forwards;
+            animation: royalCelebration 4s ease-out forwards;
+            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 1));
         `;
 
         document.body.appendChild(particle);
-        setTimeout(() => particle.remove(), 3000);
+        setTimeout(() => particle.remove(), 4000);
     }
 
     promptForAmount(message) {
         const amount = prompt(message);
         if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
             if (amount !== null) {
-                this.showNotification('Invalid amount entered', 'error');
+                this.showLuxuryNotification('👑 Invalid royal amount entered', 'error');
             }
             return null;
         }
@@ -597,7 +701,7 @@ class AminaCasinoWallet {
             };
             localStorage.setItem('aminaCasinoWallet', JSON.stringify(data));
         } catch (error) {
-            console.log('Unable to save wallet data');
+            console.log('Unable to save royal wallet data');
         }
     }
 
@@ -614,23 +718,89 @@ class AminaCasinoWallet {
     }
 }
 
-// Add particle animation CSS
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes particleFloat {
+// Add royal particle animation CSS
+const luxuryStyle = document.createElement('style');
+luxuryStyle.textContent = `
+    @keyframes royalFloat {
         0% {
             transform: translateY(0) rotate(0deg);
             opacity: 1;
         }
         100% {
-            transform: translateY(-100vh) rotate(360deg);
+            transform: translateY(-120vh) rotate(360deg);
             opacity: 0;
         }
     }
+    
+    @keyframes royalCelebration {
+        0% {
+            transform: translateY(0) rotate(0deg) scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: translateY(-60vh) rotate(180deg) scale(1.2);
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(-120vh) rotate(360deg) scale(0.8);
+            opacity: 0;
+        }
+    }
+    
+    @keyframes sparkleHover {
+        0% {
+            transform: scale(0) rotate(0deg);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.2) rotate(180deg);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(0) rotate(360deg);
+            opacity: 0;
+        }
+    }
+    
+    .notification-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .notification-icon {
+        font-size: 1.5rem;
+        filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+    }
+    
+    .notification-text {
+        flex: 1;
+        line-height: 1.4;
+    }
+    
+    .notification-glow {
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, #ffd700, #dda0dd, #9370db, #ffd700);
+        border-radius: 22px;
+        z-index: -1;
+        opacity: 0.6;
+        animation: notificationGlow 3s ease-in-out infinite alternate;
+    }
+    
+    @keyframes notificationGlow {
+        0% { opacity: 0.4; }
+        100% { opacity: 0.8; }
+    }
 `;
-document.head.appendChild(style);
+document.head.appendChild(luxuryStyle);
 
-// Initialize wallet system
+// Initialize royal wallet system
 let aminaWallet;
 document.addEventListener('DOMContentLoaded', () => {
     aminaWallet = new AminaCasinoWallet();
