@@ -445,18 +445,34 @@ class AminaCasinoGames {
         this.blackjackState.gameInProgress = true;
         this.blackjackState.canDouble = true;
         
-        // Deal initial cards with animation
-        await this.dealCard('player');
-        await this.dealCard('dealer');
-        await this.dealCard('player');
-        await this.dealCard('dealer');
+        // Clear existing cards display
+        document.getElementById('playerCards').innerHTML = '';
+        document.getElementById('dealerCards').innerHTML = '';
         
-        this.updateBlackjackDisplay();
-        this.updateBlackjackControls(true);
+        // Update UI immediately
+        this.updateBlackjackControls(false);
+        this.showGameMessage('blackjackResult', 'Dealing cards...', 'info');
         
-        // Check for natural blackjack
-        if (this.calculateBlackjackScore(this.blackjackState.playerHand) === 21) {
-            await this.endBlackjackGame();
+        try {
+            // Deal initial cards with proper sequence
+            await this.dealCard('player', true);
+            await this.dealCard('dealer', true);
+            await this.dealCard('player', true);
+            await this.dealCard('dealer', false); // Dealer's second card face down
+            
+            // Check for natural blackjack
+            const playerScore = this.calculateBlackjackScore(this.blackjackState.playerHand);
+            if (playerScore === 21) {
+                this.showGameMessage('blackjackResult', 'Blackjack! Checking dealer...', 'info');
+                await this.endBlackjackGame();
+            } else {
+                this.updateBlackjackControls(true);
+                this.showGameMessage('blackjackResult', 'Make your move: Hit, Stand, or Double', 'info');
+            }
+        } catch (error) {
+            console.error('Error dealing cards:', error);
+            this.showGameMessage('blackjackResult', 'Error dealing cards. Please try again.', 'error');
+            this.updateBlackjackControls(false);
         }
     }
 
@@ -466,16 +482,21 @@ class AminaCasinoGames {
         }
         
         const card = this.blackjackState.deck.pop();
+        if (!card) {
+            console.error('No cards available in deck');
+            return;
+        }
+        
         card.faceUp = faceUp;
         
         if (recipient === 'player') {
             this.blackjackState.playerHand.push(card);
-        } else {
+        } else if (recipient === 'dealer') {
             this.blackjackState.dealerHand.push(card);
         }
         
-        // Animate card dealing
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Add a small delay for card dealing animation
+        await new Promise(resolve => setTimeout(resolve, 300));
         this.updateBlackjackDisplay();
     }
 
@@ -573,24 +594,22 @@ class AminaCasinoGames {
             cardEl.className = 'card';
             
             if (hideSecond && index === 1 && !card.faceUp) {
-                cardEl.innerHTML = '<div class="card-back">🂠</div>';
+                cardEl.innerHTML = '🂠';
                 cardEl.style.background = 'linear-gradient(135deg, #4169E1, #1E90FF)';
                 cardEl.style.color = 'white';
+                cardEl.style.display = 'flex';
+                cardEl.style.alignItems = 'center';
+                cardEl.style.justifyContent = 'center';
+                cardEl.style.fontSize = '1.5rem';
             } else {
-                cardEl.innerHTML = `
-                    <div class="card-content">
-                        <div class="card-corner top-left">
-                            <div class="card-value">${card.value}</div>
-                            <div class="card-suit">${card.suit}</div>
-                        </div>
-                        <div class="card-center">${card.suit}</div>
-                        <div class="card-corner bottom-right">
-                            <div class="card-value">${card.value}</div>
-                            <div class="card-suit">${card.suit}</div>
-                        </div>
-                    </div>
-                `;
-                cardEl.style.color = card.suitColor;
+                cardEl.innerHTML = `${card.value}${card.suit}`;
+                cardEl.style.color = card.suitColor || (['♥️', '♦️'].includes(card.suit) ? '#ef4444' : '#1f2937');
+                cardEl.style.background = 'linear-gradient(135deg, #fff 0%, #f0f0f0 100%)';
+                cardEl.style.display = 'flex';
+                cardEl.style.alignItems = 'center';
+                cardEl.style.justifyContent = 'center';
+                cardEl.style.fontSize = '0.9rem';
+                cardEl.style.fontWeight = 'bold';
             }
             
             container.appendChild(cardEl);
@@ -670,18 +689,17 @@ class AminaCasinoGames {
         container.innerHTML = '';
         this.plinkoState.pegs = [];
         
-        // Create pegs in a more realistic pattern
-        const rows = 14;
-        const boardWidth = 350;
+        // Simplified peg layout for better mobile performance
+        const rows = 10;
+        const containerWidth = container.parentElement.offsetWidth || 350;
         
         for (let row = 0; row < rows; row++) {
-            const pegsInRow = row + 4;
-            const spacing = boardWidth / (pegsInRow + 1);
-            const startX = spacing;
+            const pegsInRow = Math.min(row + 3, 12); // Max 12 pegs per row
+            const spacing = containerWidth / (pegsInRow + 1);
             
             for (let col = 0; col < pegsInRow; col++) {
-                const x = startX + (col * spacing);
-                const y = 20 + (row * 25);
+                const x = spacing * (col + 1);
+                const y = 60 + (row * 25);
                 
                 const peg = document.createElement('div');
                 peg.className = 'peg';
@@ -689,7 +707,6 @@ class AminaCasinoGames {
                 peg.style.top = `${y}px`;
                 container.appendChild(peg);
                 
-                // Store peg position for physics
                 this.plinkoState.pegs.push({ x, y, element: peg });
             }
         }
@@ -743,85 +760,50 @@ class AminaCasinoGames {
     }
 
     async simulateBallPhysics(ball) {
-        let position = { x: 175, y: 30 }; // Start at center top
-        let velocity = { x: 0, y: 0 };
-        const gravity = 0.6;
-        const bounce = 0.8;
-        const friction = 0.99;
-        
+        // Simplified, more reliable physics simulation
+        let position = 4; // Start in middle (0-10 range for 11 slots)
         ball.style.display = 'block';
+        ball.style.left = '50%';
+        ball.style.top = '30px';
         
-        // Simulate ball movement
-        for (let step = 0; step < 200; step++) {
-            // Apply gravity
-            velocity.y += gravity;
+        // Simulate ball bouncing through pegs
+        const drops = 14; // Number of peg rows
+        for (let drop = 0; drop < drops; drop++) {
+            // Random bounce left or right with some bias toward center
+            const bounce = Math.random() < 0.5 ? -0.5 : 0.5;
+            position += bounce;
             
-            // Apply friction
-            velocity.x *= friction;
-            velocity.y *= friction;
+            // Keep within bounds (0-10 for 11 multiplier slots)
+            position = Math.max(0, Math.min(10, position));
             
-            // Update position
-            position.x += velocity.x;
-            position.y += velocity.y;
+            // Visual ball movement
+            const ballX = (position / 10) * 80 + 10; // Convert to percentage
+            const ballY = 30 + (drop * 20); // Move down
             
-            // Check collision with pegs
-            this.plinkoState.pegs.forEach(peg => {
-                const distance = Math.sqrt(
-                    Math.pow(position.x - peg.x, 2) + 
-                    Math.pow(position.y - peg.y, 2)
-                );
-                
-                if (distance < 15) { // Collision detected
-                    // Calculate bounce direction
-                    const angle = Math.atan2(position.y - peg.y, position.x - peg.x);
-                    const speed = Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
-                    
-                    velocity.x = Math.cos(angle) * speed * bounce;
-                    velocity.y = Math.sin(angle) * speed * bounce;
-                    
-                    // Add some randomness
-                    velocity.x += (Math.random() - 0.5) * 2;
-                    
-                    // Visual peg hit effect
-                    peg.element.style.transform = 'scale(1.2)';
-                    setTimeout(() => {
-                        peg.element.style.transform = 'scale(1)';
-                    }, 200);
-                }
-            });
+            ball.style.left = `${ballX}%`;
+            ball.style.top = `${ballY}px`;
             
-            // Boundary collision
-            if (position.x < 10) {
-                position.x = 10;
-                velocity.x = -velocity.x * bounce;
-            }
-            if (position.x > 340) {
-                position.x = 340;
-                velocity.x = -velocity.x * bounce;
+            // Add visual peg hit effect
+            const pegRow = Math.floor(drop / 2);
+            const pegs = document.querySelectorAll('.peg');
+            if (pegs[pegRow]) {
+                pegs[pegRow].style.transform = 'scale(1.3)';
+                setTimeout(() => {
+                    pegs[pegRow].style.transform = 'scale(1)';
+                }, 200);
             }
             
-            // Update ball position
-            ball.style.left = `${position.x}px`;
-            ball.style.top = `${position.y}px`;
-            
-            // Stop if ball reaches bottom
-            if (position.y > 380) {
-                break;
-            }
-            
-            // Animation frame delay
-            await new Promise(resolve => setTimeout(resolve, 20));
+            await new Promise(resolve => setTimeout(resolve, 200));
         }
         
         // Store final position
-        this.plinkoState.ballPosition = position;
+        this.plinkoState.ballPosition = { x: position };
     }
 
     determineFinalSlot() {
-        const ballX = this.plinkoState.ballPosition.x;
-        const slotWidth = 350 / 11; // 11 multiplier slots
-        const slot = Math.floor(ballX / slotWidth);
-        return Math.max(0, Math.min(10, slot));
+        // Use the position directly from the simplified physics
+        const position = this.plinkoState.ballPosition.x;
+        return Math.max(0, Math.min(10, Math.floor(position)));
     }
 
     highlightMultiplierSlot(slotIndex) {
@@ -948,40 +930,6 @@ gameStyle.textContent = `
         50% { 
             transform: scale(1.4);
         }
-    }
-    
-    .card-content {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 4px;
-    }
-    
-    .card-corner {
-        font-size: 0.8rem;
-        line-height: 1;
-    }
-    
-    .card-corner.bottom-right {
-        transform: rotate(180deg);
-        align-self: flex-end;
-    }
-    
-    .card-center {
-        font-size: 1.5rem;
-        text-align: center;
-        align-self: center;
-    }
-    
-    .card-value {
-        font-weight: bold;
-    }
-    
-    .card-suit {
-        font-size: 0.7rem;
     }
 `;
 document.head.appendChild(gameStyle);
