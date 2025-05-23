@@ -3,284 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amina Casino - Luxurious Cosmic Gaming Palace</title>
+    <title>Amina Casino - Cosmic Gaming Experience</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="cosmic-bg">
-        <div class="stars"></div>
-        <div class="stars2"></div>
-        <div class="stars3"></div>
-        <div class="nebula"></div>
-        <div class="luxury-particles"></div>
-    </div>
-
-    <div class="container">
-        <header class="header">
-            <div class="luxury-border"></div>
-            <div class="amina-logo">
-                <div class="coin-container">
-                    <div class="amina-coin">
-                        <div class="coin-outer-ring"></div>
-                        <div class="coin-middle-ring"></div>
-                        <div class="coin-inner-core"></div>
-                        <div class="coin-center">A</div>
-                        <div class="coin-glow"></div>
-                    </div>
-                </div>
-                <div class="casino-branding">
-                    <h1 class="casino-title">AMINA CASINO</h1>
-                    <p class="casino-subtitle">Luxurious Cosmic Gaming Palace</p>
-                    <div class="title-accent"></div>
-                </div>
+    <div class="cosmic-bg"></div>
+    
+    <header class="header">
+        <div class="header-content">
+            <h1 class="logo">AMINA CASINO</h1>
+            <div class="currency-toggle">
+                <span class="currency-label">Currency:</span>
+                <button id="currencyToggle" class="toggle-btn">
+                    <span class="toggle-slider"></span>
+                    <span class="currency-text">HC</span>
+                </button>
             </div>
-            
-            <div class="wallet-section">
-                <div class="mode-toggle">
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="modeToggle">
-                        <span class="slider">
-                            <span class="toggle-text">HC</span>
-                            <span class="toggle-text">AMINA</span>
-                        </span>
-                    </label>
-                </div>
-                
-                <div class="wallet-info">
-                    <div class="balance-display">
-                        <div class="balance-icon">💎</div>
-                        <div class="balance-text">
-                            <span id="balanceLabel">House Coins</span>
-                            <span id="balanceAmount">1000.00</span>
-                        </div>
-                        <div class="balance-glow"></div>
-                    </div>
-                    <button id="connectWallet" class="wallet-btn">
-                        <span class="btn-icon">🔮</span>
-                        Connect Pera Wallet
-                        <div class="btn-shimmer"></div>
-                    </button>
-                    <button id="donateBtn" class="donate-btn">
-                        <span class="btn-icon">✨</span>
-                        Donate
-                        <div class="btn-shimmer"></div>
-                    </button>
-                </div>
-                
-                <div class="daily-bonus">
-                    <button id="dailyBonus" class="daily-btn">
-                        <span class="btn-icon">👑</span>
-                        Daily 1000 HC
-                        <div class="btn-shimmer"></div>
-                    </button>
-                </div>
+            <div class="balance-display">
+                <span class="balance-label">Balance:</span>
+                <span id="balanceAmount" class="balance-amount">1000</span>
+                <span id="currencySymbol" class="currency-symbol">HC</span>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <div class="games-container">
-            <!-- Luxury Slot Machine -->
-            <div class="game-card slot-card" id="slotGame">
-                <div class="card-luxury-border"></div>
-                <div class="game-header">
-                    <h2>🎰 Imperial Slots</h2>
-                    <div class="game-subtitle">Royal 5-Reel Experience</div>
-                    <div class="header-ornament"></div>
-                </div>
-                <div class="slot-machine">
-                    <div class="slot-frame">
-                        <div class="frame-ornaments"></div>
-                        <div class="reels-container">
-                            <div class="reel-group">
-                                <div class="reel" id="reel1">
-                                    <div class="symbol">🌟</div>
-                                    <div class="symbol">💫</div>
-                                    <div class="symbol">🌙</div>
-                                </div>
-                                <div class="reel" id="reel2">
-                                    <div class="symbol">🌟</div>
-                                    <div class="symbol">💫</div>
-                                    <div class="symbol">🌙</div>
-                                </div>
-                                <div class="reel" id="reel3">
-                                    <div class="symbol">🌟</div>
-                                    <div class="symbol">💫</div>
-                                    <div class="symbol">🌙</div>
-                                </div>
-                                <div class="reel" id="reel4">
-                                    <div class="symbol">🌟</div>
-                                    <div class="symbol">💫</div>
-                                    <div class="symbol">🌙</div>
-                                </div>
-                                <div class="reel" id="reel5">
-                                    <div class="symbol">🌟</div>
-                                    <div class="symbol">💫</div>
-                                    <div class="symbol">🌙</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="slot-controls">
-                        <div class="bet-section">
-                            <label>Bet Amount:</label>
-                            <div class="bet-input-group">
-                                <button class="bet-adjust" data-action="decrease">−</button>
-                                <input type="number" id="slotBet" value="0.25" min="0.25" step="0.25" readonly>
-                                <button class="bet-adjust" data-action="increase">+</button>
-                            </div>
-                        </div>
-                        <button id="spinBtn" class="game-btn spin-btn">
-                            <span class="btn-text">SPIN</span>
-                            <div class="btn-glow"></div>
-                        </button>
-                        <div class="auto-spin">
-                            <button id="autoSpinBtn" class="auto-btn">AUTO</button>
-                            <span class="auto-count" id="autoCount">0</span>
-                        </div>
-                    </div>
-                    <div class="game-result" id="slotResult">Place your royal bet and spin to win!</div>
-                </div>
-            </div>
+    <nav class="nav-menu">
+        <button class="nav-btn active" data-game="home">Cosmic Hub</button>
+        <button class="nav-btn" data-game="slots">Stellar Slots</button>
+        <button class="nav-btn" data-game="plinko">Quantum Plinko</button>
+        <button class="nav-btn" data-game="blackjack">Galaxy Blackjack</button>
+    </nav>
 
-            <!-- Luxury Blackjack -->
-            <div class="game-card blackjack-card" id="blackjackGame">
-                <div class="card-luxury-border"></div>
-                <div class="game-header">
-                    <h2>🃏 Royal Blackjack</h2>
-                    <div class="game-subtitle">Premium Table Experience</div>
-                    <div class="header-ornament"></div>
-                </div>
-                <div class="blackjack-table">
-                    <div class="table-felt">
-                        <div class="felt-pattern"></div>
-                        <div class="dealer-section">
-                            <div class="player-info">
-                                <h3>🎩 Dealer</h3>
-                                <div class="score-display">
-                                    <span class="score-label">Score:</span>
-                                    <span id="dealerScore" class="score-value">0</span>
-                                </div>
-                            </div>
-                            <div class="cards-area">
-                                <div class="cards" id="dealerCards"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="table-center">
-                            <div class="table-logo">
-                                <div class="logo-crown">👑</div>
-                                <div class="logo-text">AMINA</div>
-                                <div class="logo-subtitle">ROYAL</div>
-                            </div>
-                            <div class="betting-circle">
-                                <div class="bet-amount" id="currentBet">0.25</div>
-                                <div class="circle-ornaments"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="player-section">
-                            <div class="player-info">
-                                <h3>👤 Player</h3>
-                                <div class="score-display">
-                                    <span class="score-label">Score:</span>
-                                    <span id="playerScore" class="score-value">0</span>
-                                </div>
-                            </div>
-                            <div class="cards-area">
-                                <div class="cards" id="playerCards"></div>
-                            </div>
-                        </div>
+    <main class="main-content">
+        <!-- Home Screen -->
+        <div id="home" class="game-screen active">
+            <div class="welcome-container">
+                <h2 class="welcome-title">Welcome to the Cosmic Casino</h2>
+                <p class="welcome-text">Experience the universe of gaming with Amina Coin</p>
+                <div class="game-grid">
+                    <div class="game-card" data-game="slots">
+                        <div class="game-icon">🎰</div>
+                        <h3>Stellar Slots</h3>
+                        <p>Spin through the galaxy</p>
                     </div>
-                    
-                    <div class="blackjack-controls">
-                        <div class="bet-section">
-                            <label>Bet Amount:</label>
-                            <div class="bet-input-group">
-                                <button class="bet-adjust" data-game="blackjack" data-action="decrease">−</button>
-                                <input type="number" id="blackjackBet" value="0.25" min="0.25" step="0.25" readonly>
-                                <button class="bet-adjust" data-game="blackjack" data-action="increase">+</button>
-                            </div>
-                        </div>
-                        <div class="action-buttons">
-                            <button id="dealBtn" class="game-btn deal-btn">DEAL</button>
-                            <button id="hitBtn" class="game-btn hit-btn" disabled>HIT</button>
-                            <button id="standBtn" class="game-btn stand-btn" disabled>STAND</button>
-                            <button id="doubleBtn" class="game-btn double-btn" disabled>DOUBLE</button>
-                        </div>
+                    <div class="game-card" data-game="plinko">
+                        <div class="game-icon">🌌</div>
+                        <h3>Quantum Plinko</h3>
+                        <p>Drop through cosmic dimensions</p>
                     </div>
-                    <div class="game-result" id="blackjackResult">Place your bet and deal cards to start!</div>
-                </div>
-            </div>
-
-            <!-- Luxury Plinko -->
-            <div class="game-card plinko-card" id="plinkoGame">
-                <div class="card-luxury-border"></div>
-                <div class="game-header">
-                    <h2>🎯 Celestial Plinko</h2>
-                    <div class="game-subtitle">Divine Prize Drop</div>
-                    <div class="header-ornament"></div>
-                </div>
-                <div class="plinko-board">
-                    <div class="plinko-machine">
-                        <div class="machine-ornaments"></div>
-                        <div class="drop-zone">
-                            <div class="drop-indicator">✨ DROP HERE ✨</div>
-                            <div class="ball" id="plinkoBall"></div>
-                        </div>
-                        <div class="pegs-container" id="pegsContainer"></div>
-                        <div class="multiplier-zone">
-                            <div class="multipliers">
-                                <div class="multiplier bad" data-multiplier="0.1">0.1x</div>
-                                <div class="multiplier okay" data-multiplier="0.5">0.5x</div>
-                                <div class="multiplier good" data-multiplier="1">1x</div>
-                                <div class="multiplier great" data-multiplier="2">2x</div>
-                                <div class="multiplier excellent" data-multiplier="3">3x</div>
-                                <div class="multiplier jackpot" data-multiplier="10">👑10x👑</div>
-                                <div class="multiplier excellent" data-multiplier="3">3x</div>
-                                <div class="multiplier great" data-multiplier="2">2x</div>
-                                <div class="multiplier good" data-multiplier="1">1x</div>
-                                <div class="multiplier okay" data-multiplier="0.5">0.5x</div>
-                                <div class="multiplier bad" data-multiplier="0.1">0.1x</div>
-                            </div>
-                        </div>
+                    <div class="game-card" data-game="blackjack">
+                        <div class="game-icon">♠️</div>
+                        <h3>Galaxy Blackjack</h3>
+                        <p>Beat the house among the stars</p>
                     </div>
-                    <div class="plinko-controls">
-                        <div class="bet-section">
-                            <label>Bet Amount:</label>
-                            <div class="bet-input-group">
-                                <button class="bet-adjust" data-game="plinko" data-action="decrease">−</button>
-                                <input type="number" id="plinkoBet" value="0.25" min="0.25" step="0.25" readonly>
-                                <button class="bet-adjust" data-game="plinko" data-action="increase">+</button>
-                            </div>
-                        </div>
-                        <button id="dropBtn" class="game-btn drop-btn">
-                            <span class="btn-text">DROP BALL</span>
-                            <div class="btn-glow"></div>
-                        </button>
-                    </div>
-                    <div class="game-result" id="plinkoResult">Drop the celestial orb to claim your prize!</div>
                 </div>
             </div>
         </div>
-        
-        <footer class="footer">
-            <div class="footer-luxury-border"></div>
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h4>👑 Amina Casino</h4>
-                    <p>The universe's most luxurious gaming destination, powered by Algorand's cosmic blockchain technology.</p>
+
+        <!-- Slots Game -->
+        <div id="slots" class="game-screen">
+            <div class="game-container">
+                <div class="game-header">
+                    <h2>Stellar Slots</h2>
+                    <div class="bet-controls">
+                        <label>Bet Amount:</label>
+                        <select id="slotsBet">
+                            <option value="0.25">0.25</option>
+                            <option value="0.5">0.5</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                        </select>
+                        <span id="slotsCurrency">HC</span>
+                    </div>
                 </div>
-                <div class="footer-section">
-                    <h4>🌟 Royal Gaming</h4>
-                    <p>Experience gaming fit for galactic royalty. Play responsibly among the stars.</p>
+                
+                <div class="slots-machine">
+                    <div class="slots-grid" id="slotsGrid">
+                        <!-- 5x3 grid will be generated by JavaScript -->
+                    </div>
+                    <button id="spinBtn" class="cosmic-btn">SPIN THE COSMOS</button>
                 </div>
-                <div class="footer-section">
-                    <h4>✨ Contact</h4>
-                    <p>Crafted with cosmic love for the Algorand empire</p>
+
+                <div class="payout-table">
+                    <h3>Payout Structure</h3>
+                    <div class="payout-grid">
+                        <div class="payout-row">
+                            <span>🌟🌟🌟🌟🌟</span>
+                            <span>100x</span>
+                        </div>
+                        <div class="payout-row">
+                            <span>🪐🪐🪐🪐🪐</span>
+                            <span>50x</span>
+                        </div>
+                        <div class="payout-row">
+                            <span>🌌🌌🌌🌌🌌</span>
+                            <span>25x</span>
+                        </div>
+                        <div class="payout-row">
+                            <span>☄️☄️☄️☄️☄️</span>
+                            <span>15x</span>
+                        </div>
+                        <div class="payout-row">
+                            <span>🚀🚀🚀🚀🚀</span>
+                            <span>10x</span>
+                        </div>
+                        <div class="payout-row">
+                            <span>Any 4 match</span>
+                            <span>5x</span>
+                        </div>
+                        <div class="payout-row">
+                            <span>Any 3 match</span>
+                            <span>2x</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </footer>
-    </div>
+        </div>
+
+        <!-- Plinko Game -->
+        <div id="plinko" class="game-screen">
+            <div class="game-container">
+                <div class="game-header">
+                    <h2>Quantum Plinko</h2>
+                    <div class="bet-controls">
+                        <label>Bet Amount:</label>
+                        <select id="plinkoBet">
+                            <option value="0.25">0.25</option>
+                            <option value="0.5">0.5</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                        </select>
+                        <span id="plinkoCurrency">HC</span>
+                    </div>
+                </div>
+                
+                <div class="plinko-container">
+                    <div class="plinko-board" id="plinkoBoard">
+                        <div class="drop-zone" id="dropZone">Drop Ball Here</div>
+                        <canvas id="plinkoCanvas" width="600" height="500"></canvas>
+                        <div class="multipliers">
+                            <div class="multiplier" data-mult="10">10x</div>
+                            <div class="multiplier" data-mult="3">3x</div>
+                            <div class="multiplier" data-mult="1.5">1.5x</div>
+                            <div class="multiplier" data-mult="1">1x</div>
+                            <div class="multiplier" data-mult="0.5">0.5x</div>
+                            <div class="multiplier" data-mult="1">1x</div>
+                            <div class="multiplier" data-mult="1.5">1.5x</div>
+                            <div class="multiplier" data-mult="3">3x</div>
+                            <div class="multiplier" data-mult="10">10x</div>
+                        </div>
+                    </div>
+                    <button id="dropBtn" class="cosmic-btn">DROP COSMIC BALL</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Blackjack Game -->
+        <div id="blackjack" class="game-screen">
+            <div class="game-container">
+                <div class="game-header">
+                    <h2>Galaxy Blackjack</h2>
+                    <div class="bet-controls">
+                        <label>Bet Amount:</label>
+                        <select id="blackjackBet">
+                            <option value="0.25">0.25</option>
+                            <option value="0.5">0.5</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                        </select>
+                        <span id="blackjackCurrency">HC</span>
+                    </div>
+                </div>
+                
+                <div class="blackjack-table">
+                    <div class="dealer-section">
+                        <h3>Dealer: <span id="dealerScore">0</span></h3>
+                        <div id="dealerCards" class="card-container"></div>
+                    </div>
+                    
+                    <div class="player-section">
+                        <h3>Your Hand: <span id="playerScore">0</span></h3>
+                        <div id="playerCards" class="card-container"></div>
+                    </div>
+                    
+                    <div class="game-controls">
+                        <button id="dealBtn" class="cosmic-btn">DEAL CARDS</button>
+                        <button id="hitBtn" class="cosmic-btn" disabled>HIT</button>
+                        <button id="standBtn" class="cosmic-btn" disabled>STAND</button>
+                        <button id="newGameBtn" class="cosmic-btn" style="display:none;">NEW GAME</button>
+                    </div>
+                    
+                    <div id="gameMessage" class="game-message"></div>
+                </div>
+            </div>
+        </div>
+    </main>
 
     <script src="scripts.js"></script>
     <script src="index.js"></script>
