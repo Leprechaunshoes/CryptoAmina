@@ -692,8 +692,8 @@ input:checked + .slider:before {
 }
 
 .card {
-    width: 50px;
-    height: 70px;
+    width: 45px;
+    height: 65px;
     background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
     color: #333;
     border-radius: 8px;
@@ -701,13 +701,14 @@ input:checked + .slider:before {
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 12px;
+    font-size: 11px;
     text-align: center;
     border: 2px solid rgba(218, 165, 32, 0.3);
     animation: cardFlip 0.6s ease;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
     position: relative;
     overflow: hidden;
+    flex-shrink: 0;
 }
 
 .card::before {
@@ -980,64 +981,283 @@ input:checked + .slider:before {
 
 @media (max-width: 768px) {
     .container {
-        padding: 15px;
+        padding: 10px;
+    }
+    
+    .header {
+        padding: 20px 15px;
+        margin-bottom: 20px;
     }
     
     .amina-logo {
         flex-direction: column;
-        gap: 20px;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .amina-coin {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .coin-center {
+        font-size: 18px;
     }
     
     .casino-title {
-        font-size: 2.5rem;
+        font-size: 2.2rem;
+    }
+    
+    .casino-subtitle {
+        font-size: 0.9rem;
     }
     
     .wallet-section {
         flex-direction: column;
         text-align: center;
-        gap: 20px;
+        gap: 15px;
+    }
+    
+    .wallet-info {
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+    }
+    
+    .balance-display {
+        padding: 12px 20px;
+    }
+    
+    .toggle-switch {
+        width: 120px;
+        height: 45px;
     }
     
     .game-card {
-        padding: 25px;
+        padding: 20px 15px;
+        margin-bottom: 20px;
     }
     
+    .game-header h2 {
+        font-size: 1.6rem;
+    }
+    
+    .game-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    /* Slot Machine Mobile */
     .reels-container {
-        flex-direction: column;
-        align-items: center;
+        overflow-x: auto;
+        padding: 10px 0;
     }
     
     .reel-group {
-        flex-direction: row;
+        min-width: 420px;
+        justify-content: center;
     }
     
-    .plinko-machine {
-        width: 320px;
-        height: 420px;
+    .reel {
+        width: 70px;
+        height: 210px;
     }
     
-    .slot-controls, .blackjack-controls, .plinko-controls {
+    .symbol {
+        font-size: 2.2rem;
+    }
+    
+    .slot-controls {
         flex-direction: column;
         gap: 15px;
+        align-items: center;
+    }
+    
+    .auto-spin {
+        order: 3;
+    }
+    
+    /* Blackjack Mobile */
+    .blackjack-table {
+        padding: 15px;
+    }
+    
+    .dealer-section, .player-section {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+        padding: 15px;
+    }
+    
+    .table-center {
+        position: relative;
+        transform: none;
+        top: auto;
+        left: auto;
+        margin: 20px 0;
+    }
+    
+    .table-logo {
+        font-size: 1.5rem;
+    }
+    
+    .betting-circle {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .cards {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .card {
+        width: 40px;
+        height: 56px;
+        font-size: 10px;
+    }
+    
+    .blackjack-controls {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
     }
     
     .action-buttons {
         justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .game-btn {
+        min-width: 80px;
+        padding: 12px 20px;
+        font-size: 0.9rem;
+    }
+    
+    /* Plinko Mobile */
+    .plinko-machine {
+        width: 280px;
+        height: 350px;
+        margin: 0 auto 20px;
+    }
+    
+    .drop-zone {
+        width: 50px;
+        height: 35px;
+        top: 15px;
+    }
+    
+    .drop-indicator {
+        font-size: 0.6rem;
+    }
+    
+    .ball {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .peg {
+        width: 8px;
+        height: 8px;
+    }
+    
+    .multipliers {
+        height: 45px;
+    }
+    
+    .multiplier {
+        font-size: 0.7rem;
+    }
+    
+    .plinko-controls {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+    }
+    
+    /* Bet Controls Mobile */
+    .bet-section {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .bet-input-group {
+        margin: 0 auto;
+    }
+    
+    .bet-input-group input {
+        width: 70px;
+        font-size: 1rem;
+    }
+    
+    .bet-adjust {
+        width: 30px;
+        height: 30px;
+        font-size: 1rem;
+    }
+    
+    /* Game Results Mobile */
+    .game-result {
+        font-size: 1rem;
+        padding: 15px 10px;
+        min-height: 45px;
+    }
+    
+    /* Footer Mobile */
+    .footer {
+        margin-top: 40px;
+        padding: 30px 15px;
+    }
+    
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
     }
 }
 
 @media (max-width: 480px) {
+    .container {
+        padding: 8px;
+    }
+    
+    .header {
+        padding: 15px 10px;
+    }
+    
     .casino-title {
-        font-size: 2rem;
+        font-size: 1.8rem;
+    }
+    
+    .casino-subtitle {
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+    }
+    
+    .amina-coin {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .coin-center {
+        font-size: 16px;
     }
     
     .game-card {
-        padding: 20px;
+        padding: 15px 10px;
     }
     
-    .plinko-machine {
-        width: 280px;
-        height: 380px;
+    .game-header h2 {
+        font-size: 1.4rem;
+    }
+    
+    .slot-frame {
+        padding: 15px;
+    }
+    
+    .reel-group {
+        min-width: 350px;
     }
     
     .reel {
@@ -1046,6 +1266,116 @@ input:checked + .slider:before {
     }
     
     .symbol {
-        font-size: 2rem;
+        font-size: 1.8rem;
+    }
+    
+    .plinko-machine {
+        width: 260px;
+        height: 320px;
+    }
+    
+    .blackjack-table {
+        padding: 10px;
+    }
+    
+    .table-logo {
+        font-size: 1.2rem;
+    }
+    
+    .betting-circle {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .card {
+        width: 35px;
+        height: 50px;
+        font-size: 9px;
+    }
+    
+    .game-btn {
+        min-width: 70px;
+        padding: 10px 15px;
+        font-size: 0.8rem;
+    }
+    
+    .balance-display {
+        padding: 10px 15px;
+    }
+    
+    .balance-text span:first-child {
+        font-size: 0.8rem;
+    }
+    
+    .balance-text span:last-child {
+        font-size: 1.2rem;
+    }
+    
+    .wallet-btn, .donate-btn, .daily-btn {
+        padding: 12px 20px;
+        font-size: 0.8rem;
+    }
+}
+
+/* iPhone X and newer specific fixes */
+@media (max-width: 414px) and (max-height: 896px) {
+    .container {
+        padding: 5px;
+        padding-bottom: 20px; /* Account for home indicator */
+    }
+    
+    .header {
+        border-radius: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .games-container {
+        gap: 20px;
+    }
+    
+    .game-card {
+        border-radius: 20px;
+        padding: 12px 8px;
+    }
+}
+
+/* Ultra-compact mobile */
+@media (max-width: 375px) {
+    .casino-title {
+        font-size: 1.6rem;
+    }
+    
+    .reel-group {
+        min-width: 320px;
+    }
+    
+    .reel {
+        width: 55px;
+        height: 165px;
+    }
+    
+    .symbol {
+        font-size: 1.6rem;
+    }
+    
+    .plinko-machine {
+        width: 240px;
+        height: 300px;
+    }
+    
+    .multiplier {
+        font-size: 0.6rem;
+    }
+    
+    .card {
+        width: 32px;
+        height: 45px;
+        font-size: 8px;
+    }
+    
+    .game-btn {
+        min-width: 65px;
+        padding: 8px 12px;
+        font-size: 0.75rem;
     }
 }
