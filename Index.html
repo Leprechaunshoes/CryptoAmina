@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amina Casino - Cosmic Gaming Experience</title>
+    <title>Amina Casino - Vegas Cosmic Gaming Experience</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%23FFD700'/><circle cx='50' cy='50' r='25' fill='%234169E1'/></svg>">
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/nrMt6P0R/IMG-8041.png">
+    <meta name="description" content="Experience the ultimate cosmic casino with Amina Coin - Slots, Plinko, Blackjack and more!">
+    <meta name="keywords" content="Amina Casino, Cosmic Gaming, Cryptocurrency Casino, Pera Wallet, Algorand">
 </head>
 <body>
     <div class="cosmic-bg"></div>
@@ -14,8 +16,7 @@
         <div class="header-content">
             <div class="logo-section">
                 <div class="amina-coin">
-                    <!-- You'll replace this src with your actual coin image URL -->
-                    <img src="https://via.placeholder.com/50x50/FFD700/FFFFFF?text=A" alt="Amina Coin" class="coin-image" id="aminaCoinHeader">
+                    <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina Coin" class="coin-image" id="aminaCoinHeader">
                 </div>
                 <h1 class="logo">AMINA CASINO</h1>
             </div>
@@ -50,11 +51,11 @@
         <div id="home" class="game-screen active">
             <div class="welcome-container">
                 <div class="welcome-coin-display">
-                    <img src="https://via.placeholder.com/120x120/FFD700/FFFFFF?text=AMINA" alt="Amina Coin" class="welcome-coin" id="aminaCoinWelcome">
+                    <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina Coin" class="welcome-coin" id="aminaCoinWelcome">
                 </div>
                 
-                <h2 class="welcome-title">Welcome to the Cosmic Casino</h2>
-                <p class="welcome-text">Experience the universe of gaming with Amina Coin</p>
+                <h2 class="welcome-title">Welcome to Amina Casino</h2>
+                <p class="welcome-text">Experience the Vegas luxury of cosmic gaming with Amina Coin</p>
                 
                 <div class="game-grid">
                     <div class="game-card" data-game="slots">
@@ -92,7 +93,6 @@
                             <option value="0.25">0.25</option>
                             <option value="0.5">0.5</option>
                             <option value="1">1</option>
-                            <option value="2">2</option>
                         </select>
                         <span id="slotsCurrency">HC</span>
                     </div>
@@ -152,7 +152,6 @@
                             <option value="0.25">0.25</option>
                             <option value="0.5">0.5</option>
                             <option value="1">1</option>
-                            <option value="2">2</option>
                         </select>
                         <span id="plinkoCurrency">HC</span>
                     </div>
@@ -160,8 +159,8 @@
                 
                 <div class="plinko-container">
                     <div class="plinko-board" id="plinkoBoard">
-                        <div class="drop-zone" id="dropZone">Drop Ball Here</div>
-                        <canvas id="plinkoCanvas" width="600" height="500"></canvas>
+                        <div class="drop-zone" id="dropZone">Drop Cosmic Ball Here</div>
+                        <canvas id="plinkoCanvas"></canvas>
                         <div class="multipliers">
                             <div class="multiplier" data-mult="10">10x</div>
                             <div class="multiplier" data-mult="3">3x</div>
@@ -190,7 +189,6 @@
                             <option value="0.25">0.25</option>
                             <option value="0.5">0.5</option>
                             <option value="1">1</option>
-                            <option value="2">2</option>
                         </select>
                         <span id="blackjackCurrency">HC</span>
                     </div>
@@ -231,7 +229,7 @@
                 <p>Help support the cosmic gaming experience and Amina Coin development!</p>
                 
                 <div class="donation-coin">
-                    <img src="https://via.placeholder.com/80x80/FFD700/FFFFFF?text=AMINA" alt="Amina Coin" class="donation-coin-image">
+                    <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina Coin" class="donation-coin-image">
                 </div>
                 
                 <div class="wallet-section">
@@ -260,13 +258,7 @@
         </div>
     </div>
 
-    <!-- Music Control -->
-    <div class="music-control">
-        <button id="musicBtn" class="music-btn" onclick="toggleMusic()" title="Toggle Background Music">
-            <span class="music-icon">🎵</span>
-        </button>
-    </div>
-
+    <!-- Scripts -->
     <script src="scripts.js"></script>
     <script src="index.js"></script>
     
@@ -287,17 +279,14 @@
             
             try {
                 document.execCommand('copy');
-                alert('💎 Donation wallet address copied to clipboard!');
+                if (window.aminaCasino && window.aminaCasino.copyDonationAddress) {
+                    window.aminaCasino.copyDonationAddress();
+                } else {
+                    alert('💎 Donation wallet address copied to clipboard!');
+                }
             } catch (err) {
                 console.log('Copy failed, please select and copy manually');
                 alert('Please manually copy the wallet address');
-            }
-        }
-        
-        function toggleMusic() {
-            // Will be implemented in index.js
-            if (window.aminaCasino && window.aminaCasino.toggleBackgroundMusic) {
-                window.aminaCasino.toggleBackgroundMusic();
             }
         }
         
@@ -307,6 +296,55 @@
             if (event.target === modal) {
                 closeDonationModal();
             }
+        }
+        
+        // Enhanced page load experience
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🌌 Amina Casino HTML loaded successfully!');
+            
+            // Add loading effect to main content
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) {
+                mainContent.style.opacity = '0';
+                mainContent.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    mainContent.style.transition = 'all 0.6s ease-in-out';
+                    mainContent.style.opacity = '1';
+                    mainContent.style.transform = 'translateY(0)';
+                }, 100);
+            }
+            
+            // Preload Amina coin images
+            const coinImg = new Image();
+            coinImg.src = 'https://i.postimg.cc/nrMt6P0R/IMG-8041.png';
+            
+            console.log('🪙 Amina Coin images preloaded');
+        });
+        
+        // Add viewport meta for better mobile experience
+        const viewport = document.querySelector('meta[name="viewport"]');
+        if (viewport) {
+            viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+        }
+        
+        // Performance optimization
+        window.addEventListener('load', function() {
+            // Remove any unused elements after load
+            const unusedElements = document.querySelectorAll('[data-unused]');
+            unusedElements.forEach(el => el.remove());
+            
+            console.log('🚀 Amina Casino fully optimized and ready!');
+        });
+        
+        // Service worker registration for PWA capabilities (optional)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                // Uncomment when you have a service worker file
+                // navigator.serviceWorker.register('/sw.js')
+                //     .then(registration => console.log('SW registered'))
+                //     .catch(error => console.log('SW registration failed'));
+            });
         }
     </script>
 </body>
