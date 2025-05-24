@@ -1,4 +1,4 @@
-// Amina Casino - Core Game Scripts
+// FILE 2: scripts.js - Amina Casino Game Logic
 console.log('🎮 Amina Casino Scripts Loading...');
 
 // Game State Management
@@ -30,12 +30,15 @@ function initializeCasino() {
     initializeSlots();
     initializePlinko();
     initializeBlackjack();
-    
-    // Replace placeholder images with actual coin image when available
+    replaceAminaCoins();
+}
+
+function replaceAminaCoins() {
+    // Replace all coin images with your actual Amina coin
     const coinImages = document.querySelectorAll('.coin-image, .welcome-coin, .donation-coin-image');
     coinImages.forEach(img => {
-        // When you upload your coin image, replace this URL
-        img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iNTAiIGN5PSI1MCIgcj0iNDgiIGZpbGw9InVybCgjZ3JhZGllbnQwKSIgc3Ryb2tlPSIjRkZENzAwIiBzdHJva2Utd2lkdGg9IjQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSIzMCIgZmlsbD0iIzRBOUZGRiIvPjx0ZXh0IHg9IjUwIiB5PSI1OCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI0ZGRDcwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QTwvdGV4dD48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50MCIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNGRkQ3MDAiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNGRkE1MDAiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48L3N2Zz4=';
+        img.src = 'https://i.postimg.cc/nrMt6P0R/IMG-8041.png';
+        img.style.background = 'transparent';
     });
 }
 
@@ -129,11 +132,6 @@ function updateAllBetDisplays() {
 function addBalance(amount) {
     gameState.balance += amount;
     updateBalanceDisplay();
-    
-    // Play win sound if available
-    if (window.playCosmicSound) {
-        window.playCosmicSound(amount > (gameState.currency === 'AMINA' ? 0.01 : 10) ? 'bigWin' : 'win');
-    }
 }
 
 function deductBalance(amount) {
@@ -274,35 +272,54 @@ function getSlotMultiplier(symbol, matches) {
     return multipliers[symbol] ? multipliers[symbol][matches] : 0;
 }
 
-// PLINKO GAME
+// PLINKO GAME - MOBILE RESPONSIVE
 function initializePlinko() {
     const canvas = document.getElementById('plinkoCanvas');
     const ctx = canvas.getContext('2d');
     
-    // Set canvas size
-    canvas.width = 600;
-    canvas.height = 500;
+    // Responsive canvas sizing
+    const container = canvas.parentElement;
+    const maxWidth = Math.min(400, container.clientWidth - 40);
+    const height = Math.min(300, maxWidth * 0.75);
+    
+    canvas.width = maxWidth;
+    canvas.height = height;
+    canvas.style.width = maxWidth + 'px';
+    canvas.style.height = height + 'px';
     
     // Draw initial board
     drawPlinkoBoard(ctx);
+    
+    // Resize handler
+    window.addEventListener('resize', () => {
+        const newMaxWidth = Math.min(400, container.clientWidth - 40);
+        const newHeight = Math.min(300, newMaxWidth * 0.75);
+        
+        canvas.width = newMaxWidth;
+        canvas.height = newHeight;
+        canvas.style.width = newMaxWidth + 'px';
+        canvas.style.height = newHeight + 'px';
+        
+        drawPlinkoBoard(ctx);
+    });
 }
 
 function drawPlinkoBoard(ctx) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.fillStyle = '#FFD700';
     
-    // Draw pegs
-    const rows = 12;
-    const startY = 80;
-    const rowSpacing = 35;
+    // Draw pegs - responsive
+    const rows = 10;
+    const startY = 60;
+    const rowSpacing = (ctx.canvas.height - 120) / rows;
     
     for (let row = 0; row < rows; row++) {
         const pegsInRow = row + 3;
-        const startX = (ctx.canvas.width - (pegsInRow - 1) * 40) / 2;
+        const pegSpacing = (ctx.canvas.width - 40) / (pegsInRow + 1);
         
         for (let peg = 0; peg < pegsInRow; peg++) {
             ctx.beginPath();
-            ctx.arc(startX + peg * 40, startY + row * rowSpacing, 4, 0, Math.PI * 2);
+            ctx.arc(20 + (peg + 1) * pegSpacing, startY + row * rowSpacing, 3, 0, Math.PI * 2);
             ctx.fill();
         }
     }
@@ -328,7 +345,7 @@ function simulatePlinkoball(betAmount) {
     const ctx = canvas.getContext('2d');
     
     let ballX = canvas.width / 2;
-    let ballY = 50;
+    let ballY = 30;
     let ballSpeed = 2;
     let bounceDirection = 0;
     
@@ -338,7 +355,7 @@ function simulatePlinkoball(betAmount) {
         // Draw ball
         ctx.fillStyle = '#8A2BE2';
         ctx.beginPath();
-        ctx.arc(ballX, ballY, 8, 0, Math.PI * 2);
+        ctx.arc(ballX, ballY, 6, 0, Math.PI * 2);
         ctx.fill();
         
         // Move ball
@@ -346,15 +363,16 @@ function simulatePlinkoball(betAmount) {
         ballX += bounceDirection;
         
         // Random bounce
-        if (ballY % 35 < 5 && Math.random() > 0.5) {
-            bounceDirection = (Math.random() - 0.5) * 4;
+        if (ballY % 25 < 5 && Math.random() > 0.5) {
+            bounceDirection = (Math.random() - 0.5) * 3;
         }
         
         // Keep ball in bounds
-        if (ballX < 20) ballX = 20;
-        if (ballX > canvas.width - 20) ballX = canvas.width - 20;
+        const margin = 15;
+        if (ballX < margin) ballX = margin;
+        if (ballX > canvas.width - margin) ballX = canvas.width - margin;
         
-        if (ballY < canvas.height - 50) {
+        if (ballY < canvas.height - 40) {
             requestAnimationFrame(animateBall);
         } else {
             // Ball finished - calculate result
@@ -376,12 +394,13 @@ function simulatePlinkoball(betAmount) {
     animateBall();
 }
 
-// BLACKJACK GAME
+// BLACKJACK GAME - FIXED CARD GRAPHICS
 let blackjackState = {
     playerCards: [],
     dealerCards: [],
     deck: [],
-    gamePhase: 'betting' // betting, playing, finished
+    gamePhase: 'betting',
+    currentBet: 0
 };
 
 function initializeBlackjack() {
@@ -389,13 +408,23 @@ function initializeBlackjack() {
 }
 
 function createDeck() {
-    const suits = ['♠️', '♥️', '♦️', '♣️'];
+    const suits = [
+        { symbol: '♠️', name: 'spades', color: 'black' },
+        { symbol: '♥️', name: 'hearts', color: 'red' },
+        { symbol: '♦️', name: 'diamonds', color: 'red' },
+        { symbol: '♣️', name: 'clubs', color: 'black' }
+    ];
     const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
     const deck = [];
     
     suits.forEach(suit => {
         ranks.forEach(rank => {
-            deck.push({ suit, rank, value: getCardValue(rank) });
+            deck.push({ 
+                suit: suit.symbol, 
+                rank, 
+                value: getCardValue(rank),
+                color: suit.color
+            });
         });
     });
     
@@ -484,7 +513,7 @@ function standBlackjack() {
         if (dealerValue < 17) {
             blackjackState.dealerCards.push(blackjackState.deck.pop());
             dealerValue = calculateHandValue(blackjackState.dealerCards);
-            updateBlackjackDisplay();
+            updateBlackjackDisplay(true);
             
             setTimeout(dealerPlay, 1000);
         } else {
@@ -580,12 +609,11 @@ function createCardElement(card, hidden = false) {
         cardEl.classList.add('card-back');
         cardEl.textContent = '🂠';
     } else {
-        const isRed = ['♥️', '♦️'].includes(card.suit);
-        cardEl.classList.add(isRed ? 'red' : 'black');
+        cardEl.classList.add(card.color);
         cardEl.innerHTML = `
-            <div style="font-size: 0.8rem;">${card.rank}${card.suit}</div>
-            <div style="font-size: 1.5rem; text-align: center; flex: 1; display: flex; align-items: center; justify-content: center;">${card.suit}</div>
-            <div style="font-size: 0.8rem; transform: rotate(180deg);">${card.rank}${card.suit}</div>
+            <div class="card-rank">${card.rank}${card.suit}</div>
+            <div class="card-suit-large">${card.suit}</div>
+            <div class="card-rank-bottom">${card.rank}${card.suit}</div>
         `;
     }
     
@@ -623,43 +651,45 @@ function resetBlackjackUI() {
     document.getElementById('dealerCards').innerHTML = '';
     document.getElementById('playerScore').textContent = '0';
     document.getElementById('dealerScore').textContent = '0';
-    document.getElementById('gameMessage').textContent = '';
+    const gameMessage = document.getElementById('gameMessage');
+    if (gameMessage) gameMessage.textContent = '';
     updateBlackjackButtons();
 }
 
 // Utility Functions
 function showMessage(message) {
-    const messageEl = document.getElementById('gameMessage') || createMessageElement();
+    let messageEl = document.getElementById('gameMessage');
+    
+    if (!messageEl) {
+        messageEl = document.createElement('div');
+        messageEl.id = 'gameMessage';
+        messageEl.className = 'game-message';
+        messageEl.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(45deg, #FFD700, #B8860B);
+            color: #000;
+            padding: 1.5rem 2rem;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            z-index: 10000;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+            max-width: 90%;
+            word-wrap: break-word;
+        `;
+        document.body.appendChild(messageEl);
+    }
+    
     messageEl.textContent = message;
     messageEl.style.display = 'block';
     
     setTimeout(() => {
         messageEl.style.display = 'none';
     }, 4000);
-}
-
-function createMessageElement() {
-    const messageEl = document.createElement('div');
-    messageEl.id = 'gameMessage';
-    messageEl.className = 'game-message';
-    messageEl.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: linear-gradient(45deg, #8A2BE2, #4a0e4e);
-        color: white;
-        padding: 1rem 2rem;
-        border-radius: 20px;
-        border: 2px solid #FFD700;
-        font-size: 1.2rem;
-        font-weight: bold;
-        z-index: 10000;
-        text-align: center;
-        box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
-    `;
-    document.body.appendChild(messageEl);
-    return messageEl;
 }
 
 console.log('🚀 Amina Casino Scripts Loaded Successfully!');
