@@ -1,4 +1,4 @@
-/* FILE 1: style.css - Amina Casino Vegas Cosmic */
+/* Amina Casino - Clean Working CSS */
 * {
     margin: 0;
     padding: 0;
@@ -6,9 +6,9 @@
 }
 
 body {
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #16213e 100%);
-    color: #ffffff;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0a0a1a, #1a1a2e, #16213e);
+    color: white;
     min-height: 100vh;
 }
 
@@ -19,26 +19,23 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at 25% 75%, rgba(255, 215, 0, 0.06) 0%, transparent 50%);
+    background: radial-gradient(circle, rgba(255,215,0,0.1), transparent);
     z-index: -1;
 }
 
-/* Header */
 .header {
-    background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(22, 33, 62, 0.95));
-    border-bottom: 1px solid rgba(255, 215, 0, 0.3);
-    backdrop-filter: blur(10px);
+    background: rgba(0,0,0,0.8);
+    border-bottom: 2px solid #FFD700;
+    padding: 1rem 2rem;
     position: sticky;
     top: 0;
     z-index: 1000;
-    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
 }
 
 .header-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 2rem;
     max-width: 1400px;
     margin: 0 auto;
 }
@@ -49,12 +46,12 @@ body {
     gap: 1rem;
 }
 
-/* Amina Coin - Floating */
 .coin-image, .welcome-coin, .donation-coin-image {
     border-radius: 50%;
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+    object-fit: contain;
+    background: transparent;
+    box-shadow: 0 0 20px rgba(255,215,0,0.5);
     animation: coinFloat 3s ease-in-out infinite;
-    transition: transform 0.3s ease;
 }
 
 .coin-image { 
@@ -73,32 +70,28 @@ body {
 }
 
 @keyframes coinFloat {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-8px); }
-}
-
-.coin-image:hover, .welcome-coin:hover, .donation-coin-image:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 40px rgba(255, 215, 0, 0.7);
+    0%, 100% { 
+        transform: translateY(0); 
+    }
+    50% { 
+        transform: translateY(-8px); 
+    }
 }
 
 .logo {
     font-size: 2rem;
     font-weight: bold;
-    background: linear-gradient(45deg, #FFD700, #B8860B);
+    background: linear-gradient(45deg, #FFD700, #FFA500);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    letter-spacing: 2px;
-    text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
 }
 
 .header-controls {
     display: flex;
-    align-items: center;
     gap: 2rem;
+    align-items: center;
 }
 
-/* Currency Toggle */
 .currency-toggle {
     display: flex;
     align-items: center;
@@ -106,53 +99,52 @@ body {
 }
 
 .currency-label {
-    font-weight: bold;
     color: #FFD700;
+    font-weight: bold;
 }
 
 .toggle-btn {
-    position: relative;
     width: 80px;
     height: 40px;
-    background: linear-gradient(45deg, #2a2a3e, #1a1a2e);
+    background: #1a1a2e;
     border: 2px solid #FFD700;
     border-radius: 25px;
+    position: relative;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
 }
 
 .toggle-slider {
     position: absolute;
-    left: 3px;
-    width: 30px;
-    height: 30px;
-    background: linear-gradient(45deg, #FFD700, #B8860B);
+    left: 2px;
+    top: 2px;
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(45deg, #FFD700, #FFA500);
     border-radius: 50%;
-    transition: transform 0.3s ease;
-    box-shadow: 0 2px 10px rgba(255, 215, 0, 0.4);
+    transition: transform 0.3s;
 }
 
 .toggle-btn.amina .toggle-slider {
-    transform: translateX(37px);
+    transform: translateX(40px);
 }
 
 .currency-text {
-    font-weight: bold;
     color: white;
+    font-weight: bold;
     z-index: 1;
 }
 
 .balance-display {
+    background: rgba(0,0,0,0.5);
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    border: 1px solid #FFD700;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: rgba(0, 0, 0, 0.4);
-    padding: 0.75rem 1.5rem;
-    border-radius: 25px;
-    border: 1px solid rgba(255, 215, 0, 0.3);
 }
 
 .balance-label {
@@ -161,9 +153,9 @@ body {
 }
 
 .balance-amount {
-    font-size: 1.2rem;
-    font-weight: bold;
     color: #00ff88;
+    font-weight: bold;
+    font-size: 1.2rem;
 }
 
 .currency-symbol {
@@ -171,33 +163,31 @@ body {
     font-weight: bold;
 }
 
-/* Navigation */
 .nav-menu {
     display: flex;
     justify-content: center;
     gap: 1rem;
     padding: 1rem;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(0,0,0,0.2);
     flex-wrap: wrap;
 }
 
 .nav-btn {
-    padding: 0.75rem 1.5rem;
-    background: linear-gradient(45deg, rgba(42, 42, 62, 0.8), rgba(26, 26, 46, 0.8));
-    border: 1px solid rgba(255, 215, 0, 0.3);
+    padding: 0.8rem 1.5rem;
+    background: rgba(26,26,46,0.8);
+    border: 2px solid rgba(255,215,0,0.3);
     border-radius: 25px;
     color: white;
     cursor: pointer;
     font-weight: bold;
-    transition: all 0.3s ease;
+    transition: all 0.3s;
     text-transform: uppercase;
 }
 
 .nav-btn:hover, .nav-btn.active {
-    background: linear-gradient(45deg, #FFD700, #B8860B);
-    color: #000;
+    background: linear-gradient(45deg, #FFD700, #FFA500);
+    color: black;
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
 }
 
 .donation-btn {
@@ -205,7 +195,6 @@ body {
     color: white !important;
 }
 
-/* Main Content */
 .main-content {
     padding: 2rem;
     max-width: 1400px;
@@ -220,7 +209,6 @@ body {
     display: block;
 }
 
-/* Welcome Screen */
 .welcome-container {
     text-align: center;
     padding: 2rem 0;
@@ -233,17 +221,16 @@ body {
 .welcome-title {
     font-size: 3rem;
     font-weight: bold;
-    background: linear-gradient(45deg, #FFD700, #B8860B);
+    background: linear-gradient(45deg, #FFD700, #FFA500);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 1rem;
-    text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
 }
 
 .welcome-text {
     font-size: 1.2rem;
     color: #cccccc;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
 }
 
 .game-grid {
@@ -254,20 +241,19 @@ body {
 }
 
 .game-card {
-    background: linear-gradient(135deg, rgba(26, 26, 46, 0.9), rgba(22, 33, 62, 0.9));
-    border: 1px solid rgba(255, 215, 0, 0.3);
+    background: rgba(26,26,46,0.8);
+    border: 2px solid rgba(255,215,0,0.3);
     border-radius: 15px;
     padding: 2rem;
     text-align: center;
     cursor: pointer;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
+    transition: all 0.3s;
 }
 
 .game-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-10px);
     border-color: #FFD700;
-    box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+    box-shadow: 0 10px 30px rgba(255,215,0,0.2);
 }
 
 .game-icon {
@@ -277,26 +263,28 @@ body {
 
 .game-card h3 {
     color: #FFD700;
-    font-size: 1.3rem;
     margin-bottom: 0.5rem;
+}
+
+.game-card p {
+    color: #cccccc;
+    margin-bottom: 1rem;
 }
 
 .max-win {
     background: linear-gradient(45deg, #00ff88, #00cc6a);
-    color: #000;
-    padding: 0.4rem 0.8rem;
+    color: black;
+    padding: 0.5rem 1rem;
     border-radius: 15px;
     font-weight: bold;
     display: inline-block;
-    font-size: 0.9rem;
 }
 
-/* Game Container */
 .game-container {
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0,0,0,0.3);
     border-radius: 15px;
     padding: 2rem;
-    border: 1px solid rgba(255, 215, 0, 0.2);
+    border: 2px solid rgba(255,215,0,0.2);
 }
 
 .game-header {
@@ -317,40 +305,47 @@ body {
     display: flex;
     align-items: center;
     gap: 1rem;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0,0,0,0.4);
     padding: 0.8rem;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 215, 0, 0.2);
+    border-radius: 10px;
+    border: 1px solid rgba(255,215,0,0.2);
+}
+
+.bet-controls label {
+    color: #FFD700;
+    font-weight: bold;
 }
 
 .bet-controls select {
-    background: linear-gradient(45deg, #2a2a3e, #1a1a2e);
-    border: 1px solid #FFD700;
-    border-radius: 8px;
+    background: #2a2a3e;
+    border: 2px solid #FFD700;
+    border-radius: 5px;
     color: white;
     padding: 0.4rem;
     font-weight: bold;
 }
 
-/* Cosmic Button */
+.bet-controls span {
+    color: #FFD700;
+    font-weight: bold;
+}
+
 .cosmic-btn {
-    background: linear-gradient(45deg, #FFD700, #B8860B);
+    background: linear-gradient(45deg, #FFD700, #FFA500);
     border: none;
     border-radius: 25px;
-    color: #000;
+    color: black;
     padding: 1rem 2rem;
-    font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
 .cosmic-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
-    background: linear-gradient(45deg, #FFA500, #FFD700);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(255,215,0,0.4);
 }
 
 .cosmic-btn:disabled {
@@ -364,7 +359,6 @@ body {
     color: white;
 }
 
-/* Slots */
 .slots-machine {
     text-align: center;
     margin-bottom: 2rem;
@@ -374,105 +368,136 @@ body {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     grid-template-rows: repeat(3, 1fr);
-    gap: 8px;
+    gap: 10px;
     background: linear-gradient(45deg, #000, #1a1a2e);
     padding: 20px;
-    border-radius: 12px;
-    border: 2px solid #FFD700;
+    border-radius: 15px;
+    border: 3px solid #FFD700;
     margin: 2rem auto;
     max-width: 500px;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
 .slot-cell {
     background: linear-gradient(45deg, #2a2a3e, #1a1a2e);
-    border: 1px solid rgba(255, 215, 0, 0.3);
-    border-radius: 8px;
+    border: 2px solid rgba(255,215,0,0.4);
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.8rem;
-    height: 60px;
-    transition: all 0.3s ease;
+    font-size: 2rem;
+    height: 70px;
+    transition: all 0.3s;
 }
 
 .slot-cell.winning {
     background: linear-gradient(45deg, #FFD700, #FFA500);
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    animation: slotWin 1s infinite;
 }
 
-/* Plinko - Mobile Responsive */
-.plinko-container {
+@keyframes slotWin {
+    0%, 100% { 
+        transform: scale(1); 
+    }
+    50% { 
+        transform: scale(1.1); 
+    }
+}
+
+.payout-table {
+    background: rgba(0,0,0,0.4);
+    border-radius: 10px;
+    padding: 1rem;
+    border: 1px solid rgba(255,215,0,0.2);
+}
+
+.payout-table h3 {
+    color: #FFD700;
     text-align: center;
+    margin-bottom: 1rem;
+}
+
+.payout-grid {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.payout-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    background: rgba(255,215,0,0.05);
+    border-radius: 5px;
+}
+
+.plinko-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
 }
 
 .plinko-board {
-    position: relative;
-    margin: 1rem auto;
-    max-width: 100%;
-    overflow: hidden;
+    background: linear-gradient(180deg, #0a0a1a, #1a1a2e);
+    border: 3px solid #FFD700;
+    border-radius: 15px;
+    padding: 1rem;
+    width: 100%;
+    max-width: 450px;
 }
 
 .drop-zone {
-    background: linear-gradient(45deg, #FFD700, #B8860B);
-    color: #000;
-    border: 2px dashed #FFA500;
-    border-radius: 12px;
+    background: linear-gradient(45deg, #FFD700, #FFA500);
+    color: black;
+    border: none;
+    border-radius: 10px;
     padding: 1rem;
     margin-bottom: 1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s ease;
+    text-align: center;
+    transition: all 0.3s;
 }
 
 .drop-zone:hover {
-    background: linear-gradient(45deg, #FFA500, #FFD700);
-    transform: scale(1.02);
+    transform: translateY(-2px);
 }
 
 #plinkoCanvas {
-    border: 2px solid #FFD700;
-    border-radius: 12px;
-    background: linear-gradient(180deg, #0a0a1a, #1a1a2e);
     width: 100%;
-    max-width: 400px;
     height: 300px;
+    max-width: 400px;
+    border-radius: 10px;
+    background: transparent;
 }
 
 .multipliers {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 0.5rem;
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
     gap: 2px;
-    max-width: 400px;
-    margin-left: auto;
-    margin-right: auto;
+    margin-top: 1rem;
 }
 
 .multiplier {
-    background: linear-gradient(45deg, #2a2a3e, #1a1a2e);
+    background: linear-gradient(45deg, #1a1a2e, #2a2a3e);
     border: 1px solid #FFD700;
-    border-radius: 6px;
-    padding: 0.3rem;
+    border-radius: 5px;
+    padding: 0.5rem;
     font-weight: bold;
     color: #FFD700;
-    flex: 1;
     text-align: center;
     font-size: 0.8rem;
-    min-width: 0;
 }
 
 .multiplier[data-mult="10"] {
     background: linear-gradient(45deg, #FFD700, #FFA500);
-    color: #000;
+    color: black;
 }
 
-/* Blackjack */
 .blackjack-table {
-    background: linear-gradient(135deg, #0a2a0a, #1a3a1a);
+    background: linear-gradient(135deg, #0a2a0a, #1a4a1a);
     border-radius: 15px;
     padding: 2rem;
-    border: 2px solid #FFD700;
+    border: 3px solid #FFD700;
 }
 
 .dealer-section, .player-section {
@@ -482,14 +507,13 @@ body {
 .dealer-section h3, .player-section h3 {
     color: #FFD700;
     margin-bottom: 1rem;
-    font-size: 1.2rem;
 }
 
 .card-container {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
-    min-height: 90px;
+    min-height: 80px;
     align-items: center;
 }
 
@@ -502,10 +526,9 @@ body {
     flex-direction: column;
     justify-content: space-between;
     padding: 4px;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-    position: relative;
     font-size: 0.7rem;
     font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
 .card.red {
@@ -517,32 +540,12 @@ body {
 }
 
 .card-back {
-    background: linear-gradient(45deg, #FFD700, #B8860B);
-    color: #000;
+    background: linear-gradient(45deg, #FFD700, #FFA500);
+    color: black;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
     font-size: 1rem;
-}
-
-.card-rank {
-    font-size: 0.6rem;
-}
-
-.card-suit-large {
-    font-size: 1.2rem;
-    text-align: center;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.card-rank-bottom {
-    font-size: 0.6rem;
-    transform: rotate(180deg);
-    text-align: right;
 }
 
 .game-controls {
@@ -555,37 +558,33 @@ body {
 
 .game-message {
     text-align: center;
-    font-size: 1.1rem;
     font-weight: bold;
     color: #FFD700;
     padding: 1rem;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 12px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
     margin-top: 1rem;
 }
 
-/* Modal */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0,0,0,0.8);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 10000;
-    backdrop-filter: blur(5px);
 }
 
 .modal-content {
-    background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(22, 33, 62, 0.95));
+    background: linear-gradient(135deg, rgba(26,26,46,0.9), rgba(22,33,62,0.9));
     border: 2px solid #FFD700;
     border-radius: 15px;
     max-width: 500px;
     width: 90%;
-    backdrop-filter: blur(10px);
 }
 
 .modal-header {
@@ -593,12 +592,11 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem;
-    border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+    border-bottom: 1px solid rgba(255,215,0,0.3);
 }
 
 .modal-header h3 {
     color: #FFD700;
-    font-size: 1.3rem;
 }
 
 .modal-close {
@@ -607,15 +605,11 @@ body {
     color: #FFD700;
     font-size: 1.5rem;
     cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.modal-close:hover {
-    transform: scale(1.2);
 }
 
 .modal-body {
     padding: 2rem;
+    color: white;
 }
 
 .donation-coin {
@@ -641,41 +635,35 @@ body {
 
 .wallet-input-group input {
     flex: 1;
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 215, 0, 0.3);
+    background: rgba(0,0,0,0.5);
+    border: 1px solid #FFD700;
     border-radius: 8px;
     color: white;
-    padding: 0.6rem;
+    padding: 0.5rem;
     font-family: monospace;
     font-size: 0.8rem;
 }
 
 .copy-btn {
-    background: linear-gradient(45deg, #FFD700, #B8860B);
+    background: linear-gradient(45deg, #FFD700, #FFA500);
     border: none;
     border-radius: 8px;
-    color: #000;
-    padding: 0.6rem 1rem;
-    cursor: pointer;
+    color: black;
+    padding: 0.5rem 1rem;
     font-weight: bold;
-    transition: all 0.3s ease;
-}
-
-.copy-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 3px 10px rgba(255, 215, 0, 0.3);
+    cursor: pointer;
 }
 
 .donation-info {
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 12px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
     padding: 1rem;
     margin: 1rem 0;
 }
 
 .donation-info ul {
     list-style: none;
-    padding-left: 0;
+    padding: 0;
 }
 
 .donation-info li {
@@ -688,45 +676,14 @@ body {
     justify-content: center;
     gap: 1rem;
     padding: 1.5rem;
-    border-top: 1px solid rgba(255, 215, 0, 0.3);
+    border-top: 1px solid rgba(255,215,0,0.3);
     flex-wrap: wrap;
 }
 
-/* Music Control */
-.music-control {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1000;
-}
-
-.music-btn {
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    background: linear-gradient(45deg, #FFD700, #B8860B);
-    border: none;
-    color: #000;
-    font-size: 1.3rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
-}
-
-.music-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
-}
-
-/* Responsive */
 @media (max-width: 768px) {
     .header-content {
         flex-direction: column;
         gap: 1rem;
-        padding: 1rem;
     }
     
     .logo {
@@ -737,14 +694,14 @@ body {
         font-size: 2rem;
     }
     
-    .nav-menu {
-        padding: 0.5rem;
-        gap: 0.5rem;
+    .coin-image {
+        width: 40px;
+        height: 40px;
     }
     
-    .nav-btn {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
+    .welcome-coin {
+        width: 100px;
+        height: 100px;
     }
     
     .main-content {
@@ -757,28 +714,26 @@ body {
     }
     
     .slots-grid {
-        max-width: 320px;
-        gap: 5px;
-        padding: 15px;
+        max-width: 350px;
+        gap: 8px;
     }
     
     .slot-cell {
-        height: 45px;
-        font-size: 1.4rem;
+        height: 50px;
+        font-size: 1.5rem;
     }
     
     #plinkoCanvas {
-        max-width: 350px;
         height: 250px;
+        max-width: 300px;
     }
     
     .multipliers {
-        max-width: 350px;
         gap: 1px;
     }
     
     .multiplier {
-        padding: 0.2rem;
+        padding: 0.3rem;
         font-size: 0.7rem;
     }
     
@@ -787,40 +742,16 @@ body {
         align-items: center;
     }
     
-    .cosmic-btn {
-        padding: 0.8rem 1.5rem;
-        font-size: 0.9rem;
-    }
-    
-    .modal-content {
-        width: 95%;
-        margin: 1rem;
-    }
-    
     .wallet-input-group {
+        flex-direction: column;
+    }
+    
+    .modal-footer {
         flex-direction: column;
     }
 }
 
 @media (max-width: 480px) {
-    .coin-image {
-        width: 40px;
-        height: 40px;
-    }
-    
-    .welcome-coin {
-        width: 90px;
-        height: 90px;
-    }
-    
-    .logo {
-        font-size: 1.2rem;
-    }
-    
-    .welcome-title {
-        font-size: 1.6rem;
-    }
-    
     .game-grid {
         grid-template-columns: 1fr;
     }
@@ -830,16 +761,12 @@ body {
     }
     
     .slot-cell {
-        height: 40px;
+        height: 45px;
         font-size: 1.2rem;
     }
     
     #plinkoCanvas {
-        max-width: 300px;
         height: 200px;
-    }
-    
-    .multipliers {
-        max-width: 300px;
+        max-width: 250px;
     }
 }
