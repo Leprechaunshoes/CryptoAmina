@@ -1,729 +1,665 @@
-// Global Game State
+// Amina Casino - Core Game Scripts
+console.log('🎮 Amina Casino Scripts Loading...');
+
+// Game State Management
 const gameState = {
     balance: 1000,
     currency: 'HC', // HC or AMINA
     currentGame: 'home',
-    isPlaying: false,
-    isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    isPlaying: false
 };
 
-// Currency Management
+// Currency conversion rates
+const CURRENCY_RATES = {
+    HC_TO_AMINA: 0.001, // 1000 HC = 1 AMINA
+    AMINA_TO_HC: 1000
+};
+
+// Cosmic symbols for slots
+const COSMIC_SYMBOLS = ['🌟', '🪐', '🌌', '☄️', '🚀', '💫', '🛸'];
+
+// Initialize Casino
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCasino();
+    setupEventListeners();
+    console.log('🌟 Casino initialized successfully!');
+});
+
+function initializeCasino() {
+    updateBalanceDisplay();
+    initializeSlots();
+    initializePlinko();
+    initializeBlackjack();
+    
+    // Replace placeholder images with actual coin image when available
+    const coinImages = document.querySelectorAll('.coin-image, .welcome-coin, .donation-coin-image');
+    coinImages.forEach(img => {
+        // When you upload your coin image, replace this URL
+        img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iNTAiIGN5PSI1MCIgcj0iNDgiIGZpbGw9InVybCgjZ3JhZGllbnQwKSIgc3Ryb2tlPSIjRkZENzAwIiBzdHJva2Utd2lkdGg9IjQiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSIzMCIgZmlsbD0iIzRBOUZGRiIvPjx0ZXh0IHg9IjUwIiB5PSI1OCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI0ZGRDcwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QTwvdGV4dD48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50MCIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNGRkQ3MDAiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNGRkE1MDAiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48L3N2Zz4=';
+    });
+}
+
+function setupEventListeners() {
+    // Navigation
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('donation-btn')) {
+                switchGame(e.target.dataset.game);
+            }
+        });
+    });
+    
+    // Game cards
+    document.querySelectorAll('.game-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            switchGame(e.currentTarget.dataset.game);
+        });
+    });
+    
+    // Currency toggle
+    document.getElementById('currencyToggle').addEventListener('click', toggleCurrency);
+    
+    // Game controls
+    setupGameControls();
+}
+
+function switchGame(gameId) {
+    if (gameState.isPlaying) {
+        alert('🎮 Finish your current game first!');
+        return;
+    }
+    
+    // Hide all screens
+    document.querySelectorAll('.game-screen').forEach(screen => {
+        screen.classList.remove('active');
+    });
+    
+    // Show selected screen
+    document.getElementById(gameId).classList.add('active');
+    
+    // Update navigation
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-game="${gameId}"]`).classList.add('active');
+    
+    gameState.currentGame = gameId;
+    console.log(`🎯 Switched to ${gameId}`);
+}
+
 function toggleCurrency() {
     const toggle = document.getElementById('currencyToggle');
     const currencyText = toggle.querySelector('.currency-text');
-    const currencySymbol = document.getElementById('currencySymbol');
-    const allCurrencySpans = document.querySelectorAll('#slotsCurrency, #plinkoCurrency, #blackjackCurrency');
     
     if (gameState.currency === 'HC') {
         gameState.currency = 'AMINA';
-        gameState.balance = parseFloat((gameState.balance * 0.001).toFixed(6));
+        gameState.balance = gameState.balance * CURRENCY_RATES.HC_TO_AMINA;
+        toggle.classList.add('amina');
         currencyText.textContent = 'AMINA';
-        toggle.classList.add('active');
     } else {
         gameState.currency = 'HC';
-        gameState.balance = parseFloat((gameState.balance * 1000).toFixed(2));
+        gameState.balance = gameState.balance * CURRENCY_RATES.AMINA_TO_HC;
+        toggle.classList.remove('amina');
         currencyText.textContent = 'HC';
-        toggle.classList.remove('active');
     }
     
-    currencySymbol.textContent = gameState.currency;
-    allCurrencySpans.forEach(span => span.textContent = gameState.currency);
-    updateBalance();
+    updateBalanceDisplay();
+    updateAllBetDisplays();
+    console.log(`💱 Currency switched to ${gameState.currency}`);
 }
 
-function updateBalance() {
-    const balanceElement = document.getElementById('balanceAmount');
-    if (gameState.currency === 'AMINA') {
-        balanceElement.textContent = gameState.balance.toFixed(6);
-    } else {
-        balanceElement.textContent = gameState.balance.toFixed(2);
+function updateBalanceDisplay() {
+    const balanceEl = document.getElementById('balanceAmount');
+    const currencyEl = document.getElementById('currencySymbol');
+    
+    const decimals = gameState.currency === 'AMINA' ? 6 : 2;
+    balanceEl.textContent = gameState.balance.toFixed(decimals);
+    currencyEl.textContent = gameState.currency;
+}
+
+function updateAllBetDisplays() {
+    ['slots', 'plinko', 'blackjack'].forEach(game => {
+        const currencySpan = document.getElementById(`${game}Currency`);
+        if (currencySpan) {
+            currencySpan.textContent = gameState.currency;
+        }
+    });
+}
+
+function addBalance(amount) {
+    gameState.balance += amount;
+    updateBalanceDisplay();
+    
+    // Play win sound if available
+    if (window.playCosmicSound) {
+        window.playCosmicSound(amount > (gameState.currency === 'AMINA' ? 0.01 : 10) ? 'bigWin' : 'win');
     }
 }
 
 function deductBalance(amount) {
     if (gameState.balance >= amount) {
         gameState.balance -= amount;
-        updateBalance();
+        updateBalanceDisplay();
         return true;
     }
+    alert(`💰 Insufficient ${gameState.currency} balance!`);
     return false;
 }
 
-function addBalance(amount) {
-    gameState.balance += amount;
-    updateBalance();
-    
-    // Trigger win celebration for big wins
-    if (amount > (gameState.currency === 'AMINA' ? 0.01 : 10)) {
-        triggerWinCelebration(amount);
-    }
-}
-
-function triggerWinCelebration(amount) {
-    const winText = document.createElement('div');
-    winText.textContent = `+${amount.toFixed(gameState.currency === 'AMINA' ? 6 : 2)} ${gameState.currency}`;
-    winText.style.cssText = `
-        position: fixed;
-        top: 20%;
-        left: 50%;
-        transform: translateX(-50%);
-        color: #FFD700;
-        font-size: 2rem;
-        font-weight: bold;
-        z-index: 1000;
-        pointer-events: none;
-        text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
-        animation: floatWin 3s ease-out forwards;
-    `;
-    
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes floatWin {
-            0% { opacity: 1; transform: translateX(-50%) translateY(0); }
-            100% { opacity: 0; transform: translateX(-50%) translateY(-100px); }
-        }
-    `;
-    document.head.appendChild(style);
-    
-    document.body.appendChild(winText);
-    setTimeout(() => {
-        winText.remove();
-        style.remove();
-    }, 3000);
-}
-
-// Navigation
-function switchGame(gameName) {
-    document.querySelectorAll('.game-screen').forEach(screen => {
-        screen.classList.remove('active');
-    });
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    document.getElementById(gameName).classList.add('active');
-    document.querySelector(`[data-game="${gameName}"]`).classList.add('active');
-    gameState.currentGame = gameName;
-    
-    if (gameName === 'plinko') {
-        setTimeout(() => plinkoGame.resizeCanvas(), 200);
-    }
-}
-
 // SLOTS GAME
-const slotsGame = {
-    symbols: ['🌟', '🪐', '🌌', '☄️', '🚀', '🛸', '🌙', '⭐'],
-    grid: [],
-    payouts: {
-        '🌟': { 5: 100, 4: 20, 3: 5 },
-        '🪐': { 5: 50, 4: 15, 3: 3 },
-        '🌌': { 5: 25, 4: 10, 3: 2 },
-        '☄️': { 5: 15, 4: 8, 3: 2 },
-        '🚀': { 5: 10, 4: 5, 3: 1 }
-    },
+function initializeSlots() {
+    const grid = document.getElementById('slotsGrid');
+    grid.innerHTML = '';
     
-    init() {
-        this.createGrid();
-        document.getElementById('spinBtn').addEventListener('click', () => this.spin());
-    },
-    
-    createGrid() {
-        const gridElement = document.getElementById('slotsGrid');
-        gridElement.innerHTML = '';
-        this.grid = [];
-        
-        for (let i = 0; i < 15; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'slot-cell';
-            cell.textContent = this.symbols[Math.floor(Math.random() * this.symbols.length)];
-            gridElement.appendChild(cell);
-            this.grid.push(cell);
-        }
-    },
-    
-    spin() {
-        if (gameState.isPlaying) return;
-        
-        const betAmount = parseFloat(document.getElementById('slotsBet').value);
-        if (!deductBalance(betAmount)) {
-            alert('Insufficient stellar balance!');
-            return;
-        }
-        
-        gameState.isPlaying = true;
-        document.getElementById('spinBtn').disabled = true;
-        document.getElementById('spinBtn').textContent = 'SPINNING...';
-        
-        this.grid.forEach((cell, index) => {
-            cell.classList.add('spinning');
-            
-            const spinInterval = setInterval(() => {
-                cell.textContent = this.symbols[Math.floor(Math.random() * this.symbols.length)];
-            }, 80);
-            
-            const delay = 800 + (index % 5) * 200;
-            setTimeout(() => {
-                clearInterval(spinInterval);
-                cell.classList.remove('spinning');
-                cell.textContent = this.symbols[Math.floor(Math.random() * this.symbols.length)];
-            }, delay);
-        });
-        
-        setTimeout(() => {
-            this.checkWins(betAmount);
-            gameState.isPlaying = false;
-            document.getElementById('spinBtn').disabled = false;
-            document.getElementById('spinBtn').textContent = 'SPIN THE COSMOS';
-        }, 2500);
-    },
-    
-    checkWins(betAmount) {
-        const rows = [
-            [this.grid[0], this.grid[1], this.grid[2], this.grid[3], this.grid[4]],
-            [this.grid[5], this.grid[6], this.grid[7], this.grid[8], this.grid[9]],
-            [this.grid[10], this.grid[11], this.grid[12], this.grid[13], this.grid[14]]
-        ];
-        
-        let totalWin = 0;
-        let winningCells = [];
-        
-        rows.forEach(row => {
-            const symbols = row.map(cell => cell.textContent);
-            const counts = {};
-            symbols.forEach(symbol => counts[symbol] = (counts[symbol] || 0) + 1);
-            
-            Object.entries(counts).forEach(([symbol, count]) => {
-                if (this.payouts[symbol] && this.payouts[symbol][count]) {
-                    totalWin += betAmount * this.payouts[symbol][count];
-                    row.forEach(cell => {
-                        if (cell.textContent === symbol) {
-                            winningCells.push(cell);
-                        }
-                    });
-                }
-            });
-        });
-        
-        if (totalWin > 0) {
-            addBalance(totalWin);
-            winningCells.forEach(cell => {
-                cell.classList.add('winning');
-                setTimeout(() => cell.classList.remove('winning'), 3000);
-            });
-            setTimeout(() => {
-                alert(`🌟 Cosmic Win! You won ${totalWin.toFixed(gameState.currency === 'AMINA' ? 6 : 2)} ${gameState.currency}!`);
-            }, 500);
-        }
+    // Create 5x3 grid
+    for (let i = 0; i < 15; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'slot-cell';
+        cell.textContent = COSMIC_SYMBOLS[Math.floor(Math.random() * COSMIC_SYMBOLS.length)];
+        grid.appendChild(cell);
     }
-};
+}
 
-// PLINKO GAME - ULTIMATE MOBILE FIX
-const plinkoGame = {
-    canvas: null,
-    ctx: null,
-    balls: [],
-    pegs: [],
-    canvasWidth: 600,
-    canvasHeight: 500,
-    initialized: false,
+function setupGameControls() {
+    // Slots
+    document.getElementById('spinBtn').addEventListener('click', spinSlots);
     
-    init() {
-        this.canvas = document.getElementById('plinkoCanvas');
-        if (!this.canvas) {
-            console.error('Plinko canvas not found!');
-            return;
+    // Plinko
+    document.getElementById('dropBtn').addEventListener('click', dropPlinko);
+    
+    // Blackjack
+    document.getElementById('dealBtn').addEventListener('click', dealBlackjack);
+    document.getElementById('hitBtn').addEventListener('click', hitBlackjack);
+    document.getElementById('standBtn').addEventListener('click', standBlackjack);
+    document.getElementById('newGameBtn').addEventListener('click', newBlackjackGame);
+}
+
+function spinSlots() {
+    if (gameState.isPlaying) return;
+    
+    const betAmount = parseFloat(document.getElementById('slotsBet').value);
+    if (!deductBalance(betAmount)) return;
+    
+    gameState.isPlaying = true;
+    const spinBtn = document.getElementById('spinBtn');
+    spinBtn.disabled = true;
+    spinBtn.textContent = 'SPINNING...';
+    
+    const cells = document.querySelectorAll('.slot-cell');
+    
+    // Animate spin
+    let spinCount = 0;
+    const spinInterval = setInterval(() => {
+        cells.forEach(cell => {
+            cell.textContent = COSMIC_SYMBOLS[Math.floor(Math.random() * COSMIC_SYMBOLS.length)];
+        });
+        
+        if (++spinCount >= 20) {
+            clearInterval(spinInterval);
+            checkSlotsWin(betAmount);
+            
+            spinBtn.disabled = false;
+            spinBtn.textContent = 'SPIN THE COSMOS';
+            gameState.isPlaying = false;
         }
+    }, 100);
+}
+
+function checkSlotsWin(betAmount) {
+    const cells = document.querySelectorAll('.slot-cell');
+    const symbols = Array.from(cells).map(cell => cell.textContent);
+    
+    // Check for wins (simplified - 3+ in a row)
+    const rows = [
+        [0, 1, 2, 3, 4], // Top row
+        [5, 6, 7, 8, 9], // Middle row
+        [10, 11, 12, 13, 14] // Bottom row
+    ];
+    
+    let maxWin = 0;
+    let winningCells = [];
+    
+    rows.forEach(row => {
+        const rowSymbols = row.map(i => symbols[i]);
+        const matches = getConsecutiveMatches(rowSymbols);
         
-        this.ctx = this.canvas.getContext('2d');
+        if (matches >= 3) {
+            const multiplier = getSlotMultiplier(rowSymbols[0], matches);
+            const winAmount = betAmount * multiplier;
+            
+            if (winAmount > maxWin) {
+                maxWin = winAmount;
+                winningCells = row.slice(0, matches);
+            }
+        }
+    });
+    
+    if (maxWin > 0) {
+        // Highlight winning cells
+        winningCells.forEach(i => {
+            cells[i].classList.add('winning');
+        });
         
-        // Wait for DOM to be fully ready
+        addBalance(maxWin);
+        showMessage(`🎉 COSMIC WIN! +${maxWin.toFixed(gameState.currency === 'AMINA' ? 6 : 2)} ${gameState.currency}`);
+        
         setTimeout(() => {
-            this.resizeCanvas();
-            this.setupPegs();
-            this.initialized = true;
-        }, 100);
-        
-        document.getElementById('dropBtn').addEventListener('click', () => this.dropBall());
-        document.getElementById('dropZone').addEventListener('click', () => this.dropBall());
-        
-        // Enhanced touch events for mobile
-        this.canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            this.dropBall();
-        }, { passive: false });
-        
-        this.canvas.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.dropBall();
-        });
-        
-        // Enhanced resize handler with debouncing
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                this.resizeCanvas();
-                this.setupPegs();
-            }, 250);
-        });
-        
-        this.animate();
-    },
-    
-    resizeCanvas() {
-        if (!this.canvas) return;
-        
-        const container = this.canvas.parentElement;
-        const board = container.querySelector('.plinko-board');
-        
-        // Get actual container dimensions
-        const containerRect = container.getBoundingClientRect();
-        const boardRect = board.getBoundingClientRect();
-        
-        console.log('Container width:', containerRect.width, 'Board width:', boardRect.width);
-        console.log('Viewport width:', window.innerWidth, 'Mobile:', gameState.isMobile);
-        
-        // Calculate available width (subtract padding/borders)
-        const availableWidth = boardRect.width - 20; // Account for board padding/borders
-        
-        if (gameState.isMobile) {
-            // iPhone specific sizing
-            const screenWidth = window.innerWidth;
-            const maxWidth = Math.min(screenWidth - 80, 320); // Leave margins, max 320px
-            
-            this.canvasWidth = Math.min(availableWidth, maxWidth);
-            this.canvasHeight = Math.min(250, window.innerHeight * 0.3);
-            
-            console.log('Mobile sizing - Screen:', screenWidth, 'Canvas:', this.canvasWidth, 'x', this.canvasHeight);
-        } else {
-            // Desktop sizing
-            this.canvasWidth = Math.min(availableWidth, 600);
-            this.canvasHeight = 500;
-        }
-        
-        // Apply the sizing
-        this.canvas.width = this.canvasWidth;
-        this.canvas.height = this.canvasHeight;
-        
-        // Force CSS sizing to match exactly
-        this.canvas.style.width = this.canvasWidth + 'px';
-        this.canvas.style.height = this.canvasHeight + 'px';
-        this.canvas.style.maxWidth = '100%';
-        this.canvas.style.display = 'block';
-        
-        console.log('Final canvas size:', this.canvasWidth, 'x', this.canvasHeight);
-        
-        // Recalculate pegs for new size
-        if (this.initialized) {
-            this.setupPegs();
-        }
-    },
-    
-    setupPegs() {
-        this.pegs = [];
-        const rows = gameState.isMobile ? 5 : 8; // Fewer rows on mobile
-        const pegSpacing = this.canvasWidth / (gameState.isMobile ? 8 : 12);
-        const startX = this.canvasWidth / 2;
-        const startY = this.canvasHeight * 0.2;
-        const availableHeight = this.canvasHeight * 0.5; // Leave room for multipliers
-        const rowHeight = availableHeight / rows;
-        
-        for (let row = 0; row < rows; row++) {
-            const pegsInRow = row + 3;
-            const rowWidth = (pegsInRow - 1) * pegSpacing;
-            const rowStartX = startX - rowWidth / 2;
-            
-            for (let col = 0; col < pegsInRow; col++) {
-                this.pegs.push({
-                    x: rowStartX + col * pegSpacing,
-                    y: startY + row * rowHeight,
-                    radius: gameState.isMobile ? 3 : 5
-                });
-            }
-        }
-        
-        console.log('Created', this.pegs.length, 'pegs for', rows, 'rows');
-    },
-    
-    dropBall() {
-        if (gameState.isPlaying || !this.initialized) return;
-        
-        const betAmount = parseFloat(document.getElementById('plinkoBet').value);
-        if (!deductBalance(betAmount)) {
-            alert('Insufficient cosmic energy!');
-            return;
-        }
-        
-        gameState.isPlaying = true;
-        document.getElementById('dropBtn').disabled = true;
-        document.getElementById('dropBtn').textContent = 'BALL DROPPING...';
-        
-        const ball = {
-            x: this.canvasWidth / 2 + (Math.random() - 0.5) * 15,
-            y: 20,
-            vx: (Math.random() - 0.5) * 1,
-            vy: 0,
-            radius: gameState.isMobile ? 4 : 6,
-            bounces: 0,
-            betAmount: betAmount,
-            trail: []
-        };
-        
-        this.balls.push(ball);
-        console.log('Ball dropped at', ball.x, ball.y);
-    },
-    
-    animate() {
-        if (!this.canvas || !this.ctx) {
-            requestAnimationFrame(() => this.animate());
-            return;
-        }
-        
-        this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
-        
-        // Draw pegs
-        this.pegs.forEach(peg => {
-            // Glow effect
-            this.ctx.shadowColor = '#FFD700';
-            this.ctx.shadowBlur = 8;
-            this.ctx.fillStyle = '#FFD700';
-            this.ctx.beginPath();
-            this.ctx.arc(peg.x, peg.y, peg.radius, 0, Math.PI * 2);
-            this.ctx.fill();
-            this.ctx.shadowBlur = 0;
-            
-            // Inner highlight
-            this.ctx.fillStyle = '#FFF';
-            this.ctx.beginPath();
-            this.ctx.arc(peg.x - peg.radius/3, peg.y - peg.radius/3, peg.radius/3, 0, Math.PI * 2);
-            this.ctx.fill();
-        });
-        
-        // Update and draw balls
-        this.balls.forEach((ball, index) => {
-            // Add to trail
-            ball.trail.push({ x: ball.x, y: ball.y });
-            if (ball.trail.length > 5) ball.trail.shift();
-            
-            // Physics
-            ball.vy += 0.35; // Gravity
-            ball.x += ball.vx;
-            ball.y += ball.vy;
-            
-            // Collision with pegs
-            this.pegs.forEach(peg => {
-                const dx = ball.x - peg.x;
-                const dy = ball.y - peg.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                if (distance < ball.radius + peg.radius) {
-                    const angle = Math.atan2(dy, dx);
-                    ball.vx = Math.cos(angle) * 2.5;
-                    ball.vy = Math.abs(Math.sin(angle)) * 2.5;
-                    ball.bounces++;
-                }
-            });
-            
-            // Side walls with proper bouncing
-            if (ball.x <= ball.radius) {
-                ball.x = ball.radius;
-                ball.vx = Math.abs(ball.vx) * 0.7;
-            }
-            if (ball.x >= this.canvasWidth - ball.radius) {
-                ball.x = this.canvasWidth - ball.radius;
-                ball.vx = -Math.abs(ball.vx) * 0.7;
-            }
-            
-            // Bottom detection - CRITICAL FIX
-            const bottomThreshold = this.canvasHeight - 40;
-            if (ball.y >= bottomThreshold) {
-                // Ensure ball is within canvas bounds
-                const ballX = Math.max(0, Math.min(this.canvasWidth, ball.x));
-                
-                // Calculate slot with proper bounds checking
-                const slotWidth = this.canvasWidth / 9;
-                const slotIndex = Math.floor(ballX / slotWidth);
-                const finalSlot = Math.max(0, Math.min(8, slotIndex));
-                
-                const multipliers = [10, 3, 1.5, 1, 0.5, 1, 1.5, 3, 10];
-                const multiplier = multipliers[finalSlot];
-                
-                const winAmount = ball.betAmount * multiplier;
-                addBalance(winAmount);
-                
-                console.log('Ball landed at X:', ballX, 'Slot:', finalSlot, 'Multiplier:', multiplier);
-                
-                setTimeout(() => {
-                    alert(`🌌 Quantum result! Ball landed in ${multiplier}x slot! Won ${winAmount.toFixed(gameState.currency === 'AMINA' ? 6 : 2)} ${gameState.currency}!`);
-                }, 200);
-                
-                this.balls.splice(index, 1);
-                gameState.isPlaying = false;
-                document.getElementById('dropBtn').disabled = false;
-                document.getElementById('dropBtn').textContent = 'DROP COSMIC BALL';
-                return;
-            }
-            
-            // Draw trail
-            ball.trail.forEach((point, i) => {
-                this.ctx.globalAlpha = (i / ball.trail.length) * 0.4;
-                this.ctx.fillStyle = '#8A2BE2';
-                this.ctx.beginPath();
-                this.ctx.arc(point.x, point.y, ball.radius * (i / ball.trail.length), 0, Math.PI * 2);
-                this.ctx.fill();
-            });
-            this.ctx.globalAlpha = 1;
-            
-            // Draw ball
-            this.ctx.shadowColor = '#8A2BE2';
-            this.ctx.shadowBlur = 12;
-            this.ctx.fillStyle = '#8A2BE2';
-            this.ctx.beginPath();
-            this.ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-            this.ctx.fill();
-            this.ctx.shadowBlur = 0;
-            
-            // Ball highlight
-            this.ctx.fillStyle = '#FFF';
-            this.ctx.beginPath();
-            this.ctx.arc(ball.x - ball.radius/3, ball.y - ball.radius/3, ball.radius/4, 0, Math.PI * 2);
-            this.ctx.fill();
-        });
-        
-        requestAnimationFrame(() => this.animate());
+            cells.forEach(cell => cell.classList.remove('winning'));
+        }, 3000);
+    } else {
+        showMessage('💫 No match this time. Try again!');
     }
-};
+}
+
+function getConsecutiveMatches(symbols) {
+    let count = 1;
+    for (let i = 1; i < symbols.length; i++) {
+        if (symbols[i] === symbols[0]) count++;
+        else break;
+    }
+    return count;
+}
+
+function getSlotMultiplier(symbol, matches) {
+    const multipliers = {
+        '🌟': [0, 0, 2, 5, 15, 100],
+        '🪐': [0, 0, 2, 4, 10, 50],
+        '🌌': [0, 0, 1.5, 3, 8, 25],
+        '☄️': [0, 0, 1.5, 3, 6, 15],
+        '🚀': [0, 0, 1, 2, 5, 10],
+        '💫': [0, 0, 1, 2, 4, 8],
+        '🛸': [0, 0, 1, 2, 4, 8]
+    };
+    
+    return multipliers[symbol] ? multipliers[symbol][matches] : 0;
+}
+
+// PLINKO GAME
+function initializePlinko() {
+    const canvas = document.getElementById('plinkoCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Set canvas size
+    canvas.width = 600;
+    canvas.height = 500;
+    
+    // Draw initial board
+    drawPlinkoBoard(ctx);
+}
+
+function drawPlinkoBoard(ctx) {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.fillStyle = '#FFD700';
+    
+    // Draw pegs
+    const rows = 12;
+    const startY = 80;
+    const rowSpacing = 35;
+    
+    for (let row = 0; row < rows; row++) {
+        const pegsInRow = row + 3;
+        const startX = (ctx.canvas.width - (pegsInRow - 1) * 40) / 2;
+        
+        for (let peg = 0; peg < pegsInRow; peg++) {
+            ctx.beginPath();
+            ctx.arc(startX + peg * 40, startY + row * rowSpacing, 4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+}
+
+function dropPlinko() {
+    if (gameState.isPlaying) return;
+    
+    const betAmount = parseFloat(document.getElementById('plinkoBet').value);
+    if (!deductBalance(betAmount)) return;
+    
+    gameState.isPlaying = true;
+    const dropBtn = document.getElementById('dropBtn');
+    dropBtn.disabled = true;
+    dropBtn.textContent = 'DROPPING...';
+    
+    // Simulate ball drop
+    simulatePlinkoball(betAmount);
+}
+
+function simulatePlinkoball(betAmount) {
+    const canvas = document.getElementById('plinkoCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    let ballX = canvas.width / 2;
+    let ballY = 50;
+    let ballSpeed = 2;
+    let bounceDirection = 0;
+    
+    const animateBall = () => {
+        drawPlinkoBoard(ctx);
+        
+        // Draw ball
+        ctx.fillStyle = '#8A2BE2';
+        ctx.beginPath();
+        ctx.arc(ballX, ballY, 8, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Move ball
+        ballY += ballSpeed;
+        ballX += bounceDirection;
+        
+        // Random bounce
+        if (ballY % 35 < 5 && Math.random() > 0.5) {
+            bounceDirection = (Math.random() - 0.5) * 4;
+        }
+        
+        // Keep ball in bounds
+        if (ballX < 20) ballX = 20;
+        if (ballX > canvas.width - 20) ballX = canvas.width - 20;
+        
+        if (ballY < canvas.height - 50) {
+            requestAnimationFrame(animateBall);
+        } else {
+            // Ball finished - calculate result
+            const slotIndex = Math.floor((ballX / canvas.width) * 9);
+            const multipliers = [10, 3, 1.5, 1, 0.5, 1, 1.5, 3, 10];
+            const multiplier = multipliers[Math.max(0, Math.min(8, slotIndex))];
+            const winAmount = betAmount * multiplier;
+            
+            addBalance(winAmount);
+            showMessage(`🌌 Ball landed in ${multiplier}x slot! +${winAmount.toFixed(gameState.currency === 'AMINA' ? 6 : 2)} ${gameState.currency}`);
+            
+            // Reset button
+            document.getElementById('dropBtn').disabled = false;
+            document.getElementById('dropBtn').textContent = 'DROP COSMIC BALL';
+            gameState.isPlaying = false;
+        }
+    };
+    
+    animateBall();
+}
 
 // BLACKJACK GAME
-const blackjackGame = {
+let blackjackState = {
+    playerCards: [],
+    dealerCards: [],
     deck: [],
-    playerHand: [],
-    dealerHand: [],
-    gameOver: false,
-    playerScore: 0,
-    dealerScore: 0,
-    currentBet: 0,
-    
-    init() {
-        document.getElementById('dealBtn').addEventListener('click', () => this.deal());
-        document.getElementById('hitBtn').addEventListener('click', () => this.hit());
-        document.getElementById('standBtn').addEventListener('click', () => this.stand());
-        document.getElementById('newGameBtn').addEventListener('click', () => this.newGame());
-    },
-    
-    createDeck() {
-        const suits = ['♠️', '♥️', '♦️', '♣️'];
-        const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-        this.deck = [];
-        
-        suits.forEach(suit => {
-            ranks.forEach(rank => {
-                this.deck.push({ suit, rank });
-            });
-        });
-        
-        // Enhanced shuffle
-        for (let shuffle = 0; shuffle < 3; shuffle++) {
-            for (let i = this.deck.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
-            }
-        }
-    },
-    
-    getCardValue(card) {
-        if (card.rank === 'A') return 11;
-        if (['J', 'Q', 'K'].includes(card.rank)) return 10;
-        return parseInt(card.rank);
-    },
-    
-    calculateScore(hand) {
-        let score = 0;
-        let aces = 0;
-        
-        hand.forEach(card => {
-            if (card.rank === 'A') {
-                aces++;
-                score += 11;
-            } else if (['J', 'Q', 'K'].includes(card.rank)) {
-                score += 10;
-            } else {
-                score += parseInt(card.rank);
-            }
-        });
-        
-        while (score > 21 && aces > 0) {
-            score -= 10;
-            aces--;
-        }
-        
-        return score;
-    },
-    
-    createCardElement(card, hidden = false) {
-        const cardEl = document.createElement('div');
-        cardEl.className = 'card';
-        
-        if (hidden) {
-            cardEl.className += ' card-back';
-            cardEl.textContent = '🌌';
-        } else {
-            if (card.suit === '♥️' || card.suit === '♦️') {
-                cardEl.classList.add('red');
-            }
-            cardEl.innerHTML = `<div>${card.rank}</div><div>${card.suit}</div>`;
-        }
-        
-        return cardEl;
-    },
-    
-    deal() {
-        const betAmount = parseFloat(document.getElementById('blackjackBet').value);
-        if (!deductBalance(betAmount)) {
-            alert('Insufficient galactic credits!');
-            return;
-        }
-        
-        this.currentBet = betAmount;
-        this.createDeck();
-        this.playerHand = [];
-        this.dealerHand = [];
-        this.gameOver = false;
-        
-        this.playerHand.push(this.deck.pop(), this.deck.pop());
-        this.dealerHand.push(this.deck.pop(), this.deck.pop());
-        
-        this.updateDisplay();
-        this.checkBlackjack();
-        
-        document.getElementById('dealBtn').disabled = true;
-        document.getElementById('hitBtn').disabled = false;
-        document.getElementById('standBtn').disabled = false;
-    },
-    
-    hit() {
-        if (this.gameOver) return;
-        
-        this.playerHand.push(this.deck.pop());
-        this.updateDisplay();
-        
-        if (this.playerScore > 21) {
-            this.endGame('💥 Bust! The cosmic dealer wins.');
-        }
-    },
-    
-    stand() {
-        if (this.gameOver) return;
-        
-        while (this.calculateScore(this.dealerHand) < 17) {
-            this.dealerHand.push(this.deck.pop());
-        }
-        
-        this.updateDisplay();
-        this.determineWinner();
-    },
-    
-    checkBlackjack() {
-        if (this.playerScore === 21) {
-            if (this.calculateScore(this.dealerHand) === 21) {
-                this.endGame('🌌 Push! Both have blackjack in the cosmos.');
-                addBalance(this.currentBet);
-            } else {
-                this.endGame('⭐ Blackjack! The stars align for you!');
-                addBalance(this.currentBet * 2.5);
-            }
-        }
-    },
-    
-    determineWinner() {
-        const dealerScore = this.calculateScore(this.dealerHand);
-        
-        if (dealerScore > 21) {
-            this.endGame('💥 Dealer busts! Victory among the stars!');
-            addBalance(this.currentBet * 2);
-        } else if (this.playerScore > dealerScore) {
-            this.endGame('🚀 You win! The galaxy rewards you!');
-            addBalance(this.currentBet * 2);
-        } else if (this.playerScore < dealerScore) {
-            this.endGame('🌑 Dealer wins this cosmic battle.');
-        } else {
-            this.endGame('🌌 Push! The cosmic forces are balanced.');
-            addBalance(this.currentBet);
-        }
-    },
-    
-    endGame(message) {
-        this.gameOver = true;
-        document.getElementById('gameMessage').textContent = message;
-        document.getElementById('hitBtn').disabled = true;
-        document.getElementById('standBtn').disabled = true;
-        document.getElementById('newGameBtn').style.display = 'inline-block';
-        
-        if (message.includes('win') || message.includes('Victory') || message.includes('Blackjack')) {
-            document.getElementById('gameMessage').className = 'game-message win';
-        } else if (message.includes('Push') || message.includes('balanced')) {
-            document.getElementById('gameMessage').className = 'game-message';
-        } else {
-            document.getElementById('gameMessage').className = 'game-message lose';
-        }
-    },
-    
-    newGame() {
-        document.getElementById('dealBtn').disabled = false;
-        document.getElementById('hitBtn').disabled = true;
-        document.getElementById('standBtn').disabled = true;
-        document.getElementById('newGameBtn').style.display = 'none';
-        document.getElementById('gameMessage').textContent = '';
-        document.getElementById('gameMessage').className = 'game-message';
-        
-        document.getElementById('playerCards').innerHTML = '';
-        document.getElementById('dealerCards').innerHTML = '';
-        document.getElementById('playerScore').textContent = '0';
-        document.getElementById('dealerScore').textContent = '0';
-    },
-    
-    updateDisplay() {
-        this.playerScore = this.calculateScore(this.playerHand);
-        this.dealerScore = this.calculateScore(this.dealerHand);
-        
-        const playerContainer = document.getElementById('playerCards');
-        playerContainer.innerHTML = '';
-        this.playerHand.forEach(card => {
-            playerContainer.appendChild(this.createCardElement(card));
-        });
-        
-        const dealerContainer = document.getElementById('dealerCards');
-        dealerContainer.innerHTML = '';
-        this.dealerHand.forEach((card, index) => {
-            const hidden = !this.gameOver && index === 1;
-            dealerContainer.appendChild(this.createCardElement(card, hidden));
-        });
-        
-        document.getElementById('playerScore').textContent = this.playerScore;
-        document.getElementById('dealerScore').textContent = this.gameOver ? this.dealerScore : this.getCardValue(this.dealerHand[0]);
-    }
+    gamePhase: 'betting' // betting, playing, finished
 };
 
-// Initialize everything when DOM loads
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🌌 Amina Casino - Ultimate mobile plinko fix loaded!');
+function initializeBlackjack() {
+    resetBlackjackUI();
+}
+
+function createDeck() {
+    const suits = ['♠️', '♥️', '♦️', '♣️'];
+    const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+    const deck = [];
     
-    document.getElementById('currencyToggle').addEventListener('click', toggleCurrency);
-    
-    document.querySelectorAll('.nav-btn, .game-card').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const game = e.target.closest('[data-game]').dataset.game;
-            switchGame(game);
+    suits.forEach(suit => {
+        ranks.forEach(rank => {
+            deck.push({ suit, rank, value: getCardValue(rank) });
         });
     });
     
-    slotsGame.init();
-    plinkoGame.init();
-    blackjackGame.init();
+    // Shuffle deck
+    for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
     
-    updateBalance();
+    return deck;
+}
+
+function getCardValue(rank) {
+    if (rank === 'A') return 11;
+    if (['K', 'Q', 'J'].includes(rank)) return 10;
+    return parseInt(rank);
+}
+
+function calculateHandValue(cards) {
+    let value = 0;
+    let aces = 0;
     
-    console.log('🚀 All cosmic gaming systems with ultimate plinko fix initialized!');
-    console.log('📱 iPhone plinko should now fit perfectly!');
-});
+    cards.forEach(card => {
+        if (card.rank === 'A') aces++;
+        value += card.value;
+    });
+    
+    // Adjust for aces
+    while (value > 21 && aces > 0) {
+        value -= 10;
+        aces--;
+    }
+    
+    return value;
+}
+
+function dealBlackjack() {
+    if (gameState.isPlaying) return;
+    
+    const betAmount = parseFloat(document.getElementById('blackjackBet').value);
+    if (!deductBalance(betAmount)) return;
+    
+    gameState.isPlaying = true;
+    blackjackState.currentBet = betAmount;
+    blackjackState.deck = createDeck();
+    blackjackState.playerCards = [];
+    blackjackState.dealerCards = [];
+    blackjackState.gamePhase = 'playing';
+    
+    // Deal initial cards
+    blackjackState.playerCards.push(blackjackState.deck.pop());
+    blackjackState.dealerCards.push(blackjackState.deck.pop());
+    blackjackState.playerCards.push(blackjackState.deck.pop());
+    blackjackState.dealerCards.push(blackjackState.deck.pop());
+    
+    updateBlackjackDisplay();
+    updateBlackjackButtons();
+    
+    // Check for blackjack
+    if (calculateHandValue(blackjackState.playerCards) === 21) {
+        endBlackjackGame('blackjack');
+    }
+}
+
+function hitBlackjack() {
+    if (!gameState.isPlaying || blackjackState.gamePhase !== 'playing') return;
+    
+    blackjackState.playerCards.push(blackjackState.deck.pop());
+    updateBlackjackDisplay();
+    
+    const playerValue = calculateHandValue(blackjackState.playerCards);
+    if (playerValue > 21) {
+        endBlackjackGame('bust');
+    } else if (playerValue === 21) {
+        standBlackjack();
+    }
+}
+
+function standBlackjack() {
+    if (!gameState.isPlaying || blackjackState.gamePhase !== 'playing') return;
+    
+    // Dealer plays
+    let dealerValue = calculateHandValue(blackjackState.dealerCards);
+    
+    const dealerPlay = () => {
+        if (dealerValue < 17) {
+            blackjackState.dealerCards.push(blackjackState.deck.pop());
+            dealerValue = calculateHandValue(blackjackState.dealerCards);
+            updateBlackjackDisplay();
+            
+            setTimeout(dealerPlay, 1000);
+        } else {
+            // Determine winner
+            const playerValue = calculateHandValue(blackjackState.playerCards);
+            
+            if (dealerValue > 21) {
+                endBlackjackGame('dealer_bust');
+            } else if (playerValue > dealerValue) {
+                endBlackjackGame('win');
+            } else if (playerValue < dealerValue) {
+                endBlackjackGame('lose');
+            } else {
+                endBlackjackGame('push');
+            }
+        }
+    };
+    
+    // Show dealer's hole card
+    updateBlackjackDisplay(true);
+    setTimeout(dealerPlay, 1000);
+}
+
+function endBlackjackGame(result) {
+    blackjackState.gamePhase = 'finished';
+    const betAmount = blackjackState.currentBet;
+    let message = '';
+    
+    switch (result) {
+        case 'blackjack':
+            addBalance(betAmount * 2.5);
+            message = '🃏 BLACKJACK! You win 2.5x!';
+            break;
+        case 'win':
+        case 'dealer_bust':
+            addBalance(betAmount * 2);
+            message = '🎉 You win!';
+            break;
+        case 'push':
+            addBalance(betAmount);
+            message = '🤝 Push - Bet returned!';
+            break;
+        case 'bust':
+        case 'lose':
+            message = '😔 Dealer wins!';
+            break;
+    }
+    
+    showMessage(message);
+    updateBlackjackButtons();
+    gameState.isPlaying = false;
+}
+
+function newBlackjackGame() {
+    resetBlackjackUI();
+    blackjackState.gamePhase = 'betting';
+}
+
+function updateBlackjackDisplay(showDealerHole = false) {
+    // Update player cards
+    const playerContainer = document.getElementById('playerCards');
+    playerContainer.innerHTML = '';
+    blackjackState.playerCards.forEach(card => {
+        playerContainer.appendChild(createCardElement(card));
+    });
+    
+    // Update dealer cards
+    const dealerContainer = document.getElementById('dealerCards');
+    dealerContainer.innerHTML = '';
+    blackjackState.dealerCards.forEach((card, index) => {
+        if (index === 1 && !showDealerHole && blackjackState.gamePhase === 'playing') {
+            dealerContainer.appendChild(createCardElement(null, true)); // Hidden card
+        } else {
+            dealerContainer.appendChild(createCardElement(card));
+        }
+    });
+    
+    // Update scores
+    document.getElementById('playerScore').textContent = calculateHandValue(blackjackState.playerCards);
+    
+    if (showDealerHole || blackjackState.gamePhase === 'finished') {
+        document.getElementById('dealerScore').textContent = calculateHandValue(blackjackState.dealerCards);
+    } else {
+        document.getElementById('dealerScore').textContent = blackjackState.dealerCards[0].value;
+    }
+}
+
+function createCardElement(card, hidden = false) {
+    const cardEl = document.createElement('div');
+    cardEl.className = 'card';
+    
+    if (hidden) {
+        cardEl.classList.add('card-back');
+        cardEl.textContent = '🂠';
+    } else {
+        const isRed = ['♥️', '♦️'].includes(card.suit);
+        cardEl.classList.add(isRed ? 'red' : 'black');
+        cardEl.innerHTML = `
+            <div style="font-size: 0.8rem;">${card.rank}${card.suit}</div>
+            <div style="font-size: 1.5rem; text-align: center; flex: 1; display: flex; align-items: center; justify-content: center;">${card.suit}</div>
+            <div style="font-size: 0.8rem; transform: rotate(180deg);">${card.rank}${card.suit}</div>
+        `;
+    }
+    
+    return cardEl;
+}
+
+function updateBlackjackButtons() {
+    const dealBtn = document.getElementById('dealBtn');
+    const hitBtn = document.getElementById('hitBtn');
+    const standBtn = document.getElementById('standBtn');
+    const newGameBtn = document.getElementById('newGameBtn');
+    
+    if (blackjackState.gamePhase === 'betting') {
+        dealBtn.style.display = 'inline-block';
+        hitBtn.style.display = 'none';
+        standBtn.style.display = 'none';
+        newGameBtn.style.display = 'none';
+    } else if (blackjackState.gamePhase === 'playing') {
+        dealBtn.style.display = 'none';
+        hitBtn.style.display = 'inline-block';
+        standBtn.style.display = 'inline-block';
+        newGameBtn.style.display = 'none';
+        hitBtn.disabled = false;
+        standBtn.disabled = false;
+    } else {
+        dealBtn.style.display = 'none';
+        hitBtn.style.display = 'none';
+        standBtn.style.display = 'none';
+        newGameBtn.style.display = 'inline-block';
+    }
+}
+
+function resetBlackjackUI() {
+    document.getElementById('playerCards').innerHTML = '';
+    document.getElementById('dealerCards').innerHTML = '';
+    document.getElementById('playerScore').textContent = '0';
+    document.getElementById('dealerScore').textContent = '0';
+    document.getElementById('gameMessage').textContent = '';
+    updateBlackjackButtons();
+}
+
+// Utility Functions
+function showMessage(message) {
+    const messageEl = document.getElementById('gameMessage') || createMessageElement();
+    messageEl.textContent = message;
+    messageEl.style.display = 'block';
+    
+    setTimeout(() => {
+        messageEl.style.display = 'none';
+    }, 4000);
+}
+
+function createMessageElement() {
+    const messageEl = document.createElement('div');
+    messageEl.id = 'gameMessage';
+    messageEl.className = 'game-message';
+    messageEl.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(45deg, #8A2BE2, #4a0e4e);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 20px;
+        border: 2px solid #FFD700;
+        font-size: 1.2rem;
+        font-weight: bold;
+        z-index: 10000;
+        text-align: center;
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+    `;
+    document.body.appendChild(messageEl);
+    return messageEl;
+}
+
+console.log('🚀 Amina Casino Scripts Loaded Successfully!');
