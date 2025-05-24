@@ -12,7 +12,7 @@ body {
     min-height: 100vh;
 }
 
-/* Cosmic Background */
+/* Cosmic Background - TONED DOWN */
 .cosmic-bg {
     position: fixed;
     top: 0;
@@ -21,7 +21,7 @@ body {
     height: 100%;
     background: linear-gradient(45deg, #1a0033, #000033, #330066, #000);
     background-size: 400% 400%;
-    animation: cosmicFlow 20s ease-in-out infinite;
+    animation: cosmicFlow 25s ease-in-out infinite;
     z-index: -1;
 }
 
@@ -33,9 +33,9 @@ body {
     width: 100%;
     height: 100%;
     background-image: 
-        radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.08) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(138, 43, 226, 0.08) 0%, transparent 50%);
-    animation: twinkle 15s ease-in-out infinite alternate;
+        radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(138, 43, 226, 0.05) 0%, transparent 50%);
+    animation: twinkle 20s ease-in-out infinite alternate;
 }
 
 @keyframes cosmicFlow {
@@ -44,8 +44,8 @@ body {
 }
 
 @keyframes twinkle {
-    0% { opacity: 0.3; }
-    100% { opacity: 0.6; }
+    0% { opacity: 0.2; }
+    100% { opacity: 0.4; }
 }
 
 /* Header */
@@ -65,6 +65,33 @@ body {
     margin: 0 auto;
 }
 
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.amina-coin-header {
+    width: 50px;
+    height: 50px;
+    animation: coinSpin 8s linear infinite;
+    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.6));
+}
+
+.coin-image {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+}
+
+@keyframes coinSpin {
+    0% { transform: rotateY(0deg); }
+    25% { transform: rotateY(90deg); }
+    50% { transform: rotateY(180deg); }
+    75% { transform: rotateY(270deg); }
+    100% { transform: rotateY(360deg); }
+}
+
 .logo {
     font-size: 2rem;
     font-weight: bold;
@@ -73,12 +100,18 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-    animation: glow 2s ease-in-out infinite alternate;
+    animation: glow 3s ease-in-out infinite alternate;
 }
 
 @keyframes glow {
     from { filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5)); }
     to { filter: drop-shadow(0 0 15px rgba(138, 43, 226, 0.8)); }
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
 }
 
 .currency-toggle {
@@ -138,11 +171,36 @@ body {
 .balance-display {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1rem;
     background: rgba(0, 0, 0, 0.5);
-    padding: 0.5rem 1rem;
+    padding: 0.8rem 1.5rem;
     border-radius: 25px;
-    border: 1px solid rgba(255, 215, 0, 0.3);
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.2);
+}
+
+.balance-coin-mini {
+    width: 30px;
+    height: 30px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.mini-coin {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4));
+}
+
+.balance-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.balance-amount-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .balance-amount {
@@ -174,6 +232,9 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .nav-btn:hover {
@@ -209,6 +270,38 @@ body {
     padding: 3rem;
 }
 
+.welcome-coin-showcase {
+    margin: 2rem 0;
+}
+
+.floating-amina-coin {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    animation: floatCoin 6s ease-in-out infinite;
+    filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.7));
+}
+
+.welcome-coin-image {
+    width: 100%;
+    height: 100%;
+}
+
+@keyframes floatCoin {
+    0%, 100% { 
+        transform: translateY(0px) rotateY(0deg); 
+    }
+    25% { 
+        transform: translateY(-15px) rotateY(90deg); 
+    }
+    50% { 
+        transform: translateY(-8px) rotateY(180deg); 
+    }
+    75% { 
+        transform: translateY(-12px) rotateY(270deg); 
+    }
+}
+
 .welcome-title {
     font-size: 3rem;
     margin-bottom: 1rem;
@@ -227,7 +320,7 @@ body {
 
 .game-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 2rem;
     margin-top: 2rem;
 }
@@ -240,22 +333,100 @@ body {
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.game-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+    transform: rotate(-45deg);
+    transition: all 0.6s ease;
+    opacity: 0;
+}
+
+.game-card:hover::before {
+    animation: shimmer 1.5s ease-in-out;
 }
 
 .game-card:hover {
     transform: translateY(-10px);
     border-color: #FFD700;
-    box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+    box-shadow: 0 15px 40px rgba(255, 215, 0, 0.4);
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(-45deg); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateX(100%) translateY(100%) rotate(-45deg); opacity: 0; }
+}
+
+.game-header-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
 }
 
 .game-icon {
     font-size: 3rem;
-    margin-bottom: 1rem;
+}
+
+.game-coin-indicator {
+    width: 30px;
+    height: 30px;
+    animation: gentleSpin 4s linear infinite;
+}
+
+.card-coin {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4));
+}
+
+@keyframes gentleSpin {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(360deg); }
 }
 
 .game-card h3 {
     color: #FFD700;
     margin-bottom: 0.5rem;
+    font-size: 1.4rem;
+}
+
+.game-card p {
+    color: #ccc;
+    margin-bottom: 1rem;
+}
+
+.game-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.max-win {
+    color: #FFD700;
+    font-weight: bold;
+}
+
+.play-indicator {
+    background: linear-gradient(45deg, #8A2BE2, #9370DB);
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    animation: pulse 2s ease-in-out infinite;
 }
 
 /* Game Container */
@@ -276,6 +447,19 @@ body {
     margin-bottom: 2rem;
     padding-bottom: 1rem;
     border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.game-title-with-coin {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.game-title-coin {
+    width: 40px;
+    height: 40px;
+    animation: gentleSpin 5s linear infinite;
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
 }
 
 .game-header h2 {
@@ -314,6 +498,9 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .cosmic-btn:hover {
@@ -324,6 +511,7 @@ body {
 .cosmic-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
 }
 
 /* Slots Specific */
@@ -343,6 +531,7 @@ body {
     padding: 1rem;
     border-radius: 15px;
     border: 3px solid #FFD700;
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);
 }
 
 .slot-cell {
@@ -362,9 +551,10 @@ body {
 }
 
 .slot-cell.winning {
-    animation: pulse 1s ease-in-out infinite;
+    animation: winPulse 1s ease-in-out infinite;
     border-color: #FFD700;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    background: rgba(255, 215, 0, 0.2);
 }
 
 @keyframes spin {
@@ -372,9 +562,9 @@ body {
     100% { transform: rotateY(360deg); }
 }
 
-@keyframes pulse {
+@keyframes winPulse {
     0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
+    50% { transform: scale(1.15); }
 }
 
 .payout-table {
@@ -402,9 +592,15 @@ body {
     background: rgba(138, 43, 226, 0.1);
     border-radius: 5px;
     border: 1px solid rgba(255, 215, 0, 0.2);
+    transition: all 0.3s ease;
 }
 
-/* Plinko Specific - ENHANCED MOBILE FIX */
+.payout-row:hover {
+    background: rgba(138, 43, 226, 0.2);
+    border-color: rgba(255, 215, 0, 0.4);
+}
+
+/* Plinko Specific - ENHANCED MOBILE */
 .plinko-container {
     text-align: center;
 }
@@ -418,6 +614,7 @@ body {
     width: 100%;
     max-width: 600px;
     overflow: hidden;
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);
 }
 
 .drop-zone {
@@ -433,6 +630,12 @@ body {
     z-index: 10;
     font-size: 0.9rem;
     white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+.drop-zone:hover {
+    background: rgba(255, 215, 0, 0.3);
+    transform: translateX(-50%) scale(1.05);
 }
 
 #plinkoCanvas {
@@ -462,16 +665,19 @@ body {
     background: rgba(0, 0, 0, 0.5);
     border-radius: 5px;
     min-width: 0;
+    transition: all 0.3s ease;
 }
 
 .multiplier[data-mult="10"] {
     color: #FFD700;
     border-color: #FFD700;
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+    animation: pulse 2s ease-in-out infinite;
 }
 
 .multiplier[data-mult="3"] {
     color: #9370DB;
+    border-color: #9370DB;
 }
 
 .multiplier[data-mult="1.5"] {
@@ -480,6 +686,7 @@ body {
 
 .multiplier[data-mult="0.5"] {
     color: #ff6b6b;
+    border-color: #ff6b6b;
 }
 
 /* Blackjack Specific */
@@ -559,6 +766,7 @@ body {
 .game-message.win {
     color: #4caf50;
     text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+    animation: winGlow 1s ease-in-out infinite alternate;
 }
 
 .game-message.lose {
@@ -566,10 +774,24 @@ body {
     text-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
 }
 
-/* Responsive Design - ENHANCED MOBILE PLINKO */
+@keyframes winGlow {
+    from { text-shadow: 0 0 10px rgba(76, 175, 80, 0.5); }
+    to { text-shadow: 0 0 20px rgba(76, 175, 80, 0.8); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.8; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+}
+
+/* Responsive Design - ENHANCED MOBILE */
 @media (max-width: 768px) {
     .header-content {
         flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .header-controls {
         gap: 1rem;
     }
     
@@ -654,6 +876,22 @@ body {
         gap: 0.5rem;
     }
     
+    /* Mobile Coin Sizing */
+    .amina-coin-header {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .floating-amina-coin {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .balance-coin-mini {
+        width: 24px;
+        height: 24px;
+    }
+    
     /* Mobile Game Message */
     .game-message {
         font-size: 1.2rem;
@@ -706,5 +944,15 @@ body {
         font-size: 0.7rem;
         padding: 0.4rem;
         max-width: 120px;
+    }
+    
+    .amina-coin-header {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .floating-amina-coin {
+        width: 70px;
+        height: 70px;
     }
 }
