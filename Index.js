@@ -752,4 +752,4 @@ document.addEventListener('visibilitychange', function() {
     }
 });
 
-console.log('🚀 Final Amina Casino index.js loaded successfully!');
+console.log('🚀 Final Amina Casino index.js loaded successfully!')
