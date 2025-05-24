@@ -3,7 +3,8 @@ const gameState = {
     balance: 1000,
     currency: 'HC', // HC or AMINA
     currentGame: 'home',
-    isPlaying: false
+    isPlaying: false,
+    isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 };
 
 // Currency Management
@@ -51,6 +52,44 @@ function deductBalance(amount) {
 function addBalance(amount) {
     gameState.balance += amount;
     updateBalance();
+    
+    // Trigger win celebration for big wins
+    if (amount > (gameState.currency === 'AMINA' ? 0.01 : 10)) {
+        triggerWinCelebration(amount);
+    }
+}
+
+function triggerWinCelebration(amount) {
+    const winText = document.createElement('div');
+    winText.textContent = `+${amount.toFixed(gameState.currency === 'AMINA' ? 6 : 2)} ${gameState.currency}`;
+    winText.style.cssText = `
+        position: fixed;
+        top: 20%;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #FFD700;
+        font-size: 2rem;
+        font-weight: bold;
+        z-index: 1000;
+        pointer-events: none;
+        text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+        animation: floatWin 3s ease-out forwards;
+    `;
+    
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes floatWin {
+            0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-100px); }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    document.body.appendChild(winText);
+    setTimeout(() => {
+        winText.remove();
+        style.remove();
+    }, 3000);
 }
 
 // Navigation
@@ -65,6 +104,10 @@ function switchGame(gameName) {
     document.getElementById(gameName).classList.add('active');
     document.querySelector(`[data-game="${gameName}"]`).classList.add('active');
     gameState.currentGame = gameName;
+    
+    if (gameName === 'plinko') {
+        plinkoGame.resizeCanvas();
+    }
 }
 
 // SLOTS GAME
@@ -110,7 +153,6 @@ const slotsGame = {
         gameState.isPlaying = true;
         document.getElementById('spinBtn').disabled = true;
         
-        // Spinning animation
         this.grid.forEach((cell, index) => {
             cell.classList.add('spinning');
             
@@ -168,29 +210,56 @@ const slotsGame = {
     }
 };
 
-// PLINKO GAME
+// PLINKO GAME - MOBILE ENHANCED
 const plinkoGame = {
     canvas: null,
     ctx: null,
     balls: [],
     pegs: [],
+    canvasWidth: 600,
+    canvasHeight: 500,
     
     init() {
         this.canvas = document.getElementById('plinkoCanvas');
         this.ctx = this.canvas.getContext('2d');
+        this.resizeCanvas();
         this.setupPegs();
         
         document.getElementById('dropBtn').addEventListener('click', () => this.dropBall());
         document.getElementById('dropZone').addEventListener('click', () => this.dropBall());
         
+        // Touch events for mobile
+        this.canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.dropBall();
+        });
+        
+        window.addEventListener('resize', () => this.resizeCanvas());
         this.animate();
+    },
+    
+    resizeCanvas() {
+        const container = this.canvas.parentElement;
+        const containerWidth = container.offsetWidth - 40;
+        
+        if (gameState.isMobile) {
+            this.canvasWidth = Math.min(containerWidth, 350);
+            this.canvasHeight = 300;
+        } else {
+            this.canvasWidth = Math.min(containerWidth, 600);
+            this.canvasHeight = 500;
+        }
+        
+        this.canvas.width = this.canvasWidth;
+        this.canvas.height = this.canvasHeight;
+        this.setupPegs();
     },
     
     setupPegs() {
         this.pegs = [];
-        const rows = 8;
-        const pegSpacing = 60;
-        const startX = this.canvas.width / 2;
+        const rows = gameState.isMobile ? 6 : 8;
+        const pegSpacing = this.canvasWidth / 12;
+        const startX = this.canvasWidth / 2;
         const startY = 80;
         
         for (let row = 0; row < rows; row++) {
@@ -202,7 +271,7 @@ const plinkoGame = {
                 this.pegs.push({
                     x: rowStartX + col * pegSpacing,
                     y: startY + row * 50,
-                    radius: 6
+                    radius: gameState.isMobile ? 4 : 6
                 });
             }
         }
@@ -221,11 +290,11 @@ const plinkoGame = {
         document.getElementById('dropBtn').disabled = true;
         
         const ball = {
-            x: this.canvas.width / 2 + (Math.random() - 0.5) * 20,
+            x: this.canvasWidth / 2 + (Math.random() - 0.5) * 20,
             y: 30,
             vx: (Math.random() - 0.5) * 2,
             vy: 0,
-            radius: 8,
+            radius: gameState.isMobile ? 6 : 8,
             bounces: 0,
             betAmount: betAmount
         };
@@ -234,7 +303,7 @@ const plinkoGame = {
     },
     
     animate() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
         
         // Draw pegs
         this.ctx.fillStyle = '#FFD700';
@@ -243,7 +312,6 @@ const plinkoGame = {
             this.ctx.arc(peg.x, peg.y, peg.radius, 0, Math.PI * 2);
             this.ctx.fill();
             
-            // Add glow effect
             this.ctx.shadowColor = '#FFD700';
             this.ctx.shadowBlur = 10;
             this.ctx.fill();
@@ -252,8 +320,7 @@ const plinkoGame = {
         
         // Update and draw balls
         this.balls.forEach((ball, index) => {
-            // Physics
-            ball.vy += 0.5; // gravity
+            ball.vy += 0.5;
             ball.x += ball.vx;
             ball.y += ball.vy;
             
@@ -272,14 +339,14 @@ const plinkoGame = {
             });
             
             // Side walls
-            if (ball.x < ball.radius || ball.x > this.canvas.width - ball.radius) {
+            if (ball.x < ball.radius || ball.x > this.canvasWidth - ball.radius) {
                 ball.vx *= -0.8;
-                ball.x = Math.max(ball.radius, Math.min(this.canvas.width - ball.radius, ball.x));
+                ball.x = Math.max(ball.radius, Math.min(this.canvasWidth - ball.radius, ball.x));
             }
             
             // Bottom detection
-            if (ball.y > this.canvas.height - 60) {
-                const slotWidth = this.canvas.width / 9;
+            if (ball.y > this.canvasHeight - 60) {
+                const slotWidth = this.canvasWidth / 9;
                 const slot = Math.floor(ball.x / slotWidth);
                 const multipliers = [10, 3, 1.5, 1, 0.5, 1, 1.5, 3, 10];
                 const multiplier = multipliers[Math.min(slot, 8)];
@@ -302,7 +369,6 @@ const plinkoGame = {
             this.ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
             this.ctx.fill();
             
-            // Glow effect
             this.ctx.shadowColor = '#8A2BE2';
             this.ctx.shadowBlur = 15;
             this.ctx.fill();
@@ -341,7 +407,6 @@ const blackjackGame = {
             });
         });
         
-        // Shuffle deck
         for (let i = this.deck.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
@@ -407,7 +472,6 @@ const blackjackGame = {
         this.dealerHand = [];
         this.gameOver = false;
         
-        // Deal initial cards
         this.playerHand.push(this.deck.pop(), this.deck.pop());
         this.dealerHand.push(this.deck.pop(), this.deck.pop());
         
@@ -433,7 +497,6 @@ const blackjackGame = {
     stand() {
         if (this.gameOver) return;
         
-        // Dealer plays
         while (this.calculateScore(this.dealerHand) < 17) {
             this.dealerHand.push(this.deck.pop());
         }
@@ -446,10 +509,10 @@ const blackjackGame = {
         if (this.playerScore === 21) {
             if (this.calculateScore(this.dealerHand) === 21) {
                 this.endGame('🌌 Push! Both have blackjack in the cosmos.');
-                addBalance(this.currentBet); // Return bet
+                addBalance(this.currentBet);
             } else {
                 this.endGame('⭐ Blackjack! The stars align for you!');
-                addBalance(this.currentBet * 2.5); // 3:2 payout
+                addBalance(this.currentBet * 2.5);
             }
         }
     },
@@ -467,7 +530,7 @@ const blackjackGame = {
             this.endGame('🌑 Dealer wins this cosmic battle.');
         } else {
             this.endGame('🌌 Push! The cosmic forces are balanced.');
-            addBalance(this.currentBet); // Return bet
+            addBalance(this.currentBet);
         }
     },
     
@@ -505,14 +568,12 @@ const blackjackGame = {
         this.playerScore = this.calculateScore(this.playerHand);
         this.dealerScore = this.calculateScore(this.dealerHand);
         
-        // Update player cards
         const playerContainer = document.getElementById('playerCards');
         playerContainer.innerHTML = '';
         this.playerHand.forEach(card => {
             playerContainer.appendChild(this.createCardElement(card));
         });
         
-        // Update dealer cards
         const dealerContainer = document.getElementById('dealerCards');
         dealerContainer.innerHTML = '';
         this.dealerHand.forEach((card, index) => {
@@ -527,12 +588,10 @@ const blackjackGame = {
 
 // Initialize everything when DOM loads
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🌌 Amina Casino - Cosmic systems online!');
+    console.log('🌌 Amina Casino - Enhanced cosmic systems online!');
     
-    // Currency toggle
     document.getElementById('currencyToggle').addEventListener('click', toggleCurrency);
     
-    // Navigation
     document.querySelectorAll('.nav-btn, .game-card').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const game = e.target.closest('[data-game]').dataset.game;
@@ -540,13 +599,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Initialize games
     slotsGame.init();
     plinkoGame.init();
     blackjackGame.init();
     
-    // Update initial balance display
     updateBalance();
     
-    console.log('🚀 All cosmic gaming systems initialized!');
+    console.log('🚀 All enhanced cosmic gaming systems initialized!');
 });
