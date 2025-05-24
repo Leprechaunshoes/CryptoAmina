@@ -152,25 +152,28 @@ const slotsGame = {
         
         gameState.isPlaying = true;
         document.getElementById('spinBtn').disabled = true;
+        document.getElementById('spinBtn').textContent = 'SPINNING...';
         
         this.grid.forEach((cell, index) => {
             cell.classList.add('spinning');
             
             const spinInterval = setInterval(() => {
                 cell.textContent = this.symbols[Math.floor(Math.random() * this.symbols.length)];
-            }, 100);
+            }, 80);
             
+            const delay = 800 + (index % 5) * 200;
             setTimeout(() => {
                 clearInterval(spinInterval);
                 cell.classList.remove('spinning');
                 cell.textContent = this.symbols[Math.floor(Math.random() * this.symbols.length)];
-            }, 1000 + Math.random() * 1000);
+            }, delay);
         });
         
         setTimeout(() => {
             this.checkWins(betAmount);
             gameState.isPlaying = false;
             document.getElementById('spinBtn').disabled = false;
+            document.getElementById('spinBtn').textContent = 'SPIN THE COSMOS';
         }, 2500);
     },
     
@@ -182,6 +185,7 @@ const slotsGame = {
         ];
         
         let totalWin = 0;
+        let winningCells = [];
         
         rows.forEach(row => {
             const symbols = row.map(cell => cell.textContent);
@@ -193,8 +197,7 @@ const slotsGame = {
                     totalWin += betAmount * this.payouts[symbol][count];
                     row.forEach(cell => {
                         if (cell.textContent === symbol) {
-                            cell.classList.add('winning');
-                            setTimeout(() => cell.classList.remove('winning'), 3000);
+                            winningCells.push(cell);
                         }
                     });
                 }
@@ -203,6 +206,10 @@ const slotsGame = {
         
         if (totalWin > 0) {
             addBalance(totalWin);
+            winningCells.forEach(cell => {
+                cell.classList.add('winning');
+                setTimeout(() => cell.classList.remove('winning'), 3000);
+            });
             setTimeout(() => {
                 alert(`🌟 Cosmic Win! You won ${totalWin.toFixed(gameState.currency === 'AMINA' ? 6 : 2)} ${gameState.currency}!`);
             }, 500);
@@ -210,7 +217,7 @@ const slotsGame = {
     }
 };
 
-// PLINKO GAME - MOBILE ENHANCED
+// PLINKO GAME - OPTIMIZED FOR MOBILE
 const plinkoGame = {
     canvas: null,
     ctx: null,
@@ -228,39 +235,57 @@ const plinkoGame = {
         document.getElementById('dropBtn').addEventListener('click', () => this.dropBall());
         document.getElementById('dropZone').addEventListener('click', () => this.dropBall());
         
-        // Touch events for mobile
+        // Enhanced touch events for mobile
         this.canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
             this.dropBall();
+        }, { passive: false });
+        
+        this.canvas.addEventListener('click', (e) => {
+            this.dropBall();
         });
         
-        window.addEventListener('resize', () => this.resizeCanvas());
+        // Enhanced resize handler
+        window.addEventListener('resize', () => {
+            setTimeout(() => this.resizeCanvas(), 100);
+        });
+        
         this.animate();
     },
     
     resizeCanvas() {
         const container = this.canvas.parentElement;
-        const containerWidth = container.offsetWidth - 40;
+        const containerRect = container.getBoundingClientRect();
+        const containerWidth = containerRect.width - 40;
         
         if (gameState.isMobile) {
-            this.canvasWidth = Math.min(containerWidth, 350);
-            this.canvasHeight = 300;
+            // Enhanced mobile sizing
+            this.canvasWidth = Math.min(containerWidth, Math.min(window.innerWidth - 60, 350));
+            this.canvasHeight = Math.min(280, window.innerHeight * 0.35);
         } else {
             this.canvasWidth = Math.min(containerWidth, 600);
             this.canvasHeight = 500;
         }
         
+        // Force canvas size update
         this.canvas.width = this.canvasWidth;
         this.canvas.height = this.canvasHeight;
+        this.canvas.style.width = this.canvasWidth + 'px';
+        this.canvas.style.height = this.canvasHeight + 'px';
+        
+        // Recalculate pegs for new size
         this.setupPegs();
+        
+        console.log(`Plinko canvas resized: ${this.canvasWidth}x${this.canvasHeight}, Mobile: ${gameState.isMobile}`);
     },
     
     setupPegs() {
         this.pegs = [];
         const rows = gameState.isMobile ? 6 : 8;
-        const pegSpacing = this.canvasWidth / 12;
+        const pegSpacing = this.canvasWidth / (gameState.isMobile ? 10 : 12);
         const startX = this.canvasWidth / 2;
-        const startY = 80;
+        const startY = this.canvasHeight * 0.15;
+        const rowHeight = (this.canvasHeight * 0.6) / rows;
         
         for (let row = 0; row < rows; row++) {
             const pegsInRow = row + 3;
@@ -270,8 +295,8 @@ const plinkoGame = {
             for (let col = 0; col < pegsInRow; col++) {
                 this.pegs.push({
                     x: rowStartX + col * pegSpacing,
-                    y: startY + row * 50,
-                    radius: gameState.isMobile ? 4 : 6
+                    y: startY + row * rowHeight,
+                    radius: gameState.isMobile ? 3 : 6
                 });
             }
         }
@@ -288,15 +313,17 @@ const plinkoGame = {
         
         gameState.isPlaying = true;
         document.getElementById('dropBtn').disabled = true;
+        document.getElementById('dropBtn').textContent = 'BALL DROPPING...';
         
         const ball = {
             x: this.canvasWidth / 2 + (Math.random() - 0.5) * 20,
             y: 30,
-            vx: (Math.random() - 0.5) * 2,
+            vx: (Math.random() - 0.5) * 1.5,
             vy: 0,
-            radius: gameState.isMobile ? 6 : 8,
+            radius: gameState.isMobile ? 5 : 8,
             bounces: 0,
-            betAmount: betAmount
+            betAmount: betAmount,
+            trail: []
         };
         
         this.balls.push(ball);
@@ -305,22 +332,32 @@ const plinkoGame = {
     animate() {
         this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
         
-        // Draw pegs
-        this.ctx.fillStyle = '#FFD700';
+        // Draw pegs with enhanced glow effect
         this.pegs.forEach(peg => {
+            // Outer glow
+            this.ctx.shadowColor = '#FFD700';
+            this.ctx.shadowBlur = 15;
+            this.ctx.fillStyle = '#FFD700';
             this.ctx.beginPath();
             this.ctx.arc(peg.x, peg.y, peg.radius, 0, Math.PI * 2);
             this.ctx.fill();
-            
-            this.ctx.shadowColor = '#FFD700';
-            this.ctx.shadowBlur = 10;
-            this.ctx.fill();
             this.ctx.shadowBlur = 0;
+            
+            // Inner highlight
+            this.ctx.fillStyle = '#FFF';
+            this.ctx.beginPath();
+            this.ctx.arc(peg.x - peg.radius/3, peg.y - peg.radius/3, peg.radius/3, 0, Math.PI * 2);
+            this.ctx.fill();
         });
         
         // Update and draw balls
         this.balls.forEach((ball, index) => {
-            ball.vy += 0.5;
+            // Add to trail
+            ball.trail.push({ x: ball.x, y: ball.y });
+            if (ball.trail.length > 6) ball.trail.shift();
+            
+            // Enhanced physics
+            ball.vy += 0.4; // gravity
             ball.x += ball.vx;
             ball.y += ball.vy;
             
@@ -338,18 +375,18 @@ const plinkoGame = {
                 }
             });
             
-            // Side walls
+            // Enhanced side walls
             if (ball.x < ball.radius || ball.x > this.canvasWidth - ball.radius) {
-                ball.vx *= -0.8;
+                ball.vx *= -0.7;
                 ball.x = Math.max(ball.radius, Math.min(this.canvasWidth - ball.radius, ball.x));
             }
             
-            // Bottom detection
+            // Bottom detection with proper slot calculation
             if (ball.y > this.canvasHeight - 60) {
                 const slotWidth = this.canvasWidth / 9;
-                const slot = Math.floor(ball.x / slotWidth);
+                const slot = Math.max(0, Math.min(8, Math.floor(ball.x / slotWidth)));
                 const multipliers = [10, 3, 1.5, 1, 0.5, 1, 1.5, 3, 10];
-                const multiplier = multipliers[Math.min(slot, 8)];
+                const multiplier = multipliers[slot];
                 
                 const winAmount = ball.betAmount * multiplier;
                 addBalance(winAmount);
@@ -361,18 +398,33 @@ const plinkoGame = {
                 this.balls.splice(index, 1);
                 gameState.isPlaying = false;
                 document.getElementById('dropBtn').disabled = false;
+                document.getElementById('dropBtn').textContent = 'DROP COSMIC BALL';
             }
             
-            // Draw ball
+            // Draw trail
+            ball.trail.forEach((point, i) => {
+                this.ctx.globalAlpha = (i / ball.trail.length) * 0.5;
+                this.ctx.fillStyle = '#8A2BE2';
+                this.ctx.beginPath();
+                this.ctx.arc(point.x, point.y, ball.radius * (i / ball.trail.length), 0, Math.PI * 2);
+                this.ctx.fill();
+            });
+            this.ctx.globalAlpha = 1;
+            
+            // Draw ball with enhanced glow
+            this.ctx.shadowColor = '#8A2BE2';
+            this.ctx.shadowBlur = 20;
             this.ctx.fillStyle = '#8A2BE2';
             this.ctx.beginPath();
             this.ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
             this.ctx.fill();
-            
-            this.ctx.shadowColor = '#8A2BE2';
-            this.ctx.shadowBlur = 15;
-            this.ctx.fill();
             this.ctx.shadowBlur = 0;
+            
+            // Ball highlight
+            this.ctx.fillStyle = '#FFF';
+            this.ctx.beginPath();
+            this.ctx.arc(ball.x - ball.radius/3, ball.y - ball.radius/3, ball.radius/4, 0, Math.PI * 2);
+            this.ctx.fill();
         });
         
         requestAnimationFrame(() => this.animate());
@@ -407,9 +459,12 @@ const blackjackGame = {
             });
         });
         
-        for (let i = this.deck.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
+        // Enhanced shuffle
+        for (let shuffle = 0; shuffle < 3; shuffle++) {
+            for (let i = this.deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
+            }
         }
     },
     
@@ -472,6 +527,7 @@ const blackjackGame = {
         this.dealerHand = [];
         this.gameOver = false;
         
+        // Deal initial cards
         this.playerHand.push(this.deck.pop(), this.deck.pop());
         this.dealerHand.push(this.deck.pop(), this.deck.pop());
         
@@ -606,4 +662,5 @@ document.addEventListener('DOMContentLoaded', function() {
     updateBalance();
     
     console.log('🚀 All enhanced cosmic gaming systems initialized!');
+    console.log('📱 Mobile optimized plinko ready!');
 });
