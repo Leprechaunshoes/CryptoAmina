@@ -106,7 +106,7 @@ function switchGame(gameName) {
     gameState.currentGame = gameName;
     
     if (gameName === 'plinko') {
-        plinkoGame.resizeCanvas();
+        setTimeout(() => plinkoGame.resizeCanvas(), 200);
     }
 }
 
@@ -217,7 +217,7 @@ const slotsGame = {
     }
 };
 
-// PLINKO GAME - OPTIMIZED FOR MOBILE
+// PLINKO GAME - ULTIMATE MOBILE FIX
 const plinkoGame = {
     canvas: null,
     ctx: null,
@@ -225,12 +225,23 @@ const plinkoGame = {
     pegs: [],
     canvasWidth: 600,
     canvasHeight: 500,
+    initialized: false,
     
     init() {
         this.canvas = document.getElementById('plinkoCanvas');
+        if (!this.canvas) {
+            console.error('Plinko canvas not found!');
+            return;
+        }
+        
         this.ctx = this.canvas.getContext('2d');
-        this.resizeCanvas();
-        this.setupPegs();
+        
+        // Wait for DOM to be fully ready
+        setTimeout(() => {
+            this.resizeCanvas();
+            this.setupPegs();
+            this.initialized = true;
+        }, 100);
         
         document.getElementById('dropBtn').addEventListener('click', () => this.dropBall());
         document.getElementById('dropZone').addEventListener('click', () => this.dropBall());
@@ -238,54 +249,85 @@ const plinkoGame = {
         // Enhanced touch events for mobile
         this.canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             this.dropBall();
         }, { passive: false });
         
         this.canvas.addEventListener('click', (e) => {
+            e.preventDefault();
             this.dropBall();
         });
         
-        // Enhanced resize handler
+        // Enhanced resize handler with debouncing
+        let resizeTimeout;
         window.addEventListener('resize', () => {
-            setTimeout(() => this.resizeCanvas(), 100);
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                this.resizeCanvas();
+                this.setupPegs();
+            }, 250);
         });
         
         this.animate();
     },
     
     resizeCanvas() {
+        if (!this.canvas) return;
+        
         const container = this.canvas.parentElement;
+        const board = container.querySelector('.plinko-board');
+        
+        // Get actual container dimensions
         const containerRect = container.getBoundingClientRect();
-        const containerWidth = containerRect.width - 40;
+        const boardRect = board.getBoundingClientRect();
+        
+        console.log('Container width:', containerRect.width, 'Board width:', boardRect.width);
+        console.log('Viewport width:', window.innerWidth, 'Mobile:', gameState.isMobile);
+        
+        // Calculate available width (subtract padding/borders)
+        const availableWidth = boardRect.width - 20; // Account for board padding/borders
         
         if (gameState.isMobile) {
-            // Enhanced mobile sizing
-            this.canvasWidth = Math.min(containerWidth, Math.min(window.innerWidth - 60, 350));
-            this.canvasHeight = Math.min(280, window.innerHeight * 0.35);
+            // iPhone specific sizing
+            const screenWidth = window.innerWidth;
+            const maxWidth = Math.min(screenWidth - 80, 320); // Leave margins, max 320px
+            
+            this.canvasWidth = Math.min(availableWidth, maxWidth);
+            this.canvasHeight = Math.min(250, window.innerHeight * 0.3);
+            
+            console.log('Mobile sizing - Screen:', screenWidth, 'Canvas:', this.canvasWidth, 'x', this.canvasHeight);
         } else {
-            this.canvasWidth = Math.min(containerWidth, 600);
+            // Desktop sizing
+            this.canvasWidth = Math.min(availableWidth, 600);
             this.canvasHeight = 500;
         }
         
-        // Force canvas size update
+        // Apply the sizing
         this.canvas.width = this.canvasWidth;
         this.canvas.height = this.canvasHeight;
+        
+        // Force CSS sizing to match exactly
         this.canvas.style.width = this.canvasWidth + 'px';
         this.canvas.style.height = this.canvasHeight + 'px';
+        this.canvas.style.maxWidth = '100%';
+        this.canvas.style.display = 'block';
+        
+        console.log('Final canvas size:', this.canvasWidth, 'x', this.canvasHeight);
         
         // Recalculate pegs for new size
-        this.setupPegs();
-        
-        console.log(`Plinko canvas resized: ${this.canvasWidth}x${this.canvasHeight}, Mobile: ${gameState.isMobile}`);
+        if (this.initialized) {
+            this.setupPegs();
+        }
     },
     
     setupPegs() {
         this.pegs = [];
-        const rows = gameState.isMobile ? 6 : 8;
-        const pegSpacing = this.canvasWidth / (gameState.isMobile ? 10 : 12);
+        const rows = gameState.isMobile ? 5 : 8; // Fewer rows on mobile
+        const pegSpacing = this.canvasWidth / (gameState.isMobile ? 8 : 12);
         const startX = this.canvasWidth / 2;
-        const startY = this.canvasHeight * 0.15;
-        const rowHeight = (this.canvasHeight * 0.6) / rows;
+        const startY = this.canvasHeight * 0.2;
+        const availableHeight = this.canvasHeight * 0.5; // Leave room for multipliers
+        const rowHeight = availableHeight / rows;
         
         for (let row = 0; row < rows; row++) {
             const pegsInRow = row + 3;
@@ -296,14 +338,16 @@ const plinkoGame = {
                 this.pegs.push({
                     x: rowStartX + col * pegSpacing,
                     y: startY + row * rowHeight,
-                    radius: gameState.isMobile ? 3 : 6
+                    radius: gameState.isMobile ? 3 : 5
                 });
             }
         }
+        
+        console.log('Created', this.pegs.length, 'pegs for', rows, 'rows');
     },
     
     dropBall() {
-        if (gameState.isPlaying) return;
+        if (gameState.isPlaying || !this.initialized) return;
         
         const betAmount = parseFloat(document.getElementById('plinkoBet').value);
         if (!deductBalance(betAmount)) {
@@ -316,27 +360,33 @@ const plinkoGame = {
         document.getElementById('dropBtn').textContent = 'BALL DROPPING...';
         
         const ball = {
-            x: this.canvasWidth / 2 + (Math.random() - 0.5) * 20,
-            y: 30,
-            vx: (Math.random() - 0.5) * 1.5,
+            x: this.canvasWidth / 2 + (Math.random() - 0.5) * 15,
+            y: 20,
+            vx: (Math.random() - 0.5) * 1,
             vy: 0,
-            radius: gameState.isMobile ? 5 : 8,
+            radius: gameState.isMobile ? 4 : 6,
             bounces: 0,
             betAmount: betAmount,
             trail: []
         };
         
         this.balls.push(ball);
+        console.log('Ball dropped at', ball.x, ball.y);
     },
     
     animate() {
+        if (!this.canvas || !this.ctx) {
+            requestAnimationFrame(() => this.animate());
+            return;
+        }
+        
         this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
         
-        // Draw pegs with enhanced glow effect
+        // Draw pegs
         this.pegs.forEach(peg => {
-            // Outer glow
+            // Glow effect
             this.ctx.shadowColor = '#FFD700';
-            this.ctx.shadowBlur = 15;
+            this.ctx.shadowBlur = 8;
             this.ctx.fillStyle = '#FFD700';
             this.ctx.beginPath();
             this.ctx.arc(peg.x, peg.y, peg.radius, 0, Math.PI * 2);
@@ -354,10 +404,10 @@ const plinkoGame = {
         this.balls.forEach((ball, index) => {
             // Add to trail
             ball.trail.push({ x: ball.x, y: ball.y });
-            if (ball.trail.length > 6) ball.trail.shift();
+            if (ball.trail.length > 5) ball.trail.shift();
             
-            // Enhanced physics
-            ball.vy += 0.4; // gravity
+            // Physics
+            ball.vy += 0.35; // Gravity
             ball.x += ball.vx;
             ball.y += ball.vy;
             
@@ -369,41 +419,55 @@ const plinkoGame = {
                 
                 if (distance < ball.radius + peg.radius) {
                     const angle = Math.atan2(dy, dx);
-                    ball.vx = Math.cos(angle) * 3;
-                    ball.vy = Math.abs(Math.sin(angle)) * 3;
+                    ball.vx = Math.cos(angle) * 2.5;
+                    ball.vy = Math.abs(Math.sin(angle)) * 2.5;
                     ball.bounces++;
                 }
             });
             
-            // Enhanced side walls
-            if (ball.x < ball.radius || ball.x > this.canvasWidth - ball.radius) {
-                ball.vx *= -0.7;
-                ball.x = Math.max(ball.radius, Math.min(this.canvasWidth - ball.radius, ball.x));
+            // Side walls with proper bouncing
+            if (ball.x <= ball.radius) {
+                ball.x = ball.radius;
+                ball.vx = Math.abs(ball.vx) * 0.7;
+            }
+            if (ball.x >= this.canvasWidth - ball.radius) {
+                ball.x = this.canvasWidth - ball.radius;
+                ball.vx = -Math.abs(ball.vx) * 0.7;
             }
             
-            // Bottom detection with proper slot calculation
-            if (ball.y > this.canvasHeight - 60) {
+            // Bottom detection - CRITICAL FIX
+            const bottomThreshold = this.canvasHeight - 40;
+            if (ball.y >= bottomThreshold) {
+                // Ensure ball is within canvas bounds
+                const ballX = Math.max(0, Math.min(this.canvasWidth, ball.x));
+                
+                // Calculate slot with proper bounds checking
                 const slotWidth = this.canvasWidth / 9;
-                const slot = Math.max(0, Math.min(8, Math.floor(ball.x / slotWidth)));
+                const slotIndex = Math.floor(ballX / slotWidth);
+                const finalSlot = Math.max(0, Math.min(8, slotIndex));
+                
                 const multipliers = [10, 3, 1.5, 1, 0.5, 1, 1.5, 3, 10];
-                const multiplier = multipliers[slot];
+                const multiplier = multipliers[finalSlot];
                 
                 const winAmount = ball.betAmount * multiplier;
                 addBalance(winAmount);
                 
+                console.log('Ball landed at X:', ballX, 'Slot:', finalSlot, 'Multiplier:', multiplier);
+                
                 setTimeout(() => {
                     alert(`🌌 Quantum result! Ball landed in ${multiplier}x slot! Won ${winAmount.toFixed(gameState.currency === 'AMINA' ? 6 : 2)} ${gameState.currency}!`);
-                }, 100);
+                }, 200);
                 
                 this.balls.splice(index, 1);
                 gameState.isPlaying = false;
                 document.getElementById('dropBtn').disabled = false;
                 document.getElementById('dropBtn').textContent = 'DROP COSMIC BALL';
+                return;
             }
             
             // Draw trail
             ball.trail.forEach((point, i) => {
-                this.ctx.globalAlpha = (i / ball.trail.length) * 0.5;
+                this.ctx.globalAlpha = (i / ball.trail.length) * 0.4;
                 this.ctx.fillStyle = '#8A2BE2';
                 this.ctx.beginPath();
                 this.ctx.arc(point.x, point.y, ball.radius * (i / ball.trail.length), 0, Math.PI * 2);
@@ -411,9 +475,9 @@ const plinkoGame = {
             });
             this.ctx.globalAlpha = 1;
             
-            // Draw ball with enhanced glow
+            // Draw ball
             this.ctx.shadowColor = '#8A2BE2';
-            this.ctx.shadowBlur = 20;
+            this.ctx.shadowBlur = 12;
             this.ctx.fillStyle = '#8A2BE2';
             this.ctx.beginPath();
             this.ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
@@ -527,7 +591,6 @@ const blackjackGame = {
         this.dealerHand = [];
         this.gameOver = false;
         
-        // Deal initial cards
         this.playerHand.push(this.deck.pop(), this.deck.pop());
         this.dealerHand.push(this.deck.pop(), this.deck.pop());
         
@@ -644,7 +707,7 @@ const blackjackGame = {
 
 // Initialize everything when DOM loads
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🌌 Amina Casino - Enhanced cosmic systems online!');
+    console.log('🌌 Amina Casino - Ultimate mobile plinko fix loaded!');
     
     document.getElementById('currencyToggle').addEventListener('click', toggleCurrency);
     
@@ -661,6 +724,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     updateBalance();
     
-    console.log('🚀 All enhanced cosmic gaming systems initialized!');
-    console.log('📱 Mobile optimized plinko ready!');
+    console.log('🚀 All cosmic gaming systems with ultimate plinko fix initialized!');
+    console.log('📱 iPhone plinko should now fit perfectly!');
 });
