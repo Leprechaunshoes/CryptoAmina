@@ -1,28 +1,20 @@
-// FILE 2: scripts.js - Amina Casino Game Logic
-console.log('🎮 Amina Casino Scripts Loading...');
+// Replace scripts.js with this - Amina Casino Enhanced
+console.log('🎮 Amina Casino Enhanced Scripts Loading...');
 
-// Game State Management
 const gameState = {
     balance: 1000,
-    currency: 'HC', // HC or AMINA
+    currency: 'HC',
     currentGame: 'home',
     isPlaying: false
 };
 
-// Currency conversion rates
-const CURRENCY_RATES = {
-    HC_TO_AMINA: 0.001, // 1000 HC = 1 AMINA
-    AMINA_TO_HC: 1000
-};
-
-// Cosmic symbols for slots
+const CURRENCY_RATES = { HC_TO_AMINA: 0.001, AMINA_TO_HC: 1000 };
 const COSMIC_SYMBOLS = ['🌟', '🪐', '🌌', '☄️', '🚀', '💫', '🛸'];
 
-// Initialize Casino
 document.addEventListener('DOMContentLoaded', function() {
     initializeCasino();
     setupEventListeners();
-    console.log('🌟 Casino initialized successfully!');
+    console.log('🌟 Enhanced Casino initialized!');
 });
 
 function initializeCasino() {
@@ -34,16 +26,14 @@ function initializeCasino() {
 }
 
 function replaceAminaCoins() {
-    // Replace all coin images with your actual Amina coin
     const coinImages = document.querySelectorAll('.coin-image, .welcome-coin, .donation-coin-image');
     coinImages.forEach(img => {
         img.src = 'https://i.postimg.cc/nrMt6P0R/IMG-8041.png';
-        img.style.background = 'transparent';
+        img.style.objectFit = 'contain';
     });
 }
 
 function setupEventListeners() {
-    // Navigation
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             if (!e.target.classList.contains('donation-btn')) {
@@ -52,17 +42,13 @@ function setupEventListeners() {
         });
     });
     
-    // Game cards
     document.querySelectorAll('.game-card').forEach(card => {
         card.addEventListener('click', (e) => {
             switchGame(e.currentTarget.dataset.game);
         });
     });
     
-    // Currency toggle
     document.getElementById('currencyToggle').addEventListener('click', toggleCurrency);
-    
-    // Game controls
     setupGameControls();
 }
 
@@ -72,22 +58,18 @@ function switchGame(gameId) {
         return;
     }
     
-    // Hide all screens
     document.querySelectorAll('.game-screen').forEach(screen => {
         screen.classList.remove('active');
     });
     
-    // Show selected screen
     document.getElementById(gameId).classList.add('active');
     
-    // Update navigation
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     document.querySelector(`[data-game="${gameId}"]`).classList.add('active');
     
     gameState.currentGame = gameId;
-    console.log(`🎯 Switched to ${gameId}`);
 }
 
 function toggleCurrency() {
@@ -108,7 +90,6 @@ function toggleCurrency() {
     
     updateBalanceDisplay();
     updateAllBetDisplays();
-    console.log(`💱 Currency switched to ${gameState.currency}`);
 }
 
 function updateBalanceDisplay() {
@@ -123,9 +104,7 @@ function updateBalanceDisplay() {
 function updateAllBetDisplays() {
     ['slots', 'plinko', 'blackjack'].forEach(game => {
         const currencySpan = document.getElementById(`${game}Currency`);
-        if (currencySpan) {
-            currencySpan.textContent = gameState.currency;
-        }
+        if (currencySpan) currencySpan.textContent = gameState.currency;
     });
 }
 
@@ -144,12 +123,11 @@ function deductBalance(amount) {
     return false;
 }
 
-// SLOTS GAME
+// SLOTS
 function initializeSlots() {
     const grid = document.getElementById('slotsGrid');
     grid.innerHTML = '';
     
-    // Create 5x3 grid
     for (let i = 0; i < 15; i++) {
         const cell = document.createElement('div');
         cell.className = 'slot-cell';
@@ -159,13 +137,8 @@ function initializeSlots() {
 }
 
 function setupGameControls() {
-    // Slots
     document.getElementById('spinBtn').addEventListener('click', spinSlots);
-    
-    // Plinko
     document.getElementById('dropBtn').addEventListener('click', dropPlinko);
-    
-    // Blackjack
     document.getElementById('dealBtn').addEventListener('click', dealBlackjack);
     document.getElementById('hitBtn').addEventListener('click', hitBlackjack);
     document.getElementById('standBtn').addEventListener('click', standBlackjack);
@@ -185,7 +158,6 @@ function spinSlots() {
     
     const cells = document.querySelectorAll('.slot-cell');
     
-    // Animate spin
     let spinCount = 0;
     const spinInterval = setInterval(() => {
         cells.forEach(cell => {
@@ -207,13 +179,7 @@ function checkSlotsWin(betAmount) {
     const cells = document.querySelectorAll('.slot-cell');
     const symbols = Array.from(cells).map(cell => cell.textContent);
     
-    // Check for wins (simplified - 3+ in a row)
-    const rows = [
-        [0, 1, 2, 3, 4], // Top row
-        [5, 6, 7, 8, 9], // Middle row
-        [10, 11, 12, 13, 14] // Bottom row
-    ];
-    
+    const rows = [[0,1,2,3,4], [5,6,7,8,9], [10,11,12,13,14]];
     let maxWin = 0;
     let winningCells = [];
     
@@ -233,7 +199,6 @@ function checkSlotsWin(betAmount) {
     });
     
     if (maxWin > 0) {
-        // Highlight winning cells
         winningCells.forEach(i => {
             cells[i].classList.add('winning');
         });
@@ -272,34 +237,28 @@ function getSlotMultiplier(symbol, matches) {
     return multipliers[symbol] ? multipliers[symbol][matches] : 0;
 }
 
-// PLINKO GAME - MOBILE RESPONSIVE
+// PLINKO - Stake.us Style Responsive
 function initializePlinko() {
     const canvas = document.getElementById('plinkoCanvas');
     const ctx = canvas.getContext('2d');
     
-    // Responsive canvas sizing
     const container = canvas.parentElement;
-    const maxWidth = Math.min(400, container.clientWidth - 40);
-    const height = Math.min(300, maxWidth * 0.75);
+    const maxWidth = Math.min(450, container.clientWidth - 40);
+    const height = 350;
     
     canvas.width = maxWidth;
     canvas.height = height;
     canvas.style.width = maxWidth + 'px';
     canvas.style.height = height + 'px';
     
-    // Draw initial board
     drawPlinkoBoard(ctx);
     
-    // Resize handler
     window.addEventListener('resize', () => {
-        const newMaxWidth = Math.min(400, container.clientWidth - 40);
-        const newHeight = Math.min(300, newMaxWidth * 0.75);
-        
+        const newMaxWidth = Math.min(450, container.clientWidth - 40);
         canvas.width = newMaxWidth;
-        canvas.height = newHeight;
+        canvas.height = height;
         canvas.style.width = newMaxWidth + 'px';
-        canvas.style.height = newHeight + 'px';
-        
+        canvas.style.height = height + 'px';
         drawPlinkoBoard(ctx);
     });
 }
@@ -308,18 +267,17 @@ function drawPlinkoBoard(ctx) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.fillStyle = '#FFD700';
     
-    // Draw pegs - responsive
-    const rows = 10;
+    const rows = 12;
     const startY = 60;
     const rowSpacing = (ctx.canvas.height - 120) / rows;
     
     for (let row = 0; row < rows; row++) {
         const pegsInRow = row + 3;
-        const pegSpacing = (ctx.canvas.width - 40) / (pegsInRow + 1);
+        const pegSpacing = (ctx.canvas.width - 60) / (pegsInRow + 1);
         
         for (let peg = 0; peg < pegsInRow; peg++) {
             ctx.beginPath();
-            ctx.arc(20 + (peg + 1) * pegSpacing, startY + row * rowSpacing, 3, 0, Math.PI * 2);
+            ctx.arc(30 + (peg + 1) * pegSpacing, startY + row * rowSpacing, 4, 0, Math.PI * 2);
             ctx.fill();
         }
     }
@@ -336,47 +294,41 @@ function dropPlinko() {
     dropBtn.disabled = true;
     dropBtn.textContent = 'DROPPING...';
     
-    // Simulate ball drop
-    simulatePlinkoball(betAmount);
+    simulatePlinko(betAmount);
 }
 
-function simulatePlinkoball(betAmount) {
+function simulatePlinko(betAmount) {
     const canvas = document.getElementById('plinkoCanvas');
     const ctx = canvas.getContext('2d');
     
     let ballX = canvas.width / 2;
     let ballY = 30;
-    let ballSpeed = 2;
+    let ballSpeed = 3;
     let bounceDirection = 0;
     
     const animateBall = () => {
         drawPlinkoBoard(ctx);
         
-        // Draw ball
         ctx.fillStyle = '#8A2BE2';
         ctx.beginPath();
-        ctx.arc(ballX, ballY, 6, 0, Math.PI * 2);
+        ctx.arc(ballX, ballY, 8, 0, Math.PI * 2);
         ctx.fill();
         
-        // Move ball
         ballY += ballSpeed;
         ballX += bounceDirection;
         
-        // Random bounce
         if (ballY % 25 < 5 && Math.random() > 0.5) {
-            bounceDirection = (Math.random() - 0.5) * 3;
+            bounceDirection = (Math.random() - 0.5) * 4;
         }
         
-        // Keep ball in bounds
-        const margin = 15;
+        const margin = 20;
         if (ballX < margin) ballX = margin;
         if (ballX > canvas.width - margin) ballX = canvas.width - margin;
         
-        if (ballY < canvas.height - 40) {
+        if (ballY < canvas.height - 50) {
             requestAnimationFrame(animateBall);
         } else {
-            // Ball finished - calculate result
-            const slotIndex = Math.floor((ballX / canvas.width) * 9);
+            const slotIndex = Math.floor(((ballX - 20) / (canvas.width - 40)) * 9);
             const multipliers = [10, 3, 1.5, 1, 0.5, 1, 1.5, 3, 10];
             const multiplier = multipliers[Math.max(0, Math.min(8, slotIndex))];
             const winAmount = betAmount * multiplier;
@@ -384,7 +336,6 @@ function simulatePlinkoball(betAmount) {
             addBalance(winAmount);
             showMessage(`🌌 Ball landed in ${multiplier}x slot! +${winAmount.toFixed(gameState.currency === 'AMINA' ? 6 : 2)} ${gameState.currency}`);
             
-            // Reset button
             document.getElementById('dropBtn').disabled = false;
             document.getElementById('dropBtn').textContent = 'DROP COSMIC BALL';
             gameState.isPlaying = false;
@@ -394,7 +345,7 @@ function simulatePlinkoball(betAmount) {
     animateBall();
 }
 
-// BLACKJACK GAME - FIXED CARD GRAPHICS
+// BLACKJACK - Fixed
 let blackjackState = {
     playerCards: [],
     dealerCards: [],
@@ -409,10 +360,10 @@ function initializeBlackjack() {
 
 function createDeck() {
     const suits = [
-        { symbol: '♠️', name: 'spades', color: 'black' },
-        { symbol: '♥️', name: 'hearts', color: 'red' },
-        { symbol: '♦️', name: 'diamonds', color: 'red' },
-        { symbol: '♣️', name: 'clubs', color: 'black' }
+        { symbol: '♠️', color: 'black' },
+        { symbol: '♥️', color: 'red' },
+        { symbol: '♦️', color: 'red' },
+        { symbol: '♣️', color: 'black' }
     ];
     const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
     const deck = [];
@@ -428,7 +379,6 @@ function createDeck() {
         });
     });
     
-    // Shuffle deck
     for (let i = deck.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [deck[i], deck[j]] = [deck[j], deck[i]];
@@ -452,7 +402,6 @@ function calculateHandValue(cards) {
         value += card.value;
     });
     
-    // Adjust for aces
     while (value > 21 && aces > 0) {
         value -= 10;
         aces--;
@@ -474,7 +423,6 @@ function dealBlackjack() {
     blackjackState.dealerCards = [];
     blackjackState.gamePhase = 'playing';
     
-    // Deal initial cards
     blackjackState.playerCards.push(blackjackState.deck.pop());
     blackjackState.dealerCards.push(blackjackState.deck.pop());
     blackjackState.playerCards.push(blackjackState.deck.pop());
@@ -483,7 +431,6 @@ function dealBlackjack() {
     updateBlackjackDisplay();
     updateBlackjackButtons();
     
-    // Check for blackjack
     if (calculateHandValue(blackjackState.playerCards) === 21) {
         endBlackjackGame('blackjack');
     }
@@ -506,7 +453,6 @@ function hitBlackjack() {
 function standBlackjack() {
     if (!gameState.isPlaying || blackjackState.gamePhase !== 'playing') return;
     
-    // Dealer plays
     let dealerValue = calculateHandValue(blackjackState.dealerCards);
     
     const dealerPlay = () => {
@@ -514,10 +460,8 @@ function standBlackjack() {
             blackjackState.dealerCards.push(blackjackState.deck.pop());
             dealerValue = calculateHandValue(blackjackState.dealerCards);
             updateBlackjackDisplay(true);
-            
             setTimeout(dealerPlay, 1000);
         } else {
-            // Determine winner
             const playerValue = calculateHandValue(blackjackState.playerCards);
             
             if (dealerValue > 21) {
@@ -532,7 +476,6 @@ function standBlackjack() {
         }
     };
     
-    // Show dealer's hole card
     updateBlackjackDisplay(true);
     setTimeout(dealerPlay, 1000);
 }
@@ -573,31 +516,30 @@ function newBlackjackGame() {
 }
 
 function updateBlackjackDisplay(showDealerHole = false) {
-    // Update player cards
     const playerContainer = document.getElementById('playerCards');
+    const dealerContainer = document.getElementById('dealerCards');
+    
     playerContainer.innerHTML = '';
+    dealerContainer.innerHTML = '';
+    
     blackjackState.playerCards.forEach(card => {
         playerContainer.appendChild(createCardElement(card));
     });
     
-    // Update dealer cards
-    const dealerContainer = document.getElementById('dealerCards');
-    dealerContainer.innerHTML = '';
     blackjackState.dealerCards.forEach((card, index) => {
         if (index === 1 && !showDealerHole && blackjackState.gamePhase === 'playing') {
-            dealerContainer.appendChild(createCardElement(null, true)); // Hidden card
+            dealerContainer.appendChild(createCardElement(null, true));
         } else {
             dealerContainer.appendChild(createCardElement(card));
         }
     });
     
-    // Update scores
     document.getElementById('playerScore').textContent = calculateHandValue(blackjackState.playerCards);
     
     if (showDealerHole || blackjackState.gamePhase === 'finished') {
         document.getElementById('dealerScore').textContent = calculateHandValue(blackjackState.dealerCards);
     } else {
-        document.getElementById('dealerScore').textContent = blackjackState.dealerCards[0].value;
+        document.getElementById('dealerScore').textContent = blackjackState.dealerCards[0]?.value || 0;
     }
 }
 
@@ -611,9 +553,9 @@ function createCardElement(card, hidden = false) {
     } else {
         cardEl.classList.add(card.color);
         cardEl.innerHTML = `
-            <div class="card-rank">${card.rank}${card.suit}</div>
-            <div class="card-suit-large">${card.suit}</div>
-            <div class="card-rank-bottom">${card.rank}${card.suit}</div>
+            <div style="font-size: 0.7rem; font-weight: bold;">${card.rank}${card.suit}</div>
+            <div style="font-size: 1.5rem; text-align: center; flex: 1; display: flex; align-items: center; justify-content: center;">${card.suit}</div>
+            <div style="font-size: 0.7rem; font-weight: bold; transform: rotate(180deg);">${card.rank}${card.suit}</div>
         `;
     }
     
@@ -656,20 +598,18 @@ function resetBlackjackUI() {
     updateBlackjackButtons();
 }
 
-// Utility Functions
 function showMessage(message) {
     let messageEl = document.getElementById('gameMessage');
     
     if (!messageEl) {
         messageEl = document.createElement('div');
         messageEl.id = 'gameMessage';
-        messageEl.className = 'game-message';
         messageEl.style.cssText = `
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: linear-gradient(45deg, #FFD700, #B8860B);
+            background: linear-gradient(45deg, #FFD700, #FFA500);
             color: #000;
             padding: 1.5rem 2rem;
             border-radius: 15px;
@@ -678,8 +618,6 @@ function showMessage(message) {
             z-index: 10000;
             text-align: center;
             box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
-            max-width: 90%;
-            word-wrap: break-word;
         `;
         document.body.appendChild(messageEl);
     }
@@ -692,4 +630,4 @@ function showMessage(message) {
     }, 4000);
 }
 
-console.log('🚀 Amina Casino Scripts Loaded Successfully!');
+console.log('🚀 Amina Casino Enhanced Scripts Loaded!');
