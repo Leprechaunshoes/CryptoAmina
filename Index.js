@@ -1,247 +1,236 @@
-// Amina Casino - Professional Main Application
+// Amina Casino - Enhanced Features & Particles
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Amina Casino initializing...');
+    console.log('🚀 Index.js loading...');
     
-    // Professional loading sequence
-    initializeProCasino();
+    // Wait a bit for main casino to load
+    setTimeout(() => {
+        initializeEnhancements();
+        startParticleSystem();
+    }, 1000);
     
-    // Enhanced particle system
-    startCosmicParticleSystem();
-    
-    // Performance optimizations
-    optimizeForDevice();
-    
-    console.log('✨ Professional Amina Casino ready!');
+    console.log('✨ Index.js ready!');
 });
 
-function initializeProCasino() {
-    // Smooth fade-in with stagger effect
-    const elements = [
-        '.header',
-        '.nav-menu', 
-        '.main-content'
-    ];
+function initializeEnhancements() {
+    // Smooth loading animation
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+        mainContent.style.opacity = '0';
+        mainContent.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            mainContent.style.transition = 'all 0.8s ease';
+            mainContent.style.opacity = '1';
+            mainContent.style.transform = 'translateY(0)';
+        }, 200);
+    }
     
-    elements.forEach((selector, index) => {
-        const element = document.querySelector(selector);
-        if (element) {
-            element.style.opacity = '0';
-            element.style.transform = 'translateY(20px)';
-            
+    // Add resize handler for plinko
+    window.addEventListener('resize', () => {
+        if (window.aminaCasino && window.aminaCasino.initPlinko) {
             setTimeout(() => {
-                element.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
-                element.style.opacity = '1';
-                element.style.transform = 'translateY(0)';
-            }, 200 + (index * 150));
+                window.aminaCasino.initPlinko();
+            }, 100);
         }
     });
-    
-    // Preload all images with loading indicator
-    preloadCasinoAssets();
 }
 
-function preloadCasinoAssets() {
-    const coinImg = new Image();
-    coinImg.src = 'https://i.postimg.cc/nrMt6P0R/IMG-8041.png';
+function startParticleSystem() {
+    createCosmicParticles();
     
-    coinImg.onload = () => {
-        console.log('🪙 Amina Coin loaded successfully');
-        // Add loaded class for CSS animations
-        document.body.classList.add('assets-loaded');
-    };
-    
-    coinImg.onerror = () => {
-        console.warn('⚠️ Coin image failed to load, using fallback');
-    };
+    // Continue creating particles
+    setInterval(createCosmicParticles, 4000);
 }
 
-function startCosmicParticleSystem() {
-    let particlePool = [];
-    let activeParticles = [];
-    const maxParticles = window.innerWidth < 768 ? 25 : 50;
+function createCosmicParticles() {
+    const particleCount = window.innerWidth < 768 ? 8 : 15;
     
-    // Create particle pool for performance
-    for (let i = 0; i < maxParticles; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'cosmic-particle';
-        particle.style.position = 'fixed';
-        particle.style.pointerEvents = 'none';
-        particle.style.zIndex = '-1';
-        particle.style.borderRadius = '50%';
-        particlePool.push(particle);
-    }
-    
-    function createParticle() {
-        if (particlePool.length === 0) return;
-        
-        const particle = particlePool.pop();
-        const size = Math.random() * 3 + 1;
-        const colors = ['#FFD700', '#00E5FF', '#E91E63', '#9C27B0', '#FFFFFF'];
-        const color = colors[Math.floor(Math.random() * colors.length)];
-        const duration = Math.random() * 8 + 6;
-        
-        particle.style.cssText = `
-            position: fixed;
-            width: ${size}px;
-            height: ${size}px;
-            background: ${color};
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: -1;
-            opacity: ${Math.random() * 0.8 + 0.3};
-            left: ${Math.random() * 100}%;
-            top: 100vh;
-            box-shadow: 0 0 ${size * 2}px ${color};
-            animation: professionalParticleFloat ${duration}s linear forwards;
-        `;
-        
-        document.body.appendChild(particle);
-        activeParticles.push(particle);
-        
-        // Return to pool when animation ends
+    for (let i = 0; i < particleCount; i++) {
         setTimeout(() => {
-            if (particle.parentNode) {
-                particle.parentNode.removeChild(particle);
-            }
-            const index = activeParticles.indexOf(particle);
-            if (index > -1) {
-                activeParticles.splice(index, 1);
-                particlePool.push(particle);
-            }
-        }, duration * 1000);
+            createSingleParticle();
+        }, i * 200);
     }
-    
-    // Create particles at intervals
-    function particleLoop() {
-        if (document.visibilityState === 'visible') {
-            createParticle();
-        }
-        setTimeout(particleLoop, Math.random() * 2000 + 1000);
-    }
-    
-    particleLoop();
 }
 
-function optimizeForDevice() {
-    const isMobile = window.innerWidth < 768;
-    const isLowEnd = navigator.hardwareConcurrency < 4;
+function createSingleParticle() {
+    const particle = document.createElement('div');
+    const size = Math.random() * 4 + 2;
+    const colors = ['#FFD700', '#00E5FF', '#E91E63', '#9C27B0', '#FFFFFF'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const duration = Math.random() * 6 + 8;
     
-    if (isMobile || isLowEnd) {
-        // Reduce animations for performance
-        document.documentElement.style.setProperty('--animation-speed', '0.5s');
-        console.log('📱 Mobile/low-end optimizations applied');
-    }
-    
-    // Add CSS for professional particle animation
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes professionalParticleFloat {
-            0% {
-                transform: translateY(0) translateX(0) rotate(0deg) scale(0);
-                opacity: 0;
-            }
-            10% {
-                opacity: var(--particle-opacity, 0.8);
-                transform: scale(1);
-            }
-            90% {
-                opacity: var(--particle-opacity, 0.8);
-            }
-            100% {
-                transform: translateY(-100vh) translateX(${Math.random() * 200 - 100}px) rotate(360deg) scale(0);
-                opacity: 0;
-            }
-        }
-        
-        .assets-loaded .coin-image {
-            animation-play-state: running;
-        }
-        
-        .cosmic-particle {
-            will-change: transform, opacity;
-        }
+    particle.style.cssText = `
+        position: fixed;
+        width: ${size}px;
+        height: ${size}px;
+        background: ${color};
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: -1;
+        opacity: ${Math.random() * 0.7 + 0.3};
+        left: ${Math.random() * 100}%;
+        top: 100vh;
+        box-shadow: 0 0 ${size * 3}px ${color};
+        animation: floatUp ${duration}s linear forwards;
     `;
-    document.head.appendChild(style);
+    
+    document.body.appendChild(particle);
+    
+    // Remove particle when animation ends
+    setTimeout(() => {
+        if (particle && particle.parentNode) {
+            particle.parentNode.removeChild(particle);
+        }
+    }, duration * 1000);
 }
 
-function checkMobile() {
-    if (window.innerWidth < 768) {
-        console.log('📱 Mobile device detected');
-        
-        // Add mobile-specific optimizations
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes particleFloat {
-                0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-                10% { opacity: 1; }
-                90% { opacity: 1; }
-                100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
-            }
-            
-            .cosmic-particle {
-                animation-duration: 15s !important;
-            }
-        `;
-        document.head.appendChild(style);
-    } else {
-        console.log('🖥️ Desktop device detected');
-        
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes particleFloat {
-                0% { transform: translateY(100vh) translateX(0) rotate(0deg); opacity: 0; }
-                10% { opacity: 1; }
-                50% { transform: translateY(50vh) translateX(${Math.random() * 200 - 100}px) rotate(180deg); }
-                90% { opacity: 1; }
-                100% { transform: translateY(-100vh) translateX(${Math.random() * 400 - 200}px) rotate(360deg); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
+// Add CSS animation for particles
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes floatUp {
+        0% {
+            transform: translateY(0) translateX(0) rotate(0deg);
+            opacity: 0;
+        }
+        10% {
+            opacity: 1;
+        }
+        50% {
+            transform: translateY(-50vh) translateX(${Math.random() * 100 - 50}px) rotate(180deg);
+        }
+        90% {
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(-100vh) translateX(${Math.random() * 200 - 100}px) rotate(360deg);
+            opacity: 0;
+        }
     }
-}
+    
+    .loading .main-content {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    
+    .loaded .main-content {
+        opacity: 1;
+        transform: translateY(0);
+        transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+`;
+document.head.appendChild(style);
 
-// Utility functions for the casino
+// Enhanced utility functions
 window.aminaUtils = {
     formatNumber: (num) => {
-        return num.toLocaleString('en-US', { 
+        return new Intl.NumberFormat('en-US', { 
             minimumFractionDigits: 2, 
-            maximumFractionDigits: 2 
-        });
-    },
-    
-    generateRandomId: () => {
-        return Math.random().toString(36).substr(2, 9);
+            maximumFractionDigits: 4 
+        }).format(num);
     },
     
     playSound: (type) => {
-        // Future: Add sound effects
-        console.log(`🔊 Playing ${type} sound`);
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            const audioContext = new AudioContext();
+            
+            const createTone = (freq, duration, volume = 0.1) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            };
+            
+            switch(type) {
+                case 'win':
+                    createTone(523.25, 0.2); // C5
+                    setTimeout(() => createTone(659.25, 0.2), 100); // E5
+                    setTimeout(() => createTone(783.99, 0.3), 200); // G5
+                    break;
+                case 'spin':
+                    createTone(220, 0.1);
+                    break;
+                case 'drop':
+                    createTone(440, 0.1);
+                    break;
+                default:
+                    createTone(330, 0.1);
+            }
+        } catch (e) {
+            console.log(`🔊 ${type} sound (audio context unavailable)`);
+        }
     },
     
     vibrate: (pattern = [100]) => {
-        if ('vibrate' in navigator) {
+        if ('vibrate' in navigator && Array.isArray(pattern)) {
             navigator.vibrate(pattern);
         }
     },
     
-    saveToLocalStorage: (key, data) => {
-        try {
-            localStorage.setItem(`aminaCasino_${key}`, JSON.stringify(data));
-        } catch (e) {
-            console.warn('Could not save to localStorage:', e);
-        }
-    },
-    
-    loadFromLocalStorage: (key) => {
-        try {
-            const data = localStorage.getItem(`aminaCasino_${key}`);
-            return data ? JSON.parse(data) : null;
-        } catch (e) {
-            console.warn('Could not load from localStorage:', e);
-            return null;
+    createExplosion: (x, y) => {
+        for (let i = 0; i < 8; i++) {
+            const particle = document.createElement('div');
+            const size = Math.random() * 6 + 3;
+            const colors = ['#FFD700', '#00E5FF', '#E91E63', '#FF6B35'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            particle.style.cssText = `
+                position: fixed;
+                left: ${x}px;
+                top: ${y}px;
+                width: ${size}px;
+                height: ${size}px;
+                background: ${color};
+                border-radius: 50%;
+                pointer-events: none;
+                z-index: 1000;
+                box-shadow: 0 0 ${size * 2}px ${color};
+                animation: explode 1s ease-out forwards;
+                transform: translate(-50%, -50%);
+            `;
+            
+            const angle = (Math.PI * 2 * i) / 8;
+            const distance = Math.random() * 80 + 40;
+            particle.style.setProperty('--dx', Math.cos(angle) * distance + 'px');
+            particle.style.setProperty('--dy', Math.sin(angle) * distance + 'px');
+            
+            document.body.appendChild(particle);
+            
+            setTimeout(() => {
+                if (particle.parentNode) {
+                    particle.parentNode.removeChild(particle);
+                }
+            }, 1000);
         }
     }
 };
+
+// Add explosion animation
+const explosionStyle = document.createElement('style');
+explosionStyle.textContent = `
+    @keyframes explode {
+        0% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        100% {
+            transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(explosionStyle);
 
 // Performance monitoring
 window.aminaPerf = {
@@ -250,14 +239,6 @@ window.aminaPerf = {
     logLoadTime: () => {
         const loadTime = performance.now() - window.aminaPerf.startTime;
         console.log(`⚡ Casino loaded in ${loadTime.toFixed(2)}ms`);
-    },
-    
-    measureFunction: (name, fn) => {
-        const start = performance.now();
-        const result = fn();
-        const end = performance.now();
-        console.log(`📊 ${name} took ${(end - start).toFixed(2)}ms`);
-        return result;
     }
 };
 
@@ -266,46 +247,21 @@ window.addEventListener('error', (e) => {
     console.error('🚨 Casino Error:', e.error);
 });
 
-window.addEventListener('unhandledrejection', (e) => {
-    console.error('🚨 Unhandled Promise Rejection:', e.reason);
-});
-
 // Page visibility handling
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-        console.log('🌙 Casino paused (tab hidden)');
+        console.log('🌙 Casino paused');
     } else {
-        console.log('🌟 Casino resumed (tab visible)');
-        // Refresh particles when page becomes visible
-        setTimeout(createCosmicParticles, 1000);
+        console.log('🌟 Casino resumed');
     }
 });
 
-// Resize handler
-window.addEventListener('resize', () => {
-    console.log('📏 Window resized');
-    
-    // Redraw plinko canvas if game is active
-    if (window.aminaCasino && window.aminaCasino.plinkoCtx) {
-        const canvas = document.getElementById('plinkoCanvas');
-        if (canvas && window.innerWidth < 768) {
-            canvas.width = Math.min(350, window.innerWidth - 40);
-            window.aminaCasino.drawPlinkoBoard();
-        }
-    }
-});
-
-// Service worker registration (future feature)
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        // navigator.registerServiceWorker('/sw.js')
-        console.log('🔧 Service worker support detected');
-    });
-}
-
-// Log performance when everything is loaded
+// Log performance when loaded
 window.addEventListener('load', () => {
     setTimeout(() => {
         window.aminaPerf.logLoadTime();
+        document.body.classList.add('loaded');
     }, 100);
 });
+
+console.log('🌌 Amina Casino enhanced features loaded!');
