@@ -1,4 +1,4 @@
-// Amina Casino - Enhanced Game Logic WITH PERA WALLET!
+// Amina Casino - Complete Game Logic WITH PERA WALLET!
 class AminaCasino {
     constructor() {
         this.balance = { HC: 1000, AMINA: 0 };
@@ -6,10 +6,16 @@ class AminaCasino {
         this.isAmina = false;
         this.slotSymbols = ['⭐', '🌟', '💫', '🌌', '🪐', '🌙', '☄️', '🚀', '👽', '🛸'];
         
-        // PERA WALLET SETUP
-        this.peraWallet = new PeraWalletConnect();
-        this.connectedAccount = null;
-        this.aminaAssetId = 1107424865; // Your Amina Coin Asset ID
+        // PERA WALLET SETUP - WITH ERROR HANDLING
+        try {
+            this.peraWallet = new PeraWalletConnect();
+            this.connectedAccount = null;
+            this.aminaAssetId = 1107424865; // Your Amina Coin Asset ID
+            this.walletReady = true;
+        } catch (error) {
+            console.log('⚠️ Pera Wallet not available, using play money only');
+            this.walletReady = false;
+        }
         
         this.init();
     }
@@ -18,13 +24,52 @@ class AminaCasino {
         this.setupNavigation();
         this.setupCurrencyToggle();
         this.setupGames();
-        this.setupPeraWallet(); // NEW WALLET SETUP
         this.updateDisplay();
+        
+        // ADD PERA WALLET SETUP AFTER EVERYTHING ELSE LOADS
+        setTimeout(() => {
+            this.setupPeraWallet();
+        }, 1000);
+        
         console.log('🌌 Amina Casino with Pera Wallet loaded!');
     }
     
-    // PERA WALLET FUNCTIONS
+    setupNavigation() {
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            if (!btn.classList.contains('donation-btn')) {
+                btn.addEventListener('click', (e) => {
+                    this.switchGame(e.target.dataset.game);
+                });
+            }
+        });
+        
+        document.querySelectorAll('.game-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                this.switchGame(e.currentTarget.dataset.game);
+            });
+        });
+    }
+    
+    switchGame(game) {
+        document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        
+        document.getElementById(game).classList.add('active');
+        document.querySelector(`[data-game="${game}"]`).classList.add('active');
+        
+        // Reinitialize plinko when switching to it
+        if (game === 'plinko') {
+            setTimeout(() => this.initPlinko(), 100);
+        }
+    }
+    
+    // PERA WALLET FUNCTIONS - SAFE VERSION
     setupPeraWallet() {
+        if (!this.walletReady) {
+            console.log('💫 Wallet features disabled, HC mode only');
+            return;
+        }
+        
         // Add connect wallet button to header
         this.addWalletButton();
         
@@ -34,6 +79,7 @@ class AminaCasino {
                 this.connectedAccount = accounts[0];
                 this.updateWalletUI();
                 this.fetchAminaBalance();
+                console.log('🔗 Wallet reconnected!');
             }
         }).catch(() => {
             console.log('No previous wallet session');
@@ -42,6 +88,11 @@ class AminaCasino {
     
     addWalletButton() {
         const headerControls = document.querySelector('.header-controls');
+        if (!headerControls) return;
+        
+        // Check if button already exists
+        if (document.getElementById('walletBtn')) return;
+        
         const walletBtn = document.createElement('button');
         walletBtn.id = 'walletBtn';
         walletBtn.className = 'wallet-btn';
@@ -51,19 +102,7 @@ class AminaCasino {
         // Insert before balance display
         headerControls.insertBefore(walletBtn, headerControls.firstChild);
         
-        // Add wallet button styles
-        walletBtn.style.cssText = `
-            background: linear-gradient(135deg, var(--cosmic-purple), var(--cosmic-pink));
-            color: var(--star-white);
-            border: 2px solid var(--cosmic-pink);
-            padding: 0.8rem 1.5rem;
-            border-radius: 25px;
-            font-family: 'Orbitron', monospace;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        `;
+        console.log('💳 Wallet button added!');
     }
     
     async toggleWallet() {
@@ -96,7 +135,7 @@ class AminaCasino {
         if (this.connectedAccount) {
             const shortAddress = this.connectedAccount.slice(0, 6) + '...' + this.connectedAccount.slice(-4);
             walletBtn.innerHTML = `✅ ${shortAddress}`;
-            walletBtn.style.background = 'linear-gradient(135deg, var(--win-green), #4CAF50)';
+            walletBtn.style.background = 'linear-gradient(135deg, #4CAF50, #66BB6A)';
         } else {
             walletBtn.innerHTML = '🔗 Connect Wallet';
             walletBtn.style.background = 'linear-gradient(135deg, var(--cosmic-purple), var(--cosmic-pink))';
@@ -129,34 +168,7 @@ class AminaCasino {
         }
     }
     
-    setupNavigation() {
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            if (!btn.classList.contains('donation-btn')) {
-                btn.addEventListener('click', (e) => {
-                    this.switchGame(e.target.dataset.game);
-                });
-            }
-        });
-        
-        document.querySelectorAll('.game-card').forEach(card => {
-            card.addEventListener('click', (e) => {
-                this.switchGame(e.currentTarget.dataset.game);
-            });
-        });
-    }
-    
-    switchGame(game) {
-        document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        
-        document.getElementById(game).classList.add('active');
-        document.querySelector(`[data-game="${game}"]`).classList.add('active');
-        
-        // Reinitialize plinko when switching to it
-        if (game === 'plinko') {
-            setTimeout(() => this.initPlinko(), 100);
-        }
-    }
+    // Enhanced currency toggle for wallet
     setupCurrencyToggle() {
         document.getElementById('currencyToggle').addEventListener('click', () => {
             if (!this.connectedAccount && !this.isAmina) {
@@ -247,6 +259,30 @@ class AminaCasino {
         setTimeout(() => {
             resultDiv.classList.remove('show');
         }, 4000);
+    }
+    
+    showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'win' ? '#4CAF50' : '#FFD700'};
+            color: ${type === 'win' ? 'white' : 'black'};
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            z-index: 1001;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
     }
     
     // SLOTS GAME
@@ -391,7 +427,6 @@ class AminaCasino {
         const ctx = this.plinkoCtx;
         const canvas = ctx.canvas;
         
-        // Clear
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         // Classic blue background
