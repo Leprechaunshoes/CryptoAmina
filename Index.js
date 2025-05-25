@@ -14,13 +14,13 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function setupBackgroundMusic() {
-    // Create music control button
+    // Create music control button - MOVED TO BOTTOM!
     const musicButton = document.createElement('button');
     musicButton.id = 'musicToggle';
     musicButton.innerHTML = '🎵';
     musicButton.style.cssText = `
         position: fixed;
-        top: 20px;
+        bottom: 20px;
         left: 20px;
         width: 50px;
         height: 50px;
@@ -37,18 +37,13 @@ function setupBackgroundMusic() {
     
     document.body.appendChild(musicButton);
     
-    // Create audio element for Popcorn
+    // Create audio element for Popcorn - FIXED SOURCE!
     const audio = document.createElement('audio');
     audio.id = 'backgroundMusic';
     audio.loop = true;
     audio.volume = 0.3;
     audio.preload = 'auto';
-    
-    // Add Popcorn song source
-    audio.innerHTML = `
-        <source src="https://www.soundjay.com/misc/sounds/popcorn.mp3" type="audio/mpeg">
-        <source src="data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAAVE1LjAuMi4wIC8gTGF2ZjU4LjEyLjEwMAA=" type="audio/mpeg">
-    `;
+    audio.src = 'https://dn721902.ca.archive.org/0/items/tvtunes_26876/Hot%20Butter%20Popcorn.mp3';
     
     document.body.appendChild(audio);
     
