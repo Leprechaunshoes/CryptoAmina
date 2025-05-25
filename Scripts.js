@@ -106,26 +106,48 @@ class AminaCasino {
     }
     
     async toggleWallet() {
+        if (!this.walletReady) {
+            this.showNotification('❌ Pera Wallet not available', 'lose');
+            return;
+        }
+        
         if (this.connectedAccount) {
             // Disconnect wallet
-            await this.peraWallet.disconnect();
-            this.connectedAccount = null;
-            this.balance.AMINA = 0;
-            this.updateWalletUI();
-            this.updateDisplay();
+            try {
+                await this.peraWallet.disconnect();
+                this.connectedAccount = null;
+                this.balance.AMINA = 0;
+                // Switch back to HC if using AMINA
+                if (this.isAmina) {
+                    this.isAmina = false;
+                    this.currentCurrency = 'HC';
+                    document.getElementById('currencyToggle').classList.remove('amina');
+                    document.querySelector('.currency-text').textContent = 'HC';
+                }
+                this.updateWalletUI();
+                this.updateDisplay();
+                this.showNotification('🔌 Wallet disconnected', 'info');
+            } catch (error) {
+                console.error('Disconnect failed:', error);
+            }
         } else {
             // Connect wallet
             try {
+                console.log('🔗 Attempting to connect wallet...');
                 const accounts = await this.peraWallet.connect();
+                
                 if (accounts && accounts.length > 0) {
                     this.connectedAccount = accounts[0];
+                    console.log('✅ Wallet connected:', this.connectedAccount);
                     this.updateWalletUI();
                     await this.fetchAminaBalance();
                     this.showNotification('🔗 Wallet connected successfully!', 'win');
+                } else {
+                    this.showNotification('❌ No accounts found', 'lose');
                 }
             } catch (error) {
                 console.error('Wallet connection failed:', error);
-                this.showNotification('❌ Wallet connection failed', 'lose');
+                this.showNotification('❌ Connection cancelled or failed', 'lose');
             }
         }
     }
@@ -171,12 +193,13 @@ class AminaCasino {
     // Enhanced currency toggle for wallet
     setupCurrencyToggle() {
         document.getElementById('currencyToggle').addEventListener('click', () => {
-            if (!this.connectedAccount && !this.isAmina) {
-                // If switching to AMINA but no wallet connected
+            // If trying to switch TO AMINA but no wallet connected
+            if (!this.isAmina && !this.connectedAccount) {
                 this.showNotification('🔗 Connect wallet to use AMINA!', 'lose');
-                return;
+                return; // Don't switch
             }
             
+            // Toggle currency
             this.isAmina = !this.isAmina;
             this.currentCurrency = this.isAmina ? 'AMINA' : 'HC';
             
@@ -195,6 +218,7 @@ class AminaCasino {
             }
             
             this.updateDisplay();
+            console.log(`💰 Switched to ${this.currentCurrency}`);
         });
     }
     
