@@ -1,4 +1,4 @@
-// Amina Casino - Main Game Logic
+// Amina Casino - Enhanced Game Logic
 class AminaCasino {
     constructor() {
         this.balance = { HC: 1000, AMINA: 0 };
@@ -38,6 +38,11 @@ class AminaCasino {
         
         document.getElementById(game).classList.add('active');
         document.querySelector(`[data-game="${game}"]`).classList.add('active');
+        
+        // Reinitialize plinko when switching to it
+        if (game === 'plinko') {
+            setTimeout(() => this.initPlinko(), 100);
+        }
     }
     
     setupCurrencyToggle() {
@@ -89,6 +94,7 @@ class AminaCasino {
     deductBalance(amount) {
         if (this.canAfford(amount)) {
             this.balance[this.currentCurrency] -= amount;
+            this.animateBalance('lose');
             this.updateDisplay();
             return true;
         }
@@ -97,31 +103,29 @@ class AminaCasino {
     
     addBalance(amount) {
         this.balance[this.currentCurrency] += amount;
+        this.animateBalance('win');
         this.updateDisplay();
     }
     
-    showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-        notification.textContent = message;
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: ${type === 'win' ? '#4CAF50' : '#FFD700'};
-            color: ${type === 'win' ? 'white' : 'black'};
-            padding: 1rem 2rem;
-            border-radius: 15px;
-            font-family: 'Orbitron', monospace;
-            font-weight: 700;
-            z-index: 1001;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
-        `;
-        
-        document.body.appendChild(notification);
+    animateBalance(type) {
+        const balanceDisplay = document.querySelector('.balance-display');
+        balanceDisplay.classList.remove('win', 'lose');
+        setTimeout(() => {
+            balanceDisplay.classList.add(type);
+            setTimeout(() => {
+                balanceDisplay.classList.remove(type);
+            }, 1000);
+        }, 50);
+    }
+    
+    showGameResult(gameId, message, type = 'info') {
+        const resultDiv = document.getElementById(`${gameId}Result`);
+        resultDiv.textContent = message;
+        resultDiv.className = `game-result show ${type}`;
         
         setTimeout(() => {
-            notification.remove();
-        }, 3000);
+            resultDiv.classList.remove('show');
+        }, 4000);
     }
     
     // SLOTS GAME
@@ -139,7 +143,7 @@ class AminaCasino {
     spinSlots() {
         const bet = parseFloat(document.getElementById('slotsBet').value);
         if (!this.canAfford(bet)) {
-            this.showNotification('Insufficient balance!');
+            this.showGameResult('slots', 'Insufficient balance!', 'lose');
             return;
         }
         
@@ -151,7 +155,10 @@ class AminaCasino {
         spinButton.disabled = true;
         spinButton.textContent = 'SPINNING...';
         
-        reels.forEach(reel => reel.classList.add('spinning'));
+        reels.forEach(reel => {
+            reel.classList.add('spinning');
+            reel.classList.remove('winning');
+        });
         
         setTimeout(() => {
             const results = [];
@@ -165,16 +172,18 @@ class AminaCasino {
             const winAmount = this.calculateSlotWin(results, bet);
             if (winAmount > 0) {
                 this.addBalance(winAmount);
-                this.showNotification(`🌟 WIN! +${winAmount} ${this.currentCurrency}`, 'win');
+                this.highlightWinningSlots(reels, results);
+                this.showGameResult('slots', `🌟 WIN! +${winAmount} ${this.currentCurrency}`, 'win');
+            } else {
+                this.showGameResult('slots', `😔 No win this time. Try again!`, 'lose');
             }
             
             spinButton.disabled = false;
             spinButton.textContent = 'SPIN';
-        }, 2000);
+        }, 2500);
     }
     
     calculateSlotWin(results, bet) {
-        // Check each row for matches
         const rows = [
             [results[0], results[1], results[2], results[3], results[4]],
             [results[5], results[6], results[7], results[8], results[9]],
@@ -188,44 +197,71 @@ class AminaCasino {
             row.forEach(symbol => counts[symbol] = (counts[symbol] || 0) + 1);
             
             Object.entries(counts).forEach(([symbol, count]) => {
-                if (count >= 5) totalWin += bet * 100; // 5 of a kind
-                else if (count >= 4) totalWin += bet * 25; // 4 of a kind
-                else if (count >= 3) totalWin += bet * 5;  // 3 of a kind
+                if (count >= 5) totalWin += bet * 100;
+                else if (count >= 4) totalWin += bet * 25;
+                else if (count >= 3) totalWin += bet * 5;
             });
         });
         
         return totalWin;
     }
     
-    // PLINKO GAME
+    highlightWinningSlots(reels, results) {
+        const rows = [
+            [0, 1, 2, 3, 4],
+            [5, 6, 7, 8, 9],
+            [10, 11, 12, 13, 14]
+        ];
+        
+        rows.forEach(rowIndices => {
+            const rowSymbols = rowIndices.map(i => results[i]);
+            const counts = {};
+            rowSymbols.forEach(symbol => counts[symbol] = (counts[symbol] || 0) + 1);
+            
+            Object.entries(counts).forEach(([symbol, count]) => {
+                if (count >= 3) {
+                    rowIndices.forEach(i => {
+                        if (results[i] === symbol) {
+                            reels[i].classList.add('winning');
+                        }
+                    });
+                }
+            });
+        });
+    }
+    
+    // PLINKO GAME - COMPLETELY REWRITTEN
     initPlinko() {
         const canvas = document.getElementById('plinkoCanvas');
         if (!canvas) return;
         
-        const rect = canvas.parentElement.getBoundingClientRect();
-        canvas.width = Math.min(400, rect.width - 20);
-        canvas.height = 300;
+        // Set canvas size to fit container
+        const container = canvas.parentElement;
+        const containerRect = container.getBoundingClientRect();
+        canvas.width = Math.min(400, containerRect.width - 40);
+        canvas.height = 400;
         
         this.plinkoCtx = canvas.getContext('2d');
         this.plinkoDropping = false;
-        this.pegs = [];
-        this.setupPlinkoPhysics();
+        this.setupClassicPlinko();
         this.drawPlinkoBoard();
     }
     
-    setupPlinkoPhysics() {
+    setupClassicPlinko() {
         this.pegs = [];
-        const canvasWidth = this.plinkoCtx.canvas.width;
+        const rows = 10;
+        const canvas = this.plinkoCtx.canvas;
         
-        for (let row = 0; row < 8; row++) {
-            const pegsInRow = row + 3;
-            const spacing = (canvasWidth - 60) / pegsInRow;
-            const startX = 30 + spacing / 2;
+        for (let row = 0; row < rows; row++) {
+            const pegsInRow = row + 4;
+            const spacing = (canvas.width - 80) / (pegsInRow + 1);
+            const startX = 40;
+            const offsetX = (row % 2 === 0) ? 0 : spacing / 2;
             
             for (let peg = 0; peg < pegsInRow; peg++) {
-                const x = startX + peg * spacing;
-                const y = 40 + row * 30;
-                this.pegs.push({x, y, radius: 4});
+                const x = startX + (peg + 1) * spacing + offsetX;
+                const y = 60 + row * 32;
+                this.pegs.push({ x, y, radius: 5 });
             }
         }
     }
@@ -234,6 +270,7 @@ class AminaCasino {
         const ctx = this.plinkoCtx;
         const canvas = ctx.canvas;
         
+        // Clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         // Background gradient
@@ -243,19 +280,37 @@ class AminaCasino {
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // Draw pegs
+        // Draw pegs with glow
         this.pegs.forEach(peg => {
+            // Peg glow
+            ctx.beginPath();
+            ctx.arc(peg.x, peg.y, peg.radius + 2, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
+            ctx.fill();
+            
+            // Main peg
             ctx.beginPath();
             ctx.arc(peg.x, peg.y, peg.radius, 0, Math.PI * 2);
-            ctx.fillStyle = '#4a5568';
+            ctx.fillStyle = '#FFD700';
             ctx.fill();
         });
+        
+        // Draw side walls
+        ctx.strokeStyle = '#FFD700';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(20, 40);
+        ctx.lineTo(20, canvas.height - 40);
+        ctx.moveTo(canvas.width - 20, 40);
+        ctx.lineTo(canvas.width - 20, canvas.height - 40);
+        ctx.stroke();
     }
     
     dropPlinko() {
         const bet = parseFloat(document.getElementById('plinkoBet').value);
         if (!this.canAfford(bet) || this.plinkoDropping) {
-            this.showNotification(this.plinkoDropping ? 'Ball already dropping!' : 'Insufficient balance!');
+            const message = this.plinkoDropping ? 'Ball already dropping!' : 'Insufficient balance!';
+            this.showGameResult('plinko', message, 'lose');
             return;
         }
         
@@ -266,24 +321,29 @@ class AminaCasino {
         button.disabled = true;
         button.textContent = 'DROPPING...';
         
-        this.animatePlinkoBall().then(finalSlot => {
-            const multipliers = [10, 3, 1, 0.5, 1, 3, 10];
+        this.animateClassicPlinko().then(finalSlot => {
+            const multipliers = [10, 5, 2, 1, 0.5, 1, 2, 5, 10];
             const result = multipliers[finalSlot] || 1;
             const winAmount = bet * result;
             
             this.addBalance(winAmount);
-            this.showNotification(`🌌 Ball landed on ${result}x! +${winAmount} ${this.currentCurrency}`, winAmount > bet ? 'win' : 'info');
+            
+            const resultMessage = winAmount > bet ? 
+                `🌌 WINNER! Ball hit ${result}x! +${winAmount} ${this.currentCurrency}` :
+                `💫 Ball hit ${result}x. +${winAmount} ${this.currentCurrency}`;
+            
+            const resultType = winAmount > bet ? 'win' : 'lose';
+            this.showGameResult('plinko', resultMessage, resultType);
             
             // Highlight multiplier
             document.querySelectorAll('.multiplier').forEach(m => m.classList.remove('hit'));
             const multiplierElements = document.querySelectorAll('.multiplier');
             if (multiplierElements[finalSlot]) {
                 multiplierElements[finalSlot].classList.add('hit');
+                setTimeout(() => {
+                    multiplierElements[finalSlot].classList.remove('hit');
+                }, 3000);
             }
-            
-            setTimeout(() => {
-                document.querySelectorAll('.multiplier').forEach(m => m.classList.remove('hit'));
-            }, 3000);
             
             this.plinkoDropping = false;
             button.disabled = false;
@@ -291,64 +351,96 @@ class AminaCasino {
         });
     }
     
-    animatePlinkoBall() {
+    animateClassicPlinko() {
         return new Promise(resolve => {
             const canvas = this.plinkoCtx.canvas;
             const ball = {
                 x: canvas.width / 2,
-                y: 20,
-                vx: (Math.random() - 0.5) * 2,
+                y: 30,
+                vx: (Math.random() - 0.5) * 3,
                 vy: 0,
-                radius: 6,
-                gravity: 0.3,
-                bounce: 0.7
+                radius: 8,
+                gravity: 0.4,
+                bounce: 0.6,
+                color: '#00E5FF'
             };
+            
+            const trail = [];
+            const maxTrail = 5;
             
             const animate = () => {
                 this.drawPlinkoBoard();
+                
+                // Add to trail
+                trail.push({ x: ball.x, y: ball.y });
+                if (trail.length > maxTrail) trail.shift();
+                
+                // Draw trail
+                trail.forEach((point, i) => {
+                    const alpha = (i + 1) / trail.length * 0.5;
+                    this.plinkoCtx.beginPath();
+                    this.plinkoCtx.arc(point.x, point.y, ball.radius * 0.7, 0, Math.PI * 2);
+                    this.plinkoCtx.fillStyle = `rgba(0, 229, 255, ${alpha})`;
+                    this.plinkoCtx.fill();
+                });
                 
                 // Update physics
                 ball.vy += ball.gravity;
                 ball.x += ball.vx;
                 ball.y += ball.vy;
                 
-                // Check peg collisions
+                // Peg collisions
                 this.pegs.forEach(peg => {
                     const dx = ball.x - peg.x;
                     const dy = ball.y - peg.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     
-                    if (distance < ball.radius + peg.radius + 2) {
+                    if (distance < ball.radius + peg.radius) {
                         const angle = Math.atan2(dy, dx);
-                        ball.x = peg.x + Math.cos(angle) * (ball.radius + peg.radius + 2);
-                        ball.y = peg.y + Math.sin(angle) * (ball.radius + peg.radius + 2);
+                        ball.x = peg.x + Math.cos(angle) * (ball.radius + peg.radius);
+                        ball.y = peg.y + Math.sin(angle) * (ball.radius + peg.radius);
                         
-                        ball.vx = Math.cos(angle) * 3 + (Math.random() - 0.5) * 2;
-                        ball.vy = Math.abs(Math.sin(angle)) * 3;
+                        const speed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
+                        ball.vx = Math.cos(angle) * speed * ball.bounce + (Math.random() - 0.5) * 2;
+                        ball.vy = Math.abs(Math.sin(angle)) * speed * ball.bounce;
                     }
                 });
                 
                 // Wall collisions
-                if (ball.x < 20) {
-                    ball.x = 20;
+                if (ball.x - ball.radius < 25) {
+                    ball.x = 25 + ball.radius;
                     ball.vx = Math.abs(ball.vx) * ball.bounce;
-                } else if (ball.x > canvas.width - 20) {
-                    ball.x = canvas.width - 20;
+                } else if (ball.x + ball.radius > canvas.width - 25) {
+                    ball.x = canvas.width - 25 - ball.radius;
                     ball.vx = -Math.abs(ball.vx) * ball.bounce;
                 }
                 
-                // Draw ball
+                // Draw ball with glow
                 const ctx = this.plinkoCtx;
+                
+                // Ball glow
                 ctx.beginPath();
-                ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-                ctx.fillStyle = '#00e5ff';
+                ctx.arc(ball.x, ball.y, ball.radius + 4, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 229, 255, 0.3)';
                 ctx.fill();
                 
-                // Check if ball reached bottom
-                if (ball.y > canvas.height - 40) {
-                    const slotWidth = canvas.width / 7;
-                    const finalSlot = Math.floor(ball.x / slotWidth);
-                    resolve(Math.max(0, Math.min(6, finalSlot)));
+                // Main ball
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+                ctx.fillStyle = ball.color;
+                ctx.fill();
+                
+                // Ball shine
+                ctx.beginPath();
+                ctx.arc(ball.x - 2, ball.y - 2, ball.radius * 0.4, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.fill();
+                
+                // Check if reached bottom
+                if (ball.y > canvas.height - 50) {
+                    const slotWidth = (canvas.width - 40) / 9;
+                    const finalSlot = Math.floor((ball.x - 20) / slotWidth);
+                    resolve(Math.max(0, Math.min(8, finalSlot)));
                 } else {
                     requestAnimationFrame(animate);
                 }
@@ -387,7 +479,7 @@ class AminaCasino {
     dealCards() {
         const bet = parseFloat(document.getElementById('blackjackBet').value);
         if (!this.canAfford(bet)) {
-            this.showNotification('Insufficient balance!');
+            this.showGameResult('blackjack', 'Insufficient balance!', 'lose');
             return;
         }
         
@@ -403,6 +495,7 @@ class AminaCasino {
         document.getElementById('dealBtn').disabled = true;
         document.getElementById('hitBtn').disabled = false;
         document.getElementById('standBtn').disabled = false;
+        document.getElementById('blackjackResult').classList.remove('show');
     }
     
     hit() {
@@ -412,7 +505,7 @@ class AminaCasino {
         this.updateBlackjackDisplay();
         
         if (this.getHandValue(this.playerHand) > 21) {
-            this.endGame('Bust! You lose.');
+            this.endGame('💥 Bust! You lose.', 0, 'lose');
         }
     }
     
@@ -430,13 +523,13 @@ class AminaCasino {
         const dealerValue = this.getHandValue(this.dealerHand);
         
         if (dealerValue > 21) {
-            this.endGame('Dealer busts! You win!', this.currentBet * 2);
+            this.endGame('🎉 Dealer busts! You win!', this.currentBet * 2, 'win');
         } else if (playerValue > dealerValue) {
-            this.endGame('You win!', this.currentBet * 2);
+            this.endGame('🎉 You win!', this.currentBet * 2, 'win');
         } else if (playerValue < dealerValue) {
-            this.endGame('Dealer wins!');
+            this.endGame('😔 Dealer wins!', 0, 'lose');
         } else {
-            this.endGame('Push!', this.currentBet);
+            this.endGame('🤝 Push! Bet returned.', this.currentBet, 'win');
         }
     }
     
@@ -495,7 +588,7 @@ class AminaCasino {
         });
     }
     
-    endGame(message, winAmount = 0) {
+    endGame(message, winAmount = 0, resultType = 'info') {
         this.gameActive = false;
         
         if (winAmount > 0) {
@@ -503,7 +596,7 @@ class AminaCasino {
             message += ` +${winAmount} ${this.currentCurrency}`;
         }
         
-        document.getElementById('gameMessage').textContent = message;
+        this.showGameResult('blackjack', message, resultType);
         
         document.getElementById('hitBtn').disabled = true;
         document.getElementById('standBtn').disabled = true;
@@ -514,7 +607,7 @@ class AminaCasino {
         this.initBlackjack();
         document.getElementById('dealBtn').disabled = false;
         document.getElementById('newGameBtn').style.display = 'none';
-        document.getElementById('gameMessage').textContent = '';
+        document.getElementById('blackjackResult').classList.remove('show');
         document.getElementById('playerCards').innerHTML = '';
         document.getElementById('dealerCards').innerHTML = '';
         document.getElementById('playerScore').textContent = '0';
