@@ -2,50 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Amina Casino - Professional Cosmic Gaming Experience</title>
-    
-    <!-- Preconnect for performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://i.postimg.cc">
-    
-    <!-- Professional meta tags -->
-    <meta name="description" content="Experience the ultimate professional cosmic casino with Amina Coin - Slots, Plinko, Blackjack with Vegas-quality gameplay">
-    <meta name="keywords" content="crypto casino, Amina Coin, cosmic casino, slots, plinko, blackjack, Algorand">
-    <meta name="author" content="Amina Casino">
-    <meta name="theme-color" content="#4A148C">
-    
-    <!-- Mobile optimization -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Amina Casino">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="https://i.postimg.cc/nrMt6P0R/IMG-8041.png">
-    <link rel="apple-touch-icon" href="https://i.postimg.cc/nrMt6P0R/IMG-8041.png">
-    
-    <!-- Stylesheet -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amina Casino</title>
     <link rel="stylesheet" href="style.css">
-    
-    <!-- Preload critical images -->
-    <link rel="preload" href="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" as="image">
 </head>
 <body>
-    <!-- Cosmic background -->
     <div class="cosmic-bg"></div>
     
-    <!-- Header -->
     <header class="header">
         <div class="header-content">
             <div class="logo-section">
                 <div class="amina-coin">
-                    <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" 
-                         alt="Amina Coin" 
-                         class="coin-image" 
-                         id="aminaCoinHeader"
-                         loading="eager">
+                    <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina Coin" class="coin-image">
                 </div>
                 <h1 class="logo">AMINA CASINO</h1>
             </div>
@@ -53,7 +21,7 @@
             <div class="header-controls">
                 <div class="currency-toggle">
                     <span class="currency-label">Currency:</span>
-                    <button id="currencyToggle" class="toggle-btn" aria-label="Toggle between HC and AMINA">
+                    <button id="currencyToggle" class="toggle-btn">
                         <span class="toggle-slider"></span>
                         <span class="currency-text">HC</span>
                     </button>
@@ -67,107 +35,83 @@
         </div>
     </header>
 
-    <!-- Navigation -->
-    <nav class="nav-menu" role="navigation">
-        <button class="nav-btn active" data-game="home" aria-label="Go to home">🏠 Cosmic Hub</button>
-        <button class="nav-btn" data-game="slots" aria-label="Play stellar slots">🎰 Stellar Slots</button>
-        <button class="nav-btn" data-game="plinko" aria-label="Play quantum plinko">🌌 Quantum Plinko</button>
-        <button class="nav-btn" data-game="blackjack" aria-label="Play galaxy blackjack">♠️ Galaxy Blackjack</button>
-        <button class="nav-btn donation-btn" onclick="showDonationModal()" aria-label="Support the casino">💎 Support</button>
+    <nav class="nav-menu">
+        <button class="nav-btn active" data-game="home">🏠 Home</button>
+        <button class="nav-btn" data-game="slots">🎰 Slots</button>
+        <button class="nav-btn" data-game="plinko">🌌 Plinko</button>
+        <button class="nav-btn" data-game="blackjack">♠️ Blackjack</button>
+        <button class="nav-btn donation-btn" onclick="showDonationModal()">💎 Donate</button>
     </nav>
 
-    <!-- Main content -->
     <main class="main-content">
-        <!-- Home Screen -->
-        <section id="home" class="game-screen active">
+        <!-- Home -->
+        <div id="home" class="game-screen active">
             <div class="welcome-container">
                 <div class="welcome-coin-display">
-                    <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" 
-                         alt="Amina Coin" 
-                         class="welcome-coin" 
-                         id="aminaCoinWelcome"
-                         loading="eager">
+                    <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina Coin" class="welcome-coin">
                 </div>
-                
                 <h2 class="welcome-title">Welcome to Amina Casino</h2>
-                <p class="welcome-text">Experience Vegas luxury in the cosmic realm with Amina Coin</p>
+                <p class="welcome-text">Experience cosmic gaming with Amina Coin</p>
                 
                 <div class="game-grid">
-                    <div class="game-card" data-game="slots" role="button" tabindex="0">
+                    <div class="game-card" data-game="slots">
                         <div class="game-icon">🎰</div>
                         <h3>Stellar Slots</h3>
-                        <p>Spin through the galaxy for cosmic rewards</p>
+                        <p>Spin for cosmic rewards</p>
                         <div class="max-win">Max Win: 100x</div>
                     </div>
                     
-                    <div class="game-card" data-game="plinko" role="button" tabindex="0">
+                    <div class="game-card" data-game="plinko">
                         <div class="game-icon">🌌</div>
                         <h3>Quantum Plinko</h3>
-                        <p>Drop through cosmic dimensions</p>
+                        <p>Drop through dimensions</p>
                         <div class="max-win">Max Win: 10x</div>
                     </div>
                     
-                    <div class="game-card" data-game="blackjack" role="button" tabindex="0">
+                    <div class="game-card" data-game="blackjack">
                         <div class="game-icon">♠️</div>
                         <h3>Galaxy Blackjack</h3>
-                        <p>Beat the house among the stars</p>
+                        <p>Beat the house</p>
                         <div class="max-win">Max Win: 2.5x</div>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- Slots Game -->
-        <section id="slots" class="game-screen">
+        <!-- Slots -->
+        <div id="slots" class="game-screen">
             <div class="game-container">
                 <div class="game-header">
                     <h2>🎰 Stellar Slots</h2>
                     <div class="bet-controls">
-                        <label for="slotsBet">Bet Amount:</label>
-                        <select id="slotsBet" aria-label="Select bet amount">
-                            <option value="0.25">0.25</option>
-                            <option value="0.5">0.5</option>
-                            <option value="1" selected>1</option>
-                            <option value="2">2</option>
+                        <label>Bet:</label>
+                        <select id="slotsBet">
+                            <option value="1">1</option>
                             <option value="5">5</option>
+                            <option value="10">10</option>
                         </select>
                         <span id="slotsCurrency">HC</span>
                     </div>
                 </div>
                 
                 <div class="slots-machine">
-                    <div class="slots-grid" id="slotsGrid" role="img" aria-label="Slot machine reels"></div>
-                    <button id="spinBtn" class="cosmic-btn" aria-label="Spin the slot machine">SPIN THE COSMOS</button>
-                </div>
-
-                <div class="payout-table">
-                    <h3>Payout Structure</h3>
-                    <div class="payout-grid">
-                        <div class="payout-row"><span>⭐⭐⭐⭐⭐</span><span>100x</span></div>
-                        <div class="payout-row"><span>🌟🌟🌟🌟🌟</span><span>75x</span></div>
-                        <div class="payout-row"><span>💫💫💫💫💫</span><span>50x</span></div>
-                        <div class="payout-row"><span>🌌🌌🌌🌌🌌</span><span>25x</span></div>
-                        <div class="payout-row"><span>🪐🪐🪐🪐🪐</span><span>20x</span></div>
-                        <div class="payout-row"><span>Any 4 match</span><span>10x</span></div>
-                        <div class="payout-row"><span>Any 3 match</span><span>5x</span></div>
-                    </div>
+                    <div class="slots-grid" id="slotsGrid"></div>
+                    <button id="spinBtn" class="cosmic-btn">SPIN</button>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- Plinko Game -->
-        <section id="plinko" class="game-screen">
+        <!-- Plinko -->
+        <div id="plinko" class="game-screen">
             <div class="game-container">
                 <div class="game-header">
                     <h2>🌌 Quantum Plinko</h2>
                     <div class="bet-controls">
-                        <label for="plinkoBet">Bet Amount:</label>
-                        <select id="plinkoBet" aria-label="Select bet amount">
-                            <option value="0.25">0.25</option>
-                            <option value="0.5">0.5</option>
-                            <option value="1" selected>1</option>
-                            <option value="2">2</option>
+                        <label>Bet:</label>
+                        <select id="plinkoBet">
+                            <option value="1">1</option>
                             <option value="5">5</option>
+                            <option value="10">10</option>
                         </select>
                         <span id="plinkoCurrency">HC</span>
                     </div>
@@ -175,43 +119,33 @@
                 
                 <div class="plinko-container">
                     <div class="plinko-board">
-                        <div class="drop-zone" role="button" tabindex="0">Drop Cosmic Ball Here</div>
-                        <canvas id="plinkoCanvas" 
-                                width="500" 
-                                height="350"
-                                aria-label="Plinko game board">
-                            Your browser doesn't support canvas. Please upgrade your browser.
-                        </canvas>
-                        <div class="multipliers" role="row">
-                            <div class="multiplier" data-mult="10" role="gridcell">10x</div>
-                            <div class="multiplier" data-mult="3" role="gridcell">3x</div>
-                            <div class="multiplier" data-mult="1.5" role="gridcell">1.5x</div>
-                            <div class="multiplier" data-mult="1" role="gridcell">1x</div>
-                            <div class="multiplier" data-mult="0.5" role="gridcell">0.5x</div>
-                            <div class="multiplier" data-mult="1" role="gridcell">1x</div>
-                            <div class="multiplier" data-mult="1.5" role="gridcell">1.5x</div>
-                            <div class="multiplier" data-mult="3" role="gridcell">3x</div>
-                            <div class="multiplier" data-mult="10" role="gridcell">10x</div>
+                        <canvas id="plinkoCanvas" width="400" height="300"></canvas>
+                        <div class="multipliers">
+                            <div class="multiplier" data-mult="10">10x</div>
+                            <div class="multiplier" data-mult="3">3x</div>
+                            <div class="multiplier" data-mult="1">1x</div>
+                            <div class="multiplier" data-mult="0.5">0.5x</div>
+                            <div class="multiplier" data-mult="1">1x</div>
+                            <div class="multiplier" data-mult="3">3x</div>
+                            <div class="multiplier" data-mult="10">10x</div>
                         </div>
                     </div>
-                    <button id="dropBtn" class="cosmic-btn" aria-label="Drop the plinko ball">DROP COSMIC BALL</button>
+                    <button id="dropBtn" class="cosmic-btn">DROP BALL</button>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- Blackjack Game -->
-        <section id="blackjack" class="game-screen">
+        <!-- Blackjack -->
+        <div id="blackjack" class="game-screen">
             <div class="game-container">
                 <div class="game-header">
                     <h2>♠️ Galaxy Blackjack</h2>
                     <div class="bet-controls">
-                        <label for="blackjackBet">Bet Amount:</label>
-                        <select id="blackjackBet" aria-label="Select bet amount">
-                            <option value="0.25">0.25</option>
-                            <option value="0.5">0.5</option>
-                            <option value="1" selected>1</option>
-                            <option value="2">2</option>
+                        <label>Bet:</label>
+                        <select id="blackjackBet">
+                            <option value="1">1</option>
                             <option value="5">5</option>
+                            <option value="10">10</option>
                         </select>
                         <span id="blackjackCurrency">HC</span>
                     </div>
@@ -219,208 +153,71 @@
                 
                 <div class="blackjack-table">
                     <div class="dealer-section">
-                        <h3>Dealer: <span id="dealerScore" aria-live="polite">0</span></h3>
-                        <div id="dealerCards" class="card-container" role="img" aria-label="Dealer's cards"></div>
+                        <h3>Dealer: <span id="dealerScore">0</span></h3>
+                        <div id="dealerCards" class="card-container"></div>
                     </div>
                     
                     <div class="player-section">
-                        <h3>Your Hand: <span id="playerScore" aria-live="polite">0</span></h3>
-                        <div id="playerCards" class="card-container" role="img" aria-label="Your cards"></div>
+                        <h3>You: <span id="playerScore">0</span></h3>
+                        <div id="playerCards" class="card-container"></div>
                     </div>
                     
                     <div class="game-controls">
-                        <button id="dealBtn" class="cosmic-btn" aria-label="Deal new cards">DEAL CARDS</button>
-                        <button id="hitBtn" class="cosmic-btn" disabled aria-label="Take another card">HIT</button>
-                        <button id="standBtn" class="cosmic-btn" disabled aria-label="Keep current hand">STAND</button>
-                        <button id="newGameBtn" class="cosmic-btn" style="display:none;" aria-label="Start new game">NEW GAME</button>
+                        <button id="dealBtn" class="cosmic-btn">DEAL</button>
+                        <button id="hitBtn" class="cosmic-btn" disabled>HIT</button>
+                        <button id="standBtn" class="cosmic-btn" disabled>STAND</button>
+                        <button id="newGameBtn" class="cosmic-btn" style="display:none">NEW GAME</button>
                     </div>
                     
-                    <div id="gameMessage" class="game-message" role="status" aria-live="assertive"></div>
+                    <div id="gameMessage" class="game-message"></div>
                 </div>
             </div>
-        </section>
+        </div>
     </main>
 
     <!-- Donation Modal -->
-    <div id="donationModal" class="modal-overlay" style="display: none;" role="dialog" aria-labelledby="donationTitle" aria-modal="true">
+    <div id="donationModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="donationTitle">💎 Support Amina Casino</h3>
-                <button class="modal-close" onclick="closeDonationModal()" aria-label="Close donation modal">&times;</button>
+                <h3>💎 Support Amina Casino</h3>
+                <button class="modal-close" onclick="closeDonationModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Help support the cosmic gaming experience and Amina Coin development!</p>
+                <p>Support the cosmic gaming experience!</p>
                 
                 <div class="donation-coin">
-                    <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" 
-                         alt="Amina Coin" 
-                         class="donation-coin-image"
-                         loading="lazy">
+                    <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina Coin" class="donation-coin-image">
                 </div>
                 
                 <div class="wallet-section">
-                    <label for="donationWallet">Donation Wallet Address:</label>
+                    <label>Donation Address:</label>
                     <div class="wallet-input-group">
-                        <input type="text" 
-                               id="donationWallet" 
-                               value="6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI" 
-                               readonly 
-                               aria-label="Donation wallet address">
-                        <button class="copy-btn" onclick="copyDonationAddress()" aria-label="Copy wallet address">📋 Copy</button>
+                        <input type="text" id="donationWallet" value="6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI" readonly>
+                        <button class="copy-btn" onclick="copyDonationAddress()">Copy</button>
                     </div>
-                </div>
-                
-                <div class="donation-info">
-                    <p><strong>Your support helps:</strong></p>
-                    <ul>
-                        <li>🚀 Develop new cosmic games</li>
-                        <li>🔧 Improve user experience</li>
-                        <li>🌌 Expand Amina Coin ecosystem</li>
-                        <li>💫 Add exciting features</li>
-                    </ul>
-                </div>
-                
-                <div class="modal-footer">
-                    <button class="cosmic-btn" onclick="copyDonationAddress()">Copy Wallet Address</button>
-                    <button class="cosmic-btn secondary" onclick="closeDonationModal()">Close</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="scripts.js"></script>
     <script src="index.js"></script>
     
-    <!-- Inline critical JavaScript -->
     <script>
-        // Enhanced donation modal functions
         function showDonationModal() {
-            const modal = document.getElementById('donationModal');
-            modal.style.display = 'flex';
-            modal.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
-            
-            // Focus management for accessibility
-            const closeBtn = modal.querySelector('.modal-close');
-            closeBtn.focus();
+            document.getElementById('donationModal').style.display = 'flex';
         }
         
         function closeDonationModal() {
-            const modal = document.getElementById('donationModal');
-            modal.style.display = 'none';
-            modal.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = '';
+            document.getElementById('donationModal').style.display = 'none';
         }
         
         function copyDonationAddress() {
             const wallet = document.getElementById('donationWallet');
             wallet.select();
-            wallet.setSelectionRange(0, 99999);
-            
-            try {
-                document.execCommand('copy') || navigator.clipboard.writeText(wallet.value);
-                if (window.aminaCasino && window.aminaCasino.copyDonationAddress) {
-                    window.aminaCasino.copyDonationAddress();
-                } else {
-                    // Professional notification
-                    const notification = document.createElement('div');
-                    notification.textContent = '💎 Donation wallet address copied!';
-                    notification.style.cssText = `
-                        position: fixed; top: 20px; right: 20px; z-index: 10000;
-                        background: linear-gradient(135deg, #4CAF50, #8BC34A);
-                        color: white; padding: 1rem 2rem; border-radius: 15px;
-                        font-family: 'Orbitron', monospace; font-weight: 700;
-                        box-shadow: 0 0 30px rgba(76, 175, 80, 0.5);
-                        animation: slideIn 0.3s ease-out;
-                    `;
-                    
-                    document.body.appendChild(notification);
-                    setTimeout(() => {
-                        notification.style.animation = 'slideIn 0.3s ease-out reverse';
-                        setTimeout(() => notification.remove(), 300);
-                    }, 2000);
-                }
-            } catch (err) {
-                alert('Please manually copy the wallet address');
-            }
+            document.execCommand('copy');
+            alert('Address copied!');
         }
-        
-        // Enhanced click outside modal
-        window.onclick = function(event) {
-            const modal = document.getElementById('donationModal');
-            if (event.target === modal) {
-                closeDonationModal();
-            }
-        }
-        
-        // Keyboard navigation for game cards
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                const target = e.target;
-                if (target.classList.contains('game-card')) {
-                    e.preventDefault();
-                    target.click();
-                }
-            }
-            
-            // ESC to close modal
-            if (e.key === 'Escape') {
-                closeDonationModal();
-            }
-        });
-        
-        // Professional loading sequence
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🌌 Professional Amina Casino HTML loaded!');
-            
-            // Add loading class
-            document.body.classList.add('loading');
-            
-            // Professional smooth reveal
-            setTimeout(() => {
-                document.body.classList.remove('loading');
-                document.body.classList.add('loaded');
-            }, 500);
-            
-            // Enhanced coin preloading with fallback
-            const coinImages = document.querySelectorAll('img[src*="postimg.cc"]');
-            let loadedCount = 0;
-            
-            coinImages.forEach(img => {
-                if (img.complete) {
-                    loadedCount++;
-                } else {
-                    img.onload = () => {
-                        loadedCount++;
-                        if (loadedCount === coinImages.length) {
-                            console.log('🪙 All Amina Coin images loaded successfully');
-                        }
-                    };
-                    img.onerror = () => {
-                        console.warn('⚠️ Coin image failed to load:', img.src);
-                        img.style.display = 'none';
-                    };
-                }
-            });
-        });
-        
-        // Add smooth slide animation keyframes
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            
-            .loading .main-content { opacity: 0; transform: translateY(20px); }
-            .loaded .main-content { 
-                opacity: 1; 
-                transform: translateY(0); 
-                transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 </body>
 </html>
