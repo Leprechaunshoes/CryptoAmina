@@ -230,80 +230,54 @@ class AminaCasino {
         });
     }
     
-    // PLINKO GAME - COMPLETELY REWRITTEN
+    // PLINKO - CLEAN STAKE-STYLE VERSION
     initPlinko() {
         const canvas = document.getElementById('plinkoCanvas');
         if (!canvas) return;
         
-        // Set canvas size to fit container
-        const container = canvas.parentElement;
-        const containerRect = container.getBoundingClientRect();
-        canvas.width = Math.min(400, containerRect.width - 40);
+        canvas.width = 400;
         canvas.height = 400;
-        
         this.plinkoCtx = canvas.getContext('2d');
         this.plinkoDropping = false;
-        this.setupClassicPlinko();
-        this.drawPlinkoBoard();
+        this.setupCleanPlinko();
+        this.drawCleanBoard();
     }
     
-    setupClassicPlinko() {
+    setupCleanPlinko() {
         this.pegs = [];
-        const rows = 10;
-        const canvas = this.plinkoCtx.canvas;
+        const rows = 8;
         
         for (let row = 0; row < rows; row++) {
             const pegsInRow = row + 4;
-            const spacing = (canvas.width - 80) / (pegsInRow + 1);
-            const startX = 40;
-            const offsetX = (row % 2 === 0) ? 0 : spacing / 2;
+            const spacing = 350 / pegsInRow;
+            const startX = 50;
             
             for (let peg = 0; peg < pegsInRow; peg++) {
-                const x = startX + (peg + 1) * spacing + offsetX;
-                const y = 60 + row * 32;
-                this.pegs.push({ x, y, radius: 5 });
+                const x = startX + peg * spacing;
+                const y = 80 + row * 35;
+                this.pegs.push({ x, y, radius: 4 });
             }
         }
     }
     
-    drawPlinkoBoard() {
+    drawCleanBoard() {
         const ctx = this.plinkoCtx;
-        const canvas = ctx.canvas;
+        ctx.clearRect(0, 0, 400, 400);
         
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Background gradient
-        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        gradient.addColorStop(0, '#0f0f23');
-        gradient.addColorStop(1, '#1a1a2e');
+        // Clean background
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, '#1a1a2e');
+        gradient.addColorStop(1, '#0f0f23');
         ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, 400, 400);
         
-        // Draw pegs with glow
+        // Draw pegs
         this.pegs.forEach(peg => {
-            // Peg glow
-            ctx.beginPath();
-            ctx.arc(peg.x, peg.y, peg.radius + 2, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
-            ctx.fill();
-            
-            // Main peg
             ctx.beginPath();
             ctx.arc(peg.x, peg.y, peg.radius, 0, Math.PI * 2);
             ctx.fillStyle = '#FFD700';
             ctx.fill();
         });
-        
-        // Draw side walls
-        ctx.strokeStyle = '#FFD700';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(20, 40);
-        ctx.lineTo(20, canvas.height - 40);
-        ctx.moveTo(canvas.width - 20, 40);
-        ctx.lineTo(canvas.width - 20, canvas.height - 40);
-        ctx.stroke();
     }
     
     dropPlinko() {
@@ -321,7 +295,7 @@ class AminaCasino {
         button.disabled = true;
         button.textContent = 'DROPPING...';
         
-        this.animateClassicPlinko().then(finalSlot => {
+        this.animateCleanBall().then(finalSlot => {
             const multipliers = [10, 5, 2, 1, 0.5, 1, 2, 5, 10];
             const result = multipliers[finalSlot] || 1;
             const winAmount = bet * result;
@@ -329,8 +303,8 @@ class AminaCasino {
             this.addBalance(winAmount);
             
             const resultMessage = winAmount > bet ? 
-                `🌌 WINNER! Ball hit ${result}x! +${winAmount} ${this.currentCurrency}` :
-                `💫 Ball hit ${result}x. +${winAmount} ${this.currentCurrency}`;
+                `🌌 WIN! Ball hit ${result}x! +${winAmount} ${this.currentCurrency}` :
+                `Ball hit ${result}x. +${winAmount} ${this.currentCurrency}`;
             
             const resultType = winAmount > bet ? 'win' : 'lose';
             this.showGameResult('plinko', resultMessage, resultType);
@@ -340,9 +314,7 @@ class AminaCasino {
             const multiplierElements = document.querySelectorAll('.multiplier');
             if (multiplierElements[finalSlot]) {
                 multiplierElements[finalSlot].classList.add('hit');
-                setTimeout(() => {
-                    multiplierElements[finalSlot].classList.remove('hit');
-                }, 3000);
+                setTimeout(() => multiplierElements[finalSlot].classList.remove('hit'), 2000);
             }
             
             this.plinkoDropping = false;
@@ -351,40 +323,22 @@ class AminaCasino {
         });
     }
     
-    animateClassicPlinko() {
+    animateCleanBall() {
         return new Promise(resolve => {
-            const canvas = this.plinkoCtx.canvas;
             const ball = {
-                x: canvas.width / 2,
-                y: 30,
-                vx: (Math.random() - 0.5) * 3,
+                x: 200,
+                y: 50,
+                vx: (Math.random() - 0.5) * 2,
                 vy: 0,
-                radius: 8,
-                gravity: 0.4,
-                bounce: 0.6,
-                color: '#00E5FF'
+                radius: 6,
+                gravity: 0.3,
+                bounce: 0.7
             };
             
-            const trail = [];
-            const maxTrail = 5;
-            
             const animate = () => {
-                this.drawPlinkoBoard();
+                this.drawCleanBoard();
                 
-                // Add to trail
-                trail.push({ x: ball.x, y: ball.y });
-                if (trail.length > maxTrail) trail.shift();
-                
-                // Draw trail
-                trail.forEach((point, i) => {
-                    const alpha = (i + 1) / trail.length * 0.5;
-                    this.plinkoCtx.beginPath();
-                    this.plinkoCtx.arc(point.x, point.y, ball.radius * 0.7, 0, Math.PI * 2);
-                    this.plinkoCtx.fillStyle = `rgba(0, 229, 255, ${alpha})`;
-                    this.plinkoCtx.fill();
-                });
-                
-                // Update physics
+                // Physics
                 ball.vy += ball.gravity;
                 ball.x += ball.vx;
                 ball.y += ball.vy;
@@ -400,46 +354,30 @@ class AminaCasino {
                         ball.x = peg.x + Math.cos(angle) * (ball.radius + peg.radius);
                         ball.y = peg.y + Math.sin(angle) * (ball.radius + peg.radius);
                         
-                        const speed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
-                        ball.vx = Math.cos(angle) * speed * ball.bounce + (Math.random() - 0.5) * 2;
-                        ball.vy = Math.abs(Math.sin(angle)) * speed * ball.bounce;
+                        ball.vx = Math.cos(angle) * 3 + (Math.random() - 0.5) * 2;
+                        ball.vy = Math.abs(Math.sin(angle)) * 2;
                     }
                 });
                 
-                // Wall collisions
-                if (ball.x - ball.radius < 25) {
-                    ball.x = 25 + ball.radius;
-                    ball.vx = Math.abs(ball.vx) * ball.bounce;
-                } else if (ball.x + ball.radius > canvas.width - 25) {
-                    ball.x = canvas.width - 25 - ball.radius;
-                    ball.vx = -Math.abs(ball.vx) * ball.bounce;
+                // Wall bounces
+                if (ball.x < 25) {
+                    ball.x = 25;
+                    ball.vx = Math.abs(ball.vx);
+                } else if (ball.x > 375) {
+                    ball.x = 375;
+                    ball.vx = -Math.abs(ball.vx);
                 }
                 
-                // Draw ball with glow
-                const ctx = this.plinkoCtx;
+                // Draw ball
+                this.plinkoCtx.beginPath();
+                this.plinkoCtx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+                this.plinkoCtx.fillStyle = '#00E5FF';
+                this.plinkoCtx.fill();
                 
-                // Ball glow
-                ctx.beginPath();
-                ctx.arc(ball.x, ball.y, ball.radius + 4, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(0, 229, 255, 0.3)';
-                ctx.fill();
-                
-                // Main ball
-                ctx.beginPath();
-                ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-                ctx.fillStyle = ball.color;
-                ctx.fill();
-                
-                // Ball shine
-                ctx.beginPath();
-                ctx.arc(ball.x - 2, ball.y - 2, ball.radius * 0.4, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-                ctx.fill();
-                
-                // Check if reached bottom
-                if (ball.y > canvas.height - 50) {
-                    const slotWidth = (canvas.width - 40) / 9;
-                    const finalSlot = Math.floor((ball.x - 20) / slotWidth);
+                // Check finish
+                if (ball.y > 360) {
+                    const slotWidth = 350 / 9;
+                    const finalSlot = Math.floor((ball.x - 25) / slotWidth);
                     resolve(Math.max(0, Math.min(8, finalSlot)));
                 } else {
                     requestAnimationFrame(animate);
