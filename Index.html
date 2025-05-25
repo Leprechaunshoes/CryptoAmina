@@ -29,7 +29,7 @@
                     </div>
                     <div class="info-item">
                         <span class="info-icon">🌌</span>
-                        <p><strong>Quantum Plinko:</strong> Drop balls for random multipliers up to 10x</p>
+                        <p><strong>Quantum Plinko:</strong> Drop balls for random multipliers up to 100x</p>
                     </div>
                     <div class="info-item">
                         <span class="info-icon">♠️</span>
@@ -105,7 +105,7 @@
                             <div class="game-icon">🌌</div>
                             <h3>Quantum Plinko</h3>
                             <p>Drop through dimensions</p>
-                            <div class="max-win">Max Win: 10x</div>
+                            <div class="max-win">Max Win: 100x</div>
                         </div>
                         
                         <div class="game-card" data-game="blackjack">
@@ -269,17 +269,15 @@
         function copyDonationAddress() {
             const wallet = document.getElementById('donationWallet');
             wallet.select();
-            wallet.setSelectionRange(0, 99999); // For mobile devices
+            wallet.setSelectionRange(0, 99999);
             navigator.clipboard.writeText(wallet.value).then(() => {
                 alert('Algorand address copied!');
             }).catch(() => {
-                // Fallback for older browsers
                 document.execCommand('copy');
                 alert('Algorand address copied!');
             });
         }
         
-        // Enter casino functionality
         document.getElementById('enterCasino').addEventListener('click', function() {
             document.getElementById('welcomeScreen').classList.remove('active');
             document.getElementById('mainCasino').classList.add('active');
