@@ -9,6 +9,8 @@
     --star-white: #FFFFFF;
     --plasma-cyan: #00E5FF;
     --void-gray: #212121;
+    --win-green: #4CAF50;
+    --lose-red: #F44336;
 }
 
 * {
@@ -55,6 +57,155 @@ body {
 @keyframes starTwinkle {
     0%, 100% { opacity: 0.6; }
     50% { opacity: 0.3; }
+}
+
+/* Welcome Screen */
+.welcome-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.5s ease;
+}
+
+.welcome-screen.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.welcome-content {
+    text-align: center;
+    max-width: 800px;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.9);
+    border: 3px solid var(--cosmic-gold);
+    border-radius: 25px;
+    backdrop-filter: blur(20px);
+}
+
+.welcome-coin-hero {
+    margin-bottom: 2rem;
+}
+
+.hero-coin {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    animation: heroFloat 4s ease-in-out infinite;
+    filter: drop-shadow(0 0 30px var(--cosmic-gold));
+    border: 3px solid var(--cosmic-gold);
+    object-fit: cover;
+}
+
+@keyframes heroFloat {
+    0%, 100% { transform: translateY(0) rotateY(0deg) scale(1); }
+    50% { transform: translateY(-15px) rotateY(180deg) scale(1.1); }
+}
+
+.hero-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    background: linear-gradient(45deg, var(--cosmic-gold), var(--plasma-cyan), var(--cosmic-pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 40px rgba(255, 215, 0, 0.5);
+}
+
+.hero-subtitle {
+    font-size: 1.3rem;
+    color: var(--plasma-cyan);
+    margin-bottom: 2rem;
+    font-weight: 600;
+}
+
+.game-info {
+    margin: 2rem 0;
+    text-align: left;
+}
+
+.game-info h3 {
+    text-align: center;
+    font-family: 'Orbitron', monospace;
+    color: var(--cosmic-gold);
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.info-grid {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(74, 20, 140, 0.3);
+    padding: 1rem;
+    border-radius: 15px;
+    border: 1px solid var(--cosmic-gold);
+}
+
+.info-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.currency-info {
+    text-align: center;
+    background: rgba(0, 229, 255, 0.1);
+    padding: 1rem;
+    border-radius: 15px;
+    border: 1px solid var(--plasma-cyan);
+}
+
+.enter-btn {
+    background: linear-gradient(135deg, var(--cosmic-gold), var(--plasma-cyan));
+    color: var(--space-black);
+    border: none;
+    padding: 1.5rem 3rem;
+    border-radius: 25px;
+    font-family: 'Orbitron', monospace;
+    font-size: 1.3rem;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+    animation: enterPulse 2s ease-in-out infinite;
+}
+
+@keyframes enterPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(255, 215, 0, 0.5); }
+    50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(255, 215, 0, 0.8); }
+}
+
+.enter-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 60px var(--cosmic-gold);
+}
+
+/* Main Casino */
+.main-casino {
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.5s ease;
+}
+
+.main-casino.active {
+    opacity: 1;
+    visibility: visible;
 }
 
 /* Header */
@@ -168,6 +319,30 @@ body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.balance-display.win {
+    animation: balanceWin 1s ease-in-out;
+    border-color: var(--win-green);
+    box-shadow: 0 0 20px var(--win-green);
+}
+
+.balance-display.lose {
+    animation: balanceLose 1s ease-in-out;
+    border-color: var(--lose-red);
+    box-shadow: 0 0 20px var(--lose-red);
+}
+
+@keyframes balanceWin {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+@keyframes balanceLose {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(0.95) rotate(-2deg); }
+    75% { transform: scale(0.95) rotate(2deg); }
 }
 
 .balance-amount {
@@ -175,6 +350,7 @@ body {
     font-size: 1.3rem;
     font-weight: 700;
     color: var(--cosmic-gold);
+    transition: all 0.3s ease;
 }
 
 /* Navigation */
@@ -358,6 +534,50 @@ body {
     font-family: 'Orbitron', monospace;
 }
 
+/* Game Result Display */
+.game-result {
+    margin-top: 2rem;
+    padding: 1rem;
+    border-radius: 15px;
+    text-align: center;
+    font-family: 'Orbitron', monospace;
+    font-size: 1.2rem;
+    font-weight: 700;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+}
+
+.game-result.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.game-result.win {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(76, 175, 80, 0.1));
+    border: 2px solid var(--win-green);
+    color: var(--win-green);
+    animation: resultWin 1s ease-in-out;
+}
+
+.game-result.lose {
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.3), rgba(244, 67, 54, 0.1));
+    border: 2px solid var(--lose-red);
+    color: var(--lose-red);
+    animation: resultLose 1s ease-in-out;
+}
+
+@keyframes resultWin {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes resultLose {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(0.95) rotate(-1deg); }
+    75% { transform: scale(0.95) rotate(1deg); }
+}
+
 /* Buttons */
 .cosmic-btn {
     background: linear-gradient(135deg, var(--cosmic-gold), var(--plasma-cyan));
@@ -410,15 +630,27 @@ body {
     align-items: center;
     justify-content: center;
     font-size: 2rem;
+    transition: all 0.3s ease;
 }
 
 .slot-reel.spinning {
     animation: slotSpin 0.1s linear infinite;
 }
 
+.slot-reel.winning {
+    animation: slotWin 1s ease-in-out;
+    background: linear-gradient(135deg, var(--cosmic-gold), var(--plasma-cyan));
+    box-shadow: 0 0 30px var(--cosmic-gold);
+}
+
 @keyframes slotSpin {
     0% { transform: rotateX(0deg); }
     100% { transform: rotateX(360deg); }
+}
+
+@keyframes slotWin {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
 }
 
 /* Plinko */
@@ -440,7 +672,7 @@ body {
 
 .multipliers {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(9, 1fr);
     background: #0a0a0a;
 }
 
@@ -452,6 +684,7 @@ body {
     font-weight: 700;
     text-align: center;
     border-right: 1px solid #333;
+    transition: all 0.3s ease;
 }
 
 .multiplier:last-child {
@@ -463,7 +696,7 @@ body {
     color: white;
 }
 
-.multiplier[data-mult="3"] {
+.multiplier[data-mult="5"] {
     background: #4ecdc4;
     color: white;
 }
@@ -472,11 +705,12 @@ body {
     background: var(--cosmic-pink);
     color: white;
     animation: multiplierHit 1s ease-in-out;
+    box-shadow: 0 0 20px var(--cosmic-pink);
 }
 
 @keyframes multiplierHit {
     0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
+    50% { transform: scale(1.2); }
 }
 
 /* Blackjack */
@@ -513,6 +747,12 @@ body {
     font-size: 1.2rem;
     font-weight: 700;
     color: var(--space-black);
+    animation: cardDeal 0.5s ease-out;
+}
+
+@keyframes cardDeal {
+    from { opacity: 0; transform: translateY(-20px) rotateY(180deg); }
+    to { opacity: 1; transform: translateY(0) rotateY(0deg); }
 }
 
 .playing-card.red {
@@ -531,17 +771,6 @@ body {
     gap: 1rem;
     margin: 2rem 0;
     flex-wrap: wrap;
-}
-
-.game-message {
-    font-family: 'Orbitron', monospace;
-    font-size: 1.3rem;
-    padding: 1rem;
-    border-radius: 15px;
-    margin-top: 1rem;
-    text-align: center;
-    background: rgba(0, 0, 0, 0.5);
-    border: 2px solid var(--cosmic-gold);
 }
 
 /* Modal */
@@ -621,6 +850,18 @@ body {
 
 /* Mobile */
 @media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .welcome-content {
+        padding: 1rem;
+    }
+    
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+    
     .logo {
         font-size: 1.8rem;
     }
@@ -639,7 +880,7 @@ body {
     }
     
     #plinkoCanvas {
-        height: 250px;
+        height: 300px;
     }
     
     .game-container {
