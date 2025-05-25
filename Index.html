@@ -29,7 +29,7 @@
                     </div>
                     <div class="info-item">
                         <span class="info-icon">🌌</span>
-                        <p><strong>Quantum Plinko:</strong> Drop balls for random multipliers up to 100x</p>
+                        <p><strong>Quantum Plinko:</strong> Drop balls for random multipliers up to 10x</p>
                     </div>
                     <div class="info-item">
                         <span class="info-icon">♠️</span>
@@ -37,7 +37,7 @@
                     </div>
                 </div>
                 <div class="currency-info">
-                    <p>💰 Start with 1000 HC (House Coins) or connect wallet to use AMINA</p>
+                    <p>💰 Start with 1000 HC (House Coins) or toggle to AMINA</p>
                 </div>
             </div>
             
@@ -57,8 +57,6 @@
                 </div>
                 
                 <div class="header-controls">
-                    <button id="walletBtn" class="wallet-btn">🔗 Connect Wallet</button>
-                    
                     <div class="currency-toggle">
                         <span class="currency-label">Currency:</span>
                         <button id="currencyToggle" class="toggle-btn">
@@ -105,7 +103,7 @@
                             <div class="game-icon">🌌</div>
                             <h3>Quantum Plinko</h3>
                             <p>Drop through dimensions</p>
-                            <div class="max-win">Max Win: 100x</div>
+                            <div class="max-win">Max Win: 10x</div>
                         </div>
                         
                         <div class="game-card" data-game="blackjack">
@@ -161,10 +159,9 @@
                     
                     <div class="plinko-container">
                         <div class="plinko-board">
-                            <canvas id="plinkoCanvas" width="350" height="400"></canvas>
+                            <canvas id="plinkoCanvas" width="400" height="400"></canvas>
                             <div class="multipliers">
-                                <div class="multiplier" data-mult="100">100x</div>
-                                <div class="multiplier" data-mult="20">20x</div>
+                                <div class="multiplier" data-mult="10">10x</div>
                                 <div class="multiplier" data-mult="5">5x</div>
                                 <div class="multiplier" data-mult="2">2x</div>
                                 <div class="multiplier" data-mult="1">1x</div>
@@ -172,8 +169,7 @@
                                 <div class="multiplier" data-mult="1">1x</div>
                                 <div class="multiplier" data-mult="2">2x</div>
                                 <div class="multiplier" data-mult="5">5x</div>
-                                <div class="multiplier" data-mult="20">20x</div>
-                                <div class="multiplier" data-mult="100">100x</div>
+                                <div class="multiplier" data-mult="10">10x</div>
                             </div>
                         </div>
                         <button id="dropBtn" class="cosmic-btn">DROP BALL</button>
@@ -224,7 +220,7 @@
         </main>
     </div>
 
-    <!-- Donation Modal -->
+    <!-- Donation Modal - ENHANCED WITH ALGORAND LOGO -->
     <div id="donationModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -232,23 +228,27 @@
                 <button class="modal-close" onclick="closeDonationModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Support the cosmic gaming experience!</p>
+                <p>Support the cosmic gaming experience with ALGO donations!</p>
                 
-                <div class="donation-coins">
+                <div class="donation-coins-display">
                     <div class="donation-coin">
                         <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina Coin" class="donation-coin-image">
+                        <span class="coin-label">AMINA</span>
                     </div>
-                    <div class="algorand-logo">
-                        <img src="https://i.postimg.cc/KkVKyYHG/algorand-logo.png" alt="Algorand" class="algorand-image">
+                    <div class="donation-plus">+</div>
+                    <div class="donation-coin">
+                        <img src="https://i.postimg.cc/KkVKyYHG/algorand-algo-logo.png" alt="Algorand Logo" class="donation-coin-image">
+                        <span class="coin-label">ALGO</span>
                     </div>
                 </div>
                 
                 <div class="wallet-section">
-                    <label>Algorand Donation Address:</label>
+                    <label>🎯 Send ALGO to this address:</label>
                     <div class="wallet-input-group">
                         <input type="text" id="donationWallet" value="6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI" readonly>
                         <button class="copy-btn" onclick="copyDonationAddress()">Copy</button>
                     </div>
+                    <p class="donation-note">💫 Your ALGO donations help keep the cosmic casino running!</p>
                 </div>
             </div>
         </div>
@@ -269,15 +269,11 @@
         function copyDonationAddress() {
             const wallet = document.getElementById('donationWallet');
             wallet.select();
-            wallet.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(wallet.value).then(() => {
-                alert('Algorand address copied!');
-            }).catch(() => {
-                document.execCommand('copy');
-                alert('Algorand address copied!');
-            });
+            document.execCommand('copy');
+            alert('ALGO address copied! 🚀');
         }
         
+        // Enter casino functionality
         document.getElementById('enterCasino').addEventListener('click', function() {
             document.getElementById('welcomeScreen').classList.remove('active');
             document.getElementById('mainCasino').classList.add('active');
