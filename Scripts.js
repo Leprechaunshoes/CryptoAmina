@@ -1,10 +1,16 @@
-// Amina Casino - Enhanced Game Logic
+// Amina Casino - Enhanced Game Logic WITH PERA WALLET!
 class AminaCasino {
     constructor() {
         this.balance = { HC: 1000, AMINA: 0 };
         this.currentCurrency = 'HC';
         this.isAmina = false;
         this.slotSymbols = ['⭐', '🌟', '💫', '🌌', '🪐', '🌙', '☄️', '🚀', '👽', '🛸'];
+        
+        // PERA WALLET SETUP
+        this.peraWallet = new PeraWalletConnect();
+        this.connectedAccount = null;
+        this.aminaAssetId = 1107424865; // Your Amina Coin Asset ID
+        
         this.init();
     }
     
@@ -12,8 +18,115 @@ class AminaCasino {
         this.setupNavigation();
         this.setupCurrencyToggle();
         this.setupGames();
+        this.setupPeraWallet(); // NEW WALLET SETUP
         this.updateDisplay();
-        console.log('🌌 Amina Casino loaded!');
+        console.log('🌌 Amina Casino with Pera Wallet loaded!');
+    }
+    
+    // PERA WALLET FUNCTIONS
+    setupPeraWallet() {
+        // Add connect wallet button to header
+        this.addWalletButton();
+        
+        // Check if wallet was previously connected
+        this.peraWallet.reconnectSession().then((accounts) => {
+            if (accounts && accounts.length > 0) {
+                this.connectedAccount = accounts[0];
+                this.updateWalletUI();
+                this.fetchAminaBalance();
+            }
+        }).catch(() => {
+            console.log('No previous wallet session');
+        });
+    }
+    
+    addWalletButton() {
+        const headerControls = document.querySelector('.header-controls');
+        const walletBtn = document.createElement('button');
+        walletBtn.id = 'walletBtn';
+        walletBtn.className = 'wallet-btn';
+        walletBtn.innerHTML = '🔗 Connect Wallet';
+        walletBtn.addEventListener('click', () => this.toggleWallet());
+        
+        // Insert before balance display
+        headerControls.insertBefore(walletBtn, headerControls.firstChild);
+        
+        // Add wallet button styles
+        walletBtn.style.cssText = `
+            background: linear-gradient(135deg, var(--cosmic-purple), var(--cosmic-pink));
+            color: var(--star-white);
+            border: 2px solid var(--cosmic-pink);
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        `;
+    }
+    
+    async toggleWallet() {
+        if (this.connectedAccount) {
+            // Disconnect wallet
+            await this.peraWallet.disconnect();
+            this.connectedAccount = null;
+            this.balance.AMINA = 0;
+            this.updateWalletUI();
+            this.updateDisplay();
+        } else {
+            // Connect wallet
+            try {
+                const accounts = await this.peraWallet.connect();
+                if (accounts && accounts.length > 0) {
+                    this.connectedAccount = accounts[0];
+                    this.updateWalletUI();
+                    await this.fetchAminaBalance();
+                    this.showNotification('🔗 Wallet connected successfully!', 'win');
+                }
+            } catch (error) {
+                console.error('Wallet connection failed:', error);
+                this.showNotification('❌ Wallet connection failed', 'lose');
+            }
+        }
+    }
+    
+    updateWalletUI() {
+        const walletBtn = document.getElementById('walletBtn');
+        if (this.connectedAccount) {
+            const shortAddress = this.connectedAccount.slice(0, 6) + '...' + this.connectedAccount.slice(-4);
+            walletBtn.innerHTML = `✅ ${shortAddress}`;
+            walletBtn.style.background = 'linear-gradient(135deg, var(--win-green), #4CAF50)';
+        } else {
+            walletBtn.innerHTML = '🔗 Connect Wallet';
+            walletBtn.style.background = 'linear-gradient(135deg, var(--cosmic-purple), var(--cosmic-pink))';
+        }
+    }
+    
+    async fetchAminaBalance() {
+        if (!this.connectedAccount) return;
+        
+        try {
+            // Use Algorand Node API to get account info
+            const response = await fetch(`https://mainnet-api.algonode.cloud/v2/accounts/${this.connectedAccount}`);
+            const accountInfo = await response.json();
+            
+            // Find AMINA asset in account
+            const aminaAsset = accountInfo.assets?.find(asset => asset['asset-id'] === this.aminaAssetId);
+            
+            if (aminaAsset) {
+                this.balance.AMINA = aminaAsset.amount / 1000000; // Convert from microAlgos
+            } else {
+                this.balance.AMINA = 0; // User doesn't have AMINA
+            }
+            
+            this.updateDisplay();
+            console.log(`🪙 AMINA Balance: ${this.balance.AMINA}`);
+            
+        } catch (error) {
+            console.error('Failed to fetch AMINA balance:', error);
+            this.showNotification('⚠️ Could not fetch AMINA balance', 'lose');
+        }
     }
     
     setupNavigation() {
@@ -44,9 +157,14 @@ class AminaCasino {
             setTimeout(() => this.initPlinko(), 100);
         }
     }
-    
     setupCurrencyToggle() {
         document.getElementById('currencyToggle').addEventListener('click', () => {
+            if (!this.connectedAccount && !this.isAmina) {
+                // If switching to AMINA but no wallet connected
+                this.showNotification('🔗 Connect wallet to use AMINA!', 'lose');
+                return;
+            }
+            
             this.isAmina = !this.isAmina;
             this.currentCurrency = this.isAmina ? 'AMINA' : 'HC';
             
@@ -56,6 +174,9 @@ class AminaCasino {
             if (this.isAmina) {
                 toggle.classList.add('amina');
                 text.textContent = 'AMINA';
+                if (this.connectedAccount) {
+                    this.fetchAminaBalance(); // Refresh balance when switching
+                }
             } else {
                 toggle.classList.remove('amina');
                 text.textContent = 'HC';
