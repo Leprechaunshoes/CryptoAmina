@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Amina Casino - Cosmic Gaming</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://unpkg.com/@perawallet/connect@1.3.1/dist/index.min.js"></script>
+    <script src="https://unpkg.com/@perawallet/connect@1.3.4/dist/index.min.js"></script>
 </head>
 <body>
     <div class="cosmic-bg"></div>
@@ -25,19 +25,19 @@
                 <div class="info-grid">
                     <div class="info-item">
                         <span class="info-icon">🎰</span>
-                        <p><strong>Stellar Slots:</strong> Match 3+ cosmic symbols for wins up to 100x</p>
+                        <p><strong>Stellar Slots:</strong> Match 3+ symbols for wins up to 100x</p>
                     </div>
                     <div class="info-item">
                         <span class="info-icon">🌌</span>
-                        <p><strong>Quantum Plinko:</strong> Drop balls for random multipliers up to 10x</p>
+                        <p><strong>Quantum Plinko:</strong> Drop balls for multipliers up to 10x</p>
                     </div>
                     <div class="info-item">
                         <span class="info-icon">♠️</span>
-                        <p><strong>Galaxy Blackjack:</strong> Beat the dealer to win 2x your bet</p>
+                        <p><strong>Galaxy Blackjack:</strong> Beat the dealer to win 2x</p>
                     </div>
                 </div>
                 <div class="currency-info">
-                    <p>💰 Start with 1000 HC (House Coins) or toggle to AMINA</p>
+                    <p>💰 Start with 1000 HC or connect wallet for AMINA</p>
                 </div>
             </div>
             
@@ -159,7 +159,7 @@
                     
                     <div class="plinko-container">
                         <div class="plinko-board">
-                            <canvas id="plinkoCanvas" width="400" height="400"></canvas>
+                            <canvas id="plinkoCanvas" width="400" height="350"></canvas>
                             <div class="multipliers">
                                 <div class="multiplier" data-mult="10">10x</div>
                                 <div class="multiplier" data-mult="5">5x</div>
@@ -220,7 +220,7 @@
         </main>
     </div>
 
-    <!-- Donation Modal - ENHANCED WITH ALGORAND LOGO -->
+    <!-- Donation Modal -->
     <div id="donationModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -228,7 +228,7 @@
                 <button class="modal-close" onclick="closeDonationModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Support the cosmic gaming experience with ALGO donations!</p>
+                <p>Support cosmic gaming with ALGO donations!</p>
                 
                 <div class="donation-coins-display">
                     <div class="donation-coin">
@@ -248,7 +248,7 @@
                         <input type="text" id="donationWallet" value="6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI" readonly>
                         <button class="copy-btn" onclick="copyDonationAddress()">Copy</button>
                     </div>
-                    <p class="donation-note">💫 Your ALGO donations help keep the cosmic casino running!</p>
+                    <p class="donation-note">💫 Your donations help keep the cosmic casino running!</p>
                 </div>
             </div>
         </div>
