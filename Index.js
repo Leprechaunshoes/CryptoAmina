@@ -1,4 +1,4 @@
-// Amina Casino - Enhanced Experience & Effects
+// Amina Casino - Enhanced Experience & Effects WITH MUSIC!
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Index.js loading...');
     
@@ -7,10 +7,95 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeWelcomeExperience();
         startCosmicEffects();
         setupEnhancedFeatures();
+        setupBackgroundMusic();
     }, 500);
     
     console.log('✨ Index.js ready!');
 });
+
+function setupBackgroundMusic() {
+    // Create music control button
+    const musicButton = document.createElement('button');
+    musicButton.id = 'musicToggle';
+    musicButton.innerHTML = '🎵';
+    musicButton.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--cosmic-gold), var(--plasma-cyan));
+        border: 2px solid var(--cosmic-gold);
+        color: var(--space-black);
+        font-size: 1.5rem;
+        cursor: pointer;
+        z-index: 1001;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    `;
+    
+    document.body.appendChild(musicButton);
+    
+    // Create audio element for Popcorn
+    const audio = document.createElement('audio');
+    audio.id = 'backgroundMusic';
+    audio.loop = true;
+    audio.volume = 0.3;
+    audio.preload = 'auto';
+    
+    // Add Popcorn song source
+    audio.innerHTML = `
+        <source src="https://www.soundjay.com/misc/sounds/popcorn.mp3" type="audio/mpeg">
+        <source src="data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAAVE1LjAuMi4wIC8gTGF2ZjU4LjEyLjEwMAA=" type="audio/mpeg">
+    `;
+    
+    document.body.appendChild(audio);
+    
+    let musicPlaying = false;
+    
+    musicButton.addEventListener('click', () => {
+        if (musicPlaying) {
+            audio.pause();
+            musicButton.innerHTML = '🔇';
+            musicButton.style.background = 'linear-gradient(135deg, var(--void-gray), var(--cosmic-purple))';
+            musicPlaying = false;
+        } else {
+            audio.play().catch(() => {
+                console.log('🎵 Audio autoplay blocked, user interaction required');
+            });
+            musicButton.innerHTML = '🎵';
+            musicButton.style.background = 'linear-gradient(135deg, var(--cosmic-gold), var(--plasma-cyan))';
+            musicPlaying = true;
+        }
+    });
+    
+    // Auto-start music when entering casino
+    const originalEnterFunction = document.getElementById('enterCasino');
+    if (originalEnterFunction) {
+        originalEnterFunction.addEventListener('click', () => {
+            setTimeout(() => {
+                if (!musicPlaying) {
+                    audio.play().catch(() => {
+                        console.log('🎵 Music ready - click music button to start!');
+                    });
+                    musicPlaying = true;
+                }
+            }, 1000);
+        });
+    }
+    
+    // Hover effects for music button
+    musicButton.addEventListener('mouseenter', () => {
+        musicButton.style.transform = 'scale(1.1)';
+        musicButton.style.boxShadow = '0 0 30px var(--cosmic-gold)';
+    });
+    
+    musicButton.addEventListener('mouseleave', () => {
+        musicButton.style.transform = 'scale(1)';
+        musicButton.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.5)';
+    });
+}
 
 function initializeWelcomeExperience() {
     // Show welcome screen first
