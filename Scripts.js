@@ -362,65 +362,79 @@ class AminaCasino {
             const canvas = this.plinkoCtx.canvas;
             const ball = {
                 x: canvas.width / 2,
-                y: 50,
+                y: 40,
                 vx: 0,
                 vy: 0,
-                radius: 8,
-                gravity: 0.5,
-                maxSpeed: 8
+                radius: 7,
+                gravity: 0.4,
+                maxSpeed: 6
             };
             
             let frameCount = 0;
             
             const animate = () => {
                 frameCount++;
-                this.drawSimpleBoard();
+                this.drawBeautifulBoard();
                 
                 // Simple gravity
                 ball.vy += ball.gravity;
                 ball.x += ball.vx;
                 ball.y += ball.vy;
                 
-                // Limit speed to prevent freezing
+                // Limit speed
                 if (Math.abs(ball.vx) > ball.maxSpeed) ball.vx = ball.maxSpeed * Math.sign(ball.vx);
                 if (ball.vy > ball.maxSpeed) ball.vy = ball.maxSpeed;
                 
-                // Simple peg bouncing
+                // Peg bouncing
                 this.pegs.forEach(peg => {
                     const dx = ball.x - peg.x;
                     const dy = ball.y - peg.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     
                     if (distance < ball.radius + peg.radius) {
-                        // Simple bounce away from peg
-                        ball.x = peg.x + (dx / distance) * (ball.radius + peg.radius + 2);
-                        ball.y = peg.y + (dy / distance) * (ball.radius + peg.radius + 2);
+                        ball.x = peg.x + (dx / distance) * (ball.radius + peg.radius + 1);
+                        ball.y = peg.y + (dy / distance) * (ball.radius + peg.radius + 1);
                         
-                        // Random direction change
-                        ball.vx = (Math.random() - 0.5) * 4;
-                        ball.vy = Math.abs(ball.vy) * 0.7;
+                        ball.vx = (Math.random() - 0.5) * 3;
+                        ball.vy = Math.abs(ball.vy) * 0.8;
                     }
                 });
                 
                 // Wall bounces
-                if (ball.x < ball.radius + 20) {
-                    ball.x = ball.radius + 20;
-                    ball.vx = Math.abs(ball.vx);
-                } else if (ball.x > canvas.width - ball.radius - 20) {
-                    ball.x = canvas.width - ball.radius - 20;
-                    ball.vx = -Math.abs(ball.vx);
+                if (ball.x < ball.radius + 15) {
+                    ball.x = ball.radius + 15;
+                    ball.vx = Math.abs(ball.vx) * 0.8;
+                } else if (ball.x > canvas.width - ball.radius - 15) {
+                    ball.x = canvas.width - ball.radius - 15;
+                    ball.vx = -Math.abs(ball.vx) * 0.8;
                 }
                 
-                // Draw ball
-                this.plinkoCtx.beginPath();
-                this.plinkoCtx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-                this.plinkoCtx.fillStyle = '#00E5FF';
-                this.plinkoCtx.fill();
+                // Draw beautiful ball with glow effect
+                const ctx = this.plinkoCtx;
                 
-                // Safety check - force end if ball is stuck or taking too long
-                if (ball.y > canvas.height - 30 || frameCount > 600) {
-                    const slotWidth = (canvas.width - 40) / 9;
-                    const finalSlot = Math.floor((ball.x - 20) / slotWidth);
+                // Ball glow
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, ball.radius + 4, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 229, 255, 0.6)';
+                ctx.fill();
+                
+                // Main ball
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#00E5FF';
+                ctx.fill();
+                
+                // Ball highlight
+                ctx.beginPath();
+                ctx.arc(ball.x - 2, ball.y - 2, ball.radius * 0.5, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.fill();
+                
+                // End condition - shorter distance for mobile
+                const endY = canvas.height - 15;
+                if (ball.y > endY || frameCount > 400) {
+                    const slotWidth = (canvas.width - 30) / 9;
+                    const finalSlot = Math.floor((ball.x - 15) / slotWidth);
                     resolve(Math.max(0, Math.min(8, finalSlot)));
                 } else {
                     requestAnimationFrame(animate);
