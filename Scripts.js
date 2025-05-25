@@ -319,8 +319,8 @@ class AminaCasino {
         const canvas = document.getElementById('plinkoCanvas');
         if (!canvas) return;
         const isMobile = window.innerWidth < 768;
-        canvas.width = isMobile ? 350 : 400;
-        canvas.height = isMobile ? 500 : 550;
+        canvas.width = isMobile ? 320 : 350;
+        canvas.height = isMobile ? 350 : 400;
         this.plinkoCtx = canvas.getContext('2d');
         this.plinkoDropping = false;
         this.setupStakePlinko();
@@ -330,15 +330,15 @@ class AminaCasino {
     setupStakePlinko() {
         this.pegs = [];
         const canvas = this.plinkoCtx.canvas;
-        const rows = 10;
+        const rows = 8;
         for (let row = 0; row < rows; row++) {
             const pegsInRow = row + 3;
-            const rowWidth = canvas.width - 60;
+            const rowWidth = canvas.width - 40;
             const spacing = rowWidth / (pegsInRow + 1);
             for (let peg = 0; peg < pegsInRow; peg++) {
                 const x = spacing * (peg + 1);
-                const y = 80 + row * 35;
-                this.pegs.push({ x, y, radius: 4 });
+                const y = 60 + row * 30;
+                this.pegs.push({ x, y, radius: 3 });
             }
         }
     }
@@ -398,7 +398,7 @@ class AminaCasino {
     animateStakeBall() {
         return new Promise(resolve => {
             const canvas = this.plinkoCtx.canvas;
-            const ball = { x: canvas.width / 2, y: 40, vx: 0, vy: 0, radius: 6, gravity: 0.25, bounce: 0.7, friction: 0.98 };
+            const ball = { x: canvas.width / 2, y: 30, vx: 0, vy: 0, radius: 5, gravity: 0.2, bounce: 0.7, friction: 0.98 };
             const animate = () => {
                 this.drawStakeBoard();
                 ball.vy += ball.gravity;
@@ -414,28 +414,28 @@ class AminaCasino {
                         const overlap = ball.radius + peg.radius - distance;
                         ball.x += Math.cos(angle) * overlap;
                         ball.y += Math.sin(angle) * overlap;
-                        const bounceForce = 2 + Math.random() * 2;
+                        const bounceForce = 1.5 + Math.random() * 1.5;
                         ball.vx = Math.cos(angle) * bounceForce * (Math.random() - 0.5);
-                        ball.vy = Math.abs(Math.sin(angle)) * bounceForce + 1;
+                        ball.vy = Math.abs(Math.sin(angle)) * bounceForce + 0.5;
                     }
                 });
-                if (ball.x < ball.radius + 15) {
-                    ball.x = ball.radius + 15;
+                if (ball.x < ball.radius + 10) {
+                    ball.x = ball.radius + 10;
                     ball.vx = Math.abs(ball.vx) * 0.8;
-                } else if (ball.x > canvas.width - ball.radius - 15) {
-                    ball.x = canvas.width - ball.radius - 15;
+                } else if (ball.x > canvas.width - ball.radius - 10) {
+                    ball.x = canvas.width - ball.radius - 10;
                     ball.vx = -Math.abs(ball.vx) * 0.8;
                 }
                 const ctx = this.plinkoCtx;
                 ctx.beginPath();
-                ctx.arc(ball.x + 2, ball.y + 2, ball.radius, 0, Math.PI * 2);
+                ctx.arc(ball.x + 1, ball.y + 1, ball.radius, 0, Math.PI * 2);
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
                 ctx.fill();
                 ctx.beginPath();
                 ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
                 ctx.fillStyle = '#ff4444';
                 ctx.fill();
-                if (ball.y > canvas.height - 90) {
+                if (ball.y > canvas.height - 60) {
                     const slotWidth = (canvas.width - 20) / 11;
                     const finalSlot = Math.floor((ball.x - 10) / slotWidth);
                     resolve(Math.max(0, Math.min(10, finalSlot)));
