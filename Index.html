@@ -3,177 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amina Casino</title>
+    <title>Amina Casino - Cosmic Gaming</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="cosmic-bg"></div>
     
-    <header class="header">
-        <div class="header-content">
-            <div class="logo-section">
-                <div class="amina-coin">
-                    <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina Coin" class="coin-image">
-                </div>
-                <h1 class="logo">AMINA CASINO</h1>
+    <!-- Welcome Screen -->
+    <div id="welcomeScreen" class="welcome-screen active">
+        <div class="welcome-content">
+            <div class="welcome-coin-hero">
+                <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina Coin" class="hero-coin">
             </div>
             
-            <div class="header-controls">
-                <div class="currency-toggle">
-                    <span class="currency-label">Currency:</span>
-                    <button id="currencyToggle" class="toggle-btn">
-                        <span class="toggle-slider"></span>
-                        <span class="currency-text">HC</span>
-                    </button>
+            <h1 class="hero-title">AMINA CASINO</h1>
+            <p class="hero-subtitle">Enter the Ultimate Cosmic Gaming Experience</p>
+            
+            <div class="game-info">
+                <h3>🎮 How to Play:</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-icon">🎰</span>
+                        <p><strong>Stellar Slots:</strong> Match 3+ cosmic symbols for wins up to 100x</p>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">🌌</span>
+                        <p><strong>Quantum Plinko:</strong> Drop balls for random multipliers up to 10x</p>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">♠️</span>
+                        <p><strong>Galaxy Blackjack:</strong> Beat the dealer to win 2x your bet</p>
+                    </div>
                 </div>
-                <div class="balance-display">
-                    <span class="balance-label">Balance:</span>
-                    <span id="balanceAmount" class="balance-amount">1000</span>
-                    <span id="currencySymbol" class="currency-symbol">HC</span>
+                <div class="currency-info">
+                    <p>💰 Start with 1000 HC (House Coins) or toggle to AMINA</p>
                 </div>
             </div>
+            
+            <button id="enterCasino" class="enter-btn">🚀 ENTER COSMIC CASINO</button>
         </div>
-    </header>
-
-    <nav class="nav-menu">
-        <button class="nav-btn active" data-game="home">🏠 Home</button>
-        <button class="nav-btn" data-game="slots">🎰 Slots</button>
-        <button class="nav-btn" data-game="plinko">🌌 Plinko</button>
-        <button class="nav-btn" data-game="blackjack">♠️ Blackjack</button>
-        <button class="nav-btn donation-btn" onclick="showDonationModal()">💎 Donate</button>
-    </nav>
-
-    <main class="main-content">
-        <!-- Home -->
-        <div id="home" class="game-screen active">
-            <div class="welcome-container">
-                <div class="welcome-coin-display">
-                    <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina Coin" class="welcome-coin">
-                </div>
-                <h2 class="welcome-title">Welcome to Amina Casino</h2>
-                <p class="welcome-text">Experience cosmic gaming with Amina Coin</p>
-                
-                <div class="game-grid">
-                    <div class="game-card" data-game="slots">
-                        <div class="game-icon">🎰</div>
-                        <h3>Stellar Slots</h3>
-                        <p>Spin for cosmic rewards</p>
-                        <div class="max-win">Max Win: 100x</div>
+    </div>
+    
+    <!-- Main Casino -->
+    <div id="mainCasino" class="main-casino">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="amina-coin">
+                        <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina Coin" class="coin-image">
                     </div>
+                    <h1 class="logo">AMINA CASINO</h1>
+                </div>
+                
+                <div class="header-controls">
+                    <div class="currency-toggle">
+                        <span class="currency-label">Currency:</span>
+                        <button id="currencyToggle" class="toggle-btn">
+                            <span class="toggle-slider"></span>
+                            <span class="currency-text">HC</span>
+                        </button>
+                    </div>
+                    <div class="balance-display">
+                        <span class="balance-label">Balance:</span>
+                        <span id="balanceAmount" class="balance-amount">1000</span>
+                        <span id="currencySymbol" class="currency-symbol">HC</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <nav class="nav-menu">
+            <button class="nav-btn active" data-game="home">🏠 Home</button>
+            <button class="nav-btn" data-game="slots">🎰 Slots</button>
+            <button class="nav-btn" data-game="plinko">🌌 Plinko</button>
+            <button class="nav-btn" data-game="blackjack">♠️ Blackjack</button>
+            <button class="nav-btn donation-btn" onclick="showDonationModal()">💎 Donate</button>
+        </nav>
+
+        <main class="main-content">
+            <!-- Home -->
+            <div id="home" class="game-screen active">
+                <div class="welcome-container">
+                    <div class="welcome-coin-display">
+                        <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina Coin" class="welcome-coin">
+                    </div>
+                    <h2 class="welcome-title">Choose Your Game</h2>
+                    <p class="welcome-text">Experience cosmic gaming with Amina Coin</p>
                     
-                    <div class="game-card" data-game="plinko">
-                        <div class="game-icon">🌌</div>
-                        <h3>Quantum Plinko</h3>
-                        <p>Drop through dimensions</p>
-                        <div class="max-win">Max Win: 10x</div>
-                    </div>
-                    
-                    <div class="game-card" data-game="blackjack">
-                        <div class="game-icon">♠️</div>
-                        <h3>Galaxy Blackjack</h3>
-                        <p>Beat the house</p>
-                        <div class="max-win">Max Win: 2.5x</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slots -->
-        <div id="slots" class="game-screen">
-            <div class="game-container">
-                <div class="game-header">
-                    <h2>🎰 Stellar Slots</h2>
-                    <div class="bet-controls">
-                        <label>Bet:</label>
-                        <select id="slotsBet">
-                            <option value="1">1</option>
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                        </select>
-                        <span id="slotsCurrency">HC</span>
-                    </div>
-                </div>
-                
-                <div class="slots-machine">
-                    <div class="slots-grid" id="slotsGrid"></div>
-                    <button id="spinBtn" class="cosmic-btn">SPIN</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Plinko -->
-        <div id="plinko" class="game-screen">
-            <div class="game-container">
-                <div class="game-header">
-                    <h2>🌌 Quantum Plinko</h2>
-                    <div class="bet-controls">
-                        <label>Bet:</label>
-                        <select id="plinkoBet">
-                            <option value="1">1</option>
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                        </select>
-                        <span id="plinkoCurrency">HC</span>
-                    </div>
-                </div>
-                
-                <div class="plinko-container">
-                    <div class="plinko-board">
-                        <canvas id="plinkoCanvas" width="400" height="300"></canvas>
-                        <div class="multipliers">
-                            <div class="multiplier" data-mult="10">10x</div>
-                            <div class="multiplier" data-mult="3">3x</div>
-                            <div class="multiplier" data-mult="1">1x</div>
-                            <div class="multiplier" data-mult="0.5">0.5x</div>
-                            <div class="multiplier" data-mult="1">1x</div>
-                            <div class="multiplier" data-mult="3">3x</div>
-                            <div class="multiplier" data-mult="10">10x</div>
+                    <div class="game-grid">
+                        <div class="game-card" data-game="slots">
+                            <div class="game-icon">🎰</div>
+                            <h3>Stellar Slots</h3>
+                            <p>Spin for cosmic rewards</p>
+                            <div class="max-win">Max Win: 100x</div>
+                        </div>
+                        
+                        <div class="game-card" data-game="plinko">
+                            <div class="game-icon">🌌</div>
+                            <h3>Quantum Plinko</h3>
+                            <p>Drop through dimensions</p>
+                            <div class="max-win">Max Win: 10x</div>
+                        </div>
+                        
+                        <div class="game-card" data-game="blackjack">
+                            <div class="game-icon">♠️</div>
+                            <h3>Galaxy Blackjack</h3>
+                            <p>Beat the house</p>
+                            <div class="max-win">Max Win: 2x</div>
                         </div>
                     </div>
-                    <button id="dropBtn" class="cosmic-btn">DROP BALL</button>
                 </div>
             </div>
-        </div>
 
-        <!-- Blackjack -->
-        <div id="blackjack" class="game-screen">
-            <div class="game-container">
-                <div class="game-header">
-                    <h2>♠️ Galaxy Blackjack</h2>
-                    <div class="bet-controls">
-                        <label>Bet:</label>
-                        <select id="blackjackBet">
-                            <option value="1">1</option>
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                        </select>
-                        <span id="blackjackCurrency">HC</span>
-                    </div>
-                </div>
-                
-                <div class="blackjack-table">
-                    <div class="dealer-section">
-                        <h3>Dealer: <span id="dealerScore">0</span></h3>
-                        <div id="dealerCards" class="card-container"></div>
+            <!-- Slots -->
+            <div id="slots" class="game-screen">
+                <div class="game-container">
+                    <div class="game-header">
+                        <h2>🎰 Stellar Slots</h2>
+                        <div class="bet-controls">
+                            <label>Bet:</label>
+                            <select id="slotsBet">
+                                <option value="1">1</option>
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                            </select>
+                            <span id="slotsCurrency">HC</span>
+                        </div>
                     </div>
                     
-                    <div class="player-section">
-                        <h3>You: <span id="playerScore">0</span></h3>
-                        <div id="playerCards" class="card-container"></div>
+                    <div class="slots-machine">
+                        <div class="slots-grid" id="slotsGrid"></div>
+                        <button id="spinBtn" class="cosmic-btn">SPIN</button>
                     </div>
                     
-                    <div class="game-controls">
-                        <button id="dealBtn" class="cosmic-btn">DEAL</button>
-                        <button id="hitBtn" class="cosmic-btn" disabled>HIT</button>
-                        <button id="standBtn" class="cosmic-btn" disabled>STAND</button>
-                        <button id="newGameBtn" class="cosmic-btn" style="display:none">NEW GAME</button>
-                    </div>
-                    
-                    <div id="gameMessage" class="game-message"></div>
+                    <div id="slotsResult" class="game-result"></div>
                 </div>
             </div>
-        </div>
-    </main>
+
+            <!-- Plinko -->
+            <div id="plinko" class="game-screen">
+                <div class="game-container">
+                    <div class="game-header">
+                        <h2>🌌 Quantum Plinko</h2>
+                        <div class="bet-controls">
+                            <label>Bet:</label>
+                            <select id="plinkoBet">
+                                <option value="1">1</option>
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                            </select>
+                            <span id="plinkoCurrency">HC</span>
+                        </div>
+                    </div>
+                    
+                    <div class="plinko-container">
+                        <div class="plinko-board">
+                            <canvas id="plinkoCanvas" width="400" height="400"></canvas>
+                            <div class="multipliers">
+                                <div class="multiplier" data-mult="10">10x</div>
+                                <div class="multiplier" data-mult="5">5x</div>
+                                <div class="multiplier" data-mult="2">2x</div>
+                                <div class="multiplier" data-mult="1">1x</div>
+                                <div class="multiplier" data-mult="0.5">0.5x</div>
+                                <div class="multiplier" data-mult="1">1x</div>
+                                <div class="multiplier" data-mult="2">2x</div>
+                                <div class="multiplier" data-mult="5">5x</div>
+                                <div class="multiplier" data-mult="10">10x</div>
+                            </div>
+                        </div>
+                        <button id="dropBtn" class="cosmic-btn">DROP BALL</button>
+                    </div>
+                    
+                    <div id="plinkoResult" class="game-result"></div>
+                </div>
+            </div>
+
+            <!-- Blackjack -->
+            <div id="blackjack" class="game-screen">
+                <div class="game-container">
+                    <div class="game-header">
+                        <h2>♠️ Galaxy Blackjack</h2>
+                        <div class="bet-controls">
+                            <label>Bet:</label>
+                            <select id="blackjackBet">
+                                <option value="1">1</option>
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                            </select>
+                            <span id="blackjackCurrency">HC</span>
+                        </div>
+                    </div>
+                    
+                    <div class="blackjack-table">
+                        <div class="dealer-section">
+                            <h3>Dealer: <span id="dealerScore">0</span></h3>
+                            <div id="dealerCards" class="card-container"></div>
+                        </div>
+                        
+                        <div class="player-section">
+                            <h3>You: <span id="playerScore">0</span></h3>
+                            <div id="playerCards" class="card-container"></div>
+                        </div>
+                        
+                        <div class="game-controls">
+                            <button id="dealBtn" class="cosmic-btn">DEAL</button>
+                            <button id="hitBtn" class="cosmic-btn" disabled>HIT</button>
+                            <button id="standBtn" class="cosmic-btn" disabled>STAND</button>
+                            <button id="newGameBtn" class="cosmic-btn" style="display:none">NEW GAME</button>
+                        </div>
+                        
+                        <div id="blackjackResult" class="game-result"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
 
     <!-- Donation Modal -->
     <div id="donationModal" class="modal-overlay" style="display: none;">
@@ -218,6 +262,12 @@
             document.execCommand('copy');
             alert('Address copied!');
         }
+        
+        // Enter casino functionality
+        document.getElementById('enterCasino').addEventListener('click', function() {
+            document.getElementById('welcomeScreen').classList.remove('active');
+            document.getElementById('mainCasino').classList.add('active');
+        });
     </script>
 </body>
 </html>
