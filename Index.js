@@ -1,354 +1,215 @@
-// Replace index.js with this - Amina Casino Main Controller
-console.log('🌌 Amina Casino v4.0 Loading...');
+// Amina Casino - Main Application
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Amina Casino starting up...');
+    
+    // Smooth loading animation
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+        mainContent.style.opacity = '0';
+        setTimeout(() => {
+            mainContent.style.transition = 'opacity 0.5s ease-in-out';
+            mainContent.style.opacity = '1';
+        }, 100);
+    }
+    
+    // Preload coin image
+    const coinImg = new Image();
+    coinImg.src = 'https://i.postimg.cc/nrMt6P0R/IMG-8041.png';
+    coinImg.onload = () => {
+        console.log('🪙 Amina Coin image loaded successfully');
+    };
+    
+    // Add cosmic particles effect
+    createCosmicParticles();
+    
+    // Mobile responsiveness check
+    checkMobile();
+    
+    console.log('✨ Amina Casino ready!');
+});
 
-class AminaCasino {
-    constructor() {
-        this.version = '4.0.0';
-        this.donationWallet = '6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI';
-        this.aminoCoinAssetId = '1107424865';
-        this.networkMode = 'mainnet';
+function createCosmicParticles() {
+    const particleCount = window.innerWidth < 768 ? 15 : 40;
+    
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'cosmic-particle';
         
-        this.stats = {
-            totalGamesPlayed: 0,
-            totalWinnings: 0,
-            sessionStartTime: Date.now()
-        };
+        const size = Math.random() * 3 + 1;
+        const colors = ['#FFD700', '#00E5FF', '#E91E63', '#4A148C'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
         
-        this.init();
-    }
-    
-    init() {
-        console.log('🚀 Initializing Amina Casino...');
-        this.setupCosmicEnvironment();
-        this.setupWalletIntegration();
-        this.integrateWithGames();
-        this.setupCoinAnimations();
-        console.log('✨ Amina Casino ready!');
-    }
-    
-    setupCosmicEnvironment() {
-        this.createParticleSystem();
-        this.addCosmicEffects();
-    }
-    
-    createParticleSystem() {
-        const canvas = document.createElement('canvas');
-        canvas.style.cssText = `
+        particle.style.cssText = `
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            width: ${size}px;
+            height: ${size}px;
+            background: ${color};
+            border-radius: 50%;
             pointer-events: none;
             z-index: -1;
-            opacity: 0.4;
+            opacity: ${Math.random() * 0.8 + 0.2};
+            animation: particleFloat ${Math.random() * 15 + 10}s linear infinite;
+            left: ${Math.random() * 100}%;
+            top: ${Math.random() * 100}%;
+            box-shadow: 0 0 ${size * 3}px ${color};
         `;
         
-        document.body.appendChild(canvas);
+        document.body.appendChild(particle);
         
-        const ctx = canvas.getContext('2d');
-        const particles = [];
-        
-        for (let i = 0; i < 20; i++) {
-            particles.push({
-                x: Math.random() * window.innerWidth,
-                y: Math.random() * window.innerHeight,
-                size: Math.random() * 3 + 1,
-                speedX: (Math.random() - 0.5) * 0.5,
-                speedY: (Math.random() - 0.5) * 0.5,
-                opacity: Math.random() * 0.5 + 0.2,
-                color: Math.random() > 0.5 ? '#FFD700' : '#8A2BE2'
-            });
-        }
-        
-        const animate = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            particles.forEach(p => {
-                p.x += p.speedX;
-                p.y += p.speedY;
-                
-                if (p.x > window.innerWidth) p.x = 0;
-                if (p.x < 0) p.x = window.innerWidth;
-                if (p.y > window.innerHeight) p.y = 0;
-                if (p.y < 0) p.y = window.innerHeight;
-                
-                ctx.globalAlpha = p.opacity;
-                ctx.fillStyle = p.color;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fill();
-            });
-            
-            requestAnimationFrame(animate);
-        };
-        
-        animate();
-    }
-    
-    addCosmicEffects() {
-        const style = document.createElement('style');
-        style.textContent = `
-            .win-celebration {
-                animation: winCelebration 2s ease-in-out;
-            }
-            
-            @keyframes winCelebration {
-                0% { transform: scale(1); }
-                50% { transform: scale(1.1); }
-                100% { transform: scale(1); }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
-    setupWalletIntegration() {
-        console.log('🔗 Pera Wallet integration ready');
-        console.log(`💎 Amina Coin Asset ID: ${this.aminoCoinAssetId}`);
-        console.log(`💰 Donation Wallet: ${this.donationWallet}`);
-        
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            this.showDevMode();
-        }
-    }
-    
-    showDevMode() {
-        const banner = document.createElement('div');
-        banner.innerHTML = `
-            <div style="
-                display: flex; 
-                align-items: center; 
-                justify-content: center; 
-                padding: 0.8rem; 
-                gap: 1rem; 
-                flex-wrap: wrap;
-                font-weight: bold;
-            ">
-                <span>🛠️ DEVELOPMENT MODE</span>
-                <span>|</span>
-                <span>Pera Wallet integration ready for production</span>
-                <button onclick="aminaCasino.testWalletConnection()" style="
-                    background: rgba(255,255,255,0.2); 
-                    border: 2px solid rgba(255,255,255,0.5); 
-                    border-radius: 20px; 
-                    color: white; 
-                    padding: 0.4rem 1rem; 
-                    cursor: pointer;
-                    font-weight: bold;
-                ">
-                    🔗 Test Wallet
-                </button>
-            </div>
-        `;
-        banner.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: linear-gradient(45deg, #FF6B35, #F7931E);
-            color: white;
-            z-index: 1002;
-        `;
-        
-        document.body.appendChild(banner);
-        document.body.style.paddingTop = '70px';
-    }
-    
-    setupCoinAnimations() {
-        const coins = document.querySelectorAll('.coin-image, .welcome-coin, .donation-coin-image');
-        coins.forEach(coin => {
-            coin.src = 'https://i.postimg.cc/nrMt6P0R/IMG-8041.png';
-            coin.style.objectFit = 'contain';
-            coin.style.background = 'transparent';
-            
-            coin.addEventListener('mouseenter', () => {
-                coin.style.transform = 'scale(1.15) translateY(-5px)';
-                coin.style.filter = 'brightness(1.3)';
-            });
-            
-            coin.addEventListener('mouseleave', () => {
-                coin.style.transform = 'scale(1) translateY(0px)';
-                coin.style.filter = 'brightness(1)';
-            });
-        });
-    }
-    
-    integrateWithGames() {
-        const originalAddBalance = window.addBalance;
-        window.addBalance = (amount) => {
-            if (originalAddBalance) originalAddBalance(amount);
-            this.recordWin(amount);
-        };
-        
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('cosmic-btn')) {
-                this.stats.totalGamesPlayed++;
-            }
-        });
-        
-        window.aminaCasino = this;
-    }
-    
-    recordWin(amount) {
-        this.stats.totalWinnings += amount;
-        
-        if (amount > (gameState.currency === 'AMINA' ? 0.1 : 100)) {
-            this.showBigWinCelebration(amount);
-        }
-    }
-    
-    showBigWinCelebration(amount) {
-        const celebration = document.createElement('div');
-        celebration.innerHTML = `
-            <div style="
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: linear-gradient(45deg, #FFD700, #FFA500);
-                color: #000;
-                padding: 2rem;
-                border-radius: 20px;
-                text-align: center;
-                font-weight: bold;
-                box-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
-                z-index: 10000;
-                animation: bigWinPulse 3s ease-in-out;
-            ">
-                <div style="font-size: 2rem; margin-bottom: 1rem;">🎉 COSMIC JACKPOT! 🎉</div>
-                <div style="font-size: 1.5rem;">
-                    +${amount.toFixed(gameState.currency === 'AMINA' ? 6 : 2)} ${gameState.currency}
-                </div>
-            </div>
-        `;
-        
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes bigWinPulse {
-                0% { transform: translate(-50%, -50%) scale(0.5); }
-                50% { transform: translate(-50%, -50%) scale(1.1); }
-                100% { transform: translate(-50%, -50%) scale(1); }
-            }
-        `;
-        document.head.appendChild(style);
-        
-        document.body.appendChild(celebration);
-        
+        // Remove particle after animation with some randomness
         setTimeout(() => {
-            celebration.remove();
-            style.remove();
-        }, 3000);
+            if (particle && particle.parentNode) {
+                particle.parentNode.removeChild(particle);
+            }
+        }, (Math.random() * 10 + 20) * 1000);
     }
     
-    testWalletConnection() {
-        const dialog = document.createElement('div');
-        dialog.innerHTML = `
-            <div style="
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.8);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 10001;
-            ">
-                <div style="
-                    background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(22, 33, 62, 0.95));
-                    border: 2px solid #FFD700;
-                    border-radius: 15px;
-                    max-width: 500px;
-                    width: 90%;
-                    padding: 2rem;
-                    text-align: center;
-                    color: white;
-                ">
-                    <h3 style="color: #FFD700; margin-bottom: 1rem;">🔗 Pera Wallet Test</h3>
-                    <div style="margin-bottom: 1rem;"><strong>Wallet Integration Ready!</strong></div>
-                    <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 10px; margin: 1rem 0; text-align: left;">
-                        <div>💎 <strong>Amina Coin:</strong> ${this.aminoCoinAssetId}</div>
-                        <div>🌐 <strong>Network:</strong> ${this.networkMode}</div>
-                        <div>💰 <strong>Donation:</strong> ${this.donationWallet.substring(0, 20)}...</div>
-                    </div>
-                    <button onclick="this.closest('[style*=\"position: fixed\"]').remove()" style="
-                        background: linear-gradient(45deg, #FFD700, #FFA500);
-                        border: none;
-                        border-radius: 25px;
-                        color: #000;
-                        padding: 1rem 2rem;
-                        font-weight: bold;
-                        cursor: pointer;
-                        margin-top: 1rem;
-                    ">
-                        Got it! 🌟
-                    </button>
-                </div>
-            </div>
-        `;
+    // Create continuous particle stream
+    setTimeout(createCosmicParticles, Math.random() * 5000 + 3000);
+}
+
+function checkMobile() {
+    if (window.innerWidth < 768) {
+        console.log('📱 Mobile device detected');
         
-        document.body.appendChild(dialog);
-        setTimeout(() => dialog.remove(), 5000);
-    }
-    
-    connectWallet() {
-        alert(`🚀 Pera Wallet Ready!\n\n💎 Amina Coin: ${this.aminoCoinAssetId}\n💰 Donation: ${this.donationWallet}\n\nIntegration framework ready for production!`);
-    }
-    
-    showDonationInterface() {
-        document.getElementById('donationModal').style.display = 'flex';
-    }
-    
-    copyDonationAddress() {
-        navigator.clipboard.writeText(this.donationWallet).then(() => {
-            alert('💎 Donation address copied to clipboard!');
-        }).catch(() => {
-            alert('Please copy manually: ' + this.donationWallet);
-        });
-    }
-    
-    getStats() {
-        const sessionTime = (Date.now() - this.stats.sessionStartTime) / 1000 / 60;
-        return {
-            ...this.stats,
-            sessionMinutes: Math.round(sessionTime * 10) / 10,
-            currentBalance: gameState?.balance,
-            currentCurrency: gameState?.currency
-        };
-    }
-    
-    debugInfo() {
-        console.log('🔍 Amina Casino Debug Info:', {
-            version: this.version,
-            aminaCoin: this.aminoCoinAssetId,
-            donation: this.donationWallet,
-            network: this.networkMode,
-            stats: this.getStats()
-        });
+        // Add mobile-specific optimizations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes particleFloat {
+                0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+                10% { opacity: 1; }
+                90% { opacity: 1; }
+                100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+            }
+            
+            .cosmic-particle {
+                animation-duration: 15s !important;
+            }
+        `;
+        document.head.appendChild(style);
+    } else {
+        console.log('🖥️ Desktop device detected');
+        
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes particleFloat {
+                0% { transform: translateY(100vh) translateX(0) rotate(0deg); opacity: 0; }
+                10% { opacity: 1; }
+                50% { transform: translateY(50vh) translateX(${Math.random() * 200 - 100}px) rotate(180deg); }
+                90% { opacity: 1; }
+                100% { transform: translateY(-100vh) translateX(${Math.random() * 400 - 200}px) rotate(360deg); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
     }
 }
 
-// Initialize Amina Casino
-document.addEventListener('DOMContentLoaded', function() {
-    window.aminaCasino = new AminaCasino();
+// Utility functions for the casino
+window.aminaUtils = {
+    formatNumber: (num) => {
+        return num.toLocaleString('en-US', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+        });
+    },
     
-    window.debugCasino = () => window.aminaCasino.debugInfo();
-    window.showDonations = () => window.aminaCasino.showDonationInterface();
-    window.copyDonationAddress = () => window.aminaCasino.copyDonationAddress();
+    generateRandomId: () => {
+        return Math.random().toString(36).substr(2, 9);
+    },
     
-    console.log('🎮 Available commands: debugCasino(), showDonations()');
-    console.log('🌟 Amina Casino ready for cosmic gaming!');
+    playSound: (type) => {
+        // Future: Add sound effects
+        console.log(`🔊 Playing ${type} sound`);
+    },
+    
+    vibrate: (pattern = [100]) => {
+        if ('vibrate' in navigator) {
+            navigator.vibrate(pattern);
+        }
+    },
+    
+    saveToLocalStorage: (key, data) => {
+        try {
+            localStorage.setItem(`aminaCasino_${key}`, JSON.stringify(data));
+        } catch (e) {
+            console.warn('Could not save to localStorage:', e);
+        }
+    },
+    
+    loadFromLocalStorage: (key) => {
+        try {
+            const data = localStorage.getItem(`aminaCasino_${key}`);
+            return data ? JSON.parse(data) : null;
+        } catch (e) {
+            console.warn('Could not load from localStorage:', e);
+            return null;
+        }
+    }
+};
+
+// Performance monitoring
+window.aminaPerf = {
+    startTime: performance.now(),
+    
+    logLoadTime: () => {
+        const loadTime = performance.now() - window.aminaPerf.startTime;
+        console.log(`⚡ Casino loaded in ${loadTime.toFixed(2)}ms`);
+    },
+    
+    measureFunction: (name, fn) => {
+        const start = performance.now();
+        const result = fn();
+        const end = performance.now();
+        console.log(`📊 ${name} took ${(end - start).toFixed(2)}ms`);
+        return result;
+    }
+};
+
+// Error handling
+window.addEventListener('error', (e) => {
+    console.error('🚨 Casino Error:', e.error);
 });
 
-document.addEventListener('visibilitychange', function() {
+window.addEventListener('unhandledrejection', (e) => {
+    console.error('🚨 Unhandled Promise Rejection:', e.reason);
+});
+
+// Page visibility handling
+document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-        console.log('🌙 Casino minimized');
+        console.log('🌙 Casino paused (tab hidden)');
     } else {
-        console.log('🌟 Welcome back to the Amina cosmos!');
+        console.log('🌟 Casino resumed (tab visible)');
+        // Refresh particles when page becomes visible
+        setTimeout(createCosmicParticles, 1000);
     }
 });
 
-console.log('🚀 Amina Casino index.js loaded!');
+// Resize handler
+window.addEventListener('resize', () => {
+    console.log('📏 Window resized');
+    
+    // Redraw plinko canvas if game is active
+    if (window.aminaCasino && window.aminaCasino.plinkoCtx) {
+        const canvas = document.getElementById('plinkoCanvas');
+        if (canvas && window.innerWidth < 768) {
+            canvas.width = Math.min(350, window.innerWidth - 40);
+            window.aminaCasino.drawPlinkoBoard();
+        }
+    }
+});
+
+// Service worker registration (future feature)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        // navigator.registerServiceWorker('/sw.js')
+        console.log('🔧 Service worker support detected');
+    });
+}
+
+// Log performance when everything is loaded
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        window.aminaPerf.logLoadTime();
+    }, 100);
+});
