@@ -230,14 +230,14 @@ class AminaCasino {
         });
     }
     
-    // CLASSIC TRIANGLE PLINKO - PRICE IS RIGHT STYLE!
+    // CLASSIC TRIANGLE PLINKO - FIXED MULTIPLIERS!
     initPlinko() {
         const canvas = document.getElementById('plinkoCanvas');
         if (!canvas) return;
         
-        // Perfect sizing for classic triangle
+        // Shorter canvas so multipliers show below!
         canvas.width = window.innerWidth < 768 ? 350 : 400;
-        canvas.height = window.innerWidth < 768 ? 300 : 350;
+        canvas.height = window.innerWidth < 768 ? 250 : 280; // SHORTER for multipliers!
         
         this.plinkoCtx = canvas.getContext('2d');
         this.plinkoDropping = false;
@@ -248,7 +248,7 @@ class AminaCasino {
     setupClassicTriangle() {
         this.pegs = [];
         const canvas = this.plinkoCtx.canvas;
-        const rows = 8;
+        const rows = 6; // Fewer rows to fit better
         
         // Classic triangle formation
         for (let row = 0; row < rows; row++) {
@@ -260,7 +260,7 @@ class AminaCasino {
             
             for (let peg = 0; peg < pegsInRow; peg++) {
                 const x = startX + peg * spacing + spacing / 2;
-                const y = 80 + row * 30;
+                const y = 60 + row * 28; // Tighter spacing
                 this.pegs.push({ x, y, radius: 6 });
             }
         }
@@ -423,8 +423,8 @@ class AminaCasino {
                 ctx.fillStyle = '#FF8888';
                 ctx.fill();
                 
-                // End when ball reaches bottom
-                if (ball.y > canvas.height - 20) {
+                // End when ball reaches bottom - BEFORE the multipliers!
+                if (ball.y > canvas.height - 30) {
                     const slotWidth = canvas.width / 9;
                     const finalSlot = Math.floor(ball.x / slotWidth);
                     resolve(Math.max(0, Math.min(8, finalSlot)));
