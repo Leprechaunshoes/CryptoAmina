@@ -1,45 +1,49 @@
-// Amina Casino - Enhanced Features & Particles
+// Amina Casino - Enhanced Experience & Effects
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Index.js loading...');
     
-    // Wait a bit for main casino to load
+    // Initialize welcome screen and enhancements
     setTimeout(() => {
-        initializeEnhancements();
-        startParticleSystem();
-    }, 1000);
+        initializeWelcomeExperience();
+        startCosmicEffects();
+        setupEnhancedFeatures();
+    }, 500);
     
     console.log('✨ Index.js ready!');
 });
 
-function initializeEnhancements() {
-    // Smooth loading animation
-    const mainContent = document.querySelector('.main-content');
-    if (mainContent) {
-        mainContent.style.opacity = '0';
-        mainContent.style.transform = 'translateY(20px)';
-        
-        setTimeout(() => {
-            mainContent.style.transition = 'all 0.8s ease';
-            mainContent.style.opacity = '1';
-            mainContent.style.transform = 'translateY(0)';
-        }, 200);
-    }
+function initializeWelcomeExperience() {
+    // Show welcome screen first
+    const welcomeScreen = document.getElementById('welcomeScreen');
+    const mainCasino = document.getElementById('mainCasino');
     
-    // Add resize handler for plinko
-    window.addEventListener('resize', () => {
-        if (window.aminaCasino && window.aminaCasino.initPlinko) {
-            setTimeout(() => {
-                window.aminaCasino.initPlinko();
-            }, 100);
+    if (welcomeScreen && mainCasino) {
+        welcomeScreen.classList.add('active');
+        mainCasino.classList.remove('active');
+        
+        // Add enter casino functionality
+        const enterBtn = document.getElementById('enterCasino');
+        if (enterBtn) {
+            enterBtn.addEventListener('click', function() {
+                welcomeScreen.classList.remove('active');
+                setTimeout(() => {
+                    mainCasino.classList.add('active');
+                    // Trigger coin animation when entering
+                    triggerCoinCelebration();
+                }, 300);
+            });
         }
-    });
+    }
 }
 
-function startParticleSystem() {
+function startCosmicEffects() {
+    // Start particle system
     createCosmicParticles();
-    
-    // Continue creating particles
     setInterval(createCosmicParticles, 4000);
+    
+    // Add floating coin effects
+    createFloatingCoins();
+    setInterval(createFloatingCoins, 8000);
 }
 
 function createCosmicParticles() {
@@ -48,7 +52,7 @@ function createCosmicParticles() {
     for (let i = 0; i < particleCount; i++) {
         setTimeout(() => {
             createSingleParticle();
-        }, i * 200);
+        }, i * 300);
     }
 }
 
@@ -57,7 +61,7 @@ function createSingleParticle() {
     const size = Math.random() * 4 + 2;
     const colors = ['#FFD700', '#00E5FF', '#E91E63', '#9C27B0', '#FFFFFF'];
     const color = colors[Math.floor(Math.random() * colors.length)];
-    const duration = Math.random() * 6 + 8;
+    const duration = Math.random() * 8 + 10;
     
     particle.style.cssText = `
         position: fixed;
@@ -67,7 +71,7 @@ function createSingleParticle() {
         border-radius: 50%;
         pointer-events: none;
         z-index: -1;
-        opacity: ${Math.random() * 0.7 + 0.3};
+        opacity: ${Math.random() * 0.8 + 0.2};
         left: ${Math.random() * 100}%;
         top: 100vh;
         box-shadow: 0 0 ${size * 3}px ${color};
@@ -76,7 +80,6 @@ function createSingleParticle() {
     
     document.body.appendChild(particle);
     
-    // Remove particle when animation ends
     setTimeout(() => {
         if (particle && particle.parentNode) {
             particle.parentNode.removeChild(particle);
@@ -84,7 +87,297 @@ function createSingleParticle() {
     }, duration * 1000);
 }
 
-// Add CSS animation for particles
+function createFloatingCoins() {
+    const coinCount = window.innerWidth < 768 ? 2 : 4;
+    
+    for (let i = 0; i < coinCount; i++) {
+        setTimeout(() => {
+            createFloatingCoin();
+        }, i * 1000);
+    }
+}
+
+function createFloatingCoin() {
+    const coin = document.createElement('div');
+    const size = Math.random() * 20 + 15;
+    const duration = Math.random() * 6 + 8;
+    
+    coin.innerHTML = '🪙';
+    coin.style.cssText = `
+        position: fixed;
+        font-size: ${size}px;
+        pointer-events: none;
+        z-index: -1;
+        opacity: ${Math.random() * 0.6 + 0.3};
+        left: ${Math.random() * 100}%;
+        top: 100vh;
+        animation: coinFloat ${duration}s ease-in-out forwards;
+        filter: drop-shadow(0 0 10px #FFD700);
+    `;
+    
+    document.body.appendChild(coin);
+    
+    setTimeout(() => {
+        if (coin && coin.parentNode) {
+            coin.parentNode.removeChild(coin);
+        }
+    }, duration * 1000);
+}
+
+function setupEnhancedFeatures() {
+    // Enhanced resize handler for plinko
+    window.addEventListener('resize', () => {
+        if (window.aminaCasino && window.aminaCasino.initPlinko) {
+            setTimeout(() => {
+                window.aminaCasino.initPlinko();
+            }, 200);
+        }
+    });
+    
+    // Add click sound effects to buttons
+    addSoundEffects();
+    
+    // Add screen shake effects for big wins
+    setupScreenEffects();
+    
+    // Add keyboard shortcuts
+    setupKeyboardShortcuts();
+}
+
+function addSoundEffects() {
+    // Add click sounds to cosmic buttons
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('cosmic-btn') && !e.target.disabled) {
+            playClickSound();
+        }
+        
+        if (e.target.classList.contains('nav-btn')) {
+            playNavSound();
+        }
+        
+        if (e.target.classList.contains('enter-btn')) {
+            playEnterSound();
+        }
+    });
+}
+
+function playClickSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.1);
+    } catch (e) {
+        console.log('🔇 Audio not available');
+    }
+}
+
+function playNavSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+        oscillator.type = 'triangle';
+        
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.08, audioContext.currentTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.15);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.15);
+    } catch (e) {
+        console.log('🔇 Audio not available');
+    }
+}
+
+function playEnterSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Play chord progression for entering casino
+        const notes = [523.25, 659.25, 783.99]; // C, E, G
+        
+        notes.forEach((freq, i) => {
+            setTimeout(() => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            }, i * 100);
+        });
+    } catch (e) {
+        console.log('🔇 Audio not available');
+    }
+}
+
+function setupScreenEffects() {
+    // Watch for big win animations
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                const target = mutation.target;
+                if (target.classList.contains('game-result') && target.classList.contains('win') && target.classList.contains('show')) {
+                    // Check if it's a big win (contains multiple digits)
+                    const text = target.textContent;
+                    if (text.includes('WIN!') || text.includes('WINNER!')) {
+                        triggerBigWinEffect();
+                    }
+                }
+            }
+        });
+    });
+    
+    // Observe all game result elements
+    document.querySelectorAll('.game-result').forEach(element => {
+        observer.observe(element, { attributes: true });
+    });
+}
+
+function triggerBigWinEffect() {
+    // Screen shake effect
+    document.body.style.animation = 'screenShake 0.5s ease-in-out';
+    
+    // Create explosion of coins
+    createCoinExplosion();
+    
+    // Remove animation after it completes
+    setTimeout(() => {
+        document.body.style.animation = '';
+    }, 500);
+}
+
+function createCoinExplosion() {
+    const explosionCount = 15;
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    
+    for (let i = 0; i < explosionCount; i++) {
+        const coin = document.createElement('div');
+        coin.innerHTML = '🪙';
+        coin.style.cssText = `
+            position: fixed;
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 1000;
+            left: ${centerX}px;
+            top: ${centerY}px;
+            animation: coinExplode 2s ease-out forwards;
+            filter: drop-shadow(0 0 10px #FFD700);
+        `;
+        
+        const angle = (Math.PI * 2 * i) / explosionCount;
+        const distance = Math.random() * 200 + 100;
+        coin.style.setProperty('--dx', Math.cos(angle) * distance + 'px');
+        coin.style.setProperty('--dy', Math.sin(angle) * distance + 'px');
+        
+        document.body.appendChild(coin);
+        
+        setTimeout(() => {
+            if (coin && coin.parentNode) {
+                coin.parentNode.removeChild(coin);
+            }
+        }, 2000);
+    }
+}
+
+function triggerCoinCelebration() {
+    // Celebrate entering the casino
+    const celebrationCount = 8;
+    
+    for (let i = 0; i < celebrationCount; i++) {
+        setTimeout(() => {
+            const coin = document.createElement('div');
+            coin.innerHTML = '🪙';
+            coin.style.cssText = `
+                position: fixed;
+                font-size: 30px;
+                pointer-events: none;
+                z-index: 999;
+                left: ${Math.random() * window.innerWidth}px;
+                top: -50px;
+                animation: celebrationFall 3s ease-in forwards;
+                filter: drop-shadow(0 0 15px #FFD700);
+            `;
+            
+            document.body.appendChild(coin);
+            
+            setTimeout(() => {
+                if (coin && coin.parentNode) {
+                    coin.parentNode.removeChild(coin);
+                }
+            }, 3000);
+        }, i * 200);
+    }
+}
+
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+        // Only work if no input is focused
+        if (document.activeElement.tagName === 'INPUT') return;
+        
+        switch(e.key.toLowerCase()) {
+            case '1':
+                if (document.querySelector('[data-game="home"]')) {
+                    document.querySelector('[data-game="home"]').click();
+                }
+                break;
+            case '2':
+                if (document.querySelector('[data-game="slots"]')) {
+                    document.querySelector('[data-game="slots"]').click();
+                }
+                break;
+            case '3':
+                if (document.querySelector('[data-game="plinko"]')) {
+                    document.querySelector('[data-game="plinko"]').click();
+                }
+                break;
+            case '4':
+                if (document.querySelector('[data-game="blackjack"]')) {
+                    document.querySelector('[data-game="blackjack"]').click();
+                }
+                break;
+            case ' ':
+                e.preventDefault();
+                // Space bar for main action in current game
+                const activeScreen = document.querySelector('.game-screen.active');
+                if (activeScreen) {
+                    const mainBtn = activeScreen.querySelector('.cosmic-btn:not(:disabled)');
+                    if (mainBtn) mainBtn.click();
+                }
+                break;
+        }
+    });
+}
+
+// Add all the CSS animations
 const style = document.createElement('style');
 style.textContent = `
     @keyframes floatUp {
@@ -103,6 +396,54 @@ style.textContent = `
         }
         100% {
             transform: translateY(-100vh) translateX(${Math.random() * 200 - 100}px) rotate(360deg);
+            opacity: 0;
+        }
+    }
+    
+    @keyframes coinFloat {
+        0% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 0;
+        }
+        10% {
+            opacity: 1;
+        }
+        50% {
+            transform: translateY(-30vh) rotate(180deg);
+        }
+        90% {
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(-60vh) rotate(360deg);
+            opacity: 0;
+        }
+    }
+    
+    @keyframes screenShake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+    
+    @keyframes coinExplode {
+        0% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        100% {
+            transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.3);
+            opacity: 0;
+        }
+    }
+    
+    @keyframes celebrationFall {
+        0% {
+            transform: translateY(-50px) rotate(0deg);
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(100vh) rotate(720deg);
             opacity: 0;
         }
     }
@@ -129,49 +470,6 @@ window.aminaUtils = {
         }).format(num);
     },
     
-    playSound: (type) => {
-        try {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            const audioContext = new AudioContext();
-            
-            const createTone = (freq, duration, volume = 0.1) => {
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
-                oscillator.type = 'sine';
-                
-                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-                gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + 0.01);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + duration);
-            };
-            
-            switch(type) {
-                case 'win':
-                    createTone(523.25, 0.2); // C5
-                    setTimeout(() => createTone(659.25, 0.2), 100); // E5
-                    setTimeout(() => createTone(783.99, 0.3), 200); // G5
-                    break;
-                case 'spin':
-                    createTone(220, 0.1);
-                    break;
-                case 'drop':
-                    createTone(440, 0.1);
-                    break;
-                default:
-                    createTone(330, 0.1);
-            }
-        } catch (e) {
-            console.log(`🔊 ${type} sound (audio context unavailable)`);
-        }
-    },
-    
     vibrate: (pattern = [100]) => {
         if ('vibrate' in navigator && Array.isArray(pattern)) {
             navigator.vibrate(pattern);
@@ -179,58 +477,40 @@ window.aminaUtils = {
     },
     
     createExplosion: (x, y) => {
-        for (let i = 0; i < 8; i++) {
-            const particle = document.createElement('div');
-            const size = Math.random() * 6 + 3;
-            const colors = ['#FFD700', '#00E5FF', '#E91E63', '#FF6B35'];
-            const color = colors[Math.floor(Math.random() * colors.length)];
+        createCoinExplosion();
+        window.aminaUtils.vibrate([200, 100, 200]);
+    },
+    
+    playWinSound: () => {
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            // Play triumphant win chord
+            const notes = [523.25, 659.25, 783.99, 1046.5]; // C, E, G, C
             
-            particle.style.cssText = `
-                position: fixed;
-                left: ${x}px;
-                top: ${y}px;
-                width: ${size}px;
-                height: ${size}px;
-                background: ${color};
-                border-radius: 50%;
-                pointer-events: none;
-                z-index: 1000;
-                box-shadow: 0 0 ${size * 2}px ${color};
-                animation: explode 1s ease-out forwards;
-                transform: translate(-50%, -50%);
-            `;
-            
-            const angle = (Math.PI * 2 * i) / 8;
-            const distance = Math.random() * 80 + 40;
-            particle.style.setProperty('--dx', Math.cos(angle) * distance + 'px');
-            particle.style.setProperty('--dy', Math.sin(angle) * distance + 'px');
-            
-            document.body.appendChild(particle);
-            
-            setTimeout(() => {
-                if (particle.parentNode) {
-                    particle.parentNode.removeChild(particle);
-                }
-            }, 1000);
+            notes.forEach((freq, i) => {
+                setTimeout(() => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + 0.01);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                }, i * 150);
+            });
+        } catch (e) {
+            console.log('🔇 Win sound not available');
         }
     }
 };
-
-// Add explosion animation
-const explosionStyle = document.createElement('style');
-explosionStyle.textContent = `
-    @keyframes explode {
-        0% {
-            transform: translate(-50%, -50%) scale(1);
-            opacity: 1;
-        }
-        100% {
-            transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0);
-            opacity: 0;
-        }
-    }
-`;
-document.head.appendChild(explosionStyle);
 
 // Performance monitoring
 window.aminaPerf = {
@@ -253,6 +533,8 @@ document.addEventListener('visibilitychange', () => {
         console.log('🌙 Casino paused');
     } else {
         console.log('🌟 Casino resumed');
+        // Create celebration when page becomes visible again
+        setTimeout(triggerCoinCelebration, 500);
     }
 });
 
