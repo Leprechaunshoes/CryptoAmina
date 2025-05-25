@@ -1,25 +1,52 @@
-// Amina Casino - Streamlined & Enhanced with Working Pera Wallet
+// Amina Casino - Ultra Streamlined Complete Scripts with Fixed Pera Wallet
 class AminaCasino {
     constructor() {
         this.balance = { HC: 1000, AMINA: 0 };
         this.currentCurrency = 'HC';
         this.isAmina = false;
         this.slotSymbols = ['⭐', '🌟', '💫', '🌌', '🪐', '🌙', '☄️', '🚀', '👽', '🛸'];
-        
-        // ENHANCED PERA WALLET SETUP
+        this.initializeWallet();
+        this.init();
+    }
+    
+    async initializeWallet() {
         try {
-            this.peraWallet = new PeraWalletConnect();
+            if (typeof PeraWalletConnect === 'undefined') {
+                await new Promise(resolve => {
+                    const checkPera = () => {
+                        if (typeof PeraWalletConnect !== 'undefined') resolve();
+                        else setTimeout(checkPera, 100);
+                    };
+                    checkPera();
+                });
+            }
+            
+            this.peraWallet = new PeraWalletConnect({ chainId: 416001 });
             this.connectedAccount = null;
             this.aminaAssetId = 1107424865;
             this.nodeUrl = 'https://mainnet-api.algonode.cloud';
             this.walletReady = true;
-            console.log('🔗 Pera Wallet initialized for mainnet');
+            console.log('✅ Pera Wallet ready');
+            
+            setTimeout(() => this.checkExistingConnection(), 1000);
         } catch (error) {
-            console.log('⚠️ Pera Wallet not available, HC mode only');
+            console.error('❌ Wallet init failed:', error);
             this.walletReady = false;
         }
-        
-        this.init();
+    }
+    
+    async checkExistingConnection() {
+        try {
+            const accounts = await this.peraWallet.reconnectSession();
+            if (accounts?.length > 0) {
+                this.connectedAccount = accounts[0];
+                this.updateWalletUI();
+                await this.fetchAminaBalance();
+                this.showNotification('🔗 Wallet reconnected!', 'success');
+            }
+        } catch (error) {
+            console.log('No previous session');
+        }
     }
     
     init() {
@@ -27,10 +54,8 @@ class AminaCasino {
         this.setupCurrencyToggle();
         this.setupGames();
         this.updateDisplay();
-        
-        // Setup Pera Wallet after DOM loads
-        setTimeout(() => this.setupPeraWallet(), 1000);
-        console.log('🌌 Amina Casino loaded!');
+        setTimeout(() => this.addWalletButton(), 500);
+        console.log('🌌 Casino loaded!');
     }
     
     setupNavigation() {
@@ -43,28 +68,10 @@ class AminaCasino {
     }
     
     switchGame(game) {
-        document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.game-screen, .nav-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(game).classList.add('active');
         document.querySelector(`[data-game="${game}"]`).classList.add('active');
         if (game === 'plinko') setTimeout(() => this.initPlinko(), 100);
-    }
-    
-    // ENHANCED PERA WALLET FUNCTIONS
-    setupPeraWallet() {
-        if (!this.walletReady) return;
-        
-        this.addWalletButton();
-        
-        // Auto-reconnect if previously connected
-        this.peraWallet.reconnectSession().then((accounts) => {
-            if (accounts?.length > 0) {
-                this.connectedAccount = accounts[0];
-                this.updateWalletUI();
-                this.fetchAminaBalance();
-                this.showNotification('🔗 Wallet reconnected!', 'success');
-            }
-        }).catch(() => console.log('No previous session'));
     }
     
     addWalletButton() {
@@ -74,9 +81,13 @@ class AminaCasino {
         const walletBtn = document.createElement('button');
         walletBtn.id = 'walletBtn';
         walletBtn.className = 'wallet-btn';
-        walletBtn.innerHTML = '🔗 Connect Wallet';
+        walletBtn.innerHTML = this.connectedAccount ? 
+            `✅ ${this.connectedAccount.slice(0, 6)}...${this.connectedAccount.slice(-4)}` : 
+            '🔗 Connect Wallet';
+        
         walletBtn.addEventListener('click', () => this.toggleWallet());
         headerControls.insertBefore(walletBtn, headerControls.firstChild);
+        if (this.connectedAccount) this.updateWalletUI();
     }
     
     async toggleWallet() {
@@ -85,34 +96,50 @@ class AminaCasino {
             return;
         }
         
-        if (this.connectedAccount) {
-            // Disconnect
-            await this.peraWallet.disconnect();
-            this.connectedAccount = null;
-            this.balance.AMINA = 0;
-            if (this.isAmina) {
-                this.isAmina = false;
-                this.currentCurrency = 'HC';
-                document.getElementById('currencyToggle').classList.remove('amina');
-                document.querySelector('.currency-text').textContent = 'HC';
-            }
-            this.updateWalletUI();
-            this.updateDisplay();
-            this.showNotification('🔌 Wallet disconnected', 'success');
-        } else {
-            // Connect
-            try {
+        const walletBtn = document.getElementById('walletBtn');
+        if (!walletBtn) return;
+        
+        try {
+            if (this.connectedAccount) {
+                walletBtn.disabled = true;
+                walletBtn.innerHTML = '🔄 Disconnecting...';
+                
+                await this.peraWallet.disconnect();
+                this.connectedAccount = null;
+                this.balance.AMINA = 0;
+                
+                if (this.isAmina) {
+                    this.isAmina = false;
+                    this.currentCurrency = 'HC';
+                    document.getElementById('currencyToggle').classList.remove('amina');
+                    document.querySelector('.currency-text').textContent = 'HC';
+                }
+                
+                this.updateWalletUI();
+                this.updateDisplay();
+                this.showNotification('🔌 Wallet disconnected', 'success');
+            } else {
+                walletBtn.disabled = true;
+                walletBtn.innerHTML = '🔄 Connecting...';
+                
                 const accounts = await this.peraWallet.connect();
                 if (accounts?.length > 0) {
                     this.connectedAccount = accounts[0];
                     this.updateWalletUI();
                     await this.fetchAminaBalance();
                     this.showNotification('🔗 Wallet connected!', 'success');
+                    if (window.createWalletCelebration) window.createWalletCelebration();
                 } else {
                     this.showNotification('❌ No accounts found', 'error');
                 }
-            } catch (error) {
-                this.showNotification('❌ Connection failed', 'error');
+            }
+        } catch (error) {
+            this.showNotification('❌ Connection failed', 'error');
+        } finally {
+            const walletBtn = document.getElementById('walletBtn');
+            if (walletBtn) {
+                walletBtn.disabled = false;
+                if (!this.connectedAccount) walletBtn.innerHTML = '🔗 Connect Wallet';
             }
         }
     }
@@ -137,55 +164,28 @@ class AminaCasino {
         try {
             const response = await fetch(`${this.nodeUrl}/v2/accounts/${this.connectedAccount}`);
             const accountInfo = await response.json();
-            const aminaAsset = accountInfo.assets?.find(asset => asset['asset-id'] === this.aminaAssetId);
-            this.balance.AMINA = aminaAsset ? (aminaAsset.amount / 1000000) : 0;
+            
+            if (accountInfo.assets) {
+                const aminaAsset = accountInfo.assets.find(asset => asset['asset-id'] === this.aminaAssetId);
+                this.balance.AMINA = aminaAsset ? (aminaAsset.amount / 1000000) : 0;
+            } else {
+                this.balance.AMINA = 0;
+            }
+            
             this.updateDisplay();
             console.log(`🪙 AMINA Balance: ${this.balance.AMINA}`);
+            if (this.balance.AMINA === 0) this.showNotification('ℹ️ No AMINA tokens found', 'info');
         } catch (error) {
-            console.error('Failed to fetch AMINA balance:', error);
+            console.error('Balance fetch failed:', error);
             this.showNotification('⚠️ Could not fetch balance', 'error');
-        }
-    }
-    
-    // ENHANCED TRANSACTION FUNCTIONS
-    async sendAminaTransaction(amount, isDeduct = true) {
-        if (!this.connectedAccount || !this.isAmina) return false;
-        
-        try {
-            // For demo purposes, we'll simulate the transaction
-            // In production, you'd create and send actual Algorand transactions
-            
-            this.showNotification(`🔄 Processing ${amount} AMINA...`, 'info');
-            
-            // Simulate transaction delay
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            
-            if (isDeduct) {
-                if (this.balance.AMINA >= amount) {
-                    this.balance.AMINA -= amount;
-                    this.showNotification(`✅ Deducted ${amount} AMINA`, 'success');
-                    this.updateDisplay();
-                    return true;
-                } else {
-                    this.showNotification('❌ Insufficient AMINA balance', 'error');
-                    return false;
-                }
-            } else {
-                this.balance.AMINA += amount;
-                this.showNotification(`✅ Added ${amount} AMINA`, 'success');
-                this.updateDisplay();
-                return true;
-            }
-        } catch (error) {
-            this.showNotification('❌ Transaction failed', 'error');
-            return false;
+            this.balance.AMINA = 0;
         }
     }
     
     setupCurrencyToggle() {
         document.getElementById('currencyToggle').addEventListener('click', () => {
             if (!this.isAmina && !this.connectedAccount) {
-                this.showNotification('🔗 Connect wallet to use AMINA!', 'error');
+                this.showNotification('🔗 Connect wallet for AMINA!', 'error');
                 return;
             }
             
@@ -209,15 +209,12 @@ class AminaCasino {
     }
     
     setupGames() {
-        // Slots
         this.initSlots();
         document.getElementById('spinBtn').addEventListener('click', () => this.spinSlots());
         
-        // Plinko
         this.initPlinko();
         document.getElementById('dropBtn').addEventListener('click', () => this.dropPlinko());
         
-        // Blackjack
         this.initBlackjack();
         document.getElementById('dealBtn').addEventListener('click', () => this.dealCards());
         document.getElementById('hitBtn').addEventListener('click', () => this.hit());
@@ -226,33 +223,25 @@ class AminaCasino {
     }
     
     updateDisplay() {
-        const balance = Math.floor(this.balance[this.currentCurrency] * 1000000) / 1000000; // Round to 6 decimals
+        const balance = Math.floor(this.balance[this.currentCurrency] * 1000000) / 1000000;
         document.getElementById('balanceAmount').textContent = balance;
         document.getElementById('currencySymbol').textContent = this.currentCurrency;
         ['slots', 'plinko', 'blackjack'].forEach(game => {
-            document.getElementById(`${game}Currency`).textContent = this.currentCurrency;
+            const currencyEl = document.getElementById(`${game}Currency`);
+            if (currencyEl) currencyEl.textContent = this.currentCurrency;
         });
     }
     
     async deductBalance(amount) {
         if (this.balance[this.currentCurrency] < amount) return false;
-        
-        if (this.isAmina && this.connectedAccount) {
-            return await this.sendAminaTransaction(amount, true);
-        } else {
-            this.balance[this.currentCurrency] -= amount;
-            this.animateBalance('lose');
-            this.updateDisplay();
-            return true;
-        }
+        this.balance[this.currentCurrency] -= amount;
+        this.animateBalance('lose');
+        this.updateDisplay();
+        return true;
     }
     
     async addBalance(amount) {
-        if (this.isAmina && this.connectedAccount) {
-            await this.sendAminaTransaction(amount, false);
-        } else {
-            this.balance[this.currentCurrency] += amount;
-        }
+        this.balance[this.currentCurrency] += amount;
         this.animateBalance('win');
         this.updateDisplay();
     }
@@ -268,37 +257,38 @@ class AminaCasino {
     
     showGameResult(gameId, message, type = 'info') {
         const resultDiv = document.getElementById(`${gameId}Result`);
-        resultDiv.textContent = message;
-        resultDiv.className = `game-result show ${type}`;
-        setTimeout(() => resultDiv.classList.remove('show'), 4000);
+        if (resultDiv) {
+            resultDiv.textContent = message;
+            resultDiv.className = `game-result show ${type}`;
+            setTimeout(() => resultDiv.classList.remove('show'), 4000);
+        }
     }
     
     showNotification(message, type = 'info') {
-        const colors = {
-            success: '#4CAF50',
-            error: '#F44336',
-            info: '#FFD700',
-            amina: '#E91E63'
-        };
-        
+        const colors = { success: '#4CAF50', error: '#F44336', info: '#FFD700', amina: '#E91E63' };
         const notification = document.createElement('div');
         notification.textContent = message;
         notification.style.cssText = `
             position: fixed; top: 20px; right: 20px; z-index: 1001;
             background: ${colors[type] || colors.info}; color: white;
-            padding: 1rem 2rem; border-radius: 15px;
+            padding: 1rem 2rem; border-radius: 15px; max-width: 300px;
             font-family: 'Orbitron', monospace; font-weight: 700;
             box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
-            animation: slideIn 0.3s ease-out;
+            transform: translateX(100%); transition: transform 0.3s ease;
         `;
         
         document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 3000);
+        setTimeout(() => notification.style.transform = 'translateX(0)', 50);
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
     }
     
-    // SLOTS GAME - STREAMLINED
+    // SLOTS GAME
     initSlots() {
         const grid = document.getElementById('slotsGrid');
+        if (!grid) return;
         grid.innerHTML = '';
         for (let i = 0; i < 15; i++) {
             const reel = document.createElement('div');
@@ -345,7 +335,7 @@ class AminaCasino {
             
             spinButton.disabled = false;
             spinButton.textContent = 'SPIN';
-        }, 2500);
+        }, 1500);
     }
     
     calculateSlotWin(results, bet) {
@@ -384,24 +374,24 @@ class AminaCasino {
         });
     }
     
-    // PLINKO GAME - STREAMLINED
+    // PLINKO GAME
     initPlinko() {
         const canvas = document.getElementById('plinkoCanvas');
         if (!canvas) return;
         
         canvas.width = window.innerWidth < 768 ? 350 : 400;
-        canvas.height = window.innerWidth < 768 ? 250 : 280;
+        canvas.height = 350;
         
         this.plinkoCtx = canvas.getContext('2d');
         this.plinkoDropping = false;
-        this.setupPegs();
-        this.drawPlinkoBoard();
+        this.setupCosmicPegs();
+        this.drawCosmicBoard();
     }
     
-    setupPegs() {
+    setupCosmicPegs() {
         this.pegs = [];
         const canvas = this.plinkoCtx.canvas;
-        const rows = 6;
+        const rows = 8;
         
         for (let row = 0; row < rows; row++) {
             const pegsInRow = row + 2;
@@ -411,31 +401,43 @@ class AminaCasino {
             for (let peg = 0; peg < pegsInRow; peg++) {
                 this.pegs.push({
                     x: startX + peg * spacing + spacing / 2,
-                    y: 60 + row * 28,
-                    radius: 6
+                    y: 60 + row * 30,
+                    radius: 8,
+                    glow: Math.random() * 0.5 + 0.5
                 });
             }
         }
     }
     
-    drawPlinkoBoard() {
+    drawCosmicBoard() {
         const ctx = this.plinkoCtx;
         const canvas = ctx.canvas;
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Background
-        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        gradient.addColorStop(0, '#4169E1');
-        gradient.addColorStop(1, '#1E90FF');
+        const gradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width/2);
+        gradient.addColorStop(0, '#1a1a3a');
+        gradient.addColorStop(0.5, '#0f0f23');
+        gradient.addColorStop(1, '#0a0a1a');
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // Pegs
         this.pegs.forEach(peg => {
             ctx.beginPath();
+            ctx.arc(peg.x, peg.y, peg.radius + 4, 0, Math.PI * 2);
+            const glowGradient = ctx.createRadialGradient(peg.x, peg.y, 0, peg.x, peg.y, peg.radius + 4);
+            glowGradient.addColorStop(0, `rgba(255, 215, 0, ${peg.glow * 0.5})`);
+            glowGradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+            ctx.fillStyle = glowGradient;
+            ctx.fill();
+            
+            ctx.beginPath();
             ctx.arc(peg.x, peg.y, peg.radius, 0, Math.PI * 2);
-            ctx.fillStyle = 'white';
+            const pegGradient = ctx.createRadialGradient(peg.x-2, peg.y-2, 0, peg.x, peg.y, peg.radius);
+            pegGradient.addColorStop(0, '#FFD700');
+            pegGradient.addColorStop(0.7, '#FFA500');
+            pegGradient.addColorStop(1, '#FF8C00');
+            ctx.fillStyle = pegGradient;
             ctx.fill();
         });
     }
@@ -452,19 +454,14 @@ class AminaCasino {
         button.disabled = true;
         button.textContent = 'DROPPING...';
         
-        const finalSlot = await this.animatePlinko();
+        const finalSlot = await this.animateCosmicBall();
         const multipliers = [10, 5, 2, 1, 0.5, 1, 2, 5, 10];
         const multiplier = multipliers[finalSlot] || 1;
         const winAmount = bet * multiplier;
         
         await this.addBalance(winAmount);
+        this.showGameResult('plinko', `Hit ${multiplier}x! Won ${winAmount} ${this.currentCurrency}!`, winAmount > bet ? 'win' : 'lose');
         
-        this.showGameResult('plinko', 
-            `Hit ${multiplier}x! Won ${winAmount} ${this.currentCurrency}!`, 
-            winAmount > bet ? 'win' : 'lose'
-        );
-        
-        // Highlight multiplier
         document.querySelectorAll('.multiplier').forEach((m, i) => m.classList.toggle('hit', i === finalSlot));
         setTimeout(() => document.querySelectorAll('.multiplier').forEach(m => m.classList.remove('hit')), 3000);
         
@@ -473,22 +470,18 @@ class AminaCasino {
         button.textContent = 'DROP BALL';
     }
     
-    animatePlinko() {
+    animateCosmicBall() {
         return new Promise(resolve => {
             const canvas = this.plinkoCtx.canvas;
-            const ball = {
-                x: canvas.width / 2, y: 30, vx: 0, vy: 2,
-                radius: 8, gravity: 0.3, bounce: 0.6
-            };
+            const ball = { x: canvas.width / 2, y: 30, vx: 0, vy: 2, radius: 10, gravity: 0.3, bounce: 0.6 };
             
             const animate = () => {
-                this.drawPlinkoBoard();
+                this.drawCosmicBoard();
                 
                 ball.vy += ball.gravity;
                 ball.x += ball.vx;
                 ball.y += ball.vy;
                 
-                // Peg collisions
                 this.pegs.forEach(peg => {
                     const dx = ball.x - peg.x;
                     const dy = ball.y - peg.y;
@@ -503,7 +496,6 @@ class AminaCasino {
                     }
                 });
                 
-                // Wall bounces
                 if (ball.x < ball.radius) {
                     ball.x = ball.radius;
                     ball.vx = Math.abs(ball.vx);
@@ -512,14 +504,25 @@ class AminaCasino {
                     ball.vx = -Math.abs(ball.vx);
                 }
                 
-                // Draw ball
                 const ctx = this.plinkoCtx;
                 ctx.beginPath();
-                ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-                ctx.fillStyle = '#FF4444';
+                ctx.arc(ball.x, ball.y, ball.radius + 5, 0, Math.PI * 2);
+                const ballGlow = ctx.createRadialGradient(ball.x, ball.y, 0, ball.x, ball.y, ball.radius + 5);
+                ballGlow.addColorStop(0, 'rgba(0, 229, 255, 0.8)');
+                ballGlow.addColorStop(1, 'rgba(0, 229, 255, 0)');
+                ctx.fillStyle = ballGlow;
                 ctx.fill();
                 
-                if (ball.y > canvas.height - 30) {
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+                const ballGradient = ctx.createRadialGradient(ball.x-3, ball.y-3, 0, ball.x, ball.y, ball.radius);
+                ballGradient.addColorStop(0, '#00E5FF');
+                ballGradient.addColorStop(0.7, '#0099CC');
+                ballGradient.addColorStop(1, '#006699');
+                ctx.fillStyle = ballGradient;
+                ctx.fill();
+                
+                if (ball.y > canvas.height - 60) {
                     const slotWidth = canvas.width / 9;
                     const finalSlot = Math.floor(ball.x / slotWidth);
                     resolve(Math.max(0, Math.min(8, finalSlot)));
@@ -531,7 +534,7 @@ class AminaCasino {
         });
     }
     
-    // BLACKJACK GAME - STREAMLINED
+    // BLACKJACK GAME
     initBlackjack() {
         this.playerHand = [];
         this.dealerHand = [];
@@ -546,7 +549,6 @@ class AminaCasino {
         
         suits.forEach(suit => values.forEach(value => this.deck.push({value, suit})));
         
-        // Shuffle
         for (let i = this.deck.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
@@ -606,20 +608,11 @@ class AminaCasino {
     getHandValue(hand) {
         let value = 0, aces = 0;
         hand.forEach(card => {
-            if (card.value === 'A') {
-                aces++;
-                value += 11;
-            } else if (['J', 'Q', 'K'].includes(card.value)) {
-                value += 10;
-            } else {
-                value += parseInt(card.value);
-            }
+            if (card.value === 'A') { aces++; value += 11; }
+            else if (['J', 'Q', 'K'].includes(card.value)) value += 10;
+            else value += parseInt(card.value);
         });
-        
-        while (value > 21 && aces > 0) {
-            value -= 10;
-            aces--;
-        }
+        while (value > 21 && aces > 0) { value -= 10; aces--; }
         return value;
     }
     
@@ -633,8 +626,9 @@ class AminaCasino {
     
     displayHand(player, hand, showAll = true) {
         const container = document.getElementById(`${player}Cards`);
-        container.innerHTML = '';
+        if (!container) return;
         
+        container.innerHTML = '';
         hand.forEach((card, index) => {
             const cardEl = document.createElement('div');
             cardEl.className = 'playing-card';
@@ -652,12 +646,10 @@ class AminaCasino {
     
     async endGame(message, winAmount = 0, resultType = 'info') {
         this.gameActive = false;
-        
         if (winAmount > 0) {
             await this.addBalance(winAmount);
             message += ` +${winAmount} ${this.currentCurrency}`;
         }
-        
         this.showGameResult('blackjack', message, resultType);
         document.getElementById('hitBtn').disabled = true;
         document.getElementById('standBtn').disabled = true;
@@ -670,13 +662,14 @@ class AminaCasino {
         document.getElementById('newGameBtn').style.display = 'none';
         document.getElementById('blackjackResult').classList.remove('show');
         ['player', 'dealer'].forEach(player => {
-            document.getElementById(`${player}Cards`).innerHTML = '';
-            document.getElementById(`${player}Score`).textContent = '0';
+            const cards = document.getElementById(`${player}Cards`);
+            const score = document.getElementById(`${player}Score`);
+            if (cards) cards.innerHTML = '';
+            if (score) score.textContent = '0';
         });
     }
 }
 
-// Initialize when DOM loads
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🌌 Initializing Amina Casino...');
     window.aminaCasino = new AminaCasino();
