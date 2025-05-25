@@ -1,6 +1,6 @@
-// Amina Casino - Enhanced Experience & Effects WITH MUSIC!
+// Amina Casino - Enhanced Experience & Effects WITH PERA WALLET POWER!
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Index.js loading...');
+    console.log('🚀 Index.js with Pera Wallet loading...');
     
     // Initialize welcome screen and enhancements
     setTimeout(() => {
@@ -8,10 +8,199 @@ document.addEventListener('DOMContentLoaded', function() {
         startCosmicEffects();
         setupEnhancedFeatures();
         setupBackgroundMusic();
+        setupWalletEnhancements(); // NEW WALLET FEATURES!
     }, 500);
     
-    console.log('✨ Index.js ready!');
+    console.log('✨ Index.js with Pera Wallet ready!');
 });
+
+function setupWalletEnhancements() {
+    // Add wallet connection celebration
+    document.addEventListener('click', (e) => {
+        if (e.target.id === 'walletBtn' && e.target.innerHTML.includes('✅')) {
+            // Wallet connected celebration!
+            createWalletCelebration();
+        }
+    });
+    
+    // Add AMINA coin rain when switching to AMINA
+    const originalToggle = document.getElementById('currencyToggle');
+    if (originalToggle) {
+        originalToggle.addEventListener('click', () => {
+            setTimeout(() => {
+                const isAmina = originalToggle.classList.contains('amina');
+                if (isAmina && window.aminaCasino && window.aminaCasino.connectedAccount) {
+                    createAminaCoinRain();
+                }
+            }, 100);
+        });
+    }
+    
+    // Enhanced wallet notifications
+    setupWalletNotifications();
+}
+
+function createWalletCelebration() {
+    console.log('🎉 Wallet connected celebration!');
+    
+    // Create explosion of wallet icons
+    for (let i = 0; i < 12; i++) {
+        const icon = document.createElement('div');
+        icon.innerHTML = '💳';
+        icon.style.cssText = `
+            position: fixed;
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 1000;
+            left: 50%;
+            top: 20%;
+            animation: walletExplode 2s ease-out forwards;
+            filter: drop-shadow(0 0 10px #FFD700);
+        `;
+        
+        const angle = (Math.PI * 2 * i) / 12;
+        const distance = Math.random() * 150 + 100;
+        icon.style.setProperty('--dx', Math.cos(angle) * distance + 'px');
+        icon.style.setProperty('--dy', Math.sin(angle) * distance + 'px');
+        
+        document.body.appendChild(icon);
+        
+        setTimeout(() => {
+            if (icon.parentNode) {
+                icon.parentNode.removeChild(icon);
+            }
+        }, 2000);
+    }
+    
+    // Play special wallet connection sound
+    playWalletConnectSound();
+}
+
+function createAminaCoinRain() {
+    console.log('🪙 AMINA coin rain!');
+    
+    for (let i = 0; i < 15; i++) {
+        setTimeout(() => {
+            const coin = document.createElement('div');
+            coin.innerHTML = '🪙';
+            coin.style.cssText = `
+                position: fixed;
+                font-size: ${Math.random() * 15 + 20}px;
+                pointer-events: none;
+                z-index: 999;
+                left: ${Math.random() * 100}%;
+                top: -50px;
+                animation: aminaCoinFall 4s ease-in forwards;
+                filter: drop-shadow(0 0 15px #E91E63);
+            `;
+            
+            document.body.appendChild(coin);
+            
+            setTimeout(() => {
+                if (coin.parentNode) {
+                    coin.parentNode.removeChild(coin);
+                }
+            }, 4000);
+        }, i * 150);
+    }
+}
+
+function setupWalletNotifications() {
+    // Enhanced notification system for wallet events
+    window.walletNotify = (message, type = 'info', duration = 3000) => {
+        const notification = document.createElement('div');
+        notification.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.2rem;">${getWalletIcon(type)}</span>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        notification.style.cssText = `
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: ${getWalletNotificationColor(type)};
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            z-index: 1002;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            transform: translateX(100%);
+            transition: transform 0.3s ease-out;
+            max-width: 300px;
+            border: 2px solid #FFD700;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Slide in
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 50);
+        
+        // Slide out and remove
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => notification.remove(), 300);
+        }, duration);
+    };
+}
+
+function getWalletIcon(type) {
+    const icons = {
+        'wallet': '💳',
+        'amina': '🪙', 
+        'win': '🎉',
+        'error': '⚠️',
+        'success': '✅'
+    };
+    return icons[type] || '💫';
+}
+
+function getWalletNotificationColor(type) {
+    const colors = {
+        'wallet': 'linear-gradient(135deg, #9C27B0, #673AB7)',
+        'amina': 'linear-gradient(135deg, #E91E63, #FF6B35)',
+        'win': 'linear-gradient(135deg, #4CAF50, #8BC34A)',
+        'error': 'linear-gradient(135deg, #F44336, #E91E63)',
+        'success': 'linear-gradient(135deg, #4CAF50, #00E676)'
+    };
+    return colors[type] || 'linear-gradient(135deg, #FFD700, #00E5FF)';
+}
+
+function playWalletConnectSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Play successful connection chord
+        const notes = [261.63, 329.63, 392.00, 523.25]; // C, E, G, C
+        
+        notes.forEach((freq, i) => {
+            setTimeout(() => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.8);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.8);
+            }, i * 200);
+        });
+    } catch (e) {
+        console.log('🔇 Wallet connect sound not available');
+    }
+}
 
 function setupBackgroundMusic() {
     // Create music control button - MOVED TO BOTTOM!
@@ -457,7 +646,64 @@ function setupKeyboardShortcuts() {
     });
 }
 
-// Add all the CSS animations
+// Add wallet-specific CSS animations
+const walletStyle = document.createElement('style');
+walletStyle.textContent = `
+    @keyframes walletExplode {
+        0% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        100% {
+            transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.3);
+            opacity: 0;
+        }
+    }
+    
+    @keyframes aminaCoinFall {
+        0% {
+            transform: translateY(-50px) rotate(0deg);
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(100vh) rotate(1080deg);
+            opacity: 0;
+        }
+    }
+    
+    .wallet-btn:hover {
+        transform: translateY(-2px) scale(1.05) !important;
+        box-shadow: 0 0 25px var(--cosmic-pink) !important;
+    }
+    
+    .balance-display.amina-active {
+        border-color: var(--cosmic-pink) !important;
+        box-shadow: 0 0 25px var(--cosmic-pink) !important;
+        animation: aminaGlow 2s ease-in-out infinite !important;
+    }
+    
+    @keyframes aminaGlow {
+        0%, 100% { 
+            box-shadow: 0 0 25px var(--cosmic-pink);
+        }
+        50% { 
+            box-shadow: 0 0 40px var(--cosmic-pink), 0 0 60px rgba(233, 30, 99, 0.5);
+        }
+    }
+    
+    /* Enhanced mobile wallet styling */
+    @media (max-width: 768px) {
+        .wallet-btn {
+            font-size: 0.8rem !important;
+            padding: 0.6rem 1rem !important;
+        }
+        
+        .header-controls {
+            gap: 1rem !important;
+        }
+    }
+`;
+document.head.appendChild(walletStyle);
 const style = document.createElement('style');
 style.textContent = `
     @keyframes floatUp {
