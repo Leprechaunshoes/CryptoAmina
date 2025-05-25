@@ -5,8 +5,24 @@ class AminaCasino {
         this.currentCurrency = 'HC';
         this.isAmina = false;
         
-        this.slotSymbols = ['🌟', '🪐', '🌌', '☄️', '🚀', '👽', '🛸', '🌙'];
+        // Professional cosmic slot symbols
+        this.slotSymbols = ['⭐', '🌟', '💫', '🌌', '🪐', '🌙', '☄️', '🚀', '👽', '🛸'];
+        this.slotWeights = [5, 8, 10, 12, 15, 18, 20, 15, 4, 3]; // Rarity weights
+        
         this.init();
+    }
+    
+    getWeightedSlotSymbol() {
+        const totalWeight = this.slotWeights.reduce((a, b) => a + b, 0);
+        let random = Math.random() * totalWeight;
+        
+        for (let i = 0; i < this.slotSymbols.length; i++) {
+            random -= this.slotWeights[i];
+            if (random <= 0) {
+                return this.slotSymbols[i];
+            }
+        }
+        return this.slotSymbols[0];
     }
     
     init() {
@@ -285,47 +301,82 @@ class AminaCasino {
         }, 500);
     }
     
-    // PLINKO
+    // PLINKO - Professional Stake.us Style
     initPlinko() {
         const canvas = document.getElementById('plinkoCanvas');
-        canvas.width = 500;
-        canvas.height = 400;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = 350;
         this.plinkoCtx = canvas.getContext('2d');
         this.plinkoDropping = false;
         this.pegs = [];
-        this.setupPlinkoPhysics();
-        this.drawPlinkoBoard();
+        this.setupStakePlinko();
+        this.drawStakePlinkoBoard();
     }
     
-    setupPlinkoPhysics() {
+    setupStakePlinko() {
         this.pegs = [];
-        for (let row = 0; row < 12; row++) {
+        const rows = 12;
+        const canvasWidth = this.plinkoCtx.canvas.width;
+        
+        for (let row = 0; row < rows; row++) {
             const pegsInRow = row + 3;
-            const spacing = 400 / (pegsInRow + 1);
-            const offsetX = (500 - spacing * (pegsInRow - 1)) / 2;
+            const spacing = (canvasWidth - 60) / pegsInRow;
+            const startX = 30 + spacing / 2;
+            const offsetX = row % 2 === 0 ? 0 : spacing / 2;
             
             for (let peg = 0; peg < pegsInRow; peg++) {
-                const x = offsetX + peg * spacing;
-                const y = 50 + row * 25;
-                this.pegs.push({x, y, radius: 4});
+                const x = startX + peg * spacing + offsetX;
+                const y = 40 + row * 22;
+                this.pegs.push({x, y, radius: 3});
             }
         }
     }
     
-    drawPlinkoBoard() {
+    drawStakePlinkoBoard() {
         const ctx = this.plinkoCtx;
-        ctx.clearRect(0, 0, 500, 400);
+        const canvas = ctx.canvas;
         
-        // Draw pegs with glow effect
+        // Clear and set background
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw gradient background
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, '#0f0f23');
+        gradient.addColorStop(1, '#1a1a2e');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw pegs with professional styling
         this.pegs.forEach(peg => {
+            // Peg shadow
+            ctx.beginPath();
+            ctx.arc(peg.x + 1, peg.y + 1, peg.radius, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fill();
+            
+            // Main peg
             ctx.beginPath();
             ctx.arc(peg.x, peg.y, peg.radius, 0, Math.PI * 2);
-            ctx.fillStyle = '#FFD700';
-            ctx.shadowColor = '#FFD700';
-            ctx.shadowBlur = 10;
+            ctx.fillStyle = '#4a5568';
             ctx.fill();
-            ctx.shadowBlur = 0;
+            
+            // Peg highlight
+            ctx.beginPath();
+            ctx.arc(peg.x - 1, peg.y - 1, peg.radius * 0.6, 0, Math.PI * 2);
+            ctx.fillStyle = '#718096';
+            ctx.fill();
         });
+        
+        // Draw side walls
+        ctx.strokeStyle = '#4a5568';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(15, 30);
+        ctx.lineTo(15, canvas.height - 40);
+        ctx.moveTo(canvas.width - 15, 30);
+        ctx.lineTo(canvas.width - 15, canvas.height - 40);
+        ctx.stroke();
     }
     
     dropPlinko() {
@@ -384,60 +435,108 @@ class AminaCasino {
     
     animatePlinkoBall(bet) {
         return new Promise(resolve => {
+            const canvas = this.plinkoCtx.canvas;
             const ball = {
-                x: 250,
-                y: 20,
-                vx: (Math.random() - 0.5) * 2,
+                x: canvas.width / 2,
+                y: 15,
+                vx: (Math.random() - 0.5) * 1,
                 vy: 0,
-                radius: 6,
-                gravity: 0.3,
-                bounce: 0.7
+                radius: 5,
+                gravity: 0.25,
+                bounce: 0.8,
+                friction: 0.99
             };
             
+            const trail = [];
+            const maxTrail = 8;
+            
             const animate = () => {
-                const ctx = this.plinkoCtx;
-                this.drawPlinkoBoard();
+                // Add to trail
+                trail.push({x: ball.x, y: ball.y});
+                if (trail.length > maxTrail) trail.shift();
                 
-                // Update ball physics
+                this.drawStakePlinkoBoard();
+                
+                // Draw ball trail
+                trail.forEach((pos, i) => {
+                    const opacity = (i + 1) / trail.length * 0.5;
+                    const size = ball.radius * (0.3 + (i / trail.length) * 0.7);
+                    
+                    this.plinkoCtx.beginPath();
+                    this.plinkoCtx.arc(pos.x, pos.y, size, 0, Math.PI * 2);
+                    this.plinkoCtx.fillStyle = `rgba(0, 229, 255, ${opacity})`;
+                    this.plinkoCtx.fill();
+                });
+                
+                // Update physics
                 ball.vy += ball.gravity;
+                ball.vx *= ball.friction;
                 ball.x += ball.vx;
                 ball.y += ball.vy;
                 
-                // Check peg collisions
+                // Peg collisions with realistic physics
                 this.pegs.forEach(peg => {
                     const dx = ball.x - peg.x;
                     const dy = ball.y - peg.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     
-                    if (distance < ball.radius + peg.radius) {
+                    if (distance < ball.radius + peg.radius + 2) {
                         const angle = Math.atan2(dy, dx);
-                        ball.x = peg.x + Math.cos(angle) * (ball.radius + peg.radius);
-                        ball.y = peg.y + Math.sin(angle) * (ball.radius + peg.radius);
+                        const targetX = peg.x + Math.cos(angle) * (ball.radius + peg.radius + 2);
+                        const targetY = peg.y + Math.sin(angle) * (ball.radius + peg.radius + 2);
                         
-                        ball.vx = Math.cos(angle) * 2 + (Math.random() - 0.5);
-                        ball.vy = Math.abs(Math.sin(angle)) * 2;
+                        ball.x = targetX;
+                        ball.y = targetY;
+                        
+                        // Realistic bounce with randomness
+                        const bounceAngle = angle + (Math.random() - 0.5) * 0.4;
+                        const speed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy) * ball.bounce;
+                        
+                        ball.vx = Math.cos(bounceAngle) * speed * 0.7;
+                        ball.vy = Math.abs(Math.sin(bounceAngle)) * speed;
+                        
+                        // Add random horizontal drift
+                        ball.vx += (Math.random() - 0.5) * 1.5;
                     }
                 });
                 
-                // Wall bounces
-                if (ball.x < ball.radius || ball.x > 500 - ball.radius) {
-                    ball.vx *= -ball.bounce;
-                    ball.x = Math.max(ball.radius, Math.min(500 - ball.radius, ball.x));
+                // Wall collisions
+                if (ball.x < 20) {
+                    ball.x = 20;
+                    ball.vx = Math.abs(ball.vx) * ball.bounce;
+                } else if (ball.x > canvas.width - 20) {
+                    ball.x = canvas.width - 20;
+                    ball.vx = -Math.abs(ball.vx) * ball.bounce;
                 }
                 
-                // Draw ball with cosmic glow
+                // Draw main ball with glow
+                const ctx = this.plinkoCtx;
+                
+                // Ball glow
+                const glowGrad = ctx.createRadialGradient(ball.x, ball.y, 0, ball.x, ball.y, ball.radius * 3);
+                glowGrad.addColorStop(0, 'rgba(0, 229, 255, 0.8)');
+                glowGrad.addColorStop(1, 'rgba(0, 229, 255, 0)');
+                ctx.fillStyle = glowGrad;
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, ball.radius * 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Main ball
                 ctx.beginPath();
                 ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-                ctx.fillStyle = '#00E5FF';
-                ctx.shadowColor = '#00E5FF';
-                ctx.shadowBlur = 15;
+                ctx.fillStyle = '#00e5ff';
                 ctx.fill();
-                ctx.shadowBlur = 0;
                 
-                // Check if ball reached bottom
-                if (ball.y > 380) {
-                    const slotWidth = 500 / 9;
-                    const finalSlot = Math.floor(ball.x / slotWidth);
+                // Ball highlight
+                ctx.beginPath();
+                ctx.arc(ball.x - 1.5, ball.y - 1.5, ball.radius * 0.5, 0, Math.PI * 2);
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+                
+                // Check if reached bottom
+                if (ball.y > canvas.height - 50) {
+                    const slotWidth = canvas.width / 9;
+                    const finalSlot = Math.floor((ball.x - 15) / slotWidth);
                     resolve(Math.max(0, Math.min(8, finalSlot)));
                 } else {
                     requestAnimationFrame(animate);
