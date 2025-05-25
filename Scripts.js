@@ -230,48 +230,51 @@ class AminaCasino {
         });
     }
     
-    // PLINKO - CLEAN STAKE-STYLE VERSION
+    // PLINKO - NO MORE FREEZING VERSION
     initPlinko() {
         const canvas = document.getElementById('plinkoCanvas');
         if (!canvas) return;
         
-        canvas.width = 400;
-        canvas.height = 400;
+        // Better mobile sizing
+        const container = canvas.parentElement;
+        const maxWidth = Math.min(400, window.innerWidth - 40);
+        canvas.width = maxWidth;
+        canvas.height = Math.min(400, window.innerHeight * 0.5);
+        
         this.plinkoCtx = canvas.getContext('2d');
         this.plinkoDropping = false;
-        this.setupCleanPlinko();
-        this.drawCleanBoard();
+        this.setupBulletproofPlinko();
+        this.drawSimpleBoard();
     }
     
-    setupCleanPlinko() {
+    setupBulletproofPlinko() {
         this.pegs = [];
-        const rows = 8;
+        const canvas = this.plinkoCtx.canvas;
+        const rows = 6; // Fewer rows = less chance to freeze
         
         for (let row = 0; row < rows; row++) {
-            const pegsInRow = row + 4;
-            const spacing = 350 / pegsInRow;
-            const startX = 50;
+            const pegsInRow = 4 + row;
+            const spacing = (canvas.width - 80) / pegsInRow;
             
             for (let peg = 0; peg < pegsInRow; peg++) {
-                const x = startX + peg * spacing;
-                const y = 80 + row * 35;
-                this.pegs.push({ x, y, radius: 4 });
+                const x = 40 + spacing * (peg + 0.5);
+                const y = 100 + row * 40;
+                this.pegs.push({ x, y, radius: 6 });
             }
         }
     }
     
-    drawCleanBoard() {
+    drawSimpleBoard() {
         const ctx = this.plinkoCtx;
-        ctx.clearRect(0, 0, 400, 400);
+        const canvas = ctx.canvas;
         
-        // Clean background
-        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, '#1a1a2e');
-        gradient.addColorStop(1, '#0f0f23');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, 400, 400);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Draw pegs
+        // Simple clean background
+        ctx.fillStyle = '#1a1a2e';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw pegs - simple and clean
         this.pegs.forEach(peg => {
             ctx.beginPath();
             ctx.arc(peg.x, peg.y, peg.radius, 0, Math.PI * 2);
@@ -295,7 +298,7 @@ class AminaCasino {
         button.disabled = true;
         button.textContent = 'DROPPING...';
         
-        this.animateCleanBall().then(finalSlot => {
+        this.animateBulletproofBall().then(finalSlot => {
             const multipliers = [10, 5, 2, 1, 0.5, 1, 2, 5, 10];
             const result = multipliers[finalSlot] || 1;
             const winAmount = bet * result;
@@ -303,7 +306,7 @@ class AminaCasino {
             this.addBalance(winAmount);
             
             const resultMessage = winAmount > bet ? 
-                `🌌 WIN! Ball hit ${result}x! +${winAmount} ${this.currentCurrency}` :
+                `🌌 WIN! ${result}x multiplier! +${winAmount} ${this.currentCurrency}` :
                 `Ball hit ${result}x. +${winAmount} ${this.currentCurrency}`;
             
             const resultType = winAmount > bet ? 'win' : 'lose';
@@ -323,48 +326,57 @@ class AminaCasino {
         });
     }
     
-    animateCleanBall() {
+    animateBulletproofBall() {
         return new Promise(resolve => {
+            const canvas = this.plinkoCtx.canvas;
             const ball = {
-                x: 200,
+                x: canvas.width / 2,
                 y: 50,
-                vx: (Math.random() - 0.5) * 2,
+                vx: 0,
                 vy: 0,
-                radius: 6,
-                gravity: 0.3,
-                bounce: 0.7
+                radius: 8,
+                gravity: 0.5,
+                maxSpeed: 8
             };
             
+            let frameCount = 0;
+            
             const animate = () => {
-                this.drawCleanBoard();
+                frameCount++;
+                this.drawSimpleBoard();
                 
-                // Physics
+                // Simple gravity
                 ball.vy += ball.gravity;
                 ball.x += ball.vx;
                 ball.y += ball.vy;
                 
-                // Peg collisions
+                // Limit speed to prevent freezing
+                if (Math.abs(ball.vx) > ball.maxSpeed) ball.vx = ball.maxSpeed * Math.sign(ball.vx);
+                if (ball.vy > ball.maxSpeed) ball.vy = ball.maxSpeed;
+                
+                // Simple peg bouncing
                 this.pegs.forEach(peg => {
                     const dx = ball.x - peg.x;
                     const dy = ball.y - peg.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     
                     if (distance < ball.radius + peg.radius) {
-                        const angle = Math.atan2(dy, dx);
-                        ball.x = peg.x + Math.cos(angle) * (ball.radius + peg.radius);
-                        ball.y = peg.y + Math.sin(angle) * (ball.radius + peg.radius);
+                        // Simple bounce away from peg
+                        ball.x = peg.x + (dx / distance) * (ball.radius + peg.radius + 2);
+                        ball.y = peg.y + (dy / distance) * (ball.radius + peg.radius + 2);
                         
-                        ball.vx = Math.cos(angle) * 3 + (Math.random() - 0.5) * 2;
-                        ball.vy = Math.abs(Math.sin(angle)) * 2;
+                        // Random direction change
+                        ball.vx = (Math.random() - 0.5) * 4;
+                        ball.vy = Math.abs(ball.vy) * 0.7;
                     }
                 });
                 
                 // Wall bounces
-                if (ball.x < 25) {
-                    ball.x = 25;
+                if (ball.x < ball.radius + 20) {
+                    ball.x = ball.radius + 20;
                     ball.vx = Math.abs(ball.vx);
-                } else if (ball.x > 375) {
-                    ball.x = 375;
+                } else if (ball.x > canvas.width - ball.radius - 20) {
+                    ball.x = canvas.width - ball.radius - 20;
                     ball.vx = -Math.abs(ball.vx);
                 }
                 
@@ -374,10 +386,10 @@ class AminaCasino {
                 this.plinkoCtx.fillStyle = '#00E5FF';
                 this.plinkoCtx.fill();
                 
-                // Check finish
-                if (ball.y > 360) {
-                    const slotWidth = 350 / 9;
-                    const finalSlot = Math.floor((ball.x - 25) / slotWidth);
+                // Safety check - force end if ball is stuck or taking too long
+                if (ball.y > canvas.height - 30 || frameCount > 600) {
+                    const slotWidth = (canvas.width - 40) / 9;
+                    const finalSlot = Math.floor((ball.x - 20) / slotWidth);
                     resolve(Math.max(0, Math.min(8, finalSlot)));
                 } else {
                     requestAnimationFrame(animate);
