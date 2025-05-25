@@ -37,7 +37,7 @@
                     </div>
                 </div>
                 <div class="currency-info">
-                    <p>💰 Start with 1000 HC (House Coins) or toggle to AMINA</p>
+                    <p>💰 Start with 1000 HC (House Coins) or connect wallet to use AMINA</p>
                 </div>
             </div>
             
@@ -57,6 +57,8 @@
                 </div>
                 
                 <div class="header-controls">
+                    <button id="walletBtn" class="wallet-btn">🔗 Connect Wallet</button>
+                    
                     <div class="currency-toggle">
                         <span class="currency-label">Currency:</span>
                         <button id="currencyToggle" class="toggle-btn">
@@ -159,9 +161,10 @@
                     
                     <div class="plinko-container">
                         <div class="plinko-board">
-                            <canvas id="plinkoCanvas" width="400" height="400"></canvas>
+                            <canvas id="plinkoCanvas" width="350" height="400"></canvas>
                             <div class="multipliers">
-                                <div class="multiplier" data-mult="10">10x</div>
+                                <div class="multiplier" data-mult="100">100x</div>
+                                <div class="multiplier" data-mult="20">20x</div>
                                 <div class="multiplier" data-mult="5">5x</div>
                                 <div class="multiplier" data-mult="2">2x</div>
                                 <div class="multiplier" data-mult="1">1x</div>
@@ -169,7 +172,8 @@
                                 <div class="multiplier" data-mult="1">1x</div>
                                 <div class="multiplier" data-mult="2">2x</div>
                                 <div class="multiplier" data-mult="5">5x</div>
-                                <div class="multiplier" data-mult="10">10x</div>
+                                <div class="multiplier" data-mult="20">20x</div>
+                                <div class="multiplier" data-mult="100">100x</div>
                             </div>
                         </div>
                         <button id="dropBtn" class="cosmic-btn">DROP BALL</button>
@@ -230,12 +234,17 @@
             <div class="modal-body">
                 <p>Support the cosmic gaming experience!</p>
                 
-                <div class="donation-coin">
-                    <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina Coin" class="donation-coin-image">
+                <div class="donation-coins">
+                    <div class="donation-coin">
+                        <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina Coin" class="donation-coin-image">
+                    </div>
+                    <div class="algorand-logo">
+                        <img src="https://i.postimg.cc/KkVKyYHG/algorand-logo.png" alt="Algorand" class="algorand-image">
+                    </div>
                 </div>
                 
                 <div class="wallet-section">
-                    <label>Donation Address:</label>
+                    <label>Algorand Donation Address:</label>
                     <div class="wallet-input-group">
                         <input type="text" id="donationWallet" value="6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI" readonly>
                         <button class="copy-btn" onclick="copyDonationAddress()">Copy</button>
@@ -260,8 +269,14 @@
         function copyDonationAddress() {
             const wallet = document.getElementById('donationWallet');
             wallet.select();
-            document.execCommand('copy');
-            alert('Address copied!');
+            wallet.setSelectionRange(0, 99999); // For mobile devices
+            navigator.clipboard.writeText(wallet.value).then(() => {
+                alert('Algorand address copied!');
+            }).catch(() => {
+                // Fallback for older browsers
+                document.execCommand('copy');
+                alert('Algorand address copied!');
+            });
         }
         
         // Enter casino functionality
