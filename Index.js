@@ -1,43 +1,84 @@
-// Amina Casino - Main Application
+// Amina Casino - Professional Main Application
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Amina Casino starting up...');
+    console.log('🚀 Amina Casino initializing...');
     
-    // Smooth loading animation
-    const mainContent = document.querySelector('.main-content');
-    if (mainContent) {
-        mainContent.style.opacity = '0';
-        setTimeout(() => {
-            mainContent.style.transition = 'opacity 0.5s ease-in-out';
-            mainContent.style.opacity = '1';
-        }, 100);
-    }
+    // Professional loading sequence
+    initializeProCasino();
     
-    // Preload coin image
-    const coinImg = new Image();
-    coinImg.src = 'https://i.postimg.cc/nrMt6P0R/IMG-8041.png';
-    coinImg.onload = () => {
-        console.log('🪙 Amina Coin image loaded successfully');
-    };
+    // Enhanced particle system
+    startCosmicParticleSystem();
     
-    // Add cosmic particles effect
-    createCosmicParticles();
+    // Performance optimizations
+    optimizeForDevice();
     
-    // Mobile responsiveness check
-    checkMobile();
-    
-    console.log('✨ Amina Casino ready!');
+    console.log('✨ Professional Amina Casino ready!');
 });
 
-function createCosmicParticles() {
-    const particleCount = window.innerWidth < 768 ? 15 : 40;
+function initializeProCasino() {
+    // Smooth fade-in with stagger effect
+    const elements = [
+        '.header',
+        '.nav-menu', 
+        '.main-content'
+    ];
     
-    for (let i = 0; i < particleCount; i++) {
+    elements.forEach((selector, index) => {
+        const element = document.querySelector(selector);
+        if (element) {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                element.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+                element.style.opacity = '1';
+                element.style.transform = 'translateY(0)';
+            }, 200 + (index * 150));
+        }
+    });
+    
+    // Preload all images with loading indicator
+    preloadCasinoAssets();
+}
+
+function preloadCasinoAssets() {
+    const coinImg = new Image();
+    coinImg.src = 'https://i.postimg.cc/nrMt6P0R/IMG-8041.png';
+    
+    coinImg.onload = () => {
+        console.log('🪙 Amina Coin loaded successfully');
+        // Add loaded class for CSS animations
+        document.body.classList.add('assets-loaded');
+    };
+    
+    coinImg.onerror = () => {
+        console.warn('⚠️ Coin image failed to load, using fallback');
+    };
+}
+
+function startCosmicParticleSystem() {
+    let particlePool = [];
+    let activeParticles = [];
+    const maxParticles = window.innerWidth < 768 ? 25 : 50;
+    
+    // Create particle pool for performance
+    for (let i = 0; i < maxParticles; i++) {
         const particle = document.createElement('div');
         particle.className = 'cosmic-particle';
+        particle.style.position = 'fixed';
+        particle.style.pointerEvents = 'none';
+        particle.style.zIndex = '-1';
+        particle.style.borderRadius = '50%';
+        particlePool.push(particle);
+    }
+    
+    function createParticle() {
+        if (particlePool.length === 0) return;
         
+        const particle = particlePool.pop();
         const size = Math.random() * 3 + 1;
-        const colors = ['#FFD700', '#00E5FF', '#E91E63', '#4A148C'];
+        const colors = ['#FFD700', '#00E5FF', '#E91E63', '#9C27B0', '#FFFFFF'];
         const color = colors[Math.floor(Math.random() * colors.length)];
+        const duration = Math.random() * 8 + 6;
         
         particle.style.cssText = `
             position: fixed;
@@ -47,25 +88,80 @@ function createCosmicParticles() {
             border-radius: 50%;
             pointer-events: none;
             z-index: -1;
-            opacity: ${Math.random() * 0.8 + 0.2};
-            animation: particleFloat ${Math.random() * 15 + 10}s linear infinite;
+            opacity: ${Math.random() * 0.8 + 0.3};
             left: ${Math.random() * 100}%;
-            top: ${Math.random() * 100}%;
-            box-shadow: 0 0 ${size * 3}px ${color};
+            top: 100vh;
+            box-shadow: 0 0 ${size * 2}px ${color};
+            animation: professionalParticleFloat ${duration}s linear forwards;
         `;
         
         document.body.appendChild(particle);
+        activeParticles.push(particle);
         
-        // Remove particle after animation with some randomness
+        // Return to pool when animation ends
         setTimeout(() => {
-            if (particle && particle.parentNode) {
+            if (particle.parentNode) {
                 particle.parentNode.removeChild(particle);
             }
-        }, (Math.random() * 10 + 20) * 1000);
+            const index = activeParticles.indexOf(particle);
+            if (index > -1) {
+                activeParticles.splice(index, 1);
+                particlePool.push(particle);
+            }
+        }, duration * 1000);
     }
     
-    // Create continuous particle stream
-    setTimeout(createCosmicParticles, Math.random() * 5000 + 3000);
+    // Create particles at intervals
+    function particleLoop() {
+        if (document.visibilityState === 'visible') {
+            createParticle();
+        }
+        setTimeout(particleLoop, Math.random() * 2000 + 1000);
+    }
+    
+    particleLoop();
+}
+
+function optimizeForDevice() {
+    const isMobile = window.innerWidth < 768;
+    const isLowEnd = navigator.hardwareConcurrency < 4;
+    
+    if (isMobile || isLowEnd) {
+        // Reduce animations for performance
+        document.documentElement.style.setProperty('--animation-speed', '0.5s');
+        console.log('📱 Mobile/low-end optimizations applied');
+    }
+    
+    // Add CSS for professional particle animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes professionalParticleFloat {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: var(--particle-opacity, 0.8);
+                transform: scale(1);
+            }
+            90% {
+                opacity: var(--particle-opacity, 0.8);
+            }
+            100% {
+                transform: translateY(-100vh) translateX(${Math.random() * 200 - 100}px) rotate(360deg) scale(0);
+                opacity: 0;
+            }
+        }
+        
+        .assets-loaded .coin-image {
+            animation-play-state: running;
+        }
+        
+        .cosmic-particle {
+            will-change: transform, opacity;
+        }
+    `;
+    document.head.appendChild(style);
 }
 
 function checkMobile() {
