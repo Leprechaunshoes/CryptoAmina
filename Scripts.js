@@ -230,57 +230,88 @@ class AminaCasino {
         });
     }
     
-    // PLINKO - NO MORE FREEZING VERSION
+    // PLINKO - PERFECT MOBILE VERTICAL VERSION
     initPlinko() {
         const canvas = document.getElementById('plinkoCanvas');
         if (!canvas) return;
         
-        // Better mobile sizing
-        const container = canvas.parentElement;
-        const maxWidth = Math.min(400, window.innerWidth - 40);
-        canvas.width = maxWidth;
-        canvas.height = Math.min(400, window.innerHeight * 0.5);
+        // Perfect mobile sizing
+        const isMobile = window.innerWidth < 768;
+        if (isMobile) {
+            canvas.width = Math.min(350, window.innerWidth - 20);
+            canvas.height = 280; // Shorter for mobile so multipliers show!
+        } else {
+            canvas.width = 400;
+            canvas.height = 350;
+        }
         
         this.plinkoCtx = canvas.getContext('2d');
         this.plinkoDropping = false;
-        this.setupBulletproofPlinko();
-        this.drawSimpleBoard();
+        this.setupPerfectPlinko();
+        this.drawBeautifulBoard();
     }
     
-    setupBulletproofPlinko() {
+    setupPerfectPlinko() {
         this.pegs = [];
         const canvas = this.plinkoCtx.canvas;
-        const rows = 6; // Fewer rows = less chance to freeze
+        const rows = 5; // Perfect amount for mobile
         
         for (let row = 0; row < rows; row++) {
             const pegsInRow = 4 + row;
-            const spacing = (canvas.width - 80) / pegsInRow;
+            const spacing = (canvas.width - 60) / pegsInRow;
             
             for (let peg = 0; peg < pegsInRow; peg++) {
-                const x = 40 + spacing * (peg + 0.5);
-                const y = 100 + row * 40;
-                this.pegs.push({ x, y, radius: 6 });
+                const x = 30 + spacing * (peg + 0.5);
+                const y = 80 + row * 35;
+                this.pegs.push({ x, y, radius: 5 });
             }
         }
     }
     
-    drawSimpleBoard() {
+    drawBeautifulBoard() {
         const ctx = this.plinkoCtx;
         const canvas = ctx.canvas;
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Simple clean background
-        ctx.fillStyle = '#1a1a2e';
+        // Beautiful gradient background
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, '#2d1b69');
+        gradient.addColorStop(0.5, '#1a1a2e');
+        gradient.addColorStop(1, '#0f0f23');
+        ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // Draw pegs - simple and clean
+        // Draw beautiful pegs with glow
         this.pegs.forEach(peg => {
+            // Peg glow
+            ctx.beginPath();
+            ctx.arc(peg.x, peg.y, peg.radius + 3, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.4)';
+            ctx.fill();
+            
+            // Main peg
             ctx.beginPath();
             ctx.arc(peg.x, peg.y, peg.radius, 0, Math.PI * 2);
             ctx.fillStyle = '#FFD700';
             ctx.fill();
+            
+            // Peg highlight
+            ctx.beginPath();
+            ctx.arc(peg.x - 1, peg.y - 1, peg.radius * 0.6, 0, Math.PI * 2);
+            ctx.fillStyle = '#FFFF99';
+            ctx.fill();
         });
+        
+        // Draw side guides
+        ctx.strokeStyle = 'rgba(255, 215, 0, 0.3)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(15, 60);
+        ctx.lineTo(15, canvas.height - 20);
+        ctx.moveTo(canvas.width - 15, 60);
+        ctx.lineTo(canvas.width - 15, canvas.height - 20);
+        ctx.stroke();
     }
     
     dropPlinko() {
