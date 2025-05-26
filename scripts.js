@@ -21,10 +21,6 @@ this.addWalletButton();
 this.updateDisplay();
 }
 
-
-
-
-
 setupUI(){
 document.querySelectorAll('.nav-btn:not(.donation-btn)').forEach(btn=>{
 btn.onclick=()=>this.switchGame(btn.dataset.game);
