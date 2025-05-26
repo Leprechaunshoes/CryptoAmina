@@ -8,9 +8,9 @@ this.slotSymbols=['⭐','🌟','💫','🌌','🪐','🌙','☄️','🚀','👽
 this.connectedAccount=null;
 this.peraWallet=null;
 if(document.readyState==='loading'){
-document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>this.init(),100));
+document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>this.init().catch(console.error),500));
 }else{
-setTimeout(()=>this.init(),100);
+setTimeout(()=>this.init().catch(console.error),500);
 }
 }
 
@@ -24,61 +24,42 @@ await this.initPera();
 
 async initPera(){
 console.log('Starting Pera initialization...');
-if(typeof window.PeraWalletConnect==='undefined'){
-console.log('Loading Pera Connect script...');
-return new Promise(resolve=>{
-const script=document.createElement('script');
-script.src='https://cdn.jsdelivr.net/npm/@perawallet/connect@1.4.1/dist/index.umd.js';
-script.onload=async()=>{
-console.log('Pera script loaded, creating instance...');
+const maxRetries=3;
+let retries=0;
+while(retries<maxRetries){
 try{
-this.peraWallet=new window.PeraWalletConnect({chainId:416002});
+if(!window.checkPeraWallet()){
+console.log(`Waiting for Pera to load... (attempt ${retries+1})`);
+await new Promise(resolve=>setTimeout(resolve,1000));
+retries++;
+continue;
+}
+console.log('Creating Pera instance...');
+this.peraWallet=new window.PeraWalletConnect({chainId:416002,shouldShowSignTxnToast:true});
 try{
 const accounts=await this.peraWallet.reconnectSession();
-if(accounts&&accounts.length>0){
+if(accounts?.length>0){
 this.connectedAccount=accounts[0];
 await this.updateWalletUI();
 await this.fetchBalance();
+console.log('Reconnected to existing session');
 }
-}catch(e){
-console.log('No previous session');
-}
-this.notify('✅ Wallet ready','success');
-resolve(true);
-}catch(error){
-console.error('Pera initialization error:',error);
-this.notify('❌ Wallet initialization failed','error');
-resolve(false);
-}
-};
-script.onerror=()=>{
-console.error('Failed to load Pera script');
-this.notify('❌ Failed to load wallet','error');
-resolve(false);
-};
-document.body.appendChild(script);
-});
-}
-try{
-console.log('Creating Pera instance directly...');
-this.peraWallet=new window.PeraWalletConnect({chainId:416002});
-try{
-const accounts=await this.peraWallet.reconnectSession();
-if(accounts&&accounts.length>0){
-this.connectedAccount=accounts[0];
-await this.updateWalletUI();
-await this.fetchBalance();
-}
-}catch(e){
-console.log('No previous session');
+}catch(reconnectError){
+console.log('No existing session to reconnect');
 }
 this.notify('✅ Wallet ready','success');
 return true;
 }catch(error){
-console.error('Pera initialization error:',error);
-this.notify('❌ Wallet initialization failed','error');
+console.error(`Initialization attempt ${retries+1} failed:`,error);
+retries++;
+if(retries===maxRetries){
+this.notify('❌ Failed to initialize wallet','error');
 return false;
 }
+await new Promise(resolve=>setTimeout(resolve,1000));
+}
+}
+return false;
 }
 
 async checkConnection(){}
@@ -112,8 +93,9 @@ controls.insertBefore(btn,controls.firstChild);
 }
 
 async toggleWallet(){
-if(!this.peraWallet){
-console.log('Wallet not ready, initializing...');
+try{
+if(!this.peraWallet||!window.checkPeraWallet()){
+console.log('Reinitializing wallet...');
 const success=await this.initPera();
 if(!success){
 this.notify('❌ Could not initialize wallet','error');
@@ -122,7 +104,6 @@ return;
 }
 const btn=document.getElementById('walletBtn');
 btn.disabled=true;
-try{
 if(this.connectedAccount){
 await this.peraWallet.disconnect();
 this.connectedAccount=null;
@@ -134,8 +115,10 @@ this.notify('🔌 Disconnected','info');
 }else{
 btn.innerHTML='🔄 Connecting...';
 await new Promise(resolve=>setTimeout(resolve,500));
+try{
 const accounts=await this.peraWallet.connect();
-if(accounts&&accounts.length>0){
+console.log('Connect response:',accounts);
+if(accounts?.length>0){
 this.connectedAccount=accounts[0];
 await this.updateWalletUI();
 await this.fetchBalance();
@@ -143,17 +126,22 @@ this.notify('✅ Connected!','success');
 }else{
 throw new Error('No accounts returned');
 }
-}
-}catch(error){
-console.error('Wallet connection error:',error);
-if(error.message?.includes('closed')){
+}catch(connectError){
+if(connectError.message?.includes('closed')){
 this.notify('Connection cancelled','info');
-}else if(error.message?.includes('rejected')){
+}else if(connectError.message?.includes('rejected')){
 this.notify('Connection rejected','error');
 }else{
+console.error('Connection error:',connectError);
 this.notify('❌ Connection failed','error');
 }
+throw connectError;
+}
+}
+}catch(error){
+console.error('Wallet operation failed:',error);
 }finally{
+const btn=document.getElementById('walletBtn');
 btn.disabled=false;
 if(!this.connectedAccount)btn.innerHTML='🔗 Connect Wallet';
 }
