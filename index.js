@@ -9,7 +9,7 @@ if(e.target.id==='walletBtn'&&e.target.innerHTML.includes('✅'))createCelebrati
 });
 const toggle=document.getElementById('currencyToggle');
 if(toggle)toggle.addEventListener('click',()=>setTimeout(()=>{
-if(toggle.classList.contains('amina')&&window.aminaCasino?.connectedAccount)createRain('🪙',10);
+if(toggle.classList.contains('amina')&&window.aminoCasino?.connectedAccount)createRain('🪙',10);
 },100));
 }
 
@@ -53,7 +53,6 @@ playing=!playing;
 document.body.appendChild(btn);
 document.body.appendChild(audio);
 
-// AUTO-PLAY ON CASINO ENTER
 document.getElementById('enterCasino')?.addEventListener('click',()=>{
 setTimeout(()=>{
 if(!playing){
