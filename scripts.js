@@ -143,6 +143,17 @@ async toggleWallet(){
     } else {
         btn.innerHTML = '🔗 Connect Wallet';
     }
+}async fetchBalance(){
+    if(!this.connectedAccount) return;
+    try {
+        const res = await fetch(`https://mainnet-api.algonode.cloud/v2/accounts/${this.connectedAccount}`);
+        const data = await res.json();
+        const asset = data.assets?.find(a => a['asset-id'] === 1107424865);
+        this.balance.AMINA = asset ? (asset.amount / 1000000) : 0;
+        this.updateDisplay();
+    } catch(e) {
+        this.balance.AMINA = 0;
+    }
 }
 toggleCurrency(){
 if(!this.isAmina&&!this.connectedAccount)return this.notify('🔗 Connect wallet for AMINA!','error');
