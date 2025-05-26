@@ -52,6 +52,17 @@ playing=!playing;
 });
 document.body.appendChild(btn);
 document.body.appendChild(audio);
+
+// AUTO-PLAY MUSIC ON CASINO ENTER - FIXED
+document.getElementById('enterCasino')?.addEventListener('click',()=>{
+setTimeout(()=>{
+if(!playing){
+audio.play().catch(()=>console.log('🎵 Audio blocked by browser'));
+playing=true;
+btn.innerHTML='🎵';
+}
+},1000);
+});
 }
 
 function initWelcome(){
