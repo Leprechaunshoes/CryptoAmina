@@ -7,10 +7,8 @@ this.isAmina=false;
 this.slotSymbols=['⭐','🌟','💫','🌌','🪐','🌙','☄️','🚀','👽','🛸'];
 this.houseWallet='6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI';
 this.isMobile=/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-document.addEventListener('DOMContentLoaded',()=>{
 this.initWallet();
 this.init();
-});
 }
 
 async initWallet(){
