@@ -50,17 +50,9 @@ controls.insertBefore(btn,controls.firstChild);
 }
 
 async toggleWallet(){
-alert('Button clicked!');
 const btn=document.getElementById('walletBtn');
-btn.disabled=true;
 try{
-if(!this.peraWallet){
-if(typeof PeraWalletConnect==='undefined'){
-alert('PeraWalletConnect not loaded');
-return;
-}
-this.peraWallet=new PeraWalletConnect();
-}
+if(!this.peraWallet)this.peraWallet=new PeraWalletConnect();
 if(this.connectedAccount){
 await this.peraWallet.disconnect();
 this.connectedAccount=null;
@@ -74,13 +66,11 @@ if(accounts?.length>0){
 this.connectedAccount=accounts[0];
 await this.updateWalletUI();
 await this.fetchBalance();
-alert('Connected!');
 }
 }
 }catch(error){
-alert('Error: '+error.message);
+console.log(error);
 }finally{
-btn.disabled=false;
 if(!this.connectedAccount)btn.innerHTML='🔗 Connect Wallet';
 }
 }
