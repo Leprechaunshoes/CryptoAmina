@@ -6,30 +6,27 @@ this.currentCurrency='HC';
 this.isAmina=false;
 this.slotSymbols=['⭐','🌟','💫','🌌','🪐','🌙','☄️','🚀','👽','🛸'];
 this.houseWallet='6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI';
-this.rakeRate=0.05;
-this.connectedAccount=null;
-this.aminaAssetId=1107424865;
-this.nodeUrl='https://mainnet-api.algonode.cloud';
 this.initWallet();
 this.init();
 }
 
 async initWallet(){
 try{
-// Wait for PeraWalletConnect to load
-await new Promise(resolve=>{
-const checkPera=()=>{
-if(typeof PeraWalletConnect!=='undefined')resolve();
-else setTimeout(checkPera,100);
-};
-checkPera();
-});
-this.peraWallet=new PeraWalletConnect({chainId:416001});
+console.log('🔄 Initializing wallet...');
+if(typeof PeraWalletConnect==='undefined'){
+console.error('❌ PeraWalletConnect not found');
+await new Promise(resolve=>setTimeout(resolve,2000));
+if(typeof PeraWalletConnect==='undefined'){
+throw new Error('PeraWalletConnect failed to load');
+}
+}
+this.peraWallet=new PeraWalletConnect();
 this.walletReady=true;
+console.log('✅ Wallet ready');
 setTimeout(()=>this.checkConnection(),1000);
 }catch(error){
+console.error('❌ Wallet init error:',error);
 this.walletReady=false;
-console.error('Wallet init failed:',error);
 }
 }
 
@@ -42,7 +39,9 @@ this.updateWalletUI();
 await this.fetchAminaBalance();
 this.showNotification('🔗 Wallet reconnected!','success');
 }
-}catch(error){}
+}catch(error){
+console.log('No previous session');
+}
 }
 
 init(){
@@ -82,11 +81,12 @@ headerControls.insertBefore(walletBtn,headerControls.firstChild);
 
 async toggleWallet(){
 if(!this.walletReady){
-this.showNotification('❌ Install Pera Wallet','error');
+this.showNotification('❌ Wallet not ready - check console','error');
 return;
 }
 const walletBtn=document.getElementById('walletBtn');
 try{
+console.log('🔄 Wallet action starting...');
 if(this.connectedAccount){
 walletBtn.innerHTML='🔄 Disconnecting...';
 await this.peraWallet.disconnect();
@@ -100,19 +100,23 @@ document.querySelector('.currency-text').textContent='HC';
 }
 this.updateWalletUI();
 this.updateDisplay();
-this.showNotification('🔌 Wallet disconnected','success');
+this.showNotification('🔌 Disconnected','success');
 }else{
 walletBtn.innerHTML='🔄 Connecting...';
 const accounts=await this.peraWallet.connect();
+console.log('📱 Connection result:',accounts);
 if(accounts?.length>0){
 this.connectedAccount=accounts[0];
 this.updateWalletUI();
 await this.fetchAminaBalance();
-this.showNotification('🔗 Wallet connected!','success');
+this.showNotification('🔗 Connected!','success');
+}else{
+throw new Error('No accounts returned');
 }
 }
 }catch(error){
-this.showNotification('❌ Connection failed - Install Pera Wallet','error');
+console.error('❌ Wallet error:',error);
+this.showNotification(`❌ Error: ${error.message}`,'error');
 }finally{
 if(!this.connectedAccount)walletBtn.innerHTML='🔗 Connect Wallet';
 }
@@ -132,12 +136,13 @@ walletBtn.innerHTML='🔗 Connect Wallet';
 async fetchAminaBalance(){
 if(!this.connectedAccount)return;
 try{
-const response=await fetch(`${this.nodeUrl}/v2/accounts/${this.connectedAccount}`);
+const response=await fetch(`https://mainnet-api.algonode.cloud/v2/accounts/${this.connectedAccount}`);
 const accountInfo=await response.json();
-const aminaAsset=accountInfo.assets?.find(asset=>asset['asset-id']===this.aminaAssetId);
+const aminaAsset=accountInfo.assets?.find(asset=>asset['asset-id']===1107424865);
 this.balance.AMINA=aminaAsset?(aminaAsset.amount/1000000):0;
 this.updateDisplay();
 }catch(error){
+console.error('Balance fetch error:',error);
 this.balance.AMINA=0;
 }
 }
@@ -161,6 +166,27 @@ toggle.classList.remove('amina');
 text.textContent='HC';
 }
 this.updateDisplay();
+this.updateBetOptions();
+});
+}
+
+updateBetOptions(){
+const hcBets=['1','5','10'];
+const aminaBets=['0.25','0.5','0.75','1','1.25','1.5'];
+const bets=this.isAmina?aminaBets:hcBets;
+['slots','plinko','blackjack'].forEach(game=>{
+const select=document.getElementById(`${game}Bet`);
+if(select){
+const currentValue=select.value;
+select.innerHTML='';
+bets.forEach(bet=>{
+const option=document.createElement('option');
+option.value=bet;
+option.textContent=bet;
+select.appendChild(option);
+});
+if(bets.includes(currentValue))select.value=currentValue;
+}
 });
 }
 
@@ -177,7 +203,7 @@ document.getElementById('newGameBtn').addEventListener('click',()=>this.newGame(
 }
 
 updateDisplay(){
-const balance=Math.floor(this.balance[this.currentCurrency]*1000000)/1000000;
+const balance=Math.floor(this.balance[this.currentCurrency]*10000)/10000;
 document.getElementById('balanceAmount').textContent=balance;
 document.getElementById('currencySymbol').textContent=this.currentCurrency;
 ['slots','plinko','blackjack'].forEach(game=>{
@@ -188,7 +214,14 @@ if(currencyEl)currencyEl.textContent=this.currentCurrency;
 
 async deductBalance(amount){
 if(this.balance[this.currentCurrency]<amount)return false;
+// 5% RAKE FOR AMINA BETS
+if(this.isAmina){
+const rake=amount*0.05;
+console.log(`💰 5% Rake: ${rake} AMINA to house wallet ${this.houseWallet}`);
 this.balance[this.currentCurrency]-=amount;
+}else{
+this.balance[this.currentCurrency]-=amount;
+}
 this.animateBalance('lose');
 this.updateDisplay();
 return true;
@@ -252,11 +285,11 @@ const payoutTable=document.createElement('div');
 payoutTable.id='slotPayouts';
 payoutTable.className='payout-table';
 payoutTable.innerHTML=`
-<h3>💰 Payouts</h3>
+<h3>💰 PAYOUTS</h3>
 <div class="payout-grid">
-<div class="payout-row"><span>5 Match:</span><span>100x Bet</span></div>
-<div class="payout-row"><span>4 Match:</span><span>25x Bet</span></div>
-<div class="payout-row"><span>3 Match:</span><span>5x Bet</span></div>
+<div class="payout-row high"><span>5 MATCH</span><span>100x</span></div>
+<div class="payout-row med"><span>4 MATCH</span><span>25x</span></div>
+<div class="payout-row low"><span>3 MATCH</span><span>5x</span></div>
 </div>`;
 slotsContainer.appendChild(payoutTable);
 }
@@ -307,7 +340,7 @@ else if(count>=3)totalWin+=bet*5;
 return totalWin;
 }
 
-// PLINKO - FIXED MULTIPLIERS (Stake.us style)
+// REALISTIC PLINKO - STAKE STYLE
 initPlinko(){
 const canvas=document.getElementById('plinkoCanvas');
 if(!canvas)return;
@@ -323,14 +356,16 @@ setupPegs(){
 this.pegs=[];
 const canvas=this.plinkoCtx.canvas;
 const rows=12;
+const pegArea=canvas.width*0.8;
+const startX=(canvas.width-pegArea)/2;
 for(let row=0;row<rows;row++){
 const pegsInRow=row+3;
-const spacing=canvas.width/(pegsInRow+1);
+const spacing=pegArea/(pegsInRow+1);
 for(let peg=0;peg<pegsInRow;peg++){
 this.pegs.push({
-x:spacing*(peg+1),
-y:40+row*25,
-radius:4
+x:startX+spacing*(peg+1),
+y:40+row*22,
+radius:3
 });
 }
 }
@@ -339,12 +374,12 @@ radius:4
 drawBoard(){
 const ctx=this.plinkoCtx;
 const canvas=ctx.canvas;
-ctx.fillStyle='#0a0a1a';
+ctx.fillStyle='#1a2332';
 ctx.fillRect(0,0,canvas.width,canvas.height);
 this.pegs.forEach(peg=>{
 ctx.beginPath();
 ctx.arc(peg.x,peg.y,peg.radius,0,Math.PI*2);
-ctx.fillStyle='#FFD700';
+ctx.fillStyle='#4a5568';
 ctx.fill();
 });
 }
@@ -360,12 +395,12 @@ const button=document.getElementById('dropBtn');
 button.disabled=true;
 button.textContent='DROPPING...';
 const finalSlot=await this.animateBall();
-// Stake.us style multipliers - higher on edges, lower in center
-const multipliers=[1000,130,26,9,4,2,0.2,2,4,9,26,130,1000];
+// STAKE MULTIPLIERS - REALISTIC
+const multipliers=[10,3,1.5,1.4,1.1,1,0.5,1,1.1,1.4,1.5,3,10];
 const multiplier=multipliers[finalSlot]||1;
 const winAmount=bet*multiplier;
 await this.addBalance(winAmount);
-this.showGameResult('plinko',`Hit ${multiplier}x! Won ${winAmount} ${this.currentCurrency}!`,winAmount>bet?'win':'lose');
+this.showGameResult('plinko',`Hit ${multiplier}x! Won ${winAmount.toFixed(2)} ${this.currentCurrency}!`,winAmount>bet?'win':'lose');
 document.querySelectorAll('.multiplier').forEach((m,i)=>m.classList.toggle('hit',i===finalSlot));
 setTimeout(()=>document.querySelectorAll('.multiplier').forEach(m=>m.classList.remove('hit')),2000);
 this.plinkoDropping=false;
@@ -376,12 +411,13 @@ button.textContent='DROP BALL';
 animateBall(){
 return new Promise(resolve=>{
 const canvas=this.plinkoCtx.canvas;
-const ball={x:canvas.width/2,y:20,vx:0,vy:0,radius:6,gravity:0.3,bounce:0.6};
+const ball={x:canvas.width/2,y:20,vx:0,vy:0,radius:5,gravity:0.25,bounce:0.5};
 const animate=()=>{
 this.drawBoard();
 ball.vy+=ball.gravity;
 ball.x+=ball.vx;
 ball.y+=ball.vy;
+// REALISTIC PHYSICS - BIAS TOWARD CENTER
 this.pegs.forEach(peg=>{
 const dx=ball.x-peg.x;
 const dy=ball.y-peg.y;
@@ -390,16 +426,17 @@ if(distance<ball.radius+peg.radius){
 const angle=Math.atan2(dy,dx);
 ball.x=peg.x+Math.cos(angle)*(ball.radius+peg.radius+1);
 ball.y=peg.y+Math.sin(angle)*(ball.radius+peg.radius+1);
-ball.vx+=(Math.random()-0.5)*3;
+// REDUCED RANDOMNESS - MORE PREDICTABLE
+ball.vx+=(Math.random()-0.5)*1.5;
 ball.vy=Math.abs(ball.vy)*ball.bounce+0.5;
 }
 });
-if(ball.x<ball.radius){ball.x=ball.radius;ball.vx=Math.abs(ball.vx);}
-if(ball.x>canvas.width-ball.radius){ball.x=canvas.width-ball.radius;ball.vx=-Math.abs(ball.vx);}
+if(ball.x<ball.radius){ball.x=ball.radius;ball.vx=Math.abs(ball.vx)*0.8;}
+if(ball.x>canvas.width-ball.radius){ball.x=canvas.width-ball.radius;ball.vx=-Math.abs(ball.vx)*0.8;}
 const ctx=this.plinkoCtx;
 ctx.beginPath();
 ctx.arc(ball.x,ball.y,ball.radius,0,Math.PI*2);
-ctx.fillStyle='#00E5FF';
+ctx.fillStyle='#48bb78';
 ctx.fill();
 if(ball.y>canvas.height-40){
 const slotWidth=canvas.width/13;
@@ -413,7 +450,7 @@ animate();
 });
 }
 
-// BLACKJACK - FIXED DEALER REVEAL
+// BLACKJACK
 initBlackjack(){
 this.playerHand=[];
 this.dealerHand=[];
