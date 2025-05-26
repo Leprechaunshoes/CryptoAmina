@@ -85,18 +85,55 @@ btn.className='wallet-btn';
 btn.innerHTML='🔗 Connect Wallet';
 btn.onclick=()=>this.toggleWallet();
 controls.insertBefore(btn,controls.firstChild);
-}
-addWalletButton() {
-    // existing code
+}async toggleWallet(){
+    try {
+        if(!this.peraWallet) {
+            console.log('Reinitializing wallet...');
+            const success = await this.initPera();
+            if(!success) {
+                this.notify('❌ Please install Pera Wallet app', 'error');
+                return;
+            }
+        }
+
+        const btn = document.getElementById('walletBtn');
+        btn.disabled = true;
+
+        if(this.connectedAccount) {
+            await this.peraWallet.disconnect();
+            this.connectedAccount = null;
+            this.balance.AMINA = 0;
+            if(this.isAmina) this.toggleCurrency();
+            this.updateWalletUI();
+            this.updateDisplay();
+            this.notify('🔌 Disconnected', 'info');
+        } else {
+            btn.innerHTML = '🔄 Open Pera Wallet...';
+            try {
+                const accounts = await this.peraWallet.connect();
+                if(accounts?.length > 0) {
+                    this.connectedAccount = accounts[0];
+                    await this.updateWalletUI();
+                    await this.fetchBalance();
+                    this.notify('✅ Connected!', 'success');
+                } else {
+                    throw new Error('No accounts returned');
+                }
+            } catch(connectError) {
+                console.error('Connection error:', connectError);
+                this.notify('❌ Please approve in Pera Wallet app', 'error');
+                throw connectError;
+            }
+        }
+    } catch(error) {
+        console.error('Wallet operation failed:', error);
+    } finally {
+        const btn = document.getElementById('walletBtn');
+        btn.disabled = false;
+        if(!this.connectedAccount) btn.innerHTML = '🔗 Connect Wallet';
+    }
 }
 
-async toggleWallet() {
-    // new code to paste
-}
-
-async fetchBalance() {
-    // existing code
-}
 
 
 async fetchBalance(){
