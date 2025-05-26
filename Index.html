@@ -205,8 +205,49 @@
 </div>
 </div>
 
-<!-- FIXED CDN LOADING -->
-<script src="https://cdn.jsdelivr.net/npm/@perawallet/connect@1.4.1/dist/index.umd.js"></script>
+<!-- MULTIPLE CDN FALLBACK STRATEGY -->
+<script>
+window.peraWalletLoaded = false;
+
+// Try multiple CDNs in sequence
+const cdnSources = [
+    'https://unpkg.com/@perawallet/connect@1.3.4/dist/index.umd.js',
+    'https://cdn.jsdelivr.net/npm/@perawallet/connect@1.3.4/dist/index.umd.js',
+    'https://unpkg.com/@perawallet/connect@1.3.3/dist/index.umd.js'
+];
+
+function loadPeraWallet(index = 0) {
+    if (index >= cdnSources.length) {
+        console.error('❌ All CDNs failed to load Pera Wallet');
+        return;
+    }
+    
+    const script = document.createElement('script');
+    script.src = cdnSources[index];
+    script.onload = function() {
+        if (typeof PeraWalletConnect !== 'undefined') {
+            console.log('✅ Pera Wallet loaded from:', cdnSources[index]);
+            window.peraWalletLoaded = true;
+            // Initialize the casino after successful load
+            if (window.aminoCasino && window.aminoCasino.initWallet) {
+                window.aminoCasino.initWallet();
+            }
+        } else {
+            console.log('❌ CDN loaded but PeraWalletConnect not found, trying next...');
+            loadPeraWallet(index + 1);
+        }
+    };
+    script.onerror = function() {
+        console.log('❌ CDN failed:', cdnSources[index], 'trying next...');
+        loadPeraWallet(index + 1);
+    };
+    document.head.appendChild(script);
+}
+
+// Start loading
+loadPeraWallet();
+</script>
+
 <script src="scripts.js"></script>
 <script src="index.js"></script>
 <script>
