@@ -51,6 +51,11 @@ controls.insertBefore(btn,controls.firstChild);
 
 async toggleWallet(){
 alert('Wallet clicked!');
+if(typeof PeraWalletConnect==='undefined'){
+alert('PeraWalletConnect not loaded');
+return;
+}
+alert('PeraWalletConnect loaded!');
 const btn=document.getElementById('walletBtn');
 try{
 if(!this.peraWallet)this.peraWallet=new PeraWalletConnect();
@@ -70,7 +75,7 @@ await this.fetchBalance();
 }
 }
 }catch(error){
-console.log(error);
+alert('Error: '+error.message);
 }finally{
 if(!this.connectedAccount)btn.innerHTML='🔗 Connect Wallet';
 }
