@@ -24,10 +24,23 @@ if(typeof PeraWalletConnect!=='undefined'){
 try{
 this.peraWallet=new PeraWalletConnect({
 shouldShowSignTxnToast:false,
-chainId:416002
+chainId:416001
 });
 this.walletReady=true;
-console.log('✅ Wallet ready');
+// iPhone-specific Pera Wallet check
+if(this.isMobile&&navigator.userAgent.includes('iPhone')){
+// For iPhone, try to detect Pera Wallet app
+const canOpenPera=()=>{
+const a=document.createElement('a');
+a.href='perawallet://';
+return a.protocol==='perawallet:';
+};
+if(!canOpenPera()){
+this.showNotification('📱 Please install Pera Wallet app from App Store','error');
+setTimeout(()=>window.open('https://apps.apple.com/app/pera-algo-wallet/id1459898525','_blank'),2000);
+return;
+}
+}
 setTimeout(()=>this.checkConnection(),500);
 return;
 }catch(error){
