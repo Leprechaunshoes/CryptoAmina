@@ -1,4 +1,4 @@
-// scripts.js
+// scripts.js - Streamlined with essential debugging
 class AminaCasino{
 constructor(){
 this.balance={HC:1000,AMINA:0};
@@ -16,59 +16,35 @@ this.init();
 
 async initWallet(){
 console.log('🔄 Initializing wallet...');
-// Simple retry mechanism for PeraWalletConnect
 let attempts=0;
-const maxAttempts=10;
-while(attempts<maxAttempts){
+while(attempts<10){
 if(typeof PeraWalletConnect!=='undefined'){
 try{
-this.peraWallet=new PeraWalletConnect({
-shouldShowSignTxnToast:false,
-chainId:416001
-});
+this.peraWallet=new PeraWalletConnect({shouldShowSignTxnToast:false,chainId:416001});
 this.walletReady=true;
-// iPhone-specific Pera Wallet check
-if(this.isMobile&&navigator.userAgent.includes('iPhone')){
-// For iPhone, try to detect Pera Wallet app
-const canOpenPera=()=>{
-const a=document.createElement('a');
-a.href='perawallet://';
-return a.protocol==='perawallet:';
-};
-if(!canOpenPera()){
-this.showNotification('📱 Please install Pera Wallet app from App Store','error');
-setTimeout(()=>window.open('https://apps.apple.com/app/pera-algo-wallet/id1459898525','_blank'),2000);
-return;
-}
-}
+console.log('✅ Wallet ready');
 setTimeout(()=>this.checkConnection(),500);
 return;
-}catch(error){
-console.error('Wallet creation error:',error);
-}
+}catch(error){console.error('Wallet error:',error);}
 }
 attempts++;
 await new Promise(resolve=>setTimeout(resolve,200));
 }
-console.log('❌ PeraWalletConnect not available after retries');
-this.walletReady=false;
+console.log('❌ Wallet failed to load');
 }
 
 async checkConnection(){
-const savedAccount=localStorage.getItem('peraWalletConnected');
-if(savedAccount&&this.peraWallet){
+const saved=localStorage.getItem('peraWalletConnected');
+if(saved&&this.peraWallet){
 try{
 const accounts=await this.peraWallet.reconnectSession();
 if(accounts?.length>0){
 this.connectedAccount=accounts[0];
 this.updateWalletUI();
 await this.fetchAminaBalance();
-this.showNotification('🔗 Wallet reconnected!','success');
+console.log('✅ Auto-reconnected');
 }
-}catch(error){
-console.log('Reconnection failed:',error);
-localStorage.removeItem('peraWalletConnected');
-}
+}catch(error){localStorage.removeItem('peraWalletConnected');}
 }
 }
 
@@ -105,18 +81,16 @@ walletBtn.className='wallet-btn';
 walletBtn.innerHTML='🔗 Connect Wallet';
 walletBtn.addEventListener('click',()=>this.toggleWallet());
 headerControls.insertBefore(walletBtn,headerControls.firstChild);
+console.log('✅ Wallet button added');
 }
 
 async toggleWallet(){
+console.log('🔍 Toggle clicked, connected:',!!this.connectedAccount);
 const walletBtn=document.getElementById('walletBtn');
-if(!walletBtn)return;
-// Retry wallet initialization if needed
 if(!this.walletReady||!this.peraWallet){
-walletBtn.innerHTML='🔄 Initializing...';
 await this.initWallet();
 if(!this.walletReady){
-this.showNotification('❌ Please refresh page and try again','error');
-walletBtn.innerHTML='🔗 Connect Wallet';
+this.showNotification('❌ Wallet failed to load','error');
 return;
 }
 }
@@ -128,42 +102,26 @@ return;
 walletBtn.innerHTML='🔄 Connecting...';
 walletBtn.disabled=true;
 const accounts=await this.peraWallet.connect();
+console.log('✅ Connected:',accounts);
 if(accounts?.length>0){
 this.connectedAccount=accounts[0];
 this.updateWalletUI();
 await this.fetchAminaBalance();
 localStorage.setItem('peraWalletConnected',this.connectedAccount);
 this.showNotification('✅ Wallet connected!','success');
-}else{
-this.showNotification('❌ No accounts found','error');
+if(window.createWalletCelebration)window.createWalletCelebration();
 }
 }catch(error){
-console.error('Connection error:',error);
-if(error.message.includes('Modal closed')||error.message.includes('cancelled')){
-this.showNotification('Connection cancelled','info');
-}else{
-this.showNotification('❌ Connection failed - Install Pera Wallet','error');
-}
+console.log('❌ Connection failed:',error.message);
+this.showNotification(error.message.includes('closed')?'Connection cancelled':'❌ Connection failed','error');
 }finally{
 walletBtn.disabled=false;
 if(!this.connectedAccount)walletBtn.innerHTML='🔗 Connect Wallet';
 }
 }
 
-handleWalletError(error){
-if(error.message.includes('Modal closed')){
-this.showNotification('Connection cancelled by user','info');
-}else if(error.message.includes('rejected')){
-this.showNotification('Connection rejected by user','info');
-}else{
-this.showNotification('Failed to connect wallet: '+error.message,'error');
-}
-}
-
 disconnectWallet(){
-if(this.peraWallet){
-this.peraWallet.disconnect();
-}
+if(this.peraWallet)this.peraWallet.disconnect();
 this.connectedAccount=null;
 this.balance.AMINA=0;
 if(this.isAmina){
@@ -175,7 +133,7 @@ document.querySelector('.currency-text').textContent='HC';
 localStorage.removeItem('peraWalletConnected');
 this.updateWalletUI();
 this.updateDisplay();
-this.showNotification('🔌 Wallet disconnected','success');
+this.showNotification('🔌 Disconnected','success');
 }
 
 updateWalletUI(){
@@ -206,6 +164,7 @@ this.balance.AMINA=0;
 
 setupCurrencyToggle(){
 document.getElementById('currencyToggle').addEventListener('click',()=>{
+console.log('🔍 Toggle clicked, wallet connected:',!!this.connectedAccount);
 if(!this.isAmina&&!this.connectedAccount){
 this.showNotification('🔗 Connect wallet for AMINA!','error');
 return;
@@ -218,23 +177,23 @@ if(this.isAmina){
 toggle.classList.add('amina');
 text.textContent='AMINA';
 this.fetchAminaBalance();
+if(window.createAminaCoinRain)window.createAminaCoinRain();
 }else{
 toggle.classList.remove('amina');
 text.textContent='HC';
 }
 this.updateDisplay();
 this.updateBetOptions();
+console.log('✅ Toggled to:',this.currentCurrency);
 });
 }
 
 updateBetOptions(){
-const hcBets=['1','5','10'];
-const aminaBets=['0.25','0.5','0.75','1','1.25','1.5'];
-const bets=this.isAmina?aminaBets:hcBets;
+const bets=this.isAmina?['0.25','0.5','0.75','1','1.25','1.5']:['1','5','10'];
 ['slots','plinko','blackjack'].forEach(game=>{
 const select=document.getElementById(`${game}Bet`);
 if(select){
-const currentValue=select.value;
+const current=select.value;
 select.innerHTML='';
 bets.forEach(bet=>{
 const option=document.createElement('option');
@@ -242,7 +201,7 @@ option.value=bet;
 option.textContent=bet;
 select.appendChild(option);
 });
-if(bets.includes(currentValue))select.value=currentValue;
+if(bets.includes(current))select.value=current;
 }
 });
 }
@@ -274,10 +233,8 @@ if(this.balance[this.currentCurrency]<amount)return false;
 if(this.isAmina){
 const rake=amount*0.05;
 console.log(`💰 5% Rake: ${rake} AMINA → ${this.houseWallet}`);
-this.balance[this.currentCurrency]-=amount;
-}else{
-this.balance[this.currentCurrency]-=amount;
 }
+this.balance[this.currentCurrency]-=amount;
 this.animateBalance('lose');
 this.updateDisplay();
 return true;
@@ -340,13 +297,7 @@ if(!slotsContainer||document.getElementById('slotPayouts'))return;
 const payoutTable=document.createElement('div');
 payoutTable.id='slotPayouts';
 payoutTable.className='payout-table';
-payoutTable.innerHTML=`
-<h3>💰 PAYOUTS</h3>
-<div class="payout-grid">
-<div class="payout-row high"><span>5 MATCH</span><span>100x</span></div>
-<div class="payout-row med"><span>4 MATCH</span><span>25x</span></div>
-<div class="payout-row low"><span>3 MATCH</span><span>5x</span></div>
-</div>`;
+payoutTable.innerHTML=`<h3>💰 PAYOUTS</h3><div class="payout-grid"><div class="payout-row high"><span>5 MATCH</span><span>100x</span></div><div class="payout-row med"><span>4 MATCH</span><span>25x</span></div><div class="payout-row low"><span>3 MATCH</span><span>5x</span></div></div>`;
 slotsContainer.appendChild(payoutTable);
 }
 
@@ -396,7 +347,7 @@ else if(count>=3)totalWin+=bet*5;
 return totalWin;
 }
 
-// REALISTIC PLINKO
+// PLINKO
 initPlinko(){
 const canvas=document.getElementById('plinkoCanvas');
 if(!canvas)return;
@@ -419,11 +370,7 @@ for(let row=0;row<rows;row++){
 const pegsInRow=row+3;
 const spacing=pegArea/(pegsInRow+1);
 for(let peg=0;peg<pegsInRow;peg++){
-this.pegs.push({
-x:startX+spacing*(peg+1),
-y:35+row*20,
-radius:2.5
-});
+this.pegs.push({x:startX+spacing*(peg+1),y:35+row*20,radius:2.5});
 }
 }
 }
@@ -497,9 +444,7 @@ ctx.fill();
 if(ball.y>canvas.height-30){
 const slotWidth=canvas.width/13;
 let finalSlot=Math.floor(ball.x/slotWidth);
-if(Math.random()<0.7){
-finalSlot=5+Math.floor(Math.random()*3);
-}
+if(Math.random()<0.7)finalSlot=5+Math.floor(Math.random()*3);
 finalSlot=Math.max(0,Math.min(12,finalSlot));
 resolve(finalSlot);
 }else{
