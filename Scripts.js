@@ -16,23 +16,20 @@ this.init();
 
 async initWallet(){
 try{
-// Check if mobile
-const isMobile=/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-if(typeof PeraWalletConnect==='undefined'){
-if(isMobile){
-this.showNotification('📱 Install Pera Wallet app','error');
-}else{
-this.showNotification('🔌 Install Pera Wallet extension','error');
-}
-this.walletReady=false;
-return;
-}
+// Wait for PeraWalletConnect to load
+await new Promise(resolve=>{
+const checkPera=()=>{
+if(typeof PeraWalletConnect!=='undefined')resolve();
+else setTimeout(checkPera,100);
+};
+checkPera();
+});
 this.peraWallet=new PeraWalletConnect({chainId:416001});
 this.walletReady=true;
 setTimeout(()=>this.checkConnection(),1000);
 }catch(error){
 this.walletReady=false;
-this.showNotification('❌ Wallet unavailable','error');
+console.error('Wallet init failed:',error);
 }
 }
 
@@ -85,7 +82,7 @@ headerControls.insertBefore(walletBtn,headerControls.firstChild);
 
 async toggleWallet(){
 if(!this.walletReady){
-this.showNotification('❌ Pera Wallet not available','error');
+this.showNotification('❌ Install Pera Wallet','error');
 return;
 }
 const walletBtn=document.getElementById('walletBtn');
@@ -115,7 +112,7 @@ this.showNotification('🔗 Wallet connected!','success');
 }
 }
 }catch(error){
-this.showNotification('❌ Connection failed','error');
+this.showNotification('❌ Connection failed - Install Pera Wallet','error');
 }finally{
 if(!this.connectedAccount)walletBtn.innerHTML='🔗 Connect Wallet';
 }
@@ -234,8 +231,9 @@ setTimeout(()=>notification.remove(),300);
 },3000);
 }
 
-// SLOTS
+// SLOTS WITH PAYOUT TABLE
 initSlots(){
+this.createSlotPayoutTable();
 const grid=document.getElementById('slotsGrid');
 if(!grid)return;
 grid.innerHTML='';
@@ -245,6 +243,22 @@ reel.className='slot-reel';
 reel.textContent=this.slotSymbols[Math.floor(Math.random()*this.slotSymbols.length)];
 grid.appendChild(reel);
 }
+}
+
+createSlotPayoutTable(){
+const slotsContainer=document.querySelector('#slots .game-container');
+if(!slotsContainer||document.getElementById('slotPayouts'))return;
+const payoutTable=document.createElement('div');
+payoutTable.id='slotPayouts';
+payoutTable.className='payout-table';
+payoutTable.innerHTML=`
+<h3>💰 Payouts</h3>
+<div class="payout-grid">
+<div class="payout-row"><span>5 Match:</span><span>100x Bet</span></div>
+<div class="payout-row"><span>4 Match:</span><span>25x Bet</span></div>
+<div class="payout-row"><span>3 Match:</span><span>5x Bet</span></div>
+</div>`;
+slotsContainer.appendChild(payoutTable);
 }
 
 async spinSlots(){
@@ -293,7 +307,7 @@ else if(count>=3)totalWin+=bet*5;
 return totalWin;
 }
 
-// PLINKO - FIXED
+// PLINKO - FIXED MULTIPLIERS (Stake.us style)
 initPlinko(){
 const canvas=document.getElementById('plinkoCanvas');
 if(!canvas)return;
@@ -308,15 +322,15 @@ this.drawBoard();
 setupPegs(){
 this.pegs=[];
 const canvas=this.plinkoCtx.canvas;
-const rows=8;
+const rows=12;
 for(let row=0;row<rows;row++){
 const pegsInRow=row+3;
 const spacing=canvas.width/(pegsInRow+1);
 for(let peg=0;peg<pegsInRow;peg++){
 this.pegs.push({
 x:spacing*(peg+1),
-y:60+row*35,
-radius:6
+y:40+row*25,
+radius:4
 });
 }
 }
@@ -346,7 +360,8 @@ const button=document.getElementById('dropBtn');
 button.disabled=true;
 button.textContent='DROPPING...';
 const finalSlot=await this.animateBall();
-const multipliers=[10,5,2,1,0.5,1,2,5,10];
+// Stake.us style multipliers - higher on edges, lower in center
+const multipliers=[1000,130,26,9,4,2,0.2,2,4,9,26,130,1000];
 const multiplier=multipliers[finalSlot]||1;
 const winAmount=bet*multiplier;
 await this.addBalance(winAmount);
@@ -361,38 +376,34 @@ button.textContent='DROP BALL';
 animateBall(){
 return new Promise(resolve=>{
 const canvas=this.plinkoCtx.canvas;
-const ball={x:canvas.width/2,y:20,vx:0,vy:0,radius:8,gravity:0.4,bounce:0.7};
+const ball={x:canvas.width/2,y:20,vx:0,vy:0,radius:6,gravity:0.3,bounce:0.6};
 const animate=()=>{
 this.drawBoard();
 ball.vy+=ball.gravity;
 ball.x+=ball.vx;
 ball.y+=ball.vy;
-// Peg collision - FIXED
 this.pegs.forEach(peg=>{
 const dx=ball.x-peg.x;
 const dy=ball.y-peg.y;
 const distance=Math.sqrt(dx*dx+dy*dy);
 if(distance<ball.radius+peg.radius){
 const angle=Math.atan2(dy,dx);
-ball.x=peg.x+Math.cos(angle)*(ball.radius+peg.radius+2);
-ball.y=peg.y+Math.sin(angle)*(ball.radius+peg.radius+2);
-ball.vx+=Math.cos(angle)*2+(Math.random()-0.5)*3;
-ball.vy=Math.abs(ball.vy)*ball.bounce+1;
+ball.x=peg.x+Math.cos(angle)*(ball.radius+peg.radius+1);
+ball.y=peg.y+Math.sin(angle)*(ball.radius+peg.radius+1);
+ball.vx+=(Math.random()-0.5)*3;
+ball.vy=Math.abs(ball.vy)*ball.bounce+0.5;
 }
 });
-// Wall collision
 if(ball.x<ball.radius){ball.x=ball.radius;ball.vx=Math.abs(ball.vx);}
 if(ball.x>canvas.width-ball.radius){ball.x=canvas.width-ball.radius;ball.vx=-Math.abs(ball.vx);}
-// Draw ball
 const ctx=this.plinkoCtx;
 ctx.beginPath();
 ctx.arc(ball.x,ball.y,ball.radius,0,Math.PI*2);
 ctx.fillStyle='#00E5FF';
 ctx.fill();
-// Check if reached bottom - FIXED
 if(ball.y>canvas.height-40){
-const slotWidth=canvas.width/9;
-const finalSlot=Math.max(0,Math.min(8,Math.floor(ball.x/slotWidth)));
+const slotWidth=canvas.width/13;
+const finalSlot=Math.max(0,Math.min(12,Math.floor(ball.x/slotWidth)));
 resolve(finalSlot);
 }else{
 requestAnimationFrame(animate);
@@ -448,11 +459,10 @@ this.endGame('💥 Bust! You lose.',0,'lose');
 
 stand(){
 if(!this.gameActive)return;
-// Dealer draws
 while(this.getHandValue(this.dealerHand)<17){
 this.dealerHand.push(this.deck.pop());
 }
-this.updateBlackjackDisplay(true); // FIXED - show all dealer cards
+this.updateBlackjackDisplay(true);
 const playerValue=this.getHandValue(this.playerHand);
 const dealerValue=this.getHandValue(this.dealerHand);
 if(dealerValue>21){
@@ -479,7 +489,7 @@ return value;
 
 updateBlackjackDisplay(showAllDealer=false){
 this.displayHand('player',this.playerHand,true);
-this.displayHand('dealer',this.dealerHand,showAllDealer||!this.gameActive); // FIXED
+this.displayHand('dealer',this.dealerHand,showAllDealer||!this.gameActive);
 document.getElementById('playerScore').textContent=this.getHandValue(this.playerHand);
 document.getElementById('dealerScore').textContent=(showAllDealer||!this.gameActive)?this.getHandValue(this.dealerHand):this.getHandValue([this.dealerHand[0]]);
 }
@@ -508,7 +518,7 @@ if(winAmount>0){
 await this.addBalance(winAmount);
 message+=` +${winAmount} ${this.currentCurrency}`;
 }
-this.updateBlackjackDisplay(true); // FIXED - show all dealer cards at end
+this.updateBlackjackDisplay(true);
 this.showGameResult('blackjack',message,resultType);
 document.getElementById('hitBtn').disabled=true;
 document.getElementById('standBtn').disabled=true;
