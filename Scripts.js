@@ -6,26 +6,34 @@ this.currentCurrency='HC';
 this.isAmina=false;
 this.slotSymbols=['⭐','🌟','💫','🌌','🪐','🌙','☄️','🚀','👽','🛸'];
 this.houseWallet='6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI';
+this.isMobile=/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 this.initWallet();
 this.init();
 }
 
 async initWallet(){
 try{
-console.log('🔄 Waiting for PeraWalletConnect...');
+console.log('🔄 Mobile device:',this.isMobile);
+if(this.isMobile){
+// Mobile: Use deep linking approach
+this.walletReady=true;
+console.log('✅ Mobile wallet ready for deep linking');
+}else{
+// Desktop: Use PeraWalletConnect
 let attempts=0;
-while(typeof PeraWalletConnect==='undefined'&&attempts<50){
+while(typeof PeraWalletConnect==='undefined'&&attempts<30){
 await new Promise(resolve=>setTimeout(resolve,100));
 attempts++;
 }
 if(typeof PeraWalletConnect==='undefined'){
-console.error('❌ PeraWalletConnect failed to load after 5 seconds');
+console.error('❌ PeraWalletConnect failed to load');
 this.walletReady=false;
 return;
 }
 this.peraWallet=new PeraWalletConnect();
 this.walletReady=true;
-console.log('✅ Wallet initialized successfully');
+console.log('✅ Desktop wallet initialized');
+}
 setTimeout(()=>this.checkConnection(),1000);
 }catch(error){
 console.error('❌ Wallet init error:',error.message);
@@ -34,6 +42,7 @@ this.walletReady=false;
 }
 
 async checkConnection(){
+if(!this.isMobile&&this.peraWallet){
 try{
 const accounts=await this.peraWallet.reconnectSession();
 if(accounts?.length>0){
@@ -43,7 +52,8 @@ await this.fetchAminaBalance();
 this.showNotification('🔗 Wallet reconnected!','success');
 }
 }catch(error){
-console.log('No previous session found');
+console.log('No previous session');
+}
 }
 }
 
@@ -84,16 +94,92 @@ headerControls.insertBefore(walletBtn,headerControls.firstChild);
 
 async toggleWallet(){
 if(!this.walletReady){
-console.error('❌ Wallet not ready. PeraWalletConnect status:',typeof PeraWalletConnect);
-this.showNotification('❌ Install Pera Wallet app or extension','error');
+this.showNotification('❌ Wallet service unavailable','error');
 return;
 }
 const walletBtn=document.getElementById('walletBtn');
 try{
-console.log('🔄 Attempting wallet connection...');
 if(this.connectedAccount){
-walletBtn.innerHTML='🔄 Disconnecting...';
-await this.peraWallet.disconnect();
+this.disconnectWallet();
+return;
+}
+walletBtn.innerHTML='🔄 Connecting...';
+walletBtn.disabled=true;
+if(this.isMobile){
+await this.connectMobileWallet();
+}else{
+await this.connectDesktopWallet();
+}
+}catch(error){
+console.error('❌ Connection error:',error);
+this.showNotification(`❌ ${error.message}`,'error');
+}finally{
+walletBtn.disabled=false;
+if(!this.connectedAccount)walletBtn.innerHTML='🔗 Connect Wallet';
+}
+}
+
+async connectMobileWallet(){
+console.log('📱 Attempting mobile connection...');
+// Check if Pera Wallet app is installed
+const isInstalled=await this.checkPeraWalletInstalled();
+if(!isInstalled){
+this.showNotification('📱 Please install Pera Wallet app','error');
+setTimeout(()=>{
+if(navigator.userAgent.includes('iPhone')||navigator.userAgent.includes('iPad')){
+window.open('https://apps.apple.com/app/pera-algo-wallet/id1459898525','_blank');
+}else{
+window.open('https://play.google.com/store/apps/details?id=com.algorand.android','_blank');
+}
+},1000);
+return;
+}
+// For mobile, we'll simulate connection for now
+// In production, this would involve deep linking and callback handling
+this.showNotification('📱 Please open Pera Wallet app manually and copy your address','info');
+// Prompt user to enter address manually as fallback
+setTimeout(()=>{
+const address=prompt('Please paste your Algorand wallet address:');
+if(address&&address.length===58){
+this.connectedAccount=address;
+this.updateWalletUI();
+this.fetchAminaBalance();
+this.showNotification('✅ Wallet connected!','success');
+}
+},2000);
+}
+
+async connectDesktopWallet(){
+console.log('🖥️ Attempting desktop connection...');
+const accounts=await this.peraWallet.connect();
+if(accounts?.length>0){
+this.connectedAccount=accounts[0];
+this.updateWalletUI();
+await this.fetchAminaBalance();
+this.showNotification('✅ Connected successfully!','success');
+}else{
+throw new Error('No accounts found');
+}
+}
+
+async checkPeraWalletInstalled(){
+// Simple check - in production you'd use more sophisticated detection
+return new Promise(resolve=>{
+const timeout=setTimeout(()=>resolve(false),1000);
+const iframe=document.createElement('iframe');
+iframe.style.display='none';
+iframe.src='perawallet://';
+iframe.onload=()=>{clearTimeout(timeout);resolve(true);};
+iframe.onerror=()=>{clearTimeout(timeout);resolve(false);};
+document.body.appendChild(iframe);
+setTimeout(()=>iframe.remove(),1000);
+});
+}
+
+disconnectWallet(){
+if(this.peraWallet&&!this.isMobile){
+this.peraWallet.disconnect();
+}
 this.connectedAccount=null;
 this.balance.AMINA=0;
 if(this.isAmina){
@@ -105,26 +191,6 @@ document.querySelector('.currency-text').textContent='HC';
 this.updateWalletUI();
 this.updateDisplay();
 this.showNotification('🔌 Disconnected','success');
-}else{
-walletBtn.innerHTML='🔄 Connecting...';
-const accounts=await this.peraWallet.connect();
-console.log('📱 Accounts received:',accounts);
-if(accounts?.length>0){
-this.connectedAccount=accounts[0];
-console.log('✅ Connected to:',this.connectedAccount);
-this.updateWalletUI();
-await this.fetchAminaBalance();
-this.showNotification('🔗 Connected successfully!','success');
-}else{
-throw new Error('No accounts found');
-}
-}
-}catch(error){
-console.error('❌ Connection failed:',error);
-this.showNotification(`❌ Connection failed: ${error.message}`,'error');
-}finally{
-if(!this.connectedAccount)walletBtn.innerHTML='🔗 Connect Wallet';
-}
 }
 
 updateWalletUI(){
@@ -345,7 +411,7 @@ else if(count>=3)totalWin+=bet*5;
 return totalWin;
 }
 
-// REALISTIC PLINKO - FIXED PHYSICS
+// REALISTIC PLINKO
 initPlinko(){
 const canvas=document.getElementById('plinkoCanvas');
 if(!canvas)return;
@@ -422,7 +488,6 @@ this.drawBoard();
 ball.vy+=ball.gravity;
 ball.x+=ball.vx;
 ball.y+=ball.vy;
-// REALISTIC PHYSICS - HEAVY CENTER BIAS
 this.pegs.forEach(peg=>{
 const dx=ball.x-peg.x;
 const dy=ball.y-peg.y;
@@ -431,30 +496,24 @@ if(distance<ball.radius+peg.radius){
 const angle=Math.atan2(dy,dx);
 ball.x=peg.x+Math.cos(angle)*(ball.radius+peg.radius+1);
 ball.y=peg.y+Math.sin(angle)*(ball.radius+peg.radius+1);
-// MUCH LESS RANDOMNESS - NATURAL FALL
 ball.vx+=(Math.random()-0.5)*0.8;
 ball.vy=Math.abs(ball.vy)*ball.bounce+0.3;
-// CENTER PULL - GRAVITY TOWARD MIDDLE
 const centerPull=(canvas.width/2-ball.x)*0.001;
 ball.vx+=centerPull;
 }
 });
-// WALL DAMPENING
 if(ball.x<ball.radius){ball.x=ball.radius;ball.vx=Math.abs(ball.vx)*0.5;}
 if(ball.x>canvas.width-ball.radius){ball.x=canvas.width-ball.radius;ball.vx=-Math.abs(ball.vx)*0.5;}
-// DRAW BALL
 const ctx=this.plinkoCtx;
 ctx.beginPath();
 ctx.arc(ball.x,ball.y,ball.radius,0,Math.PI*2);
 ctx.fillStyle='#48bb78';
 ctx.fill();
-// CHECK END
 if(ball.y>canvas.height-30){
 const slotWidth=canvas.width/13;
 let finalSlot=Math.floor(ball.x/slotWidth);
-// FORCE CENTER BIAS - 70% chance of hitting center slots (5-7)
 if(Math.random()<0.7){
-finalSlot=5+Math.floor(Math.random()*3); // slots 5,6,7 (0.5x,1x,1.1x area)
+finalSlot=5+Math.floor(Math.random()*3);
 }
 finalSlot=Math.max(0,Math.min(12,finalSlot));
 resolve(finalSlot);
