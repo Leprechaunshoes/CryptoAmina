@@ -85,7 +85,7 @@ btn.className='wallet-btn';
 btn.innerHTML='🔗 Connect Wallet';
 btn.onclick=()=>this.toggleWallet();
 controls.insertBefore(btn,controls.firstChild);
-}async toggleWallet(){}
+}async toggleWallet(){}}
 
 async toggleWallet(){
     try {
@@ -127,25 +127,7 @@ async toggleWallet(){
                 throw connectError;
             }
         }
-    } catch(error) {
-        console.error('Wallet operation failed:', error);
-    } finally {
-        const btn = document.getElementById('walletBtn');
-        btn.disabled = false;
-        if(!this.connectedAccount) btn.innerHTML = '🔗 Connect Wallet';
-    }
-}
-if(!this.connectedAccount)return;
-try{
-const res=await fetch(`https://mainnet-api.algonode.cloud/v2/accounts/${this.connectedAccount}`);
-const data=await res.json();
-const asset=data.assets?.find(a=>a['asset-id']===1107424865);
-this.balance.AMINA=asset?(asset.amount/1000000):0;
-this.updateDisplay();
-}catch(e){
-this.balance.AMINA=0;
-}
-}
+    } catch(error)
 
 toggleCurrency(){
 if(!this.isAmina&&!this.connectedAccount)return this.notify('🔗 Connect wallet for AMINA!','error');
