@@ -7,8 +7,10 @@ this.isAmina=false;
 this.slotSymbols=['⭐','🌟','💫','🌌','🪐','🌙','☄️','🚀','👽','🛸'];
 this.houseWallet='6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI';
 this.isMobile=/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+document.addEventListener('DOMContentLoaded',()=>{
 this.initWallet();
 this.init();
+});
 }
 
 async initWallet(){
@@ -17,19 +19,12 @@ try{
 if(typeof PeraWalletConnect==='undefined'){
 throw new Error('PeraWalletConnect not loaded');
 }
-console.log('PeraWalletConnect available:',!!PeraWalletConnect);
-console.log('🔄 Mobile device:',this.isMobile);
-if(this.isMobile){
-this.walletReady=true;
-console.log('✅ Mobile wallet ready for deep linking');
-}else{
 this.peraWallet=new PeraWalletConnect({
 shouldShowSignTxnToast:false,
 chainId:416002
 });
 this.walletReady=true;
-console.log('✅ Desktop wallet initialized');
-}
+console.log('✅ Wallet initialized for',this.isMobile?'mobile':'desktop');
 setTimeout(()=>this.checkConnection(),1000);
 }catch(error){
 console.error('Wallet initialization failed:',error);
@@ -125,10 +120,6 @@ try{
 if(!this.walletReady){
 throw new Error('Wallet service not initialized');
 }
-this.peraWallet=new PeraWalletConnect({
-shouldShowSignTxnToast:false,
-chainId:416002
-});
 const accounts=await this.peraWallet.connect();
 if(accounts?.length>0){
 this.connectedAccount=accounts[0];
@@ -140,20 +131,7 @@ localStorage.setItem('peraWalletConnected',this.connectedAccount);
 throw new Error('No accounts returned from mobile connection');
 }
 }catch(error){
-console.error('❌ Mobile connection failed:',error);
-if(error.message.includes('Modal closed')){
-this.showNotification('Connection cancelled by user','info');
-}else{
-this.showNotification('Failed to connect wallet','error');
-}
-this.showNotification('📱 Please install Pera Wallet app','error');
-setTimeout(()=>{
-if(navigator.userAgent.includes('iPhone')||navigator.userAgent.includes('iPad')){
-window.open('https://apps.apple.com/app/pera-algo-wallet/id1459898525','_blank');
-}else{
-window.open('https://play.google.com/store/apps/details?id=com.algorand.android','_blank');
-}
-},1500);
+this.handleWalletError(error);
 throw error;
 }
 }
@@ -173,6 +151,17 @@ throw new Error('No accounts found');
 }catch(error){
 console.error('Desktop connection failed:',error);
 throw error;
+}
+}
+
+handleWalletError(error){
+console.error('Wallet error:',error);
+if(error.message.includes('PeraWalletConnect')){
+this.showNotification('❌ Wallet not properly loaded. Please refresh the page.','error');
+}else if(error.message.includes('Modal closed')){
+this.showNotification('Connection cancelled by user','info');
+}else{
+this.showNotification('Failed to connect wallet: '+error.message,'error');
 }
 }
 
