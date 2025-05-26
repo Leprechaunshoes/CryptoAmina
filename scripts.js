@@ -133,6 +133,16 @@ async toggleWallet(){
         btn.disabled = false;
         if(!this.connectedAccount) btn.innerHTML = '🔗 Connect Wallet';
     }
+}async updateWalletUI(){
+    const btn = document.getElementById('walletBtn');
+    if(!btn) return;
+    
+    if(this.connectedAccount) {
+        const shortAddr = `${this.connectedAccount.slice(0,4)}...${this.connectedAccount.slice(-4)}`;
+        btn.innerHTML = `🔓 ${shortAddr}`;
+    } else {
+        btn.innerHTML = '🔗 Connect Wallet';
+    }
 }
 toggleCurrency(){
 if(!this.isAmina&&!this.connectedAccount)return this.notify('🔗 Connect wallet for AMINA!','error');
