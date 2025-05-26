@@ -8,9 +8,9 @@ this.slotSymbols=['⭐','🌟','💫','🌌','🪐','🌙','☄️','🚀','👽
 this.connectedAccount=null;
 this.peraWallet=null;
 if(document.readyState==='loading'){
-document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>this.init().catch(console.error),1000));
+document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>this.init().catch(console.error),500));
 }else{
-setTimeout(()=>this.init().catch(console.error),1000);
+setTimeout(()=>this.init().catch(console.error),500);
 }
 }
 
@@ -19,7 +19,6 @@ this.setupUI();
 this.setupGames();
 this.addWalletButton();
 this.updateDisplay();
-await this.initPera();
 }
 
 async initPera(){
@@ -81,8 +80,9 @@ controls.insertBefore(btn,controls.firstChild);
 
 async toggleWallet(){
 if(!this.peraWallet){
-this.notify('❌ Wallet not available','error');
-return;
+this.notify('🔄 Initializing wallet...','info');
+await this.initPera();
+if(!this.peraWallet)return;
 }
 const btn=document.getElementById('walletBtn');
 btn.disabled=true;
