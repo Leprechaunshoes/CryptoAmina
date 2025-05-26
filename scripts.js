@@ -1,4 +1,4 @@
-// scripts.js - Minimal & Clean
+// scripts.js - Clean & Minimal
 class AminaCasino{
 constructor(){
 this.balance={HC:1000,AMINA:0};
@@ -7,36 +7,59 @@ this.isAmina=false;
 this.slotSymbols=['⭐','🌟','💫','🌌','🪐','🌙','☄️','🚀','👽','🛸'];
 this.connectedAccount=null;
 this.peraWallet=null;
-setTimeout(()=>this.init(),100);
+if(document.readyState==='loading'){
+document.addEventListener('DOMContentLoaded',()=>this.init());
+}else{
+this.init();
+}
 }
 
-init(){
-this.initPera();
+async init(){
 this.setupUI();
 this.setupGames();
 this.addWalletButton();
 this.updateDisplay();
+await this.initPera();
 }
 
-initPera(){
+async initPera(){
+console.log('🔄 Initializing Pera Wallet...');
+try{
 if(typeof PeraWalletConnect!=='undefined'){
 this.peraWallet=new PeraWalletConnect({chainId:416001});
-this.checkConnection();
-console.log('✅ Pera ready');
+await this.checkConnection();
+console.log('✅ Pera Wallet initialized successfully');
+this.notify('✅ Wallet ready','success');
 }else{
-console.log('❌ Pera not loaded');
+console.error('❌ PeraWalletConnect not found');
+this.notify('❌ Wallet integration failed','error');
+}
+}catch(error){
+console.error('Pera initialization error:',error);
+this.notify('❌ Wallet initialization failed','error');
 }
 }
 
 async checkConnection(){
+if(!this.peraWallet){
+console.log('❌ Pera Wallet not initialized');
+return;
+}
 try{
 const accounts=await this.peraWallet.reconnectSession();
+console.log('📱 Checking existing connection...');
 if(accounts?.length>0){
 this.connectedAccount=accounts[0];
-this.updateWalletUI();
-this.fetchBalance();
+await this.updateWalletUI();
+await this.fetchBalance();
+console.log('✅ Reconnected to wallet:',this.connectedAccount);
+this.notify('✅ Wallet connected','success');
+}else{
+console.log('ℹ️ No existing connection found');
 }
-}catch(e){}
+}catch(error){
+console.error('Connection check error:',error);
+}
 }
 
 setupUI(){
@@ -221,7 +244,6 @@ document.getElementById('standBtn').onclick=()=>this.stand();
 document.getElementById('newGameBtn').onclick=()=>this.newGame();
 }
 
-// SLOTS
 initSlots(){
 const grid=document.getElementById('slotsGrid');
 if(!grid)return;
@@ -284,7 +306,6 @@ else if(c>=3)win+=bet*5;
 return win;
 }
 
-// PLINKO
 initPlinko(){
 const canvas=document.getElementById('plinkoCanvas');
 if(!canvas)return;
@@ -381,7 +402,6 @@ animate();
 });
 }
 
-// BLACKJACK
 initBlackjack(){
 this.pHand=[];
 this.dHand=[];
