@@ -7,9 +7,7 @@
 <meta name="name" content="Amina Casino">
 <link rel="stylesheet" href="style.css">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script>
-!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?t(exports):"function"==typeof define&&define.amd?define(["exports"],t):(e="undefined"!=typeof globalThis?globalThis:e||self,t(e.PeraWalletConnect={}))}(this,(function(e){"use strict";class t{constructor(e={}){this.bridge=null,this.connector=null,this.shouldReconnect=!0,this.network=e.network||"mainnet"}async connect(){if(!this.bridge){const e=await import("https://cdn.skypack.dev/@walletconnect/client@1.8.0");this.bridge=new e.default({bridge:"https://bridge.walletconnect.org",qrcodeModal:{open:()=>{window.open("https://perawallet.app/download/")},close:()=>{}}})}return new Promise(((e,t)=>{this.bridge.on("connect",((t,n)=>{if(n)return void console.error(n);e(t.accounts)})),this.bridge.createSession()}))}async disconnect(){this.bridge&&(await this.bridge.killSession(),this.bridge=null)}async reconnectSession(){if(!this.bridge)return[];try{const e=localStorage.getItem("walletconnect");if(!e)return[];const t=JSON.parse(e);if(!t.connected)return[];const n=await import("https://cdn.skypack.dev/@walletconnect/client@1.8.0");return this.bridge=new n.default({bridge:"https://bridge.walletconnect.org",session:t}),this.bridge.accounts||[]}catch(e){return console.error("Failed to reconnect:",e),[]}}}window.PeraWalletConnect=t,e.PeraWalletConnect=t,Object.defineProperty(e,"__esModule",{value:!0})}));
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@perawallet/connect@1.3.4/dist/index.umd.js"></script>
 </head>
 <body>
 <div class="cosmic-bg"></div>
