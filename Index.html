@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Amina Casino</title>
 <link rel="stylesheet" href="style.css">
-<script src="https://unpkg.com/@perawallet/connect@1.3.3/dist/index.umd.js"></script>
 </head>
 <body>
 <div class="cosmic-bg"></div>
@@ -207,23 +205,8 @@
 </div>
 </div>
 
-<script>
-// Dynamic script loading with verification
-(function(){
-const script=document.createElement('script');
-script.src='https://cdn.jsdelivr.net/npm/@perawallet/connect@1.3.3/dist/index.umd.js';
-script.onload=()=>console.log('✅ PeraWalletConnect loaded successfully');
-script.onerror=()=>{
-console.log('❌ Primary CDN failed, trying backup...');
-const backup=document.createElement('script');
-backup.src='https://unpkg.com/@perawallet/connect@1.3.3/dist/index.umd.js';
-backup.onload=()=>console.log('✅ PeraWalletConnect loaded from backup');
-backup.onerror=()=>console.log('❌ All CDNs failed');
-document.head.appendChild(backup);
-};
-document.head.appendChild(script);
-})();
-</script>
+<!-- FIXED CDN LOADING -->
+<script src="https://cdn.jsdelivr.net/npm/@perawallet/connect@1.4.1/dist/index.umd.js"></script>
 <script src="scripts.js"></script>
 <script src="index.js"></script>
 <script>
