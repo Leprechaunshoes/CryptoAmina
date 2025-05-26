@@ -6,6 +6,13 @@
 <title>Amina Casino</title>
 <meta name="name" content="Amina Casino">
 <link rel="stylesheet" href="style.css">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script src="https://cdn.jsdelivr.net/npm/@perawallet/connect@1.4.1/dist/index.umd.js"></script>
+<script>
+window.checkPeraWallet=function(){return typeof window.PeraWalletConnect!=='undefined'};
+</script>
+<script src="scripts.js"></script>
+<script src="index.js"></script>
 </head>
 <body>
 <div class="cosmic-bg"></div>
@@ -206,9 +213,6 @@
 </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@perawallet/connect@1.4.1/dist/index.umd.js"></script>
-<script src="scripts.js"></script>
-<script src="index.js"></script>
 <script>
 function showDonationModal(){document.getElementById('donationModal').style.display='flex'}
 function closeDonationModal(){document.getElementById('donationModal').style.display='none'}
