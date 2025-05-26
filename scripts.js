@@ -92,60 +92,54 @@ try{
 if(!this.peraWallet||!window.checkPeraWallet()){
 console.log('Reinitializing wallet...');
 const success=await this.initPera();
-if(!success){
-this.notify('❌ Could not initialize wallet','error');
-return;
-}
-}
-const btn=document.getElementById('walletBtn');
-btn.disabled=true;
-if(this.connectedAccount){
-await this.peraWallet.disconnect();
-this.connectedAccount=null;
-this.balance.AMINA=0;
-if(this.isAmina)this.toggleCurrency();
-this.updateWalletUI();
-this.updateDisplay();
-this.notify('🔌 Disconnected','info');
-}else{
-btn.innerHTML='🔄 Connecting...';
-await new Promise(resolve=>setTimeout(resolve,500));
-try{
-const accounts=await this.peraWallet.connect();
-console.log('Connect response:',accounts);
-if(accounts?.length>0){
-this.connectedAccount=accounts[0];
-await this.updateWalletUI();
-await this.fetchBalance();
-this.notify('✅ Connected!','success');
-}else{
-throw new Error('No accounts returned');
-}
-}catch(connectError){
-if(connectError.message?.includes('closed')){
-this.notify('Connection cancelled','info');
-}else if(connectError.message?.includes('rejected')){
-this.notify('Connection rejected','error');
-}else{
-console.error('Connection error:',connectError);
-this.notify('❌ Connection failed','error');
-}
-throw connectError;
-}
-}
-}catch(error){
-console.error('Wallet operation failed:',error);
-}finally{
-const btn=document.getElementById('walletBtn');
-btn.disabled=false;
-if(!this.connectedAccount)btn.innerHTML='🔗 Connect Wallet';
-}
-}
+async toggleWallet(){
+    try {
+        if(!this.peraWallet) {
+            console.log('Reinitializing wallet...');
+            const success = await this.initPera();
+            if(!success) {
+                this.notify('❌ Please install Pera Wallet app', 'error');
+                return;
+            }
+        }
 
-updateWalletUI(){
-const btn=document.getElementById('walletBtn');
-if(btn){
-btn.innerHTML=this.connectedAccount?`✅ ${this.connectedAccount.slice(0,6)}...${this.connectedAccount.slice(-4)}`:'🔗 Connect Wallet';
+        const btn = document.getElementById('walletBtn');
+        btn.disabled = true;
+
+        if(this.connectedAccount) {
+            await this.peraWallet.disconnect();
+            this.connectedAccount = null;
+            this.balance.AMINA = 0;
+            if(this.isAmina) this.toggleCurrency();
+            this.updateWalletUI();
+            this.updateDisplay();
+            this.notify('🔌 Disconnected', 'info');
+        } else {
+            btn.innerHTML = '🔄 Open Pera Wallet...';
+            try {
+                const accounts = await this.peraWallet.connect();
+                if(accounts?.length > 0) {
+                    this.connectedAccount = accounts[0];
+                    await this.updateWalletUI();
+                    await this.fetchBalance();
+                    this.notify('✅ Connected!', 'success');
+                } else {
+                    throw new Error('No accounts returned');
+                }
+            } catch(connectError) {
+                console.error('Connection error:', connectError);
+                this.notify('❌ Please approve in Pera Wallet app', 'error');
+                throw connectError;
+            }
+        }
+    } catch(error) {
+        console.error('Wallet operation failed:', error);
+    } finally {
+        const btn = document.getElementById('walletBtn');
+        btn.disabled = false;
+        if(!this.connectedAccount) btn.innerHTML = '🔗 Connect Wallet';
+    }
+}
 }
 }
 
