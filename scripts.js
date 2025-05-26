@@ -31,9 +31,7 @@ async initPera(){
             return false;
         }
         
-        this.peraWallet = new window.PeraWalletConnect({
-            this.peraWallet = new window.PeraWalletConnect();
-        });
+        this.peraWallet = new window.PeraWalletConnect();
         
         // For mobile - reconnect if possible
         try {
