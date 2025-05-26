@@ -219,17 +219,7 @@ document.getElementById('mainCasino').classList.add('active');
 });
 });
 </script>
-<script>
-window.addEventListener('load', function() {
-    if (typeof window.PeraWalletConnect === 'undefined') {
-        console.error('Attempting to reload Pera Wallet Connect...');
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/@perawallet/connect@latest/dist/index.umd.js';
-        document.head.appendChild(script);
-    }
-});
-</script>
-<script src="https://cdn.jsdelivr.net/npm/@perawallet/connect@latest/dist/index.umd.js" defer></script>
+
 
 
 <script>
