@@ -26,7 +26,7 @@ async initPera(){
 console.log('🔄 Initializing Pera Wallet...');
 try{
 if(typeof PeraWalletConnect!=='undefined'){
-this.peraWallet=new PeraWalletConnect({chainId:416001});
+this.peraWallet=new PeraWalletConnect({chainId:416002});
 await this.checkConnection();
 console.log('✅ Pera Wallet initialized successfully');
 this.notify('✅ Wallet ready','success');
