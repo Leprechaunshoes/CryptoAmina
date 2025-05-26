@@ -19,6 +19,15 @@ this.setupUI();
 this.setupGames();
 this.addWalletButton();
 this.updateDisplay();
+this.initPera();
+}
+
+initPera(){
+setTimeout(()=>{
+if(window.PeraWalletConnect){
+this.peraWallet=new window.PeraWalletConnect();
+}
+},1000);
 }
 
 setupUI(){
@@ -49,15 +58,9 @@ btn.onclick=()=>this.toggleWallet();
 controls.insertBefore(btn,controls.firstChild);
 }
 
-async toggleWallet(){
+toggleWallet(){
+if(!this.peraWallet)return;
 try{
-if(!window.PeraWalletConnect){
-return;
-}
-// Create instance using CDN global
-if(!this.peraWallet){
-this.peraWallet = new window.PeraWalletConnect();
-}
 if(this.connectedAccount){
 this.peraWallet.disconnect();
 this.connectedAccount=null;
@@ -66,25 +69,24 @@ if(this.isAmina)this.toggleCurrency();
 this.updateWalletUI();
 this.updateDisplay();
 }else{
-// Use .then() pattern from docs
-this.peraWallet.connect().then((newAccounts) => {
-if(newAccounts && newAccounts.length > 0){
-this.connectedAccount = newAccounts[0];
+this.peraWallet.connect().then((accounts)=>{
+if(accounts?.length>0){
+this.connectedAccount=accounts[0];
 this.updateWalletUI();
 this.fetchBalance();
 }
-}).catch((error) => {
-if(error?.data?.type !== "CONNECT_MODAL_CLOSED"){
-console.log('Connection error:', error);
+}).catch((error)=>{
+if(error?.data?.type!=="CONNECT_MODAL_CLOSED"){
+console.log('Connection error:',error);
 }
 });
 }
 }catch(error){
-console.log('Error:', error);
+console.log('Wallet error:',error);
 }
 }
 
-async updateWalletUI(){
+updateWalletUI(){
 const btn=document.getElementById('walletBtn');
 if(!btn)return;
 if(this.connectedAccount){
