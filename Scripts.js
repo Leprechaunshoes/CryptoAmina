@@ -11,13 +11,11 @@ class AminaCasino {
         this.connectedAccount = null;
         this.peraWallet = null;
         
-        // Wait for DOM and PeraWallet to load
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                this.initWallet();
-                this.init();
-            }, 1000);
-        });
+        // Wait for PeraWallet to load
+        setTimeout(() => {
+            this.initWallet();
+            this.init();
+        }, 1000);
     }
 
     async initWallet() {
