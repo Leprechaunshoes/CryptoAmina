@@ -52,28 +52,37 @@ controls.insertBefore(btn,controls.firstChild);
 async toggleWallet(){
 alert('Wallet clicked!');
 try{
-const { PeraWalletConnect } = window;
-if(!PeraWalletConnect){
+// Check if library loaded via CDN
+if(!window.PeraWalletConnect){
 alert('PeraWalletConnect not loaded');
 return;
 }
 alert('PeraWalletConnect loaded!');
-if(!this.peraWallet)this.peraWallet=new PeraWalletConnect();
+// Create instance using CDN global
+if(!this.peraWallet){
+this.peraWallet = new window.PeraWalletConnect();
+}
 if(this.connectedAccount){
-await this.peraWallet.disconnect();
+this.peraWallet.disconnect();
 this.connectedAccount=null;
 this.balance.AMINA=0;
 if(this.isAmina)this.toggleCurrency();
 this.updateWalletUI();
 this.updateDisplay();
 }else{
-const accounts=await this.peraWallet.connect();
-if(accounts?.length>0){
-this.connectedAccount=accounts[0];
-await this.updateWalletUI();
-await this.fetchBalance();
+// Use .then() pattern from docs instead of await
+this.peraWallet.connect().then((newAccounts) => {
+if(newAccounts && newAccounts.length > 0){
+this.connectedAccount = newAccounts[0];
+this.updateWalletUI();
+this.fetchBalance();
 alert('CONNECTED!!!');
 }
+}).catch((error) => {
+if(error?.data?.type !== "CONNECT_MODAL_CLOSED"){
+alert('Connection error: ' + error.message);
+}
+});
 }
 }catch(error){
 alert('Error: '+error.message);
