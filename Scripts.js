@@ -15,24 +15,30 @@ this.init();
 }
 
 async initWallet(){
-console.log('Starting wallet initialization...');
+console.log('🔄 Initializing wallet...');
+// Simple retry mechanism for PeraWalletConnect
+let attempts=0;
+const maxAttempts=10;
+while(attempts<maxAttempts){
+if(typeof PeraWalletConnect!=='undefined'){
 try{
-if(typeof PeraWalletConnect==='undefined'){
-console.error('PeraWalletConnect not loaded. Please refresh the page.');
-this.walletReady=false;
-return;
-}
 this.peraWallet=new PeraWalletConnect({
 shouldShowSignTxnToast:false,
 chainId:416002
 });
 this.walletReady=true;
-console.log('✅ Wallet initialized for',this.isMobile?'mobile':'desktop');
-setTimeout(()=>this.checkConnection(),1000);
+console.log('✅ Wallet ready');
+setTimeout(()=>this.checkConnection(),500);
+return;
 }catch(error){
-console.error('Wallet initialization failed:',error);
-this.walletReady=false;
+console.error('Wallet creation error:',error);
 }
+}
+attempts++;
+await new Promise(resolve=>setTimeout(resolve,200));
+}
+console.log('❌ PeraWalletConnect not available after retries');
+this.walletReady=false;
 }
 
 async checkConnection(){
@@ -89,11 +95,18 @@ headerControls.insertBefore(walletBtn,headerControls.firstChild);
 }
 
 async toggleWallet(){
+const walletBtn=document.getElementById('walletBtn');
+if(!walletBtn)return;
+// Retry wallet initialization if needed
+if(!this.walletReady||!this.peraWallet){
+walletBtn.innerHTML='🔄 Initializing...';
+await this.initWallet();
 if(!this.walletReady){
-this.showNotification('❌ Wallet service unavailable','error');
+this.showNotification('❌ Please refresh page and try again','error');
+walletBtn.innerHTML='🔗 Connect Wallet';
 return;
 }
-const walletBtn=document.getElementById('walletBtn');
+}
 try{
 if(this.connectedAccount){
 this.disconnectWallet();
@@ -109,11 +122,15 @@ await this.fetchAminaBalance();
 localStorage.setItem('peraWalletConnected',this.connectedAccount);
 this.showNotification('✅ Wallet connected!','success');
 }else{
-throw new Error('No accounts returned');
+this.showNotification('❌ No accounts found','error');
 }
 }catch(error){
-console.error('❌ Connection error:',error);
-this.handleWalletError(error);
+console.error('Connection error:',error);
+if(error.message.includes('Modal closed')||error.message.includes('cancelled')){
+this.showNotification('Connection cancelled','info');
+}else{
+this.showNotification('❌ Connection failed - Install Pera Wallet','error');
+}
 }finally{
 walletBtn.disabled=false;
 if(!this.connectedAccount)walletBtn.innerHTML='🔗 Connect Wallet';
