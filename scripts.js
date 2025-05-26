@@ -32,7 +32,7 @@ async initPera(){
         }
         
         this.peraWallet = new window.PeraWalletConnect({
-            chainId: 416002
+            this.peraWallet = new window.PeraWalletConnect();
         });
         
         // For mobile - reconnect if possible
