@@ -23,32 +23,27 @@ this.updateDisplay();
 
 async initPera(){
 try{
-await this.waitForPera();
+if(typeof PeraWalletConnect==='undefined'){
+this.notify('❌ Wallet not available','error');
+return false;
+}
 this.peraWallet=new PeraWalletConnect();
-try{
 const accounts=await this.peraWallet.reconnectSession();
 if(accounts?.length>0){
 this.connectedAccount=accounts[0];
 await this.updateWalletUI();
 await this.fetchBalance();
 }
-}catch(e){}
 this.notify('✅ Wallet ready','success');
 return true;
 }catch(error){
-console.error('Pera init failed:',error);
-this.notify('❌ Wallet unavailable','error');
+console.error('Pera error:',error);
+this.notify('❌ Wallet failed','error');
 return false;
 }
 }
 
-async waitForPera(){
-for(let i=0;i<150;i++){
-if(typeof PeraWalletConnect!=='undefined')return;
-await new Promise(resolve=>setTimeout(resolve,100));
-}
-throw new Error('PeraWalletConnect not loaded');
-}
+
 
 setupUI(){
 document.querySelectorAll('.nav-btn:not(.donation-btn)').forEach(btn=>{
@@ -80,7 +75,6 @@ controls.insertBefore(btn,controls.firstChild);
 
 async toggleWallet(){
 if(!this.peraWallet){
-this.notify('🔄 Initializing wallet...','info');
 await this.initPera();
 if(!this.peraWallet)return;
 }
