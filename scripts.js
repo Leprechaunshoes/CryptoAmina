@@ -84,8 +84,7 @@ btn.id='walletBtn';
 btn.className='wallet-btn';
 btn.innerHTML='🔗 Connect Wallet';
 btn.onclick=()=>this.toggleWallet();
-controls.insertBefore(btn,controls.firstChild);
-}async toggleWallet(){}}
+controls.insertBefore(btn,controls.firstChild);}
 
 async toggleWallet(){
     try {
@@ -127,8 +126,14 @@ async toggleWallet(){
                 throw connectError;
             }
         }
-    } catch(error)
-
+    } catch(error) {
+        console.error('Wallet operation failed:', error);
+    } finally {
+        const btn = document.getElementById('walletBtn');
+        btn.disabled = false;
+        if(!this.connectedAccount) btn.innerHTML = '🔗 Connect Wallet';
+    }
+}
 toggleCurrency(){
 if(!this.isAmina&&!this.connectedAccount)return this.notify('🔗 Connect wallet for AMINA!','error');
 this.isAmina=!this.isAmina;
