@@ -86,7 +86,17 @@ btn.innerHTML='🔗 Connect Wallet';
 btn.onclick=()=>this.toggleWallet();
 controls.insertBefore(btn,controls.firstChild);
 }
+addWalletButton() {
+    // existing code
+}
 
+async toggleWallet() {
+    // new code to paste
+}
+
+async fetchBalance() {
+    // existing code
+}
 
 
 async fetchBalance(){
