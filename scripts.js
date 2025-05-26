@@ -21,27 +21,7 @@ this.addWalletButton();
 this.updateDisplay();
 }
 
-async initPera(){
-try{
-if(typeof PeraWalletConnect==='undefined'){
-this.notify('❌ Wallet not available','error');
-return false;
-}
-this.peraWallet=new PeraWalletConnect();
-const accounts=await this.peraWallet.reconnectSession();
-if(accounts?.length>0){
-this.connectedAccount=accounts[0];
-await this.updateWalletUI();
-await this.fetchBalance();
-}
-this.notify('✅ Wallet ready','success');
-return true;
-}catch(error){
-console.error('Pera error:',error);
-this.notify('❌ Wallet failed','error');
-return false;
-}
-}
+
 
 
 
@@ -74,13 +54,10 @@ controls.insertBefore(btn,controls.firstChild);
 }
 
 async toggleWallet(){
-if(!this.peraWallet){
-await this.initPera();
-if(!this.peraWallet)return;
-}
 const btn=document.getElementById('walletBtn');
 btn.disabled=true;
 try{
+if(!this.peraWallet)this.peraWallet=new PeraWalletConnect();
 if(this.connectedAccount){
 await this.peraWallet.disconnect();
 this.connectedAccount=null;
@@ -88,20 +65,16 @@ this.balance.AMINA=0;
 if(this.isAmina)this.toggleCurrency();
 this.updateWalletUI();
 this.updateDisplay();
-this.notify('🔌 Disconnected','info');
 }else{
-btn.innerHTML='🔄 Connecting...';
 const accounts=await this.peraWallet.connect();
 if(accounts?.length>0){
 this.connectedAccount=accounts[0];
 await this.updateWalletUI();
 await this.fetchBalance();
-this.notify('✅ Connected!','success');
 }
 }
 }catch(error){
-console.error('Wallet error:',error);
-this.notify('❌ Connection failed','error');
+console.log('Error:',error);
 }finally{
 btn.disabled=false;
 if(!this.connectedAccount)btn.innerHTML='🔗 Connect Wallet';
