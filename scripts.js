@@ -24,18 +24,22 @@ await this.initPera();
 
 async initPera(){
 console.log('🔄 Initializing Pera Wallet...');
+alert('Starting wallet initialization...');
 try{
 if(typeof PeraWalletConnect!=='undefined'){
 this.peraWallet=new PeraWalletConnect({chainId:416002});
 await this.checkConnection();
 console.log('✅ Pera Wallet initialized successfully');
+alert('Wallet ready!');
 this.notify('✅ Wallet ready','success');
 }else{
 console.error('❌ PeraWalletConnect not found');
+alert('Error: PeraWalletConnect not found - Please check your internet connection');
 this.notify('❌ Wallet integration failed','error');
 }
 }catch(error){
 console.error('Pera initialization error:',error);
+alert('Error: '+error.message);
 this.notify('❌ Wallet initialization failed','error');
 }
 }
