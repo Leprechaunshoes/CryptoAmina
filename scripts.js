@@ -23,43 +23,38 @@ await this.initPera();
 }
 
 async initPera(){
-console.log('Starting Pera initialization...');
-const maxRetries=3;
-let retries=0;
-while(retries<maxRetries){
-try{
-if(!window.checkPeraWallet()){
-console.log(`Waiting for Pera to load... (attempt ${retries+1})`);
-await new Promise(resolve=>setTimeout(resolve,1000));
-retries++;
-continue;
-}
-console.log('Creating Pera instance...');
-this.peraWallet=new window.PeraWalletConnect({chainId:416002,shouldShowSignTxnToast:true});
-try{
-const accounts=await this.peraWallet.reconnectSession();
-if(accounts?.length>0){
-this.connectedAccount=accounts[0];
-await this.updateWalletUI();
-await this.fetchBalance();
-console.log('Reconnected to existing session');
-}
-}catch(reconnectError){
-console.log('No existing session to reconnect');
-}
-this.notify('✅ Wallet ready','success');
-return true;
-}catch(error){
-console.error(`Initialization attempt ${retries+1} failed:`,error);
-retries++;
-if(retries===maxRetries){
-this.notify('❌ Failed to initialize wallet','error');
-return false;
-}
-await new Promise(resolve=>setTimeout(resolve,1000));
-}
-}
-return false;
+    console.log('Starting Pera initialization...');
+    try {
+        if(typeof window.PeraWalletConnect === 'undefined') {
+            console.error('PeraWalletConnect not found');
+            this.notify('❌ Please install Pera Wallet app', 'error');
+            return false;
+        }
+        
+        this.peraWallet = new window.PeraWalletConnect({
+            chainId: 416002
+        });
+        
+        // For mobile - reconnect if possible
+        try {
+            const accounts = await this.peraWallet.reconnectSession();
+            if(accounts?.length > 0) {
+                this.connectedAccount = accounts[0];
+                await this.updateWalletUI();
+                await this.fetchBalance();
+                console.log('Reconnected to existing session');
+            }
+        } catch(reconnectError) {
+            console.log('No existing session to reconnect');
+        }
+        
+        this.notify('✅ Ready to connect', 'success');
+        return true;
+    } catch(error) {
+        console.error('Wallet initialization error:', error);
+        this.notify('❌ Could not initialize wallet', 'error');
+        return false;
+    }
 }
 
 async checkConnection(){}
