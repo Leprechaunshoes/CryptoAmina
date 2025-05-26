@@ -15,18 +15,11 @@ async initWallet(){
 try{
 console.log('🔄 Mobile device:',this.isMobile);
 if(this.isMobile){
-// Mobile: Use deep linking approach
 this.walletReady=true;
 console.log('✅ Mobile wallet ready for deep linking');
 }else{
-// Desktop: Use PeraWalletConnect
-let attempts=0;
-while(typeof PeraWalletConnect==='undefined'&&attempts<30){
-await new Promise(resolve=>setTimeout(resolve,100));
-attempts++;
-}
 if(typeof PeraWalletConnect==='undefined'){
-console.error('❌ PeraWalletConnect failed to load');
+console.error('❌ PeraWalletConnect is not loaded. Please check if the library is included properly.');
 this.walletReady=false;
 return;
 }
@@ -36,7 +29,7 @@ console.log('✅ Desktop wallet initialized');
 }
 setTimeout(()=>this.checkConnection(),1000);
 }catch(error){
-console.error('❌ Wallet init error:',error.message);
+console.error('❌ Wallet init error:',error);
 this.walletReady=false;
 }
 }
@@ -52,7 +45,7 @@ await this.fetchAminaBalance();
 this.showNotification('🔗 Wallet reconnected!','success');
 }
 }catch(error){
-console.log('No previous session');
+console.log('No previous session found');
 }
 }
 }
@@ -120,10 +113,28 @@ if(!this.connectedAccount)walletBtn.innerHTML='🔗 Connect Wallet';
 }
 
 async connectMobileWallet(){
-console.log('📱 Attempting mobile connection...');
-// Check if Pera Wallet app is installed
-const isInstalled=await this.checkPeraWalletInstalled();
-if(!isInstalled){
+console.log('📱 Attempting mobile deep link connection...');
+try{
+// Create PeraWalletConnect for mobile deep linking
+this.peraWallet=new PeraWalletConnect({
+shouldShowSignTxnToast:false,
+chainId:416001
+});
+// Attempt mobile connection with deep linking
+const accounts=await this.peraWallet.connect();
+if(accounts?.length>0){
+this.connectedAccount=accounts[0];
+this.updateWalletUI();
+await this.fetchAminaBalance();
+this.showNotification('✅ Mobile wallet connected!','success');
+// Store connection for persistence
+localStorage.setItem('peraWalletConnected',this.connectedAccount);
+}else{
+throw new Error('No accounts returned from mobile connection');
+}
+}catch(error){
+console.error('❌ Mobile connection failed:',error);
+// Fallback to app store if connection fails
 this.showNotification('📱 Please install Pera Wallet app','error');
 setTimeout(()=>{
 if(navigator.userAgent.includes('iPhone')||navigator.userAgent.includes('iPad')){
@@ -131,22 +142,8 @@ window.open('https://apps.apple.com/app/pera-algo-wallet/id1459898525','_blank')
 }else{
 window.open('https://play.google.com/store/apps/details?id=com.algorand.android','_blank');
 }
-},1000);
-return;
+},1500);
 }
-// For mobile, we'll simulate connection for now
-// In production, this would involve deep linking and callback handling
-this.showNotification('📱 Please open Pera Wallet app manually and copy your address','info');
-// Prompt user to enter address manually as fallback
-setTimeout(()=>{
-const address=prompt('Please paste your Algorand wallet address:');
-if(address&&address.length===58){
-this.connectedAccount=address;
-this.updateWalletUI();
-this.fetchAminaBalance();
-this.showNotification('✅ Wallet connected!','success');
-}
-},2000);
 }
 
 async connectDesktopWallet(){
@@ -156,28 +153,16 @@ if(accounts?.length>0){
 this.connectedAccount=accounts[0];
 this.updateWalletUI();
 await this.fetchAminaBalance();
-this.showNotification('✅ Connected successfully!','success');
+this.showNotification('✅ Desktop wallet connected!','success');
+// Store connection for persistence
+localStorage.setItem('peraWalletConnected',this.connectedAccount);
 }else{
 throw new Error('No accounts found');
 }
 }
 
-async checkPeraWalletInstalled(){
-// Simple check - in production you'd use more sophisticated detection
-return new Promise(resolve=>{
-const timeout=setTimeout(()=>resolve(false),1000);
-const iframe=document.createElement('iframe');
-iframe.style.display='none';
-iframe.src='perawallet://';
-iframe.onload=()=>{clearTimeout(timeout);resolve(true);};
-iframe.onerror=()=>{clearTimeout(timeout);resolve(false);};
-document.body.appendChild(iframe);
-setTimeout(()=>iframe.remove(),1000);
-});
-}
-
 disconnectWallet(){
-if(this.peraWallet&&!this.isMobile){
+if(this.peraWallet){
 this.peraWallet.disconnect();
 }
 this.connectedAccount=null;
@@ -188,9 +173,11 @@ this.currentCurrency='HC';
 document.getElementById('currencyToggle').classList.remove('amina');
 document.querySelector('.currency-text').textContent='HC';
 }
+// Clear stored connection
+localStorage.removeItem('peraWalletConnected');
 this.updateWalletUI();
 this.updateDisplay();
-this.showNotification('🔌 Disconnected','success');
+this.showNotification('🔌 Wallet disconnected','success');
 }
 
 updateWalletUI(){
