@@ -54,6 +54,7 @@ controls.insertBefore(btn,controls.firstChild);
 }
 
 async toggleWallet(){
+alert('Button clicked!');
 const btn=document.getElementById('walletBtn');
 btn.disabled=true;
 try{
