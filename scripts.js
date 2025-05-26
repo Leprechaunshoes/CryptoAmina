@@ -43,7 +43,7 @@ return false;
 }
 
 async waitForPera(){
-for(let i=0;i<50;i++){
+for(let i=0;i<150;i++){
 if(typeof PeraWalletConnect!=='undefined')return;
 await new Promise(resolve=>setTimeout(resolve,100));
 }
