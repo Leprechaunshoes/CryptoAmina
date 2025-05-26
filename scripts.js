@@ -509,5 +509,5 @@ if(score)score.textContent='0';
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
-window.aminoCasino=new AminaCasino();
+window.aminaCasino=new AminaCasino();
 });
