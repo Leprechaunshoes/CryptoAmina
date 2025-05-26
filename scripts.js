@@ -85,7 +85,9 @@ btn.className='wallet-btn';
 btn.innerHTML='🔗 Connect Wallet';
 btn.onclick=()=>this.toggleWallet();
 controls.insertBefore(btn,controls.firstChild);
-}async toggleWallet(){
+}async toggleWallet(){}
+
+async toggleWallet(){
     try {
         if(!this.peraWallet) {
             console.log('Reinitializing wallet...');
@@ -133,10 +135,6 @@ controls.insertBefore(btn,controls.firstChild);
         if(!this.connectedAccount) btn.innerHTML = '🔗 Connect Wallet';
     }
 }
-
-
-
-async fetchBalance(){
 if(!this.connectedAccount)return;
 try{
 const res=await fetch(`https://mainnet-api.algonode.cloud/v2/accounts/${this.connectedAccount}`);
