@@ -24,7 +24,7 @@ this.updateDisplay();
 async initPera(){
 try{
 await this.waitForPera();
-this.peraWallet=new window.PeraWalletConnect();
+this.peraWallet=new PeraWalletConnect();
 try{
 const accounts=await this.peraWallet.reconnectSession();
 if(accounts?.length>0){
@@ -44,7 +44,7 @@ return false;
 
 async waitForPera(){
 for(let i=0;i<50;i++){
-if(typeof window.PeraWalletConnect!=='undefined')return;
+if(typeof PeraWalletConnect!=='undefined')return;
 await new Promise(resolve=>setTimeout(resolve,100));
 }
 throw new Error('PeraWalletConnect not loaded');
