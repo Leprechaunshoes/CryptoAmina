@@ -50,6 +50,7 @@ controls.insertBefore(btn,controls.firstChild);
 }
 
 async toggleWallet(){
+alert('Wallet clicked!');
 const btn=document.getElementById('walletBtn');
 try{
 if(!this.peraWallet)this.peraWallet=new PeraWalletConnect();
