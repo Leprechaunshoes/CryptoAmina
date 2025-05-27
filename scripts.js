@@ -23,11 +23,14 @@ this.initPera();
 }
 
 initPera(){
+console.log('Starting Pera initialization...');
 const waitForPera = () => {
+console.log('Checking for PeraWalletConnect...', typeof window.PeraWalletConnect);
 if (window.PeraWalletConnect) {
 this.peraWallet = new window.PeraWalletConnect();
-console.log('Pera Wallet initialized successfully');
+console.log('Pera Wallet initialized successfully!');
 } else {
+console.log('Still waiting for PeraWalletConnect...');
 setTimeout(waitForPera, 500);
 }
 };
