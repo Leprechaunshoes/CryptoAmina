@@ -9,7 +9,13 @@ this.connectedAccount=null;
 this.myAlgoWallet=null;
 this.casinoWallet='6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI';
 this.aminaAssetId=1107424865;
-setTimeout(()=>this.init(),500);
+this.initialized=false;
+}
+
+initializeCasino(){
+if(this.initialized)return;
+this.initialized=true;
+setTimeout(()=>this.init(),100);
 }
 
 async init(){
@@ -180,16 +186,6 @@ style.textContent=`
 @keyframes coinExplode{0%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(0.2);opacity:0}}
 `;
 document.head.appendChild(style);
-}
-
-setupWelcomeScreen(){
-document.getElementById('enterCasino')?.addEventListener('click',()=>{
-document.getElementById('welcomeScreen').classList.remove('active');
-setTimeout(()=>{
-document.getElementById('mainCasino').classList.add('active');
-this.createRain('🪙',6);
-},200);
-});
 }
 
 setupUI(){
