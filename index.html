@@ -217,9 +217,8 @@ document.getElementById('mainCasino').classList.add('active');
 });
 
 document.getElementById('getAmina').addEventListener('click', function() {
-// Simple direct link to Pera Explorer - works best on mobile
-const webUrl = 'https://explorer.perawallet.app/asset/1107424865/';
-window.open(webUrl, '_blank');
+// Simple browser redirect - no popups
+window.location.href = 'https://explorer.perawallet.app/asset/1107424865/';
 });
 });
 
