@@ -209,8 +209,10 @@
 </div>
 </div>
 
+<script src="scripts.js"></script>
+
 <script>
-// Simple, bulletproof welcome screen
+// Welcome screen handler - runs AFTER scripts.js loads
 document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('enterCasino')?.addEventListener('click', function() {
     document.getElementById('welcomeScreen').classList.remove('active');
@@ -232,8 +234,6 @@ function copyDonationAddress(){
   alert('Address copied! 🚀');
 }
 </script>
-
-<script src="scripts.js"></script>
 
 </body>
 </html>
