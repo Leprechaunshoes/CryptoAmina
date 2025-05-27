@@ -25,6 +25,7 @@
 <div class="currency-info"><p>💰 Start with 1000 HC or connect wallet for AMINA</p></div>
 </div>
 <button id="enterCasino" class="enter-btn">🚀 ENTER CASINO</button>
+<button id="getAmina" class="get-amina-btn">🪙 Get AMINA Tokens</button>
 </div>
 </div>
 
@@ -213,6 +214,24 @@ document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('enterCasino').addEventListener('click', function() {
 document.getElementById('welcomeScreen').classList.remove('active');
 document.getElementById('mainCasino').classList.add('active');
+});
+
+document.getElementById('getAmina').addEventListener('click', function() {
+// Open Pera Wallet to opt-in to AMINA token
+const aminaAssetId = '1107424865';
+const peraUrl = `perawallet://asset/opt-in/${aminaAssetId}`;
+const webUrl = `https://explorer.perawallet.app/asset/${aminaAssetId}/`;
+
+// Try mobile deep link first, fallback to web
+if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+window.location.href = peraUrl;
+// Fallback to web after short delay
+setTimeout(() => {
+window.open(webUrl, '_blank');
+}, 1000);
+} else {
+window.open(webUrl, '_blank');
+}
 });
 });
 
