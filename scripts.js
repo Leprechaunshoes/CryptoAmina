@@ -190,6 +190,13 @@ document.querySelectorAll('.game-card').forEach(card=>{
 card.onclick=()=>this.switchGame(card.dataset.game);
 });
 document.getElementById('currencyToggle').onclick=()=>this.toggleCurrency();
+document.getElementById('enterCasino')?.addEventListener('click',()=>{
+document.getElementById('welcomeScreen').classList.remove('active');
+setTimeout(()=>{
+document.getElementById('mainCasino').classList.add('active');
+this.createRain('🪙',6);
+},200);
+});
 }
 
 switchGame(game){
@@ -673,4 +680,12 @@ document.addEventListener('DOMContentLoaded',()=>{
 window.aminaCasino=new AminaCasino();
 window.createWalletCelebration=()=>window.aminaCasino?.createCelebration('💳',8);
 window.createAminaCoinRain=()=>window.aminaCasino?.createRain('🪙',10);
+window.showDonationModal=()=>document.getElementById('donationModal').style.display='flex';
+window.closeDonationModal=()=>document.getElementById('donationModal').style.display='none';
+window.copyDonationAddress=()=>{
+const wallet=document.getElementById('donationWallet');
+wallet.select();
+document.execCommand('copy');
+alert('Address copied! 🚀');
+};
 });
