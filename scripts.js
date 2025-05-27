@@ -19,7 +19,6 @@ this.addWalletButton();
 this.updateDisplay();
 this.initMyAlgo();
 this.initEffects();
-this.setupWelcomeScreen();
 }
 
 initMyAlgo(){
@@ -684,12 +683,4 @@ document.addEventListener('DOMContentLoaded',()=>{
 window.aminaCasino=new AminaCasino();
 window.createWalletCelebration=()=>window.aminaCasino?.createCelebration('💳',8);
 window.createAminaCoinRain=()=>window.aminaCasino?.createRain('🪙',10);
-window.showDonationModal=()=>document.getElementById('donationModal').style.display='flex';
-window.closeDonationModal=()=>document.getElementById('donationModal').style.display='none';
-window.copyDonationAddress=()=>{
-const wallet=document.getElementById('donationWallet');
-wallet.select();
-document.execCommand('copy');
-alert('Address copied! 🚀');
-};
 });
