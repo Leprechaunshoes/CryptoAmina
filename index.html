@@ -221,6 +221,13 @@ document.getElementById('mainCasino').classList.add('active');
 });
 </script>
 
+<script>
+setTimeout(() => {
+  alert('PeraWallet status: ' + typeof window.PeraWalletConnect);
+  alert('Algosdk status: ' + typeof window.algosdk);
+}, 2000);
+</script>
+
 <script src="scripts.js"></script>
 <script src="index.js"></script>
 
