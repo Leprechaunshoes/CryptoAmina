@@ -328,35 +328,33 @@ if(el)el.textContent=this.currentCurrency;
 
 async deductBalance(amt){
 // Sync with wallet system first
-if(window.connectedWallet && this.currentCurrency === 'AMINA') {
-this.balance.AMINA = window.aminaBalance;
-this.connectedAccount = window.connectedWallet;
+if(window.currentCurrency) {
+this.currentCurrency = window.currentCurrency;
+this.isAmina = (window.currentCurrency === 'AMINA');
 }
-if(window.hcBalance !== undefined) {
-this.balance.HC = window.hcBalance;
-}
+if(window.aminaBalance !== undefined) this.balance.AMINA = window.aminaBalance;
+if(window.hcBalance !== undefined) this.balance.HC = window.hcBalance;
+if(window.connectedWallet) this.connectedAccount = window.connectedWallet;
 
-if(this.isAmina && this.connectedAccount){
-if(this.balance.AMINA < amt) {
-this.notify('Insufficient AMINA balance!','error');
+if(this.balance[this.currentCurrency] < amt) {
+this.notify(`Insufficient ${this.currentCurrency} balance!`,'error');
 return false;
 }
-// For now, just deduct from display balance
-this.balance.AMINA -= amt;
-window.aminaBalance = this.balance.AMINA; // Update wallet system
-this.animateBalance('lose');
-this.updateDisplay();
-window.updateDisplay(); // Update wallet display
-return true;
-}else{
-if(this.balance[this.currentCurrency]<amt)return false;
-this.balance[this.currentCurrency]-=amt;
-if(this.currentCurrency === 'HC') window.hcBalance = this.balance.HC;
-this.animateBalance('lose');
-this.updateDisplay();
-window.updateDisplay(); // Update wallet display
-return true;
+
+// Deduct from balance
+this.balance[this.currentCurrency] -= amt;
+
+// Update wallet system
+if(this.currentCurrency === 'AMINA') {
+window.aminaBalance = this.balance.AMINA;
+} else {
+window.hcBalance = this.balance.HC;
 }
+
+this.animateBalance('lose');
+this.updateDisplay();
+if(window.updateDisplay) window.updateDisplay();
+return true;
 }
 
 async sendAminaBet(amount){
@@ -391,14 +389,16 @@ return false;
 
 async addBalance(amt){
 // Sync with wallet system first
-if(window.connectedWallet && this.currentCurrency === 'AMINA') {
-this.balance.AMINA = window.aminaBalance;
+if(window.currentCurrency) {
+this.currentCurrency = window.currentCurrency;
+this.isAmina = (window.currentCurrency === 'AMINA');
 }
-if(window.hcBalance !== undefined) {
-this.balance.HC = window.hcBalance;
-}
+if(window.aminaBalance !== undefined) this.balance.AMINA = window.aminaBalance;
+if(window.hcBalance !== undefined) this.balance.HC = window.hcBalance;
+if(window.connectedWallet) this.connectedAccount = window.connectedWallet;
 
-this.balance[this.currentCurrency]+=amt;
+// Add to balance
+this.balance[this.currentCurrency] += amt;
 
 // Update wallet system
 if(this.currentCurrency === 'AMINA') {
@@ -409,7 +409,7 @@ window.hcBalance = this.balance.HC;
 
 this.animateBalance('win');
 this.updateDisplay();
-window.updateDisplay(); // Update wallet display
+if(window.updateDisplay) window.updateDisplay();
 }
 
 animateBalance(type){
