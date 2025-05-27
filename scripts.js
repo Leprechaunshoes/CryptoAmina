@@ -23,11 +23,15 @@ this.initPera();
 }
 
 initPera(){
-setTimeout(()=>{
-if(window.PeraWalletConnect){
-this.peraWallet=new window.PeraWalletConnect();
+const waitForPera = () => {
+if (window.PeraWalletConnect) {
+this.peraWallet = new window.PeraWalletConnect();
+console.log('Pera Wallet initialized successfully');
+} else {
+setTimeout(waitForPera, 500);
 }
-},1000);
+};
+waitForPera();
 }
 
 setupUI(){
@@ -59,7 +63,10 @@ controls.insertBefore(btn,controls.firstChild);
 }
 
 toggleWallet(){
-if(!this.peraWallet)return;
+if(!this.peraWallet){
+alert('Wallet not ready yet, please wait...');
+return;
+}
 try{
 if(this.connectedAccount){
 this.peraWallet.disconnect();
@@ -74,15 +81,18 @@ if(accounts?.length>0){
 this.connectedAccount=accounts[0];
 this.updateWalletUI();
 this.fetchBalance();
+alert('Connected successfully!');
 }
 }).catch((error)=>{
 if(error?.data?.type!=="CONNECT_MODAL_CLOSED"){
-console.log('Connection error:',error);
+console.error('Connection error:',error);
+alert('Failed to connect to Pera Wallet. Please try again.');
 }
 });
 }
 }catch(error){
-console.log('Wallet error:',error);
+console.error('Wallet error:',error);
+alert('Wallet error: '+error.message);
 }
 }
 
