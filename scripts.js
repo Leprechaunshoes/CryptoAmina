@@ -1,4 +1,4 @@
-// scripts.js - Clean WalletConnect Integration
+// scripts.js - Clean MyAlgo Connect Integration
 class AminaCasino{
 constructor(){
 this.balance={HC:1000,AMINA:0};
@@ -6,10 +6,10 @@ this.currentCurrency='HC';
 this.isAmina=false;
 this.slotSymbols=['⭐','🌟','💫','🌌','🪐','🌙','☄️','🚀','👽','🛸'];
 this.connectedAccount=null;
-this.connector=null;
+this.myAlgoWallet=null;
 this.casinoWallet='6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI';
 this.aminaAssetId=1107424865;
-setTimeout(()=>this.init(),1000);
+setTimeout(()=>this.init(),500);
 }
 
 async init(){
@@ -17,33 +17,14 @@ this.setupUI();
 this.setupGames();
 this.addWalletButton();
 this.updateDisplay();
-this.initWalletConnect();
+this.initMyAlgo();
 }
 
-initWalletConnect(){
-if(typeof WalletConnect !== 'undefined'){
-this.connector = new WalletConnect({
-bridge: "https://bridge.walletconnect.org",
-qrcodeModal: QRCodeModal
-});
-this.connector.on("connect", (error, payload) => {
-if (error) throw error;
-this.connectedAccount = payload.params[0].accounts[0];
-this.updateWalletUI();
-this.fetchBalance();
-this.notify('Wallet connected! 🚀','success');
-if(window.createWalletCelebration)window.createWalletCelebration();
-});
-this.connector.on("disconnect", (error, payload) => {
-if (error) throw error;
-this.connectedAccount = null;
-this.balance.AMINA = 0;
-if(this.isAmina) this.toggleCurrency();
-this.updateWalletUI();
-this.updateDisplay();
-});
+initMyAlgo(){
+if(typeof MyAlgoConnect !== 'undefined'){
+this.myAlgoWallet = new MyAlgoConnect();
 }else{
-setTimeout(()=>this.initWalletConnect(),500);
+setTimeout(()=>this.initMyAlgo(),500);
 }
 }
 
@@ -76,18 +57,32 @@ controls.insertBefore(btn,controls.firstChild);
 }
 
 async toggleWallet(){
-if(!this.connector){
+if(!this.myAlgoWallet){
 this.notify('Wallet loading...','info');
 return;
 }
 try{
 if(this.connectedAccount){
-await this.connector.killSession();
+this.connectedAccount=null;
+this.balance.AMINA=0;
+if(this.isAmina)this.toggleCurrency();
+this.updateWalletUI();
+this.updateDisplay();
+this.notify('Wallet disconnected','info');
 }else{
-await this.connector.createSession();
+const accounts = await this.myAlgoWallet.connect();
+if(accounts.length>0){
+this.connectedAccount=accounts[0].address;
+this.updateWalletUI();
+await this.fetchBalance();
+this.notify('Wallet connected! 🚀','success');
+if(window.createWalletCelebration)window.createWalletCelebration();
+}
 }
 }catch(error){
+if(!error.message.includes('cancelled')){
 this.notify('Connection failed. Please try again.','error');
+}
 }
 }
 
@@ -175,7 +170,7 @@ return true;
 }
 
 async sendAminaBet(amount){
-if(!this.connector || !this.connectedAccount)return false;
+if(!this.myAlgoWallet || !this.connectedAccount)return false;
 if(this.balance.AMINA < amount){
 this.notify('Insufficient AMINA balance!','error');
 return false;
@@ -190,18 +185,16 @@ amount: Math.round(amount * 1000000),
 assetIndex: this.aminaAssetId,
 suggestedParams: params
 });
-const txns = [{
-txn: Buffer.from(algosdk.encodeUnsignedTransaction(txn)).toString("base64"),
-message: "AMINA Casino Bet"
-}];
-const result = await this.connector.sendTransaction(txns);
+await this.myAlgoWallet.signTransaction(txn.toByte());
 this.balance.AMINA -= amount;
 this.animateBalance('lose');
 this.updateDisplay();
 this.notify(`Bet placed: ${amount} AMINA`,'success');
 return true;
 }catch(error){
+if(!error.message.includes('cancelled')){
 this.notify('Transaction failed','error');
+}
 return false;
 }
 }
