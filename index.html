@@ -39,6 +39,7 @@
 <h1 class="logo">AMINA CASINO</h1>
 </div>
 <div class="header-controls">
+<button id="walletBtn" class="wallet-btn">🔗 Connect Wallet</button>
 <div class="currency-toggle">
 <span class="currency-label">Currency:</span>
 <button id="currencyToggle" class="toggle-btn">
@@ -210,30 +211,6 @@
 </div>
 
 <script src="scripts.js"></script>
-
-<script>
-// Welcome screen handler - runs AFTER scripts.js loads
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('enterCasino')?.addEventListener('click', function() {
-    document.getElementById('welcomeScreen').classList.remove('active');
-    document.getElementById('mainCasino').classList.add('active');
-    // Initialize casino AFTER entering main screen
-    if(window.aminaCasino) {
-      window.aminaCasino.initializeCasino();
-    }
-  });
-});
-
-// Simple donation functions
-function showDonationModal(){document.getElementById('donationModal').style.display='flex'}
-function closeDonationModal(){document.getElementById('donationModal').style.display='none'}
-function copyDonationAddress(){
-  const wallet=document.getElementById('donationWallet');
-  wallet.select();
-  document.execCommand('copy');
-  alert('Address copied! 🚀');
-}
-</script>
 
 </body>
 </html>
