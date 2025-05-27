@@ -19,7 +19,8 @@ this.setupUI();
 this.setupGames();
 this.addWalletButton();
 this.updateDisplay();
-this.initPera();
+// Wait a bit longer for script to load, then initialize Pera
+setTimeout(() => this.initPera(), 2000);
 }
 
 initPera(){
