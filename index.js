@@ -1,40 +1,7 @@
-// index.js
+// index.js - Clean Effects Only
 document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{
-initWelcome();startEffects();setupMusic();setupWalletEffects();setupSounds();
+initWelcome();startEffects();setupMusic();setupSounds();
 },500));
-
-function setupWalletEffects(){
-document.addEventListener('click',e=>{
-if(e.target.id==='walletBtn'&&e.target.innerHTML.includes('✅'))createCelebration('💳',8);
-});
-const toggle=document.getElementById('currencyToggle');
-if(toggle)toggle.addEventListener('click',()=>setTimeout(()=>{
-if(toggle.classList.contains('amina')&&window.aminaCasino?.connectedAccount)createRain('🪙',10);
-},100));
-}
-
-function createCelebration(icon,count){
-for(let i=0;i<count;i++){
-const el=document.createElement('div');
-el.innerHTML=icon;
-el.style.cssText=`position:fixed;font-size:20px;pointer-events:none;z-index:1000;left:50%;top:20%;animation:explode 1.5s ease-out forwards`;
-const angle=(Math.PI*2*i)/count,distance=Math.random()*100+80;
-el.style.setProperty('--dx',Math.cos(angle)*distance+'px');
-el.style.setProperty('--dy',Math.sin(angle)*distance+'px');
-document.body.appendChild(el);
-setTimeout(()=>el.remove(),1500);
-}
-}
-
-function createRain(icon,count){
-for(let i=0;i<count;i++)setTimeout(()=>{
-const el=document.createElement('div');
-el.innerHTML=icon;
-el.style.cssText=`position:fixed;font-size:${Math.random()*10+15}px;pointer-events:none;z-index:999;left:${Math.random()*100}%;top:-50px;animation:fall 3s ease-in forwards`;
-document.body.appendChild(el);
-setTimeout(()=>el.remove(),3000);
-},i*100);
-}
 
 function setupMusic(){
 const btn=document.createElement('button');
@@ -52,7 +19,6 @@ playing=!playing;
 });
 document.body.appendChild(btn);
 document.body.appendChild(audio);
-
 document.getElementById('enterCasino')?.addEventListener('click',()=>{
 setTimeout(()=>{
 if(!playing){
@@ -154,6 +120,29 @@ gain.gain.linearRampToValueAtTime(volume,ctx.currentTime+0.01);
 gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+duration);
 osc.start(ctx.currentTime);osc.stop(ctx.currentTime+duration);
 }catch(e){}
+}
+
+function createRain(icon,count){
+for(let i=0;i<count;i++)setTimeout(()=>{
+const el=document.createElement('div');
+el.innerHTML=icon;
+el.style.cssText=`position:fixed;font-size:${Math.random()*10+15}px;pointer-events:none;z-index:999;left:${Math.random()*100}%;top:-50px;animation:fall 3s ease-in forwards`;
+document.body.appendChild(el);
+setTimeout(()=>el.remove(),3000);
+},i*100);
+}
+
+function createCelebration(icon,count){
+for(let i=0;i<count;i++){
+const el=document.createElement('div');
+el.innerHTML=icon;
+el.style.cssText=`position:fixed;font-size:20px;pointer-events:none;z-index:1000;left:50%;top:20%;animation:explode 1.5s ease-out forwards`;
+const angle=(Math.PI*2*i)/count,distance=Math.random()*100+80;
+el.style.setProperty('--dx',Math.cos(angle)*distance+'px');
+el.style.setProperty('--dy',Math.sin(angle)*distance+'px');
+document.body.appendChild(el);
+setTimeout(()=>el.remove(),1500);
+}
 }
 
 const style=document.createElement('style');
