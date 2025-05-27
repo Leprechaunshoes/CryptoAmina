@@ -255,7 +255,15 @@ try{
 const res=await fetch(`https://mainnet-api.algonode.cloud/v2/accounts/${this.connectedAccount}`);
 const data=await res.json();
 const asset=data.assets?.find(a=>a['asset-id']===this.aminaAssetId);
-this.balance.AMINA=asset?(asset.amount/1000000):0;
+if(asset) {
+// Get asset info to check decimals
+const assetRes = await fetch(`https://mainnet-api.algonode.cloud/v2/assets/${this.aminaAssetId}`);
+const assetData = await assetRes.json();
+const decimals = assetData.params.decimals || 6;
+this.balance.AMINA = asset.amount / Math.pow(10, decimals);
+} else {
+this.balance.AMINA = 0;
+}
 this.updateDisplay();
 }catch(error){
 this.balance.AMINA=0;
