@@ -191,7 +191,7 @@ btn.onclick=()=>this.switchGame(btn.dataset.game);
 document.querySelectorAll('.game-card').forEach(card=>{
 card.onclick=()=>this.switchGame(card.dataset.game);
 });
-document.getElementById('currencyToggle').onclick=()=>this.toggleCurrency();
+// Don't control currency toggle - let HTML system handle it
 }
 
 switchGame(game){
@@ -308,6 +308,15 @@ if(bets.includes(curr))select.value=curr;
 }
 
 updateDisplay(){
+// Don't override - sync with HTML system
+if(window.currentCurrency) {
+this.currentCurrency = window.currentCurrency;
+this.isAmina = (window.currentCurrency === 'AMINA');
+}
+if(window.aminaBalance !== undefined) this.balance.AMINA = window.aminaBalance;
+if(window.hcBalance !== undefined) this.balance.HC = window.hcBalance;
+if(window.connectedWallet) this.connectedAccount = window.connectedWallet;
+
 const bal=Math.floor(this.balance[this.currentCurrency]*10000)/10000;
 document.getElementById('balanceAmount').textContent=bal;
 document.getElementById('currencySymbol').textContent=this.currentCurrency;
