@@ -7,7 +7,7 @@
 <meta name="name" content="Amina Casino">
 <link rel="stylesheet" href="style.css">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script src="https://unpkg.com/@perawallet/connect/dist/index.umd.js"></script>
+<script src="/pera-wallet.js"></script>
 </head>
 <body>
 <div class="cosmic-bg"></div>
@@ -16,18 +16,15 @@
 <div class="welcome-content">
 <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina" class="hero-coin">
 <h1 class="hero-title">AMINA CASINO</h1>
-<p class="hero-subtitle">Ultimate Cosmic Gaming Experience</p>
+<p class="hero-subtitle">Ultimate Cosmic Gaming</p>
 <div class="game-info">
-<h3>🎮 Available Games:</h3>
+<h3>🎮 Games Available:</h3>
 <div class="info-grid">
-<div class="info-item"><span class="info-icon">🎰</span><p><strong>Stellar Slots:</strong> Win up to 100x your bet</p></div>
-<div class="info-item"><span class="info-icon">🌌</span><p><strong>Quantum Plinko:</strong> Drop balls for 10x multipliers</p></div>
-<div class="info-item"><span class="info-icon">♠️</span><p><strong>Galaxy Blackjack:</strong> Beat the dealer classic style</p></div>
+<div class="info-item"><span class="info-icon">🎰</span><p><strong>Stellar Slots:</strong> Win up to 100x</p></div>
+<div class="info-item"><span class="info-icon">🌌</span><p><strong>Quantum Plinko:</strong> Drop for 10x</p></div>
+<div class="info-item"><span class="info-icon">♠️</span><p><strong>Galaxy Blackjack:</strong> Beat dealer</p></div>
 </div>
-<div class="currency-info">
-<p>💰 Start with 1000 HC or connect Pera Wallet for AMINA tokens</p>
-<p>🔗 Real wallet integration • Algorand MainNet • Secure gaming</p>
-</div>
+<div class="currency-info"><p>💰 Start with 1000 HC or connect wallet for AMINA</p></div>
 </div>
 <button id="enterCasino" class="enter-btn">🚀 ENTER CASINO</button>
 </div>
@@ -70,24 +67,24 @@
 <div class="welcome-container">
 <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina" class="welcome-coin">
 <h2 class="welcome-title">Choose Your Game</h2>
-<p class="welcome-text">Experience cosmic gaming with real wallet integration</p>
+<p class="welcome-text">Experience cosmic gaming</p>
 <div class="game-grid">
 <div class="game-card" data-game="slots">
 <div class="game-icon">🎰</div>
 <h3>Stellar Slots</h3>
-<p>Cosmic symbols align for massive wins</p>
+<p>Cosmic symbols</p>
 <div class="max-win">Max Win: 100x</div>
 </div>
 <div class="game-card" data-game="plinko">
 <div class="game-icon">🌌</div>
 <h3>Quantum Plinko</h3>
-<p>Physics-based ball drops with multipliers</p>
+<p>Physics drops</p>
 <div class="max-win">Max Win: 10x</div>
 </div>
 <div class="game-card" data-game="blackjack">
 <div class="game-icon">♠️</div>
 <h3>Galaxy Blackjack</h3>
-<p>Classic card game in space</p>
+<p>Classic cards</p>
 <div class="max-win">Max Win: 2x</div>
 </div>
 </div>
@@ -99,18 +96,14 @@
 <div class="game-header">
 <h2>🎰 Stellar Slots</h2>
 <div class="bet-controls">
-<label>Bet Amount:</label>
-<select id="slotsBet">
-<option value="1">1</option>
-<option value="5">5</option>
-<option value="10">10</option>
-</select>
+<label>Bet:</label>
+<select id="slotsBet"><option value="1">1</option><option value="5">5</option><option value="10">10</option></select>
 <span id="slotsCurrency">HC</span>
 </div>
 </div>
 <div class="slots-machine">
 <div class="slots-grid" id="slotsGrid"></div>
-<button id="spinBtn" class="cosmic-btn">🎰 SPIN</button>
+<button id="spinBtn" class="cosmic-btn">SPIN</button>
 </div>
 <div id="slotsResult" class="game-result"></div>
 </div>
@@ -121,12 +114,8 @@
 <div class="game-header">
 <h2>🌌 Quantum Plinko</h2>
 <div class="bet-controls">
-<label>Bet Amount:</label>
-<select id="plinkoBet">
-<option value="1">1</option>
-<option value="5">5</option>
-<option value="10">10</option>
-</select>
+<label>Bet:</label>
+<select id="plinkoBet"><option value="1">1</option><option value="5">5</option><option value="10">10</option></select>
 <span id="plinkoCurrency">HC</span>
 </div>
 </div>
@@ -151,7 +140,7 @@
 <div class="multiplier" data-mult="10">10x</div>
 </div>
 </div>
-<button id="dropBtn" class="cosmic-btn">🌌 DROP BALL</button>
+<button id="dropBtn" class="cosmic-btn">DROP BALL</button>
 </div>
 <div id="plinkoResult" class="game-result"></div>
 </div>
@@ -162,12 +151,8 @@
 <div class="game-header">
 <h2>♠️ Galaxy Blackjack</h2>
 <div class="bet-controls">
-<label>Bet Amount:</label>
-<select id="blackjackBet">
-<option value="1">1</option>
-<option value="5">5</option>
-<option value="10">10</option>
-</select>
+<label>Bet:</label>
+<select id="blackjackBet"><option value="1">1</option><option value="5">5</option><option value="10">10</option></select>
 <span id="blackjackCurrency">HC</span>
 </div>
 </div>
@@ -181,10 +166,10 @@
 <div id="playerCards" class="card-container"></div>
 </div>
 <div class="game-controls">
-<button id="dealBtn" class="cosmic-btn">♠️ DEAL</button>
-<button id="hitBtn" class="cosmic-btn" disabled>📈 HIT</button>
-<button id="standBtn" class="cosmic-btn" disabled>✋ STAND</button>
-<button id="newGameBtn" class="cosmic-btn" style="display:none">🆕 NEW GAME</button>
+<button id="dealBtn" class="cosmic-btn">DEAL</button>
+<button id="hitBtn" class="cosmic-btn" disabled>HIT</button>
+<button id="standBtn" class="cosmic-btn" disabled>STAND</button>
+<button id="newGameBtn" class="cosmic-btn" style="display:none">NEW GAME</button>
 </div>
 <div id="blackjackResult" class="game-result"></div>
 </div>
@@ -199,7 +184,7 @@
 <button class="modal-close" onclick="closeDonationModal()">&times;</button>
 </div>
 <div class="modal-body">
-<p>Support the cosmic casino with ALGO donations!</p>
+<p>Support cosmic gaming with ALGO donations!</p>
 <div class="donation-coins-display">
 <div class="donation-coin">
 <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina" class="donation-coin-image">
@@ -212,12 +197,12 @@
 </div>
 </div>
 <div class="wallet-section">
-<label>🎯 Send ALGO to Developer:</label>
+<label>🎯 Send ALGO to:</label>
 <div class="wallet-input-group">
 <input type="text" id="donationWallet" value="6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI" readonly>
-<button class="copy-btn" onclick="copyDonationAddress()">📋 Copy</button>
+<button class="copy-btn" onclick="copyDonationAddress()">Copy</button>
 </div>
-<p class="donation-note">💫 Your donations help maintain and improve the casino experience!</p>
+<p class="donation-note">💫 Donations keep the cosmic casino running!</p>
 </div>
 </div>
 </div>
@@ -226,12 +211,7 @@
 <script>
 function showDonationModal(){document.getElementById('donationModal').style.display='flex'}
 function closeDonationModal(){document.getElementById('donationModal').style.display='none'}
-function copyDonationAddress(){
-const wallet=document.getElementById('donationWallet');
-wallet.select();
-document.execCommand('copy');
-alert('✅ Donation address copied to clipboard! 🚀');
-}
+function copyDonationAddress(){const wallet=document.getElementById('donationWallet');wallet.select();document.execCommand('copy');alert('Address copied! 🚀')}
 document.addEventListener('DOMContentLoaded',function(){
 document.getElementById('enterCasino').addEventListener('click',function(){
 document.getElementById('welcomeScreen').classList.remove('active');
