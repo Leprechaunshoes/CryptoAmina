@@ -257,6 +257,19 @@ alert('Invalid wallet address');
 });
 
 document.getElementById('currencyToggle').addEventListener('click', toggleCurrency);
+
+// Sync with scripts.js when it loads
+setTimeout(() => {
+if(window.aminaCasino) {
+window.aminaCasino.balance.HC = hcBalance;
+window.aminaCasino.balance.AMINA = aminaBalance;
+window.aminaCasino.currentCurrency = currentCurrency;
+window.aminaCasino.connectedAccount = connectedWallet;
+window.aminaCasino.isAmina = (currentCurrency === 'AMINA');
+window.aminaCasino.updateDisplay();
+}
+}, 1000);
+
 updateDisplay();
 });
 
@@ -287,6 +300,14 @@ text.textContent = 'HC';
 }
 updateDisplay();
 updateBets();
+
+// Sync with scripts.js
+if(window.aminaCasino) {
+window.aminaCasino.currentCurrency = currentCurrency;
+window.aminaCasino.isAmina = (currentCurrency === 'AMINA');
+window.aminaCasino.updateDisplay();
+window.aminaCasino.updateBets();
+}
 }
 
 function updateBets() {
@@ -314,6 +335,14 @@ document.getElementById('currencySymbol').textContent = currentCurrency;
 const el = document.getElementById(game + 'Currency');
 if(el) el.textContent = currentCurrency;
 });
+
+// Update scripts.js casino object if it exists
+if(window.aminaCasino) {
+window.aminaCasino.balance.HC = hcBalance;
+window.aminaCasino.balance.AMINA = aminaBalance;
+window.aminaCasino.currentCurrency = currentCurrency;
+window.aminaCasino.connectedAccount = connectedWallet;
+}
 }
 
 async function fetchAminaBalance(address) {
