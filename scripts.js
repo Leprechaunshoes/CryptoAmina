@@ -9,19 +9,15 @@ this.connectedAccount=null;
 this.myAlgoWallet=null;
 this.casinoWallet='6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI';
 this.aminaAssetId=1107424865;
-this.initialized=false;
+setTimeout(()=>this.init(),500);
 }
 
-initializeCasino(){
-if(this.initialized)return;
-this.initialized=true;
-setTimeout(()=>this.init(),100);
-}
+
 
 async init(){
 this.setupUI();
 this.setupGames();
-this.addWalletButton();
+this.setupWalletButton();
 this.updateDisplay();
 this.initMyAlgo();
 this.initEffects();
@@ -205,15 +201,11 @@ document.querySelector(`[data-game="${game}"]`).classList.add('active');
 if(game==='plinko')setTimeout(()=>this.initPlinko(),100);
 }
 
-addWalletButton(){
-const controls=document.querySelector('.header-controls');
-if(!controls||document.getElementById('walletBtn'))return;
-const btn=document.createElement('button');
-btn.id='walletBtn';
-btn.className='wallet-btn';
-btn.innerHTML='🔗 Connect Wallet';
+setupWalletButton(){
+const btn=document.getElementById('walletBtn');
+if(btn){
 btn.onclick=()=>this.toggleWallet();
-controls.insertBefore(btn,controls.firstChild);
+}
 }
 
 async toggleWallet(){
