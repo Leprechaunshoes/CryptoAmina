@@ -1,4 +1,4 @@
-// scripts.js - Clean & Minimal
+// scripts.js - Enhanced with Full Pera Wallet Integration
 class AminaCasino{
 constructor(){
 this.balance={HC:1000,AMINA:0};
@@ -7,6 +7,7 @@ this.isAmina=false;
 this.slotSymbols=['⭐','🌟','💫','🌌','🪐','🌙','☄️','🚀','👽','🛸'];
 this.connectedAccount=null;
 this.peraWallet=null;
+this.aminaAssetId=1107424865;
 if(document.readyState==='loading'){
 document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>this.init().catch(console.error),500));
 }else{
@@ -19,15 +20,29 @@ this.setupUI();
 this.setupGames();
 this.addWalletButton();
 this.updateDisplay();
-this.initPera();
+await this.initPera();
+await this.reconnectSession();
 }
 
-initPera(){
-setTimeout(()=>{
+async initPera(){
 if(window.PeraWalletConnect){
-this.peraWallet=new window.PeraWalletConnect();
+this.peraWallet=new window.PeraWalletConnect({chainId:416001});
 }
-},1000);
+}
+
+async reconnectSession(){
+if(!this.peraWallet) return;
+try{
+const accounts=await this.peraWallet.reconnectSession();
+if(accounts.length>0){
+this.connectedAccount=accounts[0];
+this.peraWallet.connector?.on("disconnect",()=>this.handleDisconnect());
+this.updateWalletUI();
+await this.fetchBalance();
+}
+}catch(error){
+console.log('No previous session');
+}
 }
 
 setupUI(){
@@ -58,32 +73,38 @@ btn.onclick=()=>this.toggleWallet();
 controls.insertBefore(btn,controls.firstChild);
 }
 
-toggleWallet(){
+async toggleWallet(){
 if(!this.peraWallet)return;
 try{
 if(this.connectedAccount){
-this.peraWallet.disconnect();
+await this.peraWallet.disconnect();
+this.handleDisconnect();
+}else{
+const accounts=await this.peraWallet.connect();
+if(accounts?.length>0){
+this.connectedAccount=accounts[0];
+this.peraWallet.connector?.on("disconnect",()=>this.handleDisconnect());
+this.updateWalletUI();
+await this.fetchBalance();
+this.notify('🎉 Wallet Connected!','success');
+if(window.createWalletCelebration)window.createWalletCelebration();
+}
+}
+}catch(error){
+if(error?.data?.type!=="CONNECT_MODAL_CLOSED"){
+console.log('Connection error:',error);
+this.notify('❌ Connection failed','error');
+}
+}
+}
+
+handleDisconnect(){
 this.connectedAccount=null;
 this.balance.AMINA=0;
 if(this.isAmina)this.toggleCurrency();
 this.updateWalletUI();
 this.updateDisplay();
-}else{
-this.peraWallet.connect().then((accounts)=>{
-if(accounts?.length>0){
-this.connectedAccount=accounts[0];
-this.updateWalletUI();
-this.fetchBalance();
-}
-}).catch((error)=>{
-if(error?.data?.type!=="CONNECT_MODAL_CLOSED"){
-console.log('Connection error:',error);
-}
-});
-}
-}catch(error){
-console.log('Wallet error:',error);
-}
+this.notify('🔌 Wallet Disconnected','info');
 }
 
 updateWalletUI(){
@@ -91,9 +112,11 @@ const btn=document.getElementById('walletBtn');
 if(!btn)return;
 if(this.connectedAccount){
 const shortAddr=`${this.connectedAccount.slice(0,4)}...${this.connectedAccount.slice(-4)}`;
-btn.innerHTML=`🔓 ${shortAddr}`;
+btn.innerHTML=`✅ ${shortAddr}`;
+btn.style.background='linear-gradient(135deg,#4CAF50,#8BC34A)';
 }else{
 btn.innerHTML='🔗 Connect Wallet';
+btn.style.background='linear-gradient(135deg,var(--cp),var(--cm))';
 }
 }
 
@@ -102,11 +125,12 @@ if(!this.connectedAccount)return;
 try{
 const res=await fetch(`https://mainnet-api.algonode.cloud/v2/accounts/${this.connectedAccount}`);
 const data=await res.json();
-const asset=data.assets?.find(a=>a['asset-id']===1107424865);
-this.balance.AMINA=asset?(asset.amount/1000000):0;
+const aminaAsset=data.assets?.find(a=>a['asset-id']===this.aminaAssetId);
+this.balance.AMINA=aminaAsset?(aminaAsset.amount/1000000):0;
 this.updateDisplay();
 }catch(e){
 this.balance.AMINA=0;
+console.log('Balance fetch error:',e);
 }
 }
 
@@ -130,7 +154,7 @@ this.updateBets();
 }
 
 updateBets(){
-const bets=this.isAmina?['0.25','0.5','0.75','1','1.25','1.5']:['1','5','10'];
+const bets=this.isAmina?['0.1','0.25','0.5','1','2.5']:['1','5','10','25','50'];
 ['slots','plinko','blackjack'].forEach(game=>{
 const select=document.getElementById(`${game}Bet`);
 if(select){
@@ -142,6 +166,7 @@ opt.value=opt.textContent=bet;
 select.appendChild(opt);
 });
 if(bets.includes(curr))select.value=curr;
+else select.value=bets[0];
 }
 });
 }
@@ -158,7 +183,7 @@ if(el)el.textContent=this.currentCurrency;
 
 async deductBalance(amt){
 if(this.balance[this.currentCurrency]<amt)return false;
-this.balance[this.currentCurrency]-=amt;
+this.balance[this.currentCurrency]=Math.max(0,this.balance[this.currentCurrency]-amt);
 this.animateBalance('lose');
 this.updateDisplay();
 return true;
