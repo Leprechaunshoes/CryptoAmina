@@ -4,11 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Amina Casino</title>
-<meta name="name" content="Amina Casino">
 <link rel="stylesheet" href="style.css">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script src="https://cdn.jsdelivr.net/npm/algosdk@2.7.0/dist/browser/algosdk.min.js"></script>
-<script src="https://unpkg.com/@randlabs/myalgo-connect@1.4.2/lib/main.js"></script>
 </head>
 <body>
 <div class="cosmic-bg"></div>
@@ -211,24 +208,127 @@
 </div>
 
 <script>
-// Simple welcome screen handler
+// Welcome screen
+document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('enterCasino').addEventListener('click', function() {
-  document.getElementById('welcomeScreen').classList.remove('active');
-  document.getElementById('mainCasino').classList.add('active');
+document.getElementById('welcomeScreen').classList.remove('active');
+document.getElementById('mainCasino').classList.add('active');
+});
 });
 
 // Donation functions
 function showDonationModal(){document.getElementById('donationModal').style.display='flex'}
 function closeDonationModal(){document.getElementById('donationModal').style.display='none'}
 function copyDonationAddress(){
-  const wallet=document.getElementById('donationWallet');
-  wallet.select();
-  document.execCommand('copy');
-  alert('Address copied! 🚀');
+const wallet=document.getElementById('donationWallet');
+wallet.select();
+document.execCommand('copy');
+alert('Address copied! 🚀');
+}
+
+// Simple wallet integration - NO EXTERNAL LIBRARIES
+let connectedWallet = null;
+let aminaBalance = 0;
+let currentCurrency = 'HC';
+let hcBalance = 1000;
+
+document.addEventListener('DOMContentLoaded', function() {
+document.getElementById('walletBtn').addEventListener('click', function() {
+if(connectedWallet) {
+// Disconnect
+connectedWallet = null;
+aminaBalance = 0;
+if(currentCurrency === 'AMINA') toggleCurrency();
+updateWalletUI();
+updateDisplay();
+alert('Wallet disconnected');
+} else {
+// Connect - ask for wallet address
+const address = prompt('Enter your Algorand wallet address:');
+if(address && address.length === 58) {
+connectedWallet = address;
+fetchAminaBalance(address);
+updateWalletUI();
+alert('Wallet connected! 🚀');
+} else if(address) {
+alert('Invalid wallet address');
+}
+}
+});
+
+document.getElementById('currencyToggle').addEventListener('click', toggleCurrency);
+updateDisplay();
+});
+
+function updateWalletUI() {
+const btn = document.getElementById('walletBtn');
+if(connectedWallet) {
+const short = connectedWallet.slice(0,4) + '...' + connectedWallet.slice(-4);
+btn.innerHTML = '🔓 ' + short;
+} else {
+btn.innerHTML = '🔗 Connect Wallet';
+}
+}
+
+function toggleCurrency() {
+if(currentCurrency === 'HC' && !connectedWallet) {
+alert('🔗 Connect wallet for AMINA!');
+return;
+}
+currentCurrency = currentCurrency === 'HC' ? 'AMINA' : 'HC';
+const toggle = document.getElementById('currencyToggle');
+const text = document.querySelector('.currency-text');
+if(currentCurrency === 'AMINA') {
+toggle.classList.add('amina');
+text.textContent = 'AMINA';
+} else {
+toggle.classList.remove('amina');
+text.textContent = 'HC';
+}
+updateDisplay();
+updateBets();
+}
+
+function updateBets() {
+const bets = currentCurrency === 'AMINA' ? ['0.25','0.5','0.75','1','1.25','1.5'] : ['1','5','10'];
+['slots','plinko','blackjack'].forEach(game => {
+const select = document.getElementById(game + 'Bet');
+if(select) {
+const curr = select.value;
+select.innerHTML = '';
+bets.forEach(bet => {
+const opt = document.createElement('option');
+opt.value = opt.textContent = bet;
+select.appendChild(opt);
+});
+if(bets.includes(curr)) select.value = curr;
+}
+});
+}
+
+function updateDisplay() {
+const balance = currentCurrency === 'HC' ? hcBalance : aminaBalance;
+document.getElementById('balanceAmount').textContent = balance.toFixed(4);
+document.getElementById('currencySymbol').textContent = currentCurrency;
+['slots','plinko','blackjack'].forEach(game => {
+const el = document.getElementById(game + 'Currency');
+if(el) el.textContent = currentCurrency;
+});
+}
+
+async function fetchAminaBalance(address) {
+try {
+const res = await fetch('https://mainnet-api.algonode.cloud/v2/accounts/' + address);
+const data = await res.json();
+const asset = data.assets?.find(a => a['asset-id'] === 1107424865);
+aminaBalance = asset ? (asset.amount / 1000000) : 0;
+updateDisplay();
+} catch(error) {
+aminaBalance = 0;
+updateDisplay();
+}
 }
 </script>
-
 <script src="scripts.js"></script>
-
 </body>
 </html>
