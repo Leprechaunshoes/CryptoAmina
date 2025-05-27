@@ -1,4 +1,4 @@
-// scripts.js - Mobile-Optimized Pera Wallet Integration
+// scripts.js - Clean WalletConnect Integration
 class AminaCasino{
 constructor(){
 this.balance={HC:1000,AMINA:0};
@@ -6,15 +6,10 @@ this.currentCurrency='HC';
 this.isAmina=false;
 this.slotSymbols=['⭐','🌟','💫','🌌','🪐','🌙','☄️','🚀','👽','🛸'];
 this.connectedAccount=null;
-this.peraWallet=null;
+this.connector=null;
 this.casinoWallet='6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI';
 this.aminaAssetId=1107424865;
-this.isMobile=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-if(document.readyState==='loading'){
-document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>this.init().catch(console.error),800));
-}else{
-setTimeout(()=>this.init().catch(console.error),800);
-}
+setTimeout(()=>this.init(),1000);
 }
 
 async init(){
@@ -22,36 +17,34 @@ this.setupUI();
 this.setupGames();
 this.addWalletButton();
 this.updateDisplay();
-setTimeout(() => this.initPera(), 1500);
+this.initWalletConnect();
 }
 
-initPera(){
-const initWallet = () => {
-if (typeof window.PeraWalletConnect !== 'undefined') {
-try {
-this.peraWallet = new window.PeraWalletConnect({
-shouldShowSignTxnToast: false,
-compactMode: this.isMobile
+initWalletConnect(){
+if(typeof WalletConnect !== 'undefined'){
+this.connector = new WalletConnect({
+bridge: "https://bridge.walletconnect.org",
+qrcodeModal: QRCodeModal
 });
-console.log('✅ Pera Wallet initialized for', this.isMobile ? 'mobile' : 'desktop');
-this.peraWallet.connector?.on("disconnect", () => {
+this.connector.on("connect", (error, payload) => {
+if (error) throw error;
+this.connectedAccount = payload.params[0].accounts[0];
+this.updateWalletUI();
+this.fetchBalance();
+this.notify('Wallet connected! 🚀','success');
+if(window.createWalletCelebration)window.createWalletCelebration();
+});
+this.connector.on("disconnect", (error, payload) => {
+if (error) throw error;
 this.connectedAccount = null;
 this.balance.AMINA = 0;
 if(this.isAmina) this.toggleCurrency();
 this.updateWalletUI();
 this.updateDisplay();
-console.log('🔓 Wallet disconnected');
 });
-} catch (error) {
-console.error('❌ Pera Wallet init error:', error);
-setTimeout(initWallet, 1000);
+}else{
+setTimeout(()=>this.initWalletConnect(),500);
 }
-} else {
-console.log('⏳ Waiting for PeraWalletConnect...');
-setTimeout(initWallet, 500);
-}
-};
-initWallet();
 }
 
 setupUI(){
@@ -80,46 +73,21 @@ btn.className='wallet-btn';
 btn.innerHTML='🔗 Connect Wallet';
 btn.onclick=()=>this.toggleWallet();
 controls.insertBefore(btn,controls.firstChild);
-console.log('🔗 Wallet button added');
 }
 
 async toggleWallet(){
-console.log('🖱️ Wallet button clicked');
-if(!this.peraWallet){
-console.log('⚠️ Pera Wallet not ready');
-this.notify('Wallet loading... Please wait a moment and try again.','info');
+if(!this.connector){
+this.notify('Wallet loading...','info');
 return;
 }
 try{
 if(this.connectedAccount){
-console.log('🔓 Disconnecting wallet...');
-await this.peraWallet.disconnect();
+await this.connector.killSession();
 }else{
-console.log('🔗 Connecting wallet...');
-this.notify('Opening Pera Wallet...','info');
-const accounts = await this.peraWallet.connect();
-console.log('📱 Connection result:', accounts);
-if(accounts?.length>0){
-this.connectedAccount=accounts[0];
-console.log('✅ Connected to:', this.connectedAccount);
-this.updateWalletUI();
-await this.fetchBalance();
-this.notify('Wallet connected successfully! 🚀','success');
-if(window.createWalletCelebration)window.createWalletCelebration();
-}else{
-console.log('❌ No accounts returned');
-this.notify('No wallet accounts found','error');
-}
+await this.connector.createSession();
 }
 }catch(error){
-console.log('💥 Wallet connection error:', error);
-if(error?.message?.includes('User rejected')||error?.data?.type==="CONNECT_MODAL_CLOSED"){
-console.log('👤 User cancelled connection');
-this.notify('Connection cancelled by user','info');
-}else{
-console.error('❌ Wallet error details:', error);
-this.notify(`Connection failed: ${error.message || 'Unknown error'}`,'error');
-}
+this.notify('Connection failed. Please try again.','error');
 }
 }
 
@@ -129,50 +97,29 @@ if(!btn)return;
 if(this.connectedAccount){
 const shortAddr=`${this.connectedAccount.slice(0,4)}...${this.connectedAccount.slice(-4)}`;
 btn.innerHTML=`🔓 ${shortAddr}`;
-btn.style.background='linear-gradient(135deg,#4CAF50,#45a049)';
 }else{
 btn.innerHTML='🔗 Connect Wallet';
-btn.style.background='linear-gradient(135deg,var(--cp),var(--cm))';
 }
 }
 
 async fetchBalance(){
-if(!this.connectedAccount){
-console.log('❌ No connected account for balance fetch');
-return;
-}
+if(!this.connectedAccount)return;
 try{
-console.log('💰 Fetching balance for:', this.connectedAccount);
-const res=await fetch(`https://mainnet-api.algonode.cloud/v2/accounts/${this.connectedAccount}`,{
-method: 'GET',
-headers: {'Accept': 'application/json'}
-});
-if(!res.ok){
-throw new Error(`API responded with status: ${res.status}`);
-}
+const res=await fetch(`https://mainnet-api.algonode.cloud/v2/accounts/${this.connectedAccount}`);
 const data=await res.json();
-console.log('📊 Account data received');
 const asset=data.assets?.find(a=>a['asset-id']===this.aminaAssetId);
-const oldBalance = this.balance.AMINA;
 this.balance.AMINA=asset?(asset.amount/1000000):0;
-console.log(`💎 AMINA balance: ${oldBalance} → ${this.balance.AMINA}`);
 this.updateDisplay();
 }catch(error){
-console.error('💥 Balance fetch failed:', error);
-this.notify('Could not load balance. Please refresh.','error');
 this.balance.AMINA=0;
 this.updateDisplay();
 }
 }
 
 toggleCurrency(){
-if(!this.isAmina&&!this.connectedAccount){
-this.notify('🔗 Connect wallet to use AMINA!','error');
-return;
-}
+if(!this.isAmina&&!this.connectedAccount)return this.notify('🔗 Connect wallet for AMINA!','error');
 this.isAmina=!this.isAmina;
 this.currentCurrency=this.isAmina?'AMINA':'HC';
-console.log(`💱 Currency switched to: ${this.currentCurrency}`);
 const toggle=document.getElementById('currencyToggle');
 const text=document.querySelector('.currency-text');
 if(this.isAmina){
@@ -219,10 +166,7 @@ async deductBalance(amt){
 if(this.isAmina && this.connectedAccount){
 return await this.sendAminaBet(amt);
 }else{
-if(this.balance[this.currentCurrency]<amt){
-this.notify(`Insufficient ${this.currentCurrency} balance!`,'error');
-return false;
-}
+if(this.balance[this.currentCurrency]<amt)return false;
 this.balance[this.currentCurrency]-=amt;
 this.animateBalance('lose');
 this.updateDisplay();
@@ -231,17 +175,12 @@ return true;
 }
 
 async sendAminaBet(amount){
-if(!this.peraWallet || !this.connectedAccount){
-this.notify('Wallet not connected!','error');
-return false;
-}
+if(!this.connector || !this.connectedAccount)return false;
 if(this.balance.AMINA < amount){
 this.notify('Insufficient AMINA balance!','error');
 return false;
 }
 try{
-console.log(`🎰 Placing AMINA bet: ${amount}`);
-this.notify('Preparing transaction...','info');
 const algodClient = new algosdk.Algodv2('', 'https://mainnet-api.algonode.cloud', '');
 const params = await algodClient.getTransactionParams().do();
 const txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
@@ -249,55 +188,28 @@ from: this.connectedAccount,
 to: this.casinoWallet,
 amount: Math.round(amount * 1000000),
 assetIndex: this.aminaAssetId,
-suggestedParams: params,
-note: new Uint8Array(Buffer.from(`AminaCasino-Bet-${Date.now()}`))
+suggestedParams: params
 });
-console.log('📝 Transaction created, requesting signature...');
-this.notify('Please approve transaction in Pera Wallet','info');
-const signedTxn = await this.peraWallet.signTransaction([txn]);
-console.log('✍️ Transaction signed, submitting...');
-this.notify('Submitting transaction...','info');
-const result = await algodClient.sendRawTransaction(signedTxn).do();
-console.log('✅ Transaction submitted:', result.txId);
+const txns = [{
+txn: Buffer.from(algosdk.encodeUnsignedTransaction(txn)).toString("base64"),
+message: "AMINA Casino Bet"
+}];
+const result = await this.connector.sendTransaction(txns);
 this.balance.AMINA -= amount;
 this.animateBalance('lose');
 this.updateDisplay();
-this.notify(`Bet placed: ${amount} AMINA 🚀`,'success');
+this.notify(`Bet placed: ${amount} AMINA`,'success');
 return true;
 }catch(error){
-console.error('💥 Bet transaction failed:', error);
-if(error.message?.includes('cancelled')||error.message?.includes('rejected')){
-this.notify('Transaction cancelled by user','info');
-}else{
-this.notify('Transaction failed. Please try again.','error');
-}
+this.notify('Transaction failed','error');
 return false;
 }
 }
 
 async addBalance(amt){
-if(this.isAmina && this.connectedAccount && amt > 0){
-await this.sendAminaWin(amt);
-}else{
 this.balance[this.currentCurrency]+=amt;
 this.animateBalance('win');
 this.updateDisplay();
-}
-}
-
-async sendAminaWin(amount){
-try{
-console.log(`🎉 Player won ${amount} AMINA`);
-this.balance.AMINA += amount;
-this.animateBalance('win');
-this.updateDisplay();
-this.notify(`Won ${amount} AMINA! 🌟`,'success');
-}catch(error){
-console.error('Win payout error:',error);
-this.balance.AMINA += amount;
-this.animateBalance('win');
-this.updateDisplay();
-}
 }
 
 animateBalance(type){
@@ -310,17 +222,16 @@ setTimeout(()=>el.classList.remove(type),1000);
 }
 
 notify(msg,type='info'){
-console.log(`🔔 ${type.toUpperCase()}: ${msg}`);
 const colors={success:'#4CAF50',error:'#F44336',info:'#FFD700'};
 const div=document.createElement('div');
 div.textContent=msg;
-div.style.cssText=`position:fixed;top:20px;right:20px;z-index:1001;background:${colors[type]};color:white;padding:1rem 2rem;border-radius:15px;font-family:'Orbitron',monospace;font-weight:700;transform:translateX(100%);transition:transform 0.3s ease;max-width:300px;word-wrap:break-word`;
+div.style.cssText=`position:fixed;top:20px;right:20px;z-index:1001;background:${colors[type]};color:white;padding:1rem 2rem;border-radius:15px;font-family:'Orbitron',monospace;font-weight:700;transform:translateX(100%);transition:transform 0.3s ease`;
 document.body.appendChild(div);
 setTimeout(()=>div.style.transform='translateX(0)',50);
 setTimeout(()=>{
 div.style.transform='translateX(100%)';
 setTimeout(()=>div.remove(),300);
-},4000);
+},3000);
 }
 
 showResult(gameId,msg,type='info'){
@@ -365,7 +276,6 @@ document.querySelector('#slots .game-container').appendChild(table);
 
 async spinSlots(){
 const bet=+document.getElementById('slotsBet').value;
-console.log(`🎰 Spinning slots with ${bet} ${this.currentCurrency} bet`);
 if(!(await this.deductBalance(bet)))return this.showResult('slots','Insufficient balance!','lose');
 const reels=document.querySelectorAll('.slot-reel');
 const btn=document.getElementById('spinBtn');
@@ -382,11 +292,9 @@ results.push(sym);
 });
 const win=this.calcSlotWin(results,bet);
 if(win>0){
-console.log(`🎉 Slots win: ${win} ${this.currentCurrency}`);
 this.addBalance(win);
 this.showResult('slots',`🌟 WIN! +${win} ${this.currentCurrency}`,'win');
 }else{
-console.log('😔 Slots loss');
 this.showResult('slots','No win this time!','lose');
 }
 btn.disabled=false;
@@ -448,7 +356,6 @@ ctx.fill();
 
 async dropPlinko(){
 const bet=+document.getElementById('plinkoBet').value;
-console.log(`🌌 Dropping plinko ball with ${bet} ${this.currentCurrency} bet`);
 if(this.dropping||!(await this.deductBalance(bet)))return this.showResult('plinko','Ball dropping or insufficient balance!','lose');
 this.dropping=true;
 const btn=document.getElementById('dropBtn');
@@ -458,7 +365,6 @@ const slot=await this.animateBall();
 const mults=[10,3,1.5,1.4,1.1,1,0.5,1,1.1,1.4,1.5,3,10];
 const mult=mults[slot]||0.5;
 const win=bet*mult;
-console.log(`🎯 Plinko result: ${mult}x multiplier, win: ${win}`);
 this.addBalance(win);
 this.showResult('plinko',`Hit ${mult}x! ${win>=bet?'Won':'Lost'} ${Math.abs(win-bet).toFixed(2)}!`,win>=bet?'win':'lose');
 document.querySelectorAll('.multiplier').forEach((m,i)=>m.classList.toggle('hit',i===slot));
@@ -523,7 +429,6 @@ const j=Math.floor(Math.random()*(i+1));
 
 async dealCards(){
 const bet=+document.getElementById('blackjackBet').value;
-console.log(`♠️ Dealing blackjack with ${bet} ${this.currentCurrency} bet`);
 if(!(await this.deductBalance(bet)))return this.showResult('blackjack','Insufficient balance!','lose');
 this.bet=bet;
 this.pHand=[this.deck.pop(),this.deck.pop()];
@@ -593,11 +498,8 @@ el.appendChild(card);
 endBJ(msg,win=0,type='info'){
 this.active=false;
 if(win>0){
-console.log(`🎉 Blackjack win: ${win} ${this.currentCurrency}`);
 this.addBalance(win);
 msg+=` +${win} ${this.currentCurrency}`;
-}else{
-console.log('😔 Blackjack loss');
 }
 this.updateBJ(true);
 this.showResult('blackjack',msg,type);
