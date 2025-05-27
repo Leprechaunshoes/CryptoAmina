@@ -19,6 +19,7 @@ this.addWalletButton();
 this.updateDisplay();
 this.initMyAlgo();
 this.initEffects();
+this.setupWelcomeScreen();
 }
 
 initMyAlgo(){
@@ -182,6 +183,16 @@ style.textContent=`
 document.head.appendChild(style);
 }
 
+setupWelcomeScreen(){
+document.getElementById('enterCasino')?.addEventListener('click',()=>{
+document.getElementById('welcomeScreen').classList.remove('active');
+setTimeout(()=>{
+document.getElementById('mainCasino').classList.add('active');
+this.createRain('🪙',6);
+},200);
+});
+}
+
 setupUI(){
 document.querySelectorAll('.nav-btn:not(.donation-btn)').forEach(btn=>{
 btn.onclick=()=>this.switchGame(btn.dataset.game);
@@ -190,13 +201,6 @@ document.querySelectorAll('.game-card').forEach(card=>{
 card.onclick=()=>this.switchGame(card.dataset.game);
 });
 document.getElementById('currencyToggle').onclick=()=>this.toggleCurrency();
-document.getElementById('enterCasino')?.addEventListener('click',()=>{
-document.getElementById('welcomeScreen').classList.remove('active');
-setTimeout(()=>{
-document.getElementById('mainCasino').classList.add('active');
-this.createRain('🪙',6);
-},200);
-});
 }
 
 switchGame(game){
