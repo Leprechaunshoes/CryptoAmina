@@ -24,9 +24,15 @@ this.initPera();
 
 initPera(){
 console.log('Starting Pera initialization...');
+const timeout = setTimeout(() => {
+console.error("PeraWalletConnect failed to load within the expected time.");
+alert("Wallet initialization failed. Please refresh the page.");
+}, 10000); // 10 seconds
+
 const waitForPera = () => {
 console.log('Checking for PeraWalletConnect...', typeof window.PeraWalletConnect);
 if (window.PeraWalletConnect) {
+clearTimeout(timeout);
 this.peraWallet = new window.PeraWalletConnect();
 console.log('Pera Wallet initialized successfully!');
 } else {
@@ -67,7 +73,7 @@ controls.insertBefore(btn,controls.firstChild);
 
 toggleWallet(){
 if(!this.peraWallet){
-alert('Wallet not ready yet, please wait...');
+alert('Wallet not ready yet, please wait or refresh the page...');
 return;
 }
 try{
@@ -89,7 +95,7 @@ alert('Connected successfully!');
 }).catch((error)=>{
 if(error?.data?.type!=="CONNECT_MODAL_CLOSED"){
 console.error('Connection error:',error);
-alert('Failed to connect to Pera Wallet. Please try again.');
+alert(`Failed to connect to Pera Wallet. Error: ${error.message || 'Unknown error'}`);
 }
 });
 }
