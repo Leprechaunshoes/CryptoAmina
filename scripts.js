@@ -73,7 +73,7 @@ controls.insertBefore(btn,controls.firstChild);
 
 toggleWallet(){
 if(!this.peraWallet){
-alert('Wallet not ready yet, please wait or refresh the page...');
+alert('Wallet not ready yet. Please wait for initialization.');
 return;
 }
 try{
@@ -84,13 +84,14 @@ this.balance.AMINA=0;
 if(this.isAmina)this.toggleCurrency();
 this.updateWalletUI();
 this.updateDisplay();
+alert('Wallet disconnected successfully!');
 }else{
 this.peraWallet.connect().then((accounts)=>{
 if(accounts?.length>0){
 this.connectedAccount=accounts[0];
 this.updateWalletUI();
 this.fetchBalance();
-alert('Connected successfully!');
+alert('Wallet connected successfully!');
 }
 }).catch((error)=>{
 if(error?.data?.type!=="CONNECT_MODAL_CLOSED"){
@@ -101,13 +102,16 @@ alert(`Failed to connect to Pera Wallet. Error: ${error.message || 'Unknown erro
 }
 }catch(error){
 console.error('Wallet error:',error);
-alert('Wallet error: '+error.message);
+alert(`Wallet error: ${error.message}`);
 }
 }
 
 updateWalletUI(){
 const btn=document.getElementById('walletBtn');
-if(!btn)return;
+if(!btn){
+console.error('Wallet button not found in the DOM.');
+return;
+}
 if(this.connectedAccount){
 const shortAddr=`${this.connectedAccount.slice(0,4)}...${this.connectedAccount.slice(-4)}`;
 btn.innerHTML=`🔓 ${shortAddr}`;
@@ -120,12 +124,16 @@ async fetchBalance(){
 if(!this.connectedAccount)return;
 try{
 const res=await fetch(`https://mainnet-api.algonode.cloud/v2/accounts/${this.connectedAccount}`);
+if(!res.ok)throw new Error(`API error: ${res.status}`);
 const data=await res.json();
 const asset=data.assets?.find(a=>a['asset-id']===1107424865);
 this.balance.AMINA=asset?(asset.amount/1000000):0;
-this.updateDisplay();
-}catch(e){
+}catch(error){
+console.error('Failed to fetch balance:',error);
+alert('Could not retrieve balance. Please try again later.');
 this.balance.AMINA=0;
+}finally{
+this.updateDisplay();
 }
 }
 
