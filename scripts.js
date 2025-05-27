@@ -8,8 +8,12 @@ this.slotSymbols=['⭐','🌟','💫','🌌','🪐','🌙','☄️','🚀','👽
 this.connectedAccount=null;
 this.peraWallet=null;
 if(document.readyState==='loading'){
-document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>this.init().catch(console.error),500));
+document.addEventListener('DOMContentLoaded',()=>{
+console.log('DOM fully loaded and parsed.');
+setTimeout(()=>this.init().catch(console.error),500);
+});
 }else{
+console.log('DOM already loaded.');
 setTimeout(()=>this.init().catch(console.error),500);
 }
 }
@@ -62,7 +66,9 @@ if(game==='plinko')setTimeout(()=>this.initPlinko(),100);
 }
 
 addWalletButton(){
+console.log('Adding wallet button...');
 const controls=document.querySelector('.header-controls');
+console.log('Header controls found:', !!controls);
 if(!controls||document.getElementById('walletBtn'))return;
 const btn=document.createElement('button');
 btn.id='walletBtn';
@@ -70,10 +76,14 @@ btn.className='wallet-btn';
 btn.innerHTML='🔗 Connect Wallet';
 btn.onclick=()=>this.toggleWallet();
 controls.insertBefore(btn,controls.firstChild);
+console.log('Wallet button added successfully');
 }
 
 toggleWallet(){
+console.log('toggleWallet called. peraWallet status:', !!this.peraWallet);
+console.log('PeraWalletConnect availability:', typeof window.PeraWalletConnect);
 if(!this.peraWallet){
+console.warn('Wallet not ready yet. Waiting for initialization...');
 alert('Wallet not ready yet. Please wait for initialization.');
 return;
 }
