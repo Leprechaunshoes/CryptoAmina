@@ -214,11 +214,6 @@ document.getElementById('enterCasino').addEventListener('click', function() {
 document.getElementById('welcomeScreen').classList.remove('active');
 document.getElementById('mainCasino').classList.add('active');
 });
-
-document.getElementById('getAmina').addEventListener('click', function() {
-// Simple browser redirect - no popups
-window.location.href = 'https://explorer.perawallet.app/asset/1107424865/';
-});
 });
 
 // Donation functions
@@ -231,31 +226,63 @@ document.execCommand('copy');
 alert('Address copied! 🚀');
 }
 
-// Simple wallet integration - NO EXTERNAL LIBRARIES
+// Simple wallet integration
 let connectedWallet = null;
 let aminaBalance = 0;
 let currentCurrency = 'HC';
 let hcBalance = 1000;
 
-document.addEventListener('DOMContentLoaded', function() {
-document.getElementById('getAmina').addEventListener('click', function() {
-// Open Pera Wallet to opt-in to AMINA token
-const aminaAssetId = '1107424865';
-const peraUrl = `perawallet://asset/opt-in/${aminaAssetId}`;
-const webUrl = `https://explorer.perawallet.app/asset/${aminaAssetId}/`;
-
-// Try mobile deep link first, fallback to web
-if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-window.location.href = peraUrl;
-// Fallback to web after short delay
-setTimeout(() => {
-window.open(webUrl, '_blank');
-}, 1000);
-} else {
-window.open(webUrl, '_blank');
+// Add global functions for games to use
+window.deductBalance = function(amount) {
+console.log('Deducting', amount, 'from', currentCurrency);
+const balance = currentCurrency === 'HC' ? hcBalance : aminaBalance;
+if(balance < amount) {
+alert('Insufficient ' + currentCurrency + ' balance!');
+return false;
 }
-});
+if(currentCurrency === 'HC') {
+hcBalance -= amount;
+} else {
+aminaBalance -= amount;
+}
+updateDisplay();
+return true;
+};
 
+window.addBalance = function(amount) {
+console.log('Adding', amount, 'to', currentCurrency);
+if(currentCurrency === 'HC') {
+hcBalance += amount;
+} else {
+aminaBalance += amount;
+}
+updateDisplay();
+};
+
+async function fetchAminaBalance(address) {
+try {
+const res = await fetch('https://mainnet-api.algonode.cloud/v2/accounts/' + address);
+const data = await res.json();
+const asset = data.assets?.find(a => a['asset-id'] === 1107424865);
+if(asset) {
+// Get asset info to check decimals
+const assetRes = await fetch('https://mainnet-api.algonode.cloud/v2/assets/1107424865');
+const assetData = await assetRes.json();
+const decimals = assetData.params.decimals || 6;
+aminaBalance = asset.amount / Math.pow(10, decimals);
+console.log('Raw amount:', asset.amount, 'Decimals:', decimals, 'Final balance:', aminaBalance);
+} else {
+aminaBalance = 0;
+}
+updateDisplay();
+} catch(error) {
+console.error('Balance fetch error:', error);
+aminaBalance = 0;
+updateDisplay();
+}
+}
+
+document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('walletBtn').addEventListener('click', function() {
 if(connectedWallet) {
 // Disconnect
@@ -365,56 +392,6 @@ window.aminaCasino.balance.HC = hcBalance;
 window.aminaCasino.balance.AMINA = aminaBalance;
 window.aminaCasino.currentCurrency = currentCurrency;
 window.aminaCasino.connectedAccount = connectedWallet;
-}
-}
-
-// Add global functions for games to use
-window.deductBalance = function(amount) {
-console.log('Deducting', amount, 'from', currentCurrency);
-const balance = currentCurrency === 'HC' ? hcBalance : aminaBalance;
-if(balance < amount) {
-alert('Insufficient ' + currentCurrency + ' balance!');
-return false;
-}
-if(currentCurrency === 'HC') {
-hcBalance -= amount;
-} else {
-aminaBalance -= amount;
-}
-updateDisplay();
-return true;
-};
-
-window.addBalance = function(amount) {
-console.log('Adding', amount, 'to', currentCurrency);
-if(currentCurrency === 'HC') {
-hcBalance += amount;
-} else {
-aminaBalance += amount;
-}
-updateDisplay();
-};
-
-async function fetchAminaBalance(address) {
-try {
-const res = await fetch('https://mainnet-api.algonode.cloud/v2/accounts/' + address);
-const data = await res.json();
-const asset = data.assets?.find(a => a['asset-id'] === 1107424865);
-if(asset) {
-// Get asset info to check decimals
-const assetRes = await fetch('https://mainnet-api.algonode.cloud/v2/assets/1107424865');
-const assetData = await assetRes.json();
-const decimals = assetData.params.decimals || 6;
-aminaBalance = asset.amount / Math.pow(10, decimals);
-console.log('Raw amount:', asset.amount, 'Decimals:', decimals, 'Final balance:', aminaBalance);
-} else {
-aminaBalance = 0;
-}
-updateDisplay();
-} catch(error) {
-console.error('Balance fetch error:', error);
-aminaBalance = 0;
-updateDisplay();
 }
 }
 </script>
