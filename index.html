@@ -321,9 +321,19 @@ try {
 const res = await fetch('https://mainnet-api.algonode.cloud/v2/accounts/' + address);
 const data = await res.json();
 const asset = data.assets?.find(a => a['asset-id'] === 1107424865);
-aminaBalance = asset ? (asset.amount / 1000000) : 0;
+if(asset) {
+// Get asset info to check decimals
+const assetRes = await fetch('https://mainnet-api.algonode.cloud/v2/assets/1107424865');
+const assetData = await assetRes.json();
+const decimals = assetData.params.decimals || 6;
+aminaBalance = asset.amount / Math.pow(10, decimals);
+console.log('Raw amount:', asset.amount, 'Decimals:', decimals, 'Final balance:', aminaBalance);
+} else {
+aminaBalance = 0;
+}
 updateDisplay();
 } catch(error) {
+console.error('Balance fetch error:', error);
 aminaBalance = 0;
 updateDisplay();
 }
