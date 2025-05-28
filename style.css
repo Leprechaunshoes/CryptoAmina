@@ -202,7 +202,7 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 .game-controls{display:flex;justify-content:center;gap:.8rem;margin:1.5rem 0;flex-wrap:wrap}
 
 /* HI-LO GAME STYLES */
-.hilo-table{display:flex;flex-direction:column;align-items:center;gap:1.5rem;padding:1rem;width:100%;max-width:100%;overflow:hidden;flex:1;justify-content:flex-start}
+.hilo-table{display:flex;flex-direction:column;align-items:center;gap:1.5rem;padding:1rem;width:100%;max-width:100%;overflow:hidden;height:100%}
 
 .current-card-section{text-align:center;width:100%;background:linear-gradient(135deg,rgba(255,215,0,.1),rgba(0,229,255,.05));padding:1rem;border-radius:16px;border:3px solid var(--cg);position:relative;flex-shrink:0}
 .current-card-section::before{content:'🎯';position:absolute;top:-12px;left:15px;font-size:1.5rem;background:var(--sb);padding:0 8px}
@@ -237,7 +237,7 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 .next-card-section .playing-card{width:80px;height:120px;border:4px solid var(--wg);box-shadow:0 12px 30px rgba(34,197,94,.4),0 0 25px rgba(34,197,94,.3);transform:scale(1.05)}
 
 /* COSMIC DICE STYLES */
-.dice-table{display:flex;flex-direction:column;align-items:center;gap:1rem;padding:.8rem;width:100%;max-width:100%;overflow:hidden;flex:1;justify-content:flex-start}
+.dice-table{display:flex;flex-direction:column;align-items:center;gap:1rem;padding:.8rem;width:100%;max-width:100%;overflow:hidden;height:100%}
 .dice-display{display:flex;justify-content:center;align-items:center;gap:1.5rem;margin:.8rem 0;padding:1rem;background:linear-gradient(135deg,rgba(34,197,94,.1),rgba(6,182,212,.1));backdrop-filter:blur(15px);border-radius:20px;border:3px solid transparent;background-clip:padding-box;position:relative;flex-shrink:0}
 .dice-display::before{content:'';position:absolute;inset:0;padding:3px;background:linear-gradient(135deg,#22c55e,#06b6d4,#3b82f6);border-radius:20px;mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask-composite:exclude;animation:diceGlow 4s ease-in-out infinite}
 .die{width:70px;height:70px;background:linear-gradient(135deg,#1f2937,#111827);border:3px solid #22c55e;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#22c55e;font-weight:900;transition:all .3s ease;box-shadow:0 8px 25px rgba(34,197,94,.3),inset 0 0 15px rgba(6,182,212,.1);position:relative;overflow:hidden}
