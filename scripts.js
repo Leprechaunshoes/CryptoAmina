@@ -380,11 +380,15 @@ document.getElementById('hitBtn').onclick=()=>this.hit();
 document.getElementById('standBtn').onclick=()=>this.stand();
 document.getElementById('newGameBtn').onclick=()=>this.newGame();
 this.initHilo();
-document.getElementById('dealHiloBtn').onclick=()=>this.dealHilo();
-document.getElementById('higherBtn').onclick=()=>this.guessHilo('higher');
-document.getElementById('lowerBtn').onclick=()=>this.guessHilo('lower');
+const dealHiloBtn = document.getElementById('dealHiloBtn');
+const higherBtn = document.getElementById('higherBtn');
+const lowerBtn = document.getElementById('lowerBtn');
+if(dealHiloBtn) dealHiloBtn.onclick=()=>this.dealHilo();
+if(higherBtn) higherBtn.onclick=()=>this.guessHilo('higher');
+if(lowerBtn) lowerBtn.onclick=()=>this.guessHilo('lower');
 this.initDice();
-document.getElementById('rollBtn').onclick=()=>this.rollDice();
+const rollBtn = document.getElementById('rollBtn');
+if(rollBtn) rollBtn.onclick=()=>this.rollDice();
 document.querySelectorAll('.bet-option').forEach(btn=>{
 btn.onclick=()=>this.selectDiceBet(btn.dataset.bet);
 });
@@ -397,12 +401,19 @@ this.resetHiloUI();
 }
 
 resetHiloUI(){
-document.getElementById('currentCard').innerHTML='<div class="playing-card">?</div>';
-document.getElementById('nextCard').innerHTML='<div class="playing-card back">🎭</div>';
-document.getElementById('dealHiloBtn').disabled=false;
-document.getElementById('higherBtn').disabled=true;
-document.getElementById('lowerBtn').disabled=true;
-document.getElementById('hiloResult').classList.remove('show');
+const currentCard = document.getElementById('currentCard');
+const nextCard = document.getElementById('nextCard');
+const dealHiloBtn = document.getElementById('dealHiloBtn');
+const higherBtn = document.getElementById('higherBtn');
+const lowerBtn = document.getElementById('lowerBtn');
+const hiloResult = document.getElementById('hiloResult');
+
+if(currentCard) currentCard.innerHTML='<div class="playing-card">?</div>';
+if(nextCard) nextCard.innerHTML='<div class="playing-card back">🎭</div>';
+if(dealHiloBtn) dealHiloBtn.disabled=false;
+if(higherBtn) higherBtn.disabled=true;
+if(lowerBtn) lowerBtn.disabled=true;
+if(hiloResult) hiloResult.classList.remove('show');
 }
 
 async dealHilo(){
@@ -411,17 +422,22 @@ if(!(await this.deductBalance(bet)))return this.showResult('hilo','Insufficient 
 this.hiloBet=bet;
 this.hiloCard=this.getRandomCard();
 this.displayCard('currentCard',this.hiloCard);
-document.getElementById('dealHiloBtn').disabled=true;
-document.getElementById('higherBtn').disabled=false;
-document.getElementById('lowerBtn').disabled=false;
+const dealHiloBtn = document.getElementById('dealHiloBtn');
+const higherBtn = document.getElementById('higherBtn');
+const lowerBtn = document.getElementById('lowerBtn');
+if(dealHiloBtn) dealHiloBtn.disabled=true;
+if(higherBtn) higherBtn.disabled=false;
+if(lowerBtn) lowerBtn.disabled=false;
 }
 
 async guessHilo(guess){
 if(!this.hiloCard)return;
 const nextCard=this.getRandomCard();
 this.displayCard('nextCard',nextCard);
-document.getElementById('higherBtn').disabled=true;
-document.getElementById('lowerBtn').disabled=true;
+const higherBtn = document.getElementById('higherBtn');
+const lowerBtn = document.getElementById('lowerBtn');
+if(higherBtn) higherBtn.disabled=true;
+if(lowerBtn) lowerBtn.disabled=true;
 const currentVal=this.getCardValue(this.hiloCard);
 const nextVal=this.getCardValue(nextCard);
 let win=false;
@@ -455,6 +471,7 @@ return parseInt(card.value);
 
 displayCard(containerId,card){
 const container=document.getElementById(containerId);
+if(!container) return;
 const cardEl=document.createElement('div');
 cardEl.className='playing-card';
 if(['♥','♦'].includes(card.suit))cardEl.classList.add('red');
@@ -470,20 +487,29 @@ this.resetDiceUI();
 }
 
 resetDiceUI(){
-document.getElementById('dice1').textContent='⚀';
-document.getElementById('dice2').textContent='⚀';
-document.getElementById('selectedBet').textContent='None';
-document.getElementById('rollBtn').disabled=true;
+const dice1 = document.getElementById('dice1');
+const dice2 = document.getElementById('dice2');
+const selectedBet = document.getElementById('selectedBet');
+const rollBtn = document.getElementById('rollBtn');
+const diceResult = document.getElementById('diceResult');
+
+if(dice1) dice1.textContent='⚀';
+if(dice2) dice2.textContent='⚀';
+if(selectedBet) selectedBet.textContent='None';
+if(rollBtn) rollBtn.disabled=true;
 document.querySelectorAll('.bet-option').forEach(btn=>btn.classList.remove('selected'));
-document.getElementById('diceResult').classList.remove('show');
+if(diceResult) diceResult.classList.remove('show');
 }
 
 selectDiceBet(bet){
 this.selectedDiceBet=bet;
 document.querySelectorAll('.bet-option').forEach(btn=>btn.classList.remove('selected'));
-document.querySelector(`[data-bet="${bet}"]`).classList.add('selected');
-document.getElementById('selectedBet').textContent=bet.toUpperCase();
-document.getElementById('rollBtn').disabled=false;
+const selectedBtn = document.querySelector(`[data-bet="${bet}"]`);
+if(selectedBtn) selectedBtn.classList.add('selected');
+const selectedBet = document.getElementById('selectedBet');
+const rollBtn = document.getElementById('rollBtn');
+if(selectedBet) selectedBet.textContent=bet.toUpperCase();
+if(rollBtn) rollBtn.disabled=false;
 }
 
 async rollDice(){
@@ -493,13 +519,20 @@ if(!(await this.deductBalance(bet)))return this.showResult('dice','Insufficient 
 const dice1=Math.floor(Math.random()*6)+1;
 const dice2=Math.floor(Math.random()*6)+1;
 const total=dice1+dice2;
-document.getElementById('dice1').classList.add('rolling');
-document.getElementById('dice2').classList.add('rolling');
+const dice1El = document.getElementById('dice1');
+const dice2El = document.getElementById('dice2');
+if(dice1El) dice1El.classList.add('rolling');
+if(dice2El) dice2El.classList.add('rolling');
 setTimeout(()=>{
-document.getElementById('dice1').textContent=['⚀','⚁','⚂','⚃','⚄','⚅'][dice1-1];
-document.getElementById('dice2').textContent=['⚀','⚁','⚂','⚃','⚄','⚅'][dice2-1];
-document.getElementById('dice1').classList.remove('rolling');
-document.getElementById('dice2').classList.remove('rolling');
+const diceSymbols = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+if(dice1El) {
+dice1El.textContent=diceSymbols[dice1-1];
+dice1El.classList.remove('rolling');
+}
+if(dice2El) {
+dice2El.textContent=diceSymbols[dice2-1];
+dice2El.classList.remove('rolling');
+}
 let win=false;
 let multiplier=1;
 if(this.selectedDiceBet==='high'&&total>=8&&total<=12){win=true;multiplier=2;}
