@@ -161,15 +161,17 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 .game-result.win{background:rgba(76,175,80,.2);border:2px solid var(--wg);color:var(--wg)}
 .game-result.lose{background:rgba(244,67,54,.2);border:2px solid var(--lr);color:var(--lr)}
 
-.slots-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;max-width:380px;margin:0 auto 1.5rem auto;background:rgba(0,0,0,.6);backdrop-filter:blur(10px);padding:1.5rem;border-radius:20px;border:3px solid var(--cg)}
-.slot-reel{width:100%;aspect-ratio:1;background:rgba(255,255,255,.05);backdrop-filter:blur(10px);border:2px solid var(--cg);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;transition:all .3s ease}
+/* SLOTS GAME STYLES */
+.slots-machine{text-align:center;width:100%}
+.slots-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:100%;width:100%;margin:0 auto 1.5rem auto;background:rgba(0,0,0,.6);backdrop-filter:blur(10px);padding:1rem;border-radius:20px;border:3px solid var(--cg)}
+.slot-reel{width:100%;aspect-ratio:1;background:rgba(255,255,255,.05);backdrop-filter:blur(10px);border:2px solid var(--cg);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;transition:all .3s ease}
 .slot-reel.spinning{animation:slotSpin .05s linear infinite}
 .slot-reel.winning{animation:slotWin 1s ease-in-out;background:var(--cg)}
 
-.payout-table{background:rgba(255,255,255,.03);backdrop-filter:blur(15px);border:2px solid var(--cg);border-radius:20px;padding:1rem;margin-top:1rem;box-shadow:0 8px 25px rgba(0,0,0,.3)}
-.payout-table h3{font-family:'JetBrains Mono',monospace;color:var(--cg);text-align:center;margin-bottom:.8rem;font-size:1.2rem}
+.payout-table{background:rgba(255,255,255,.03);backdrop-filter:blur(15px);border:2px solid var(--cg);border-radius:20px;padding:1rem;margin-top:1rem;box-shadow:0 8px 25px rgba(0,0,0,.3);width:100%;max-width:100%}
+.payout-table h3{font-family:'JetBrains Mono',monospace;color:var(--cg);text-align:center;margin-bottom:.8rem;font-size:1.1rem}
 .payout-grid{display:grid;gap:.5rem}
-.payout-row{display:flex;justify-content:space-between;align-items:center;padding:.8rem;border-radius:12px;font-weight:700;font-size:1rem;transition:all .3s ease}
+.payout-row{display:flex;justify-content:space-between;align-items:center;padding:.6rem;border-radius:12px;font-weight:700;font-size:.9rem;transition:all .3s ease}
 .payout-row.high{background:rgba(255,107,53,.2);border:2px solid #ff6b35;color:#ff6b35}
 .payout-row.med{background:rgba(255,152,0,.2);border:2px solid #ff9800;color:#ff9800}
 .payout-row.low{background:rgba(78,205,196,.2);border:2px solid #4ecdc4;color:#4ecdc4}
