@@ -214,6 +214,13 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 .enter-btn{width:100%;padding:.8rem 1.5rem;font-size:1rem;margin-top:.8rem}
 .logo{font-size:1.8rem}
 .welcome-title{font-size:2rem}
+.welcome-container .welcome-title{font-size:1.8rem}
+.welcome-container .welcome-text{font-size:1rem}
+.home-info-section{margin:1.5rem 0}
+.home-info-grid{gap:1rem}
+.home-info-card{padding:1.5rem}
+.home-info-title{font-size:1.2rem;margin-bottom:.8rem}
+.home-info-text{font-size:.9rem;line-height:1.4}
 .header-content{flex-direction:column;gap:.8rem;padding:0 1rem}
 .header-controls{gap:.8rem;flex-wrap:wrap;justify-content:center}
 .wallet-btn{font-size:.8rem;padding:.6rem 1rem}
