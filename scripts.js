@@ -1,4 +1,4 @@
-// scripts.js - Complete Casino with MyAlgo Connect + Effects
+// scripts.js - Complete Casino with Hi-Lo + Dice Games
 class AminaCasino{
 constructor(){
 this.balance={HC:1000,AMINA:0};
@@ -9,10 +9,10 @@ this.connectedAccount=null;
 this.myAlgoWallet=null;
 this.casinoWallet='6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI';
 this.aminaAssetId=1107424865;
+this.hiloCard=null;
+this.selectedDiceBet=null;
 setTimeout(()=>this.init(),500);
 }
-
-
 
 async init(){
 this.setupUI();
@@ -191,7 +191,6 @@ btn.onclick=()=>this.switchGame(btn.dataset.game);
 document.querySelectorAll('.game-card').forEach(card=>{
 card.onclick=()=>this.switchGame(card.dataset.game);
 });
-// Don't control currency toggle - let HTML system handle it
 }
 
 switchGame(game){
@@ -199,6 +198,8 @@ document.querySelectorAll('.game-screen,.nav-btn').forEach(el=>el.classList.remo
 document.getElementById(game).classList.add('active');
 document.querySelector(`[data-game="${game}"]`).classList.add('active');
 if(game==='plinko')setTimeout(()=>this.initPlinko(),100);
+if(game==='hilo')setTimeout(()=>this.initHilo(),100);
+if(game==='dice')setTimeout(()=>this.initDice(),100);
 }
 
 setupWalletButton(){
@@ -256,7 +257,6 @@ const res=await fetch(`https://mainnet-api.algonode.cloud/v2/accounts/${this.con
 const data=await res.json();
 const asset=data.assets?.find(a=>a['asset-id']===this.aminaAssetId);
 if(asset) {
-// Get asset info to check decimals
 const assetRes = await fetch(`https://mainnet-api.algonode.cloud/v2/assets/${this.aminaAssetId}`);
 const assetData = await assetRes.json();
 const decimals = assetData.params.decimals || 6;
@@ -292,7 +292,7 @@ this.updateBets();
 
 updateBets(){
 const bets=this.isAmina?['0.25','0.5','0.75','1','1.25','1.5']:['1','5','10'];
-['slots','plinko','blackjack'].forEach(game=>{
+['slots','plinko','blackjack','hilo','dice'].forEach(game=>{
 const select=document.getElementById(`${game}Bet`);
 if(select){
 const curr=select.value;
@@ -308,7 +308,6 @@ if(bets.includes(curr))select.value=curr;
 }
 
 updateDisplay(){
-// Don't override - sync with HTML system
 if(window.currentCurrency) {
 this.currentCurrency = window.currentCurrency;
 this.isAmina = (window.currentCurrency === 'AMINA');
@@ -320,52 +319,20 @@ if(window.connectedWallet) this.connectedAccount = window.connectedWallet;
 const bal=Math.floor(this.balance[this.currentCurrency]*10000)/10000;
 document.getElementById('balanceAmount').textContent=bal;
 document.getElementById('currencySymbol').textContent=this.currentCurrency;
-['slots','plinko','blackjack'].forEach(game=>{
+['slots','plinko','blackjack','hilo','dice'].forEach(game=>{
 const el=document.getElementById(`${game}Currency`);
 if(el)el.textContent=this.currentCurrency;
 });
 }
 
 async deductBalance(amt){
-// Use wallet system's deduct function
 if(window.deductBalance) {
 return window.deductBalance(amt);
 }
 return false;
 }
 
-async sendAminaBet(amount){
-if(!this.myAlgoWallet || !this.connectedAccount)return false;
-if(this.balance.AMINA < amount){
-this.notify('Insufficient AMINA balance!','error');
-return false;
-}
-try{
-const algodClient = new algosdk.Algodv2('', 'https://mainnet-api.algonode.cloud', '');
-const params = await algodClient.getTransactionParams().do();
-const txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-from: this.connectedAccount,
-to: this.casinoWallet,
-amount: Math.round(amount * 1000000),
-assetIndex: this.aminaAssetId,
-suggestedParams: params
-});
-await this.myAlgoWallet.signTransaction(txn.toByte());
-this.balance.AMINA -= amount;
-this.animateBalance('lose');
-this.updateDisplay();
-this.notify(`Bet placed: ${amount} AMINA`,'success');
-return true;
-}catch(error){
-if(!error.message.includes('cancelled')){
-this.notify('Transaction failed','error');
-}
-return false;
-}
-}
-
 async addBalance(amt){
-// Use wallet system's add function
 if(window.addBalance) {
 window.addBalance(amt);
 }
@@ -412,8 +379,144 @@ document.getElementById('dealBtn').onclick=()=>this.dealCards();
 document.getElementById('hitBtn').onclick=()=>this.hit();
 document.getElementById('standBtn').onclick=()=>this.stand();
 document.getElementById('newGameBtn').onclick=()=>this.newGame();
+this.initHilo();
+document.getElementById('dealHiloBtn').onclick=()=>this.dealHilo();
+document.getElementById('higherBtn').onclick=()=>this.guessHilo('higher');
+document.getElementById('lowerBtn').onclick=()=>this.guessHilo('lower');
+this.initDice();
+document.getElementById('rollBtn').onclick=()=>this.rollDice();
+document.querySelectorAll('.bet-option').forEach(btn=>{
+btn.onclick=()=>this.selectDiceBet(btn.dataset.bet);
+});
 }
 
+// HI-LO GAME
+initHilo(){
+this.hiloCard=null;
+this.resetHiloUI();
+}
+
+resetHiloUI(){
+document.getElementById('currentCard').innerHTML='<div class="playing-card">?</div>';
+document.getElementById('nextCard').innerHTML='<div class="playing-card back">🎭</div>';
+document.getElementById('dealHiloBtn').disabled=false;
+document.getElementById('higherBtn').disabled=true;
+document.getElementById('lowerBtn').disabled=true;
+document.getElementById('hiloResult').classList.remove('show');
+}
+
+async dealHilo(){
+const bet=+document.getElementById('hiloBet').value;
+if(!(await this.deductBalance(bet)))return this.showResult('hilo','Insufficient balance!','lose');
+this.hiloBet=bet;
+this.hiloCard=this.getRandomCard();
+this.displayCard('currentCard',this.hiloCard);
+document.getElementById('dealHiloBtn').disabled=true;
+document.getElementById('higherBtn').disabled=false;
+document.getElementById('lowerBtn').disabled=false;
+}
+
+async guessHilo(guess){
+if(!this.hiloCard)return;
+const nextCard=this.getRandomCard();
+this.displayCard('nextCard',nextCard);
+document.getElementById('higherBtn').disabled=true;
+document.getElementById('lowerBtn').disabled=true;
+const currentVal=this.getCardValue(this.hiloCard);
+const nextVal=this.getCardValue(nextCard);
+let win=false;
+if(guess==='higher'&&nextVal>currentVal)win=true;
+if(guess==='lower'&&nextVal<currentVal)win=true;
+if(nextVal===currentVal)win=false;
+if(win){
+const winAmount=this.hiloBet*2;
+this.addBalance(winAmount);
+this.showResult('hilo',`🎉 WIN! +${winAmount} ${this.currentCurrency}`,'win');
+}else{
+this.showResult('hilo','❌ Wrong guess!','lose');
+}
+setTimeout(()=>this.resetHiloUI(),3000);
+}
+
+getRandomCard(){
+const suits=['♠','♥','♦','♣'];
+const values=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+return{
+suit:suits[Math.floor(Math.random()*suits.length)],
+value:values[Math.floor(Math.random()*values.length)]
+};
+}
+
+getCardValue(card){
+if(card.value==='A')return 1;
+if(['J','Q','K'].includes(card.value))return 11;
+return parseInt(card.value);
+}
+
+displayCard(containerId,card){
+const container=document.getElementById(containerId);
+const cardEl=document.createElement('div');
+cardEl.className='playing-card';
+if(['♥','♦'].includes(card.suit))cardEl.classList.add('red');
+cardEl.innerHTML=`${card.value}<br>${card.suit}`;
+container.innerHTML='';
+container.appendChild(cardEl);
+}
+
+// DICE GAME
+initDice(){
+this.selectedDiceBet=null;
+this.resetDiceUI();
+}
+
+resetDiceUI(){
+document.getElementById('dice1').textContent='⚀';
+document.getElementById('dice2').textContent='⚀';
+document.getElementById('selectedBet').textContent='None';
+document.getElementById('rollBtn').disabled=true;
+document.querySelectorAll('.bet-option').forEach(btn=>btn.classList.remove('selected'));
+document.getElementById('diceResult').classList.remove('show');
+}
+
+selectDiceBet(bet){
+this.selectedDiceBet=bet;
+document.querySelectorAll('.bet-option').forEach(btn=>btn.classList.remove('selected'));
+document.querySelector(`[data-bet="${bet}"]`).classList.add('selected');
+document.getElementById('selectedBet').textContent=bet.toUpperCase();
+document.getElementById('rollBtn').disabled=false;
+}
+
+async rollDice(){
+if(!this.selectedDiceBet)return;
+const bet=+document.getElementById('diceBet').value;
+if(!(await this.deductBalance(bet)))return this.showResult('dice','Insufficient balance!','lose');
+const dice1=Math.floor(Math.random()*6)+1;
+const dice2=Math.floor(Math.random()*6)+1;
+const total=dice1+dice2;
+document.getElementById('dice1').classList.add('rolling');
+document.getElementById('dice2').classList.add('rolling');
+setTimeout(()=>{
+document.getElementById('dice1').textContent=['⚀','⚁','⚂','⚃','⚄','⚅'][dice1-1];
+document.getElementById('dice2').textContent=['⚀','⚁','⚂','⚃','⚄','⚅'][dice2-1];
+document.getElementById('dice1').classList.remove('rolling');
+document.getElementById('dice2').classList.remove('rolling');
+let win=false;
+let multiplier=1;
+if(this.selectedDiceBet==='high'&&total>=8&&total<=12){win=true;multiplier=2;}
+if(this.selectedDiceBet==='low'&&total>=2&&total<=6){win=true;multiplier=2;}
+if(this.selectedDiceBet==='seven'&&total===7){win=true;multiplier=5;}
+if(win){
+const winAmount=bet*multiplier;
+this.addBalance(winAmount);
+this.showResult('dice',`🎲 WIN! Rolled ${total} - +${winAmount} ${this.currentCurrency}`,'win');
+}else{
+this.showResult('dice',`🎲 Rolled ${total} - No win!`,'lose');
+}
+setTimeout(()=>this.resetDiceUI(),3000);
+},1000);
+}
+
+// EXISTING GAMES (SLOTS, PLINKO, BLACKJACK)
 initSlots(){
 const grid=document.getElementById('slotsGrid');
 if(!grid)return;
@@ -683,6 +786,4 @@ if(score)score.textContent='0';
 
 document.addEventListener('DOMContentLoaded',()=>{
 window.aminaCasino=new AminaCasino();
-window.createWalletCelebration=()=>window.aminaCasino?.createCelebration('💳',8);
-window.createAminaCoinRain=()=>window.aminaCasino?.createRain('🪙',10);
 });
