@@ -212,26 +212,21 @@
 <span id="hiloCurrency">HC</span>
 </div>
 </div>
-<div class="hilo-table">
-<div class="current-card-section">
-<h3>Current Card</h3>
-<div id="currentCard" class="card-display">
-<div class="playing-card">?</div>
+<div class="hilo-game">
+<div class="hilo-card">
+<h3>Your Card</h3>
+<div id="hiloCard" class="card-display">?</div>
+<div id="hiloCardValue" class="card-value">Click Deal to start</div>
 </div>
+<div class="hilo-buttons">
+<button id="hiloDeal" class="cosmic-btn">DEAL CARD</button>
+<button id="hiloHigher" class="cosmic-btn hilo-btn" disabled>HIGHER</button>
+<button id="hiloLower" class="cosmic-btn hilo-btn" disabled>LOWER</button>
 </div>
-<div class="prediction-section">
-<h3>Next card will be:</h3>
-<div class="hilo-controls">
-<button id="higherBtn" class="cosmic-btn hilo-btn" disabled>HIGHER</button>
-<button id="lowerBtn" class="cosmic-btn hilo-btn" disabled>LOWER</button>
-<button id="dealHiloBtn" class="cosmic-btn">DEAL CARD</button>
-</div>
-</div>
-<div class="next-card-section">
+<div class="hilo-next">
 <h3>Next Card</h3>
-<div id="nextCard" class="card-display">
-<div class="playing-card back">🎭</div>
-</div>
+<div id="hiloNext" class="card-display">?</div>
+<div id="hiloNextValue" class="card-value"></div>
 </div>
 </div>
 <div id="hiloResult" class="game-result"></div>
@@ -248,22 +243,21 @@
 <span id="diceCurrency">HC</span>
 </div>
 </div>
-<div class="dice-table">
+<div class="dice-game">
 <div class="dice-display">
 <div id="dice1" class="die">⚀</div>
 <div id="dice2" class="die">⚀</div>
+<div id="diceTotal" class="dice-total">Total: 2</div>
 </div>
 <div class="dice-betting">
-<h3>Bet on:</h3>
-<div class="bet-options">
-<button class="bet-option" data-bet="high">HIGH (8-12)</button>
-<button class="bet-option" data-bet="low">LOW (2-6)</button>
-<button class="bet-option" data-bet="seven">SEVEN (7)</button>
+<h3>Choose your bet:</h3>
+<div class="dice-options">
+<button class="dice-bet-btn" data-bet="low">LOW (2-6)</button>
+<button class="dice-bet-btn" data-bet="seven">SEVEN (7)</button>
+<button class="dice-bet-btn" data-bet="high">HIGH (8-12)</button>
 </div>
-<div class="selected-bet">Selected: <span id="selectedBet">None</span></div>
-</div>
-<div class="dice-controls">
-<button id="rollBtn" class="cosmic-btn" disabled>ROLL DICE</button>
+<div id="diceSelected" class="dice-selected">Select a bet above</div>
+<button id="diceRoll" class="cosmic-btn" disabled>ROLL DICE</button>
 </div>
 </div>
 <div id="diceResult" class="game-result"></div>
@@ -326,7 +320,7 @@ document.execCommand('copy');
 alert('Address copied! 🚀');
 }
 
-// Simple wallet integration - NO EXTERNAL LIBRARIES
+// Simple wallet integration
 let connectedWallet = null;
 let aminaBalance = 0;
 let currentCurrency = 'HC';
@@ -335,7 +329,6 @@ let hcBalance = 1000;
 document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('walletBtn').addEventListener('click', function() {
 if(connectedWallet) {
-// Disconnect
 connectedWallet = null;
 aminaBalance = 0;
 if(currentCurrency === 'AMINA') toggleCurrency();
@@ -343,7 +336,6 @@ updateWalletUI();
 updateDisplay();
 alert('Wallet disconnected');
 } else {
-// Connect - ask for wallet address
 const address = prompt('Enter your Algorand wallet address:');
 if(address && address.length === 58) {
 connectedWallet = address;
@@ -357,19 +349,6 @@ alert('Invalid wallet address');
 });
 
 document.getElementById('currencyToggle').addEventListener('click', toggleCurrency);
-
-// Sync with scripts.js when it loads
-setTimeout(() => {
-if(window.aminaCasino) {
-window.aminaCasino.balance.HC = hcBalance;
-window.aminaCasino.balance.AMINA = aminaBalance;
-window.aminaCasino.currentCurrency = currentCurrency;
-window.aminaCasino.connectedAccount = connectedWallet;
-window.aminaCasino.isAmina = (currentCurrency === 'AMINA');
-window.aminaCasino.updateDisplay();
-}
-}, 1000);
-
 updateDisplay();
 });
 
@@ -400,14 +379,6 @@ text.textContent = 'HC';
 }
 updateDisplay();
 updateBets();
-
-// Sync with scripts.js
-if(window.aminaCasino) {
-window.aminaCasino.currentCurrency = currentCurrency;
-window.aminaCasino.isAmina = (currentCurrency === 'AMINA');
-window.aminaCasino.updateDisplay();
-window.aminaCasino.updateBets();
-}
 }
 
 function updateBets() {
@@ -435,19 +406,9 @@ document.getElementById('currencySymbol').textContent = currentCurrency;
 const el = document.getElementById(game + 'Currency');
 if(el) el.textContent = currentCurrency;
 });
-
-// Update scripts.js casino object if it exists
-if(window.aminaCasino) {
-window.aminaCasino.balance.HC = hcBalance;
-window.aminaCasino.balance.AMINA = aminaBalance;
-window.aminaCasino.currentCurrency = currentCurrency;
-window.aminaCasino.connectedAccount = connectedWallet;
-}
 }
 
-// Add global functions for games to use
-window.deductBalance = function(amount) {
-console.log('Deducting', amount, 'from', currentCurrency);
+function deductBalance(amount) {
 const balance = currentCurrency === 'HC' ? hcBalance : aminaBalance;
 if(balance < amount) {
 alert('Insufficient ' + currentCurrency + ' balance!');
@@ -460,17 +421,16 @@ aminaBalance -= amount;
 }
 updateDisplay();
 return true;
-};
+}
 
-window.addBalance = function(amount) {
-console.log('Adding', amount, 'to', currentCurrency);
+function addBalance(amount) {
 if(currentCurrency === 'HC') {
 hcBalance += amount;
 } else {
 aminaBalance += amount;
 }
 updateDisplay();
-};
+}
 
 async function fetchAminaBalance(address) {
 try {
@@ -478,18 +438,15 @@ const res = await fetch('https://mainnet-api.algonode.cloud/v2/accounts/' + addr
 const data = await res.json();
 const asset = data.assets?.find(a => a['asset-id'] === 1107424865);
 if(asset) {
-// Get asset info to check decimals
 const assetRes = await fetch('https://mainnet-api.algonode.cloud/v2/assets/1107424865');
 const assetData = await assetRes.json();
 const decimals = assetData.params.decimals || 6;
 aminaBalance = asset.amount / Math.pow(10, decimals);
-console.log('Raw amount:', asset.amount, 'Decimals:', decimals, 'Final balance:', aminaBalance);
 } else {
 aminaBalance = 0;
 }
 updateDisplay();
 } catch(error) {
-console.error('Balance fetch error:', error);
 aminaBalance = 0;
 updateDisplay();
 }
