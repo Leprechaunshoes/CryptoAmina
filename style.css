@@ -204,6 +204,12 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 .current-card-section,.next-card-section{text-align:center;width:100%}
 .current-card-section h3,.next-card-section h3{font-family:'JetBrains Mono',monospace;font-size:1.2rem;color:var(--cg);margin-bottom:.5rem}
 .card-display{display:flex;justify-content:center;align-items:center;margin:.5rem 0;min-height:120px}
+.card-streak{width:100%;overflow-x:auto;padding:1rem 0;margin:1rem 0;background:rgba(255,255,255,.03);backdrop-filter:blur(10px);border-radius:16px;border:2px solid var(--pc)}
+.card-streak h3{font-family:'JetBrains Mono',monospace;font-size:1.1rem;color:var(--pc);text-align:center;margin-bottom:.8rem}
+.streak-cards{display:flex;gap:.5rem;padding:.5rem;overflow-x:auto;justify-content:flex-start;min-height:80px;align-items:center}
+.streak-card{min-width:50px;height:75px;background:linear-gradient(135deg,#f8f9fa,#e9ecef);border:2px solid var(--cg);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:var(--sb);flex-shrink:0;position:relative;animation:cardSlideIn .5s ease-out}
+.streak-card.red{color:var(--cm)}
+.streak-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,rgba(255,255,255,.1),transparent);border-radius:6px;pointer-events:none}
 .prediction-section{text-align:center;width:100%;margin:1rem 0}
 .prediction-section h3{font-family:'JetBrains Mono',monospace;font-size:1.2rem;color:var(--cg);margin-bottom:1rem}
 .hilo-controls{display:flex;justify-content:center;gap:1rem;margin:.5rem 0;flex-wrap:wrap}
@@ -213,6 +219,7 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 .hilo-btn:hover{transform:translateY(-3px);box-shadow:0 12px 35px rgba(0,229,255,.5),0 0 30px rgba(59,130,246,.4);border-color:#3b82f6}
 .hilo-btn:disabled{background:var(--vg);border-color:var(--vg);color:#666;cursor:not-allowed;transform:none;box-shadow:none}
 .hilo-btn:disabled::before{display:none}
+@keyframes cardSlideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
 /* COSMIC DICE STYLES */
 .dice-table{display:flex;flex-direction:column;align-items:center;gap:1.5rem;padding:1rem;width:100%;max-width:100%;overflow:hidden}
 .dice-display{display:flex;justify-content:center;align-items:center;gap:2rem;margin:1rem 0;padding:1.5rem;background:linear-gradient(135deg,rgba(34,197,94,.1),rgba(6,182,212,.1));backdrop-filter:blur(15px);border-radius:24px;border:3px solid transparent;background-clip:padding-box;position:relative}
