@@ -39,7 +39,7 @@ body{font-family:'Rajdhani',sans-serif;background:var(--sb);color:var(--sw);over
 .game-info h3{text-align:center;font-family:'Orbitron',monospace;color:var(--cg);margin-bottom:1rem;font-size:1.3rem}
 .info-grid{display:grid;gap:.8rem;margin-bottom:1rem}
 .info-item{display:flex;align-items:center;gap:.8rem;background:rgba(74,20,140,.3);padding:.8rem;border-radius:12px;border:1px solid var(--cg)}
-.get-amina-flash{background:linear-gradient(135deg,rgba(233,30,99,.4),rgba(74,20,140,.4));border:2px solid var(--cm);cursor:pointer;transition:all .3s ease;animation:aminaPulse 2s ease-in-out infinite,aminaGlow 3s ease-in-out infinite}
+.get-amina-flash{background:linear-gradient(135deg,rgba(233,30,99,.4),rgba(74,20,140,.4));border:2px solid var(--cm);cursor:pointer;transition:all .3s ease;animation:aminaPulse 2s ease-in-out infinite,aminaGlow 3s ease-in-out infinite;margin-top:.8rem}
 .get-amina-flash:hover{transform:scale(1.02);border-color:var(--pc)}
 .info-icon{font-size:1.5rem}
 .info-item p{font-size:.9rem;line-height:1.3}
