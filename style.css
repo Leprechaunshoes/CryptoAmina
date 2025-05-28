@@ -190,10 +190,11 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 .dealer-section,.player-section{margin-bottom:1.5rem}
 .dealer-section h3,.player-section h3{font-family:'JetBrains Mono',monospace;font-size:1.3rem;color:var(--cg);margin-bottom:1rem}
 .card-container{display:flex;justify-content:center;gap:.8rem;min-height:110px;align-items:center;flex-wrap:wrap}
-.playing-card{width:70px;height:105px;background:linear-gradient(135deg,#f8f9fa,#e9ecef);border:3px solid var(--cg);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:var(--sb);animation:cardDeal .5s ease-out;transition:all .3s ease}
-.playing-card:hover{transform:translateY(-3px)}
+.playing-card{width:90px;height:135px;background:linear-gradient(135deg,#f8f9fa,#e9ecef);border:3px solid var(--cg);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:var(--sb);animation:cardDeal .5s ease-out;transition:all .3s ease;box-shadow:0 8px 20px rgba(0,0,0,.3),0 0 15px rgba(255,215,0,.2);position:relative;overflow:hidden}
+.playing-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,rgba(255,255,255,.1),transparent);border-radius:13px;pointer-events:none}
+.playing-card:hover{transform:translateY(-5px);box-shadow:0 12px 30px rgba(0,0,0,.4),0 0 25px rgba(255,215,0,.4)}
 .playing-card.red{color:var(--cm)}
-.playing-card.back{background:var(--cp);color:var(--cg);font-size:1.5rem}
+.playing-card.back{background:linear-gradient(135deg,var(--cp),var(--cb));color:var(--cg);font-size:2rem;box-shadow:0 8px 20px rgba(74,20,140,.4),0 0 20px rgba(26,35,126,.3)}
 .game-controls{display:flex;justify-content:center;gap:.8rem;margin:1.5rem 0;flex-wrap:wrap}
 
 /* COSMIC DICE STYLES */
@@ -263,7 +264,7 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 #plinkoCanvas{height:280px!important}
 .multipliers{gap:1px}
 .multiplier{padding:.3rem .1rem;font-size:.6rem}
-.playing-card{width:60px;height:90px;font-size:.9rem}
+.playing-card{width:75px;height:112px;font-size:1rem}
 .game-header h2{font-size:1.5rem}
 .bet-controls{padding:.8rem;gap:.8rem}
 .game-result{font-size:.9rem;padding:.8rem}
