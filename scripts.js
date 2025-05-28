@@ -395,6 +395,7 @@ btn.onclick=()=>this.selectDiceBet(btn.dataset.bet);
 // HI-LO GAME
 initHilo(){
 this.hiloCard=null;
+this.cardStreak=[];
 this.resetHiloUI();
 }
 
@@ -405,6 +406,24 @@ document.getElementById('dealHiloBtn').disabled=false;
 document.getElementById('higherBtn').disabled=true;
 document.getElementById('lowerBtn').disabled=true;
 document.getElementById('hiloResult').classList.remove('show');
+this.cardStreak=[];
+this.updateStreakDisplay();
+}
+
+updateStreakDisplay(){
+const container=document.getElementById('streakCards');
+if(this.cardStreak.length===0){
+container.innerHTML='<div class="streak-placeholder">Start your streak!</div>';
+}else{
+container.innerHTML='';
+this.cardStreak.forEach(card=>{
+const cardEl=document.createElement('div');
+cardEl.className='streak-card';
+if(['♥','♦'].includes(card.suit))cardEl.classList.add('red');
+cardEl.innerHTML=`${card.value}<br>${card.suit}`;
+container.appendChild(cardEl);
+});
+}
 }
 
 async dealHilo(){
@@ -431,9 +450,12 @@ if(guess==='higher'&&nextVal>currentVal)win=true;
 if(guess==='lower'&&nextVal<currentVal)win=true;
 if(nextVal===currentVal)win=false;
 if(win){
+// Add current card to streak
+this.cardStreak.push(this.hiloCard);
+this.updateStreakDisplay();
 const winAmount=this.hiloBet*2;
 this.addBalance(winAmount);
-this.showResult('hilo',`🎉 WIN! +${winAmount} ${this.currentCurrency}`,'win');
+this.showResult('hilo',`🎉 WIN! Streak: ${this.cardStreak.length} +${winAmount} ${this.currentCurrency}`,'win');
 // Keep cards flowing - current card becomes next card
 setTimeout(()=>{
 this.hiloCard=nextCard;
@@ -444,8 +466,12 @@ document.getElementById('lowerBtn').disabled=false;
 document.getElementById('hiloResult').classList.remove('show');
 },1500);
 }else{
-this.showResult('hilo','❌ Wrong guess! Game Over!','lose');
-setTimeout(()=>this.resetHiloUI(),3000);
+// Add current card to streak to show full sequence
+this.cardStreak.push(this.hiloCard);
+this.cardStreak.push(nextCard);
+this.updateStreakDisplay();
+this.showResult('hilo',`❌ Wrong guess! Final Streak: ${this.cardStreak.length-1} cards - Game Over!`,'lose');
+setTimeout(()=>this.resetHiloUI(),4000);
 }
 }
 
