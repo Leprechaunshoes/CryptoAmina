@@ -1,8 +1,9 @@
 /* style.css - Clean Modern with Original Colors */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 :root{--cp:#4A148C;--cb:#1A237E;--cm:#E91E63;--cg:#FFD700;--sb:#0A0A0A;--sw:#FFF;--pc:#00E5FF;--vg:#212121;--wg:#4CAF50;--lr:#F44336}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflow-x:hidden;min-height:100vh}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{overflow-x:hidden;position:fixed;height:100%;width:100%}
+body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflow-x:hidden;overflow-y:auto;min-height:100vh;position:relative;height:100%;-webkit-overflow-scrolling:touch;-webkit-user-select:none;user-select:none;touch-action:pan-y}
 
 .cosmic-bg{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 20% 80%,var(--cp) 0%,transparent 50%),radial-gradient(circle at 80% 20%,var(--cb) 0%,transparent 50%),linear-gradient(135deg,var(--sb) 0%,#1a0033 100%);z-index:-2}
 .cosmic-bg::after{content:'';position:absolute;width:100%;height:100%;background:radial-gradient(circle at 50% 50%,transparent 30%,rgba(11,13,23,0.3) 100%);pointer-events:none}
@@ -120,9 +121,10 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 .nav-btn.active{background:var(--cg);color:var(--sb);border-color:var(--cg);font-weight:700}
 .donation-btn{background:var(--cm)!important}
 
-.main-content{max-width:1200px;margin:0 auto;padding:1rem}
-.game-screen{display:none}
+.main-content{max-width:1200px;margin:0 auto;padding:1rem;position:relative;overflow:hidden}
+.game-screen{display:none;width:100%;overflow:hidden}
 .game-screen.active{display:block}
+.game-container{background:rgba(0,0,0,.7);backdrop-filter:blur(15px);border:2px solid rgba(255,255,255,.1);border-radius:24px;padding:2rem;margin:0;box-shadow:0 15px 35px rgba(0,0,0,.4);width:100%;max-width:100%;overflow:hidden;position:relative}
 
 .welcome-container{text-align:center;padding:2rem 0}
 .game-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem;margin-top:2rem}
@@ -197,8 +199,22 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 .playing-card.back{background:linear-gradient(135deg,var(--cp),var(--cb));color:var(--cg);font-size:2rem;box-shadow:0 8px 20px rgba(74,20,140,.4),0 0 20px rgba(26,35,126,.3)}
 .game-controls{display:flex;justify-content:center;gap:.8rem;margin:1.5rem 0;flex-wrap:wrap}
 
+/* HI-LO GAME STYLES */
+.hilo-table{display:flex;flex-direction:column;align-items:center;gap:2rem;padding:1rem;width:100%;max-width:100%;overflow:hidden}
+.current-card-section,.next-card-section{text-align:center;width:100%}
+.current-card-section h3,.next-card-section h3{font-family:'JetBrains Mono',monospace;font-size:1.3rem;color:var(--cg);margin-bottom:1rem}
+.card-display{display:flex;justify-content:center;align-items:center;margin:1rem 0;min-height:140px}
+.prediction-section{text-align:center;width:100%;margin:2rem 0}
+.prediction-section h3{font-family:'JetBrains Mono',monospace;font-size:1.4rem;color:var(--cg);margin-bottom:1.5rem}
+.hilo-controls{display:flex;justify-content:center;gap:1rem;margin:1rem 0;flex-wrap:wrap}
+.hilo-btn{background:linear-gradient(135deg,var(--pc),#3b82f6);color:var(--sw);border:3px solid var(--pc);padding:1rem 2rem;border-radius:16px;font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all .3s ease;min-width:120px;position:relative;overflow:hidden;box-shadow:0 8px 25px rgba(0,229,255,.3),0 0 20px rgba(59,130,246,.2);text-transform:uppercase}
+.hilo-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);transition:left .8s ease}
+.hilo-btn:hover::before{left:100%}
+.hilo-btn:hover{transform:translateY(-3px);box-shadow:0 12px 35px rgba(0,229,255,.5),0 0 30px rgba(59,130,246,.4);border-color:#3b82f6}
+.hilo-btn:disabled{background:var(--vg);border-color:var(--vg);color:#666;cursor:not-allowed;transform:none;box-shadow:none}
+.hilo-btn:disabled::before{display:none}
 /* COSMIC DICE STYLES */
-.dice-table{display:flex;flex-direction:column;align-items:center;gap:2rem;padding:1rem}
+.dice-table{display:flex;flex-direction:column;align-items:center;gap:2rem;padding:1rem;width:100%;max-width:100%;overflow:hidden}
 .dice-display{display:flex;justify-content:center;align-items:center;gap:2rem;margin:2rem 0;padding:2rem;background:linear-gradient(135deg,rgba(34,197,94,.1),rgba(6,182,212,.1));backdrop-filter:blur(15px);border-radius:24px;border:3px solid transparent;background-clip:padding-box;position:relative}
 .dice-display::before{content:'';position:absolute;inset:0;padding:3px;background:linear-gradient(135deg,#22c55e,#06b6d4,#3b82f6);border-radius:24px;mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask-composite:exclude;animation:diceGlow 4s ease-in-out infinite}
 .die{width:100px;height:100px;background:linear-gradient(135deg,#1f2937,#111827);border:3px solid #22c55e;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:3rem;color:#22c55e;font-weight:900;transition:all .3s ease;box-shadow:0 10px 30px rgba(34,197,94,.3),inset 0 0 20px rgba(6,182,212,.1);position:relative;overflow:hidden}
