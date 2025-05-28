@@ -213,8 +213,6 @@
 <div id="blackjackResult" class="game-result"></div>
 </div>
 </div>
-</main>
-</div>
 
 <div id="hilo" class="game-screen">
 <div class="game-container">
@@ -427,7 +425,7 @@ window.aminaCasino.updateBets();
 
 function updateBets() {
 const bets = currentCurrency === 'AMINA' ? ['0.25','0.5','0.75','1','1.25','1.5'] : ['1','5','10'];
-['slots','plinko','blackjack'].forEach(game => {
+['slots','plinko','blackjack','hilo','dice'].forEach(game => {
 const select = document.getElementById(game + 'Bet');
 if(select) {
 const curr = select.value;
@@ -446,7 +444,7 @@ function updateDisplay() {
 const balance = currentCurrency === 'HC' ? hcBalance : aminaBalance;
 document.getElementById('balanceAmount').textContent = balance.toFixed(4);
 document.getElementById('currencySymbol').textContent = currentCurrency;
-['slots','plinko','blackjack'].forEach(game => {
+['slots','plinko','blackjack','hilo','dice'].forEach(game => {
 const el = document.getElementById(game + 'Currency');
 if(el) el.textContent = currentCurrency;
 });
