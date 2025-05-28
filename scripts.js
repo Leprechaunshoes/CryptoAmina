@@ -434,10 +434,19 @@ if(win){
 const winAmount=this.hiloBet*2;
 this.addBalance(winAmount);
 this.showResult('hilo',`🎉 WIN! +${winAmount} ${this.currentCurrency}`,'win');
+// Keep cards flowing - current card becomes next card
+setTimeout(()=>{
+this.hiloCard=nextCard;
+this.displayCard('currentCard',this.hiloCard);
+this.displayCard('nextCard',{suit:'🚀',value:'?'});
+document.getElementById('higherBtn').disabled=false;
+document.getElementById('lowerBtn').disabled=false;
+document.getElementById('hiloResult').classList.remove('show');
+},1500);
 }else{
-this.showResult('hilo','❌ Wrong guess!','lose');
-}
+this.showResult('hilo','❌ Wrong guess! Game Over!','lose');
 setTimeout(()=>this.resetHiloUI(),3000);
+}
 }
 
 getRandomCard(){
@@ -459,8 +468,13 @@ displayCard(containerId,card){
 const container=document.getElementById(containerId);
 const cardEl=document.createElement('div');
 cardEl.className='playing-card';
+if(card.suit==='🚀'&&card.value==='?'){
+cardEl.classList.add('back');
+cardEl.innerHTML='🚀';
+}else{
 if(['♥','♦'].includes(card.suit))cardEl.classList.add('red');
 cardEl.innerHTML=`${card.value}<br>${card.suit}`;
+}
 container.innerHTML='';
 container.appendChild(cardEl);
 }
