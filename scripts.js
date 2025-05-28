@@ -1,4 +1,4 @@
-// scripts.js - Complete Casino with Hi-Lo + Dice Games
+// scripts.js - Complete Casino with Multi-Ball Plinko
 class AminaCasino{
 constructor(){
 this.balance={HC:1000,AMINA:0};
@@ -11,6 +11,8 @@ this.casinoWallet='6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI';
 this.aminaAssetId=1107424865;
 this.hiloCard=null;
 this.selectedDiceBet=null;
+this.activeBalls=[];
+this.maxBalls=7;
 setTimeout(()=>this.init(),500);
 }
 
@@ -398,7 +400,7 @@ this.resetHiloUI();
 
 resetHiloUI(){
 document.getElementById('currentCard').innerHTML='<div class="playing-card">?</div>';
-document.getElementById('nextCard').innerHTML='<div class="playing-card back">🎭</div>';
+document.getElementById('nextCard').innerHTML='<div class="playing-card back">🚀</div>';
 document.getElementById('dealHiloBtn').disabled=false;
 document.getElementById('higherBtn').disabled=true;
 document.getElementById('lowerBtn').disabled=true;
@@ -516,7 +518,121 @@ setTimeout(()=>this.resetDiceUI(),3000);
 },1000);
 }
 
-// EXISTING GAMES (SLOTS, PLINKO, BLACKJACK)
+// MULTI-BALL PLINKO SYSTEM
+initPlinko(){
+const canvas=document.getElementById('plinkoCanvas');
+if(!canvas)return;
+canvas.width=window.innerWidth<768?320:400;
+canvas.height=window.innerWidth<768?280:350;
+this.ctx=canvas.getContext('2d');
+this.activeBalls=[];
+this.setupPegs();
+this.drawBoard();
+}
+
+setupPegs(){
+this.pegs=[];
+const w=this.ctx.canvas.width;
+for(let row=0;row<10;row++){
+const n=row+3;
+const space=w*0.75/(n+1);
+const start=(w-w*0.75)/2;
+for(let i=0;i<n;i++){
+this.pegs.push({x:start+space*(i+1),y:35+row*20,r:2.5});
+}
+}
+}
+
+drawBoard(){
+const ctx=this.ctx;
+const c=ctx.canvas;
+ctx.fillStyle='#1a2332';
+ctx.fillRect(0,0,c.width,c.height);
+this.pegs.forEach(p=>{
+ctx.beginPath();
+ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+ctx.fillStyle='#4a5568';
+ctx.fill();
+});
+}
+
+async dropPlinko(){
+const bet=+document.getElementById('plinkoBet').value;
+if(this.activeBalls.length>=this.maxBalls)return this.showResult('plinko',`Max ${this.maxBalls} balls at once!`,'info');
+if(!(await this.deductBalance(bet)))return this.showResult('plinko','Insufficient balance!','lose');
+
+const ballId=Date.now()+Math.random();
+const ball={
+id:ballId,
+x:this.ctx.canvas.width/2,
+y:15,
+vx:0,
+vy:0,
+r:4,
+g:0.2,
+b:0.3,
+bet:bet,
+color:`hsl(${Math.random()*360},70%,60%)`
+};
+this.activeBalls.push(ball);
+this.animateBall(ball);
+}
+
+animateBall(ball){
+const animate=()=>{
+if(!this.activeBalls.find(b=>b.id===ball.id))return;
+this.drawBoard();
+this.activeBalls.forEach(b=>{
+b.vy+=b.g;
+b.x+=b.vx;
+b.y+=b.vy;
+this.pegs.forEach(p=>{
+const dx=b.x-p.x;
+const dy=b.y-p.y;
+const d=Math.sqrt(dx*dx+dy*dy);
+if(d<b.r+p.r){
+const a=Math.atan2(dy,dx);
+b.x=p.x+Math.cos(a)*(b.r+p.r+1);
+b.y=p.y+Math.sin(a)*(b.r+p.r+1);
+b.vx+=(Math.random()-0.5)*0.8;
+b.vy=Math.abs(b.vy)*b.b+0.3;
+}
+});
+if(b.x<b.r){b.x=b.r;b.vx=Math.abs(b.vx)*0.5;}
+if(b.x>this.ctx.canvas.width-b.r){b.x=this.ctx.canvas.width-b.r;b.vx=-Math.abs(b.vx)*0.5;}
+this.ctx.beginPath();
+this.ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+this.ctx.fillStyle=b.color;
+this.ctx.fill();
+if(b.y>this.ctx.canvas.height-30){
+let slot=Math.floor(b.x/(this.ctx.canvas.width/13));
+slot=Math.max(0,Math.min(12,slot));
+this.handleBallLanding(b,slot);
+this.activeBalls=this.activeBalls.filter(ball=>ball.id!==b.id);
+}
+});
+if(this.activeBalls.length>0){
+requestAnimationFrame(animate);
+}
+};
+animate();
+}
+
+handleBallLanding(ball,slot){
+const mults=[10,3,1.5,1.4,1.1,1,0.5,1,1.1,1.4,1.5,3,10];
+const mult=mults[slot]||0.5;
+const win=ball.bet*mult;
+this.addBalance(win);
+this.showResult('plinko',`🌌 Ball hit ${mult}x! Won ${win.toFixed(2)} ${this.currentCurrency}!`,win>=ball.bet?'win':'lose');
+document.querySelectorAll('.multiplier').forEach((m,i)=>{
+if(i===slot){
+m.classList.add('hit');
+setTimeout(()=>m.classList.remove('hit'),1000);
+}
+});
+}
+
+// EXISTING GAMES (SLOTS, BLACKJACK)
 initSlots(){
 const grid=document.getElementById('slotsGrid');
 if(!grid)return;
@@ -577,102 +693,6 @@ else if(c>=3)win+=bet*5;
 });
 });
 return win;
-}
-
-initPlinko(){
-const canvas=document.getElementById('plinkoCanvas');
-if(!canvas)return;
-canvas.width=window.innerWidth<768?320:400;
-canvas.height=window.innerWidth<768?280:350;
-this.ctx=canvas.getContext('2d');
-this.dropping=false;
-this.setupPegs();
-this.drawBoard();
-}
-
-setupPegs(){
-this.pegs=[];
-const w=this.ctx.canvas.width;
-for(let row=0;row<10;row++){
-const n=row+3;
-const space=w*0.75/(n+1);
-const start=(w-w*0.75)/2;
-for(let i=0;i<n;i++){
-this.pegs.push({x:start+space*(i+1),y:35+row*20,r:2.5});
-}
-}
-}
-
-drawBoard(){
-const ctx=this.ctx;
-const c=ctx.canvas;
-ctx.fillStyle='#1a2332';
-ctx.fillRect(0,0,c.width,c.height);
-this.pegs.forEach(p=>{
-ctx.beginPath();
-ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-ctx.fillStyle='#4a5568';
-ctx.fill();
-});
-}
-
-async dropPlinko(){
-const bet=+document.getElementById('plinkoBet').value;
-if(this.dropping||!(await this.deductBalance(bet)))return this.showResult('plinko','Ball dropping or insufficient balance!','lose');
-this.dropping=true;
-const btn=document.getElementById('dropBtn');
-btn.disabled=true;
-btn.textContent='DROPPING...';
-const slot=await this.animateBall();
-const mults=[10,3,1.5,1.4,1.1,1,0.5,1,1.1,1.4,1.5,3,10];
-const mult=mults[slot]||0.5;
-const win=bet*mult;
-this.addBalance(win);
-this.showResult('plinko',`Hit ${mult}x! ${win>=bet?'Won':'Lost'} ${Math.abs(win-bet).toFixed(2)}!`,win>=bet?'win':'lose');
-document.querySelectorAll('.multiplier').forEach((m,i)=>m.classList.toggle('hit',i===slot));
-setTimeout(()=>document.querySelectorAll('.multiplier').forEach(m=>m.classList.remove('hit')),2000);
-this.dropping=false;
-btn.disabled=false;
-btn.textContent='DROP BALL';
-}
-
-animateBall(){
-return new Promise(resolve=>{
-const c=this.ctx.canvas;
-const ball={x:c.width/2,y:15,vx:0,vy:0,r:4,g:0.2,b:0.3};
-const animate=()=>{
-this.drawBoard();
-ball.vy+=ball.g;
-ball.x+=ball.vx;
-ball.y+=ball.vy;
-this.pegs.forEach(p=>{
-const dx=ball.x-p.x;
-const dy=ball.y-p.y;
-const d=Math.sqrt(dx*dx+dy*dy);
-if(d<ball.r+p.r){
-const a=Math.atan2(dy,dx);
-ball.x=p.x+Math.cos(a)*(ball.r+p.r+1);
-ball.y=p.y+Math.sin(a)*(ball.r+p.r+1);
-ball.vx+=(Math.random()-0.5)*0.8;
-ball.vy=Math.abs(ball.vy)*ball.b+0.3;
-}
-});
-if(ball.x<ball.r){ball.x=ball.r;ball.vx=Math.abs(ball.vx)*0.5;}
-if(ball.x>c.width-ball.r){ball.x=c.width-ball.r;ball.vx=-Math.abs(ball.vx)*0.5;}
-this.ctx.beginPath();
-this.ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);
-this.ctx.fillStyle='#48bb78';
-this.ctx.fill();
-if(ball.y>c.height-30){
-let slot=Math.floor(ball.x/(c.width/13));
-slot=Math.max(0,Math.min(12,slot));
-resolve(slot);
-}else{
-requestAnimationFrame(animate);
-}
-};
-animate();
-});
 }
 
 initBlackjack(){
@@ -748,7 +768,7 @@ const card=document.createElement('div');
 card.className='playing-card';
 if(who==='dealer'&&i===1&&!showAll){
 card.classList.add('back');
-card.textContent='🎭';
+card.textContent='🚀';
 }else{
 card.innerHTML=`${c.v}<br>${c.s}`;
 if(['♥','♦'].includes(c.s))card.classList.add('red');
