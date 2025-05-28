@@ -21,6 +21,8 @@
 <div class="info-item"><span class="info-icon">🎰</span><p><strong>Stellar Slots:</strong> Win up to 100x</p></div>
 <div class="info-item"><span class="info-icon">🌌</span><p><strong>Quantum Plinko:</strong> Drop for 10x</p></div>
 <div class="info-item"><span class="info-icon">♠️</span><p><strong>Galaxy Blackjack:</strong> Beat dealer</p></div>
+<div class="info-item"><span class="info-icon">📈</span><p><strong>Cosmic Hi-Lo:</strong> Higher or lower</p></div>
+<div class="info-item"><span class="info-icon">🎲</span><p><strong>Nebula Dice:</strong> Roll the cosmos</p></div>
 </div>
 <div class="currency-info"><p>💰 Start with 1000 HC or connect wallet for AMINA</p></div>
 <div class="info-item get-amina-flash" onclick="openAminaExplorer()">
@@ -62,6 +64,8 @@
 <button class="nav-btn" data-game="slots">🎰 Slots</button>
 <button class="nav-btn" data-game="plinko">🌌 Plinko</button>
 <button class="nav-btn" data-game="blackjack">♠️ Blackjack</button>
+<button class="nav-btn" data-game="hilo">📈 Hi-Lo</button>
+<button class="nav-btn" data-game="dice">🎲 Dice</button>
 <button class="nav-btn donation-btn" onclick="showDonationModal()">💎 Donate</button>
 </nav>
 
@@ -89,6 +93,18 @@
 <h3>Galaxy Blackjack</h3>
 <p>Classic cards</p>
 <div class="max-win">Max Win: 2x</div>
+</div>
+<div class="game-card" data-game="hilo">
+<div class="game-icon">📈</div>
+<h3>Cosmic Hi-Lo</h3>
+<p>Higher or lower</p>
+<div class="max-win">Max Win: 2x</div>
+</div>
+<div class="game-card" data-game="dice">
+<div class="game-icon">🎲</div>
+<h3>Nebula Dice</h3>
+<p>Roll the cosmos</p>
+<div class="max-win">Max Win: 5x</div>
 </div>
 </div>
 </div>
@@ -175,6 +191,76 @@
 <button id="newGameBtn" class="cosmic-btn" style="display:none">NEW GAME</button>
 </div>
 <div id="blackjackResult" class="game-result"></div>
+</div>
+</div>
+</main>
+</div>
+
+<div id="hilo" class="game-screen">
+<div class="game-container">
+<div class="game-header">
+<h2>📈 Cosmic Hi-Lo</h2>
+<div class="bet-controls">
+<label>Bet:</label>
+<select id="hiloBet"><option value="1">1</option><option value="5">5</option><option value="10">10</option></select>
+<span id="hiloCurrency">HC</span>
+</div>
+</div>
+<div class="hilo-table">
+<div class="current-card-section">
+<h3>Current Card</h3>
+<div id="currentCard" class="card-display">
+<div class="playing-card">?</div>
+</div>
+</div>
+<div class="prediction-section">
+<h3>Next card will be:</h3>
+<div class="hilo-controls">
+<button id="higherBtn" class="cosmic-btn hilo-btn" disabled>HIGHER</button>
+<button id="lowerBtn" class="cosmic-btn hilo-btn" disabled>LOWER</button>
+<button id="dealHiloBtn" class="cosmic-btn">DEAL CARD</button>
+</div>
+</div>
+<div class="next-card-section">
+<h3>Next Card</h3>
+<div id="nextCard" class="card-display">
+<div class="playing-card back">🎭</div>
+</div>
+</div>
+</div>
+<div id="hiloResult" class="game-result"></div>
+</div>
+</div>
+
+<div id="dice" class="game-screen">
+<div class="game-container">
+<div class="game-header">
+<h2>🎲 Nebula Dice</h2>
+<div class="bet-controls">
+<label>Bet:</label>
+<select id="diceBet"><option value="1">1</option><option value="5">5</option><option value="10">10</option></select>
+<span id="diceCurrency">HC</span>
+</div>
+</div>
+<div class="dice-table">
+<div class="dice-display">
+<div id="dice1" class="die">⚀</div>
+<div id="dice2" class="die">⚀</div>
+</div>
+<div class="dice-betting">
+<h3>Bet on:</h3>
+<div class="bet-options">
+<button class="bet-option" data-bet="high">HIGH (8-12)</button>
+<button class="bet-option" data-bet="low">LOW (2-6)</button>
+<button class="bet-option" data-bet="seven">SEVEN (7)</button>
+</div>
+<div class="selected-bet">Selected: <span id="selectedBet">None</span></div>
+</div>
+<div class="dice-controls">
+<button id="rollBtn" class="cosmic-btn" disabled>ROLL DICE</button>
+</div>
+</div>
+<div id="diceResult" class="game-result"></div>
 </div>
 </div>
 </main>
