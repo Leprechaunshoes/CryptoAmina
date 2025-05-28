@@ -23,6 +23,10 @@
 <div class="info-item"><span class="info-icon">♠️</span><p><strong>Galaxy Blackjack:</strong> Beat dealer</p></div>
 </div>
 <div class="currency-info"><p>💰 Start with 1000 HC or connect wallet for AMINA</p></div>
+<div class="get-amina-box" onclick="openAminaExplorer()">
+<span class="amina-icon">🪙</span>
+<p><strong>Get AMINA Tokens:</strong> Buy & opt-in to play with crypto</p>
+</div>
 </div>
 <button id="enterCasino" class="enter-btn">🚀 ENTER CASINO</button>
 </div>
@@ -215,6 +219,11 @@ document.getElementById('welcomeScreen').classList.remove('active');
 document.getElementById('mainCasino').classList.add('active');
 });
 });
+
+// Get AMINA function
+function openAminaExplorer() {
+window.open('https://explorer.perawallet.app/asset/1107424865/', '_blank');
+}
 
 // Donation functions
 function showDonationModal(){document.getElementById('donationModal').style.display='flex'}
