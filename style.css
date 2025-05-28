@@ -2,8 +2,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 :root{--cp:#4A148C;--cb:#1A237E;--cm:#E91E63;--cg:#FFD700;--sb:#0A0A0A;--sw:#FFF;--pc:#00E5FF;--vg:#212121;--wg:#4CAF50;--lr:#F44336}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{overflow-x:hidden;position:fixed;height:100%;width:100%}
-body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflow-x:hidden;overflow-y:auto;min-height:100vh;position:relative;height:100%;-webkit-overflow-scrolling:touch;-webkit-user-select:none;user-select:none;touch-action:pan-y}
+html{overflow-x:hidden}
+body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflow-x:hidden;min-height:100vh;-webkit-overflow-scrolling:touch}
 
 .cosmic-bg{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 20% 80%,var(--cp) 0%,transparent 50%),radial-gradient(circle at 80% 20%,var(--cb) 0%,transparent 50%),linear-gradient(135deg,var(--sb) 0%,#1a0033 100%);z-index:-2}
 .cosmic-bg::after{content:'';position:absolute;width:100%;height:100%;background:radial-gradient(circle at 50% 50%,transparent 30%,rgba(11,13,23,0.3) 100%);pointer-events:none}
@@ -36,7 +36,7 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 
 .welcome-screen{position:fixed;top:0;left:0;width:100%;height:100vh;display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;visibility:hidden;transition:all .5s ease;padding:.5rem;overflow-y:auto}
 .welcome-screen.active{opacity:1;visibility:visible}
-.welcome-content{text-align:center;max-width:90%;max-height:95vh;padding:1rem;background:rgba(0,0,0,.95);backdrop-filter:blur(10px);border:2px solid var(--cg);border-radius:20px;box-shadow:0 15px 30px rgba(0,0,0,.5);overflow-y:auto;position:relative}
+.welcome-content{text-align:center;max-width:90%;padding:1rem;background:rgba(0,0,0,.95);backdrop-filter:blur(10px);border:2px solid var(--cg);border-radius:20px;box-shadow:0 15px 30px rgba(0,0,0,.5);position:relative;max-height:90vh;overflow-y:auto}
 
 .space-objects{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:-1}
 .space-obj{position:absolute;font-size:12px;animation:spaceFloat 8s ease-in-out infinite}
@@ -200,38 +200,38 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 .game-controls{display:flex;justify-content:center;gap:.8rem;margin:1.5rem 0;flex-wrap:wrap}
 
 /* HI-LO GAME STYLES */
-.hilo-table{display:flex;flex-direction:column;align-items:center;gap:2rem;padding:1rem;width:100%;max-width:100%;overflow:hidden}
+.hilo-table{display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem;width:100%;max-width:100%;overflow:hidden}
 .current-card-section,.next-card-section{text-align:center;width:100%}
-.current-card-section h3,.next-card-section h3{font-family:'JetBrains Mono',monospace;font-size:1.3rem;color:var(--cg);margin-bottom:1rem}
-.card-display{display:flex;justify-content:center;align-items:center;margin:1rem 0;min-height:140px}
-.prediction-section{text-align:center;width:100%;margin:2rem 0}
-.prediction-section h3{font-family:'JetBrains Mono',monospace;font-size:1.4rem;color:var(--cg);margin-bottom:1.5rem}
-.hilo-controls{display:flex;justify-content:center;gap:1rem;margin:1rem 0;flex-wrap:wrap}
-.hilo-btn{background:linear-gradient(135deg,var(--pc),#3b82f6);color:var(--sw);border:3px solid var(--pc);padding:1rem 2rem;border-radius:16px;font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all .3s ease;min-width:120px;position:relative;overflow:hidden;box-shadow:0 8px 25px rgba(0,229,255,.3),0 0 20px rgba(59,130,246,.2);text-transform:uppercase}
+.current-card-section h3,.next-card-section h3{font-family:'JetBrains Mono',monospace;font-size:1.2rem;color:var(--cg);margin-bottom:.5rem}
+.card-display{display:flex;justify-content:center;align-items:center;margin:.5rem 0;min-height:120px}
+.prediction-section{text-align:center;width:100%;margin:1rem 0}
+.prediction-section h3{font-family:'JetBrains Mono',monospace;font-size:1.2rem;color:var(--cg);margin-bottom:1rem}
+.hilo-controls{display:flex;justify-content:center;gap:1rem;margin:.5rem 0;flex-wrap:wrap}
+.hilo-btn{background:linear-gradient(135deg,var(--pc),#3b82f6);color:var(--sw);border:3px solid var(--pc);padding:.8rem 1.5rem;border-radius:16px;font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;cursor:pointer;transition:all .3s ease;min-width:120px;position:relative;overflow:hidden;box-shadow:0 8px 25px rgba(0,229,255,.3),0 0 20px rgba(59,130,246,.2);text-transform:uppercase}
 .hilo-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);transition:left .8s ease}
 .hilo-btn:hover::before{left:100%}
 .hilo-btn:hover{transform:translateY(-3px);box-shadow:0 12px 35px rgba(0,229,255,.5),0 0 30px rgba(59,130,246,.4);border-color:#3b82f6}
 .hilo-btn:disabled{background:var(--vg);border-color:var(--vg);color:#666;cursor:not-allowed;transform:none;box-shadow:none}
 .hilo-btn:disabled::before{display:none}
 /* COSMIC DICE STYLES */
-.dice-table{display:flex;flex-direction:column;align-items:center;gap:2rem;padding:1rem;width:100%;max-width:100%;overflow:hidden}
-.dice-display{display:flex;justify-content:center;align-items:center;gap:2rem;margin:2rem 0;padding:2rem;background:linear-gradient(135deg,rgba(34,197,94,.1),rgba(6,182,212,.1));backdrop-filter:blur(15px);border-radius:24px;border:3px solid transparent;background-clip:padding-box;position:relative}
+.dice-table{display:flex;flex-direction:column;align-items:center;gap:1.5rem;padding:1rem;width:100%;max-width:100%;overflow:hidden}
+.dice-display{display:flex;justify-content:center;align-items:center;gap:2rem;margin:1rem 0;padding:1.5rem;background:linear-gradient(135deg,rgba(34,197,94,.1),rgba(6,182,212,.1));backdrop-filter:blur(15px);border-radius:24px;border:3px solid transparent;background-clip:padding-box;position:relative}
 .dice-display::before{content:'';position:absolute;inset:0;padding:3px;background:linear-gradient(135deg,#22c55e,#06b6d4,#3b82f6);border-radius:24px;mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask-composite:exclude;animation:diceGlow 4s ease-in-out infinite}
-.die{width:100px;height:100px;background:linear-gradient(135deg,#1f2937,#111827);border:3px solid #22c55e;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:3rem;color:#22c55e;font-weight:900;transition:all .3s ease;box-shadow:0 10px 30px rgba(34,197,94,.3),inset 0 0 20px rgba(6,182,212,.1);position:relative;overflow:hidden}
+.die{width:80px;height:80px;background:linear-gradient(135deg,#1f2937,#111827);border:3px solid #22c55e;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:#22c55e;font-weight:900;transition:all .3s ease;box-shadow:0 10px 30px rgba(34,197,94,.3),inset 0 0 20px rgba(6,182,212,.1);position:relative;overflow:hidden}
 .die::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,rgba(255,255,255,.1),transparent);border-radius:17px}
 .die.rolling{animation:diceRoll 1s ease-in-out;border-color:#06b6d4;box-shadow:0 15px 40px rgba(6,182,212,.5),inset 0 0 30px rgba(34,197,94,.2)}
 .die.winning{animation:winPulse 1s ease-in-out infinite;border-color:#3b82f6;box-shadow:0 20px 50px rgba(59,130,246,.6),inset 0 0 40px rgba(34,197,94,.3)}
 .dice-betting{width:100%;max-width:500px;text-align:center}
-.dice-betting h3{font-family:'JetBrains Mono',monospace;font-size:1.5rem;color:var(--cg);margin-bottom:1.5rem;text-shadow:0 0 10px var(--cg)}
-.bet-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1rem;margin-bottom:1.5rem}
-.bet-option{padding:1rem 1.5rem;background:linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.02));backdrop-filter:blur(10px);border:2px solid rgba(255,255,255,.1);border-radius:16px;color:var(--sw);font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600;cursor:pointer;transition:all .3s ease;position:relative;overflow:hidden}
+.dice-betting h3{font-family:'JetBrains Mono',monospace;font-size:1.3rem;color:var(--cg);margin-bottom:1rem;text-shadow:0 0 10px var(--cg)}
+.bet-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1rem;margin-bottom:1rem}
+.bet-option{padding:.8rem 1rem;background:linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.02));backdrop-filter:blur(10px);border:2px solid rgba(255,255,255,.1);border-radius:16px;color:var(--sw);font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .3s ease;position:relative;overflow:hidden}
 .bet-option::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);transition:left .6s ease}
 .bet-option:hover::before{left:100%}
 .bet-option:hover{transform:translateY(-2px);border-color:var(--pc);box-shadow:0 8px 25px rgba(0,0,0,.3)}
 .bet-option.selected{background:linear-gradient(135deg,#22c55e,#06b6d4);color:var(--sb);border-color:#22c55e;transform:translateY(-2px);box-shadow:0 10px 30px rgba(34,197,94,.4)}
-.selected-bet{font-family:'JetBrains Mono',monospace;font-size:1.1rem;color:var(--pc);margin-bottom:1.5rem;font-weight:600}
+.selected-bet{font-family:'JetBrains Mono',monospace;font-size:1rem;color:var(--pc);margin-bottom:1rem;font-weight:600}
 .dice-controls{width:100%}
-.dice-controls .cosmic-btn{width:100%;max-width:300px;margin:0 auto;display:block;padding:1.2rem 2rem;font-size:1.2rem;background:linear-gradient(135deg,#22c55e,#06b6d4);border:3px solid #22c55e;position:relative;overflow:hidden}
+.dice-controls .cosmic-btn{width:100%;max-width:300px;margin:0 auto;display:block;padding:1rem 1.5rem;font-size:1.1rem;background:linear-gradient(135deg,#22c55e,#06b6d4);border:3px solid #22c55e;position:relative;overflow:hidden}
 .dice-controls .cosmic-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);transition:left .8s ease}
 .dice-controls .cosmic-btn:hover::before{left:100%}
 .dice-controls .cosmic-btn:disabled{background:var(--vg);border-color:var(--vg);color:#666}
