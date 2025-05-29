@@ -428,7 +428,7 @@ return this.notify(`Max ${this.games.plinko.max} balls!`);
 }
 const ball={
 id:Date.now()+Math.random(),
-x:200+(Math.random()-0.5)*20,y:15,vx:(Math.random()-0.5)*0.5,vy:0,r:4,g:0.12,b:0.85,bet:bet,
+x:200+(Math.random()-0.5)*20,y:15,vx:(Math.random()-0.5)*0.3,vy:0,r:6,g:0.06,b:0.9,bet:bet,
 color:`hsl(${Math.random()*360},70%,60%)`
 };
 this.games.plinko.balls.push(ball);
@@ -439,8 +439,8 @@ animatePlinko(){
 const animate=()=>{
 this.games.plinko.balls.forEach((b,idx)=>{
 b.vy+=b.g;
-b.vy*=0.995;
-b.vx*=0.98;
+b.vy*=0.998;
+b.vx*=0.99;
 b.x+=b.vx;
 b.y+=b.vy;
 this.pegs.forEach(p=>{
@@ -450,13 +450,13 @@ const a=Math.atan2(dy,dx);
 const force=Math.max(0,(b.r+p.r)-d)*0.5;
 b.x=p.x+Math.cos(a)*(b.r+p.r+2);
 b.y=p.y+Math.sin(a)*(b.r+p.r+2);
-const bounceAngle=(Math.random()-0.5)*0.8;
-b.vx=Math.cos(a+bounceAngle)*Math.abs(b.vy)*0.4+(Math.random()-0.5)*0.8;
-b.vy=Math.abs(b.vy)*b.b*(0.6+Math.random()*0.3);
+const bounceAngle=(Math.random()-0.5)*0.6;
+b.vx=Math.cos(a+bounceAngle)*Math.abs(b.vy)*0.3+(Math.random()-0.5)*0.5;
+b.vy=Math.abs(b.vy)*b.b*(0.5+Math.random()*0.3);
 }
 });
 if(b.x<b.r||b.x>400-b.r){
-b.vx*=-0.6;
+b.vx*=-0.7;
 b.x=b.x<b.r?b.r:400-b.r;
 }
 if(b.y>420){
