@@ -38,9 +38,12 @@ try{
 const response=await fetch(`https://mainnet-idx.algonode.cloud/v2/accounts/${wallet}/assets`);
 const data=await response.json();
 const aminaAsset=data.assets?.find(a=>a['asset-id']===this.aminaId);
-return aminaAsset?aminaAsset.amount/1000000:0;
+const balance=aminaAsset?aminaAsset.amount/1000000:0;
+console.log('AMINA Balance:',balance);
+return balance;
 }catch(e){
 console.error('Balance fetch error:',e);
+this.notify('❌ Error fetching balance');
 return 0;
 }
 }
@@ -122,18 +125,18 @@ return;
 }
 const newCurrency=this.currency==='HC'?'AMINA':'HC';
 const toggle=$('currencyToggle');
-const text=document.querySelector('.currency-text');
+const text=toggle.querySelector('.currency-text');
 
 if(newCurrency==='AMINA'){
 this.notify('Fetching AMINA balance...');
 this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
 this.currency='AMINA';
 toggle.classList.add('amina');
-if(text)text.textContent='AMINA';
+text.textContent='AMINA';
 }else{
 this.currency='HC';
 toggle.classList.remove('amina');
-if(text)text.textContent='HC';
+text.textContent='HC';
 }
 this.updateBets();
 this.updateDisplay();
