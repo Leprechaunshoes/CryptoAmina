@@ -744,71 +744,11 @@ class AminaCasino {
     }
 
     // === HI-LO GAME ===
-initHilo() {
-    console.log('Initializing Hi-Lo game...'); // Debug log
-    
-    try {
-        // Reset game state
+    initHilo() {
         this.hiloCard = null;
         this.cardStreak = [];
-        this.hiloBet = 0;
-        
-        // Reset UI elements - make sure they exist first
-        const currentCardEl = document.getElementById('currentCard');
-        const nextCardEl = document.getElementById('nextCard');
-        const dealBtn = document.getElementById('dealHiloBtn');
-        const higherBtn = document.getElementById('higherBtn');
-        const lowerBtn = document.getElementById('lowerBtn');
-        const resultEl = document.getElementById('hiloResult');
-        
-        // Check if elements exist
-        if (!currentCardEl || !nextCardEl || !dealBtn || !higherBtn || !lowerBtn) {
-            console.error('Hi-Lo: Missing HTML elements');
-            return;
-        }
-        
-        // Reset current card display
-        currentCardEl.innerHTML = '<div class="playing-card">?</div>';
-        
-        // Reset next card display  
-        nextCardEl.innerHTML = '<div class="playing-card back">🚀</div>';
-        
-        // Reset button states
-        dealBtn.disabled = false;
-        dealBtn.style.display = 'block';
-        higherBtn.disabled = true;
-        lowerBtn.disabled = true;
-        
-        // Clear any previous results
-        if (resultEl) {
-            resultEl.classList.remove('show');
-            resultEl.textContent = '';
-        }
-        
-        // Reset streak display
-        this.updateStreakDisplay();
-        
-        // Add event listeners (remove old ones first to prevent duplicates)
-        dealBtn.onclick = null;
-        higherBtn.onclick = null; 
-        lowerBtn.onclick = null;
-        
-        // Add fresh event listeners
-        dealBtn.onclick = () => this.dealHilo();
-        higherBtn.onclick = () => this.guessHilo('higher');
-        lowerBtn.onclick = () => this.guessHilo('lower');
-        
-        console.log('Hi-Lo game initialized successfully!');
-        
-    } catch (error) {
-        console.error('Hi-Lo initialization error:', error);
-        // Show error to user
-        const hiloContainer = document.querySelector('#hilo .game-container');
-        if (hiloContainer) {
-            hiloContainer.innerHTML = '<p style="color: #F44336; text-align: center; padding: 2rem;">Hi-Lo game failed to load. Please refresh the page.</p>';
-        }
+        this.resetHiloUI();
     }
-}
 
     resetHiloUI() {
         document.getElementById('currentCard').innerHTML = '<div class="playing-card">?</div>';
