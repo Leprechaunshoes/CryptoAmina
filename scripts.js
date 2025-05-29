@@ -221,26 +221,24 @@ orb.style.transform='scale(1)';
 
 positionOrbitalItems(){
 const items=document.querySelectorAll('.orbital-item');
-const radius=window.innerWidth<768?110:140; // Smaller radius on mobile
-const centerX=0;
-const centerY=0;
+const radius=window.innerWidth<768?90:120; // Adjusted radius
+const menuRect=document.getElementById('orbitalMenu').getBoundingClientRect();
 
 items.forEach((item,index)=>{
 // Get the angle from the style attribute
 const angleMatch=item.style.cssText.match(/--angle:\s*(\d+)deg/);
 if(angleMatch){
 const angleDeg=parseInt(angleMatch[1]);
-const angleRad=(angleDeg-90)*Math.PI/180; // Subtract 90 to start from top
+const angleRad=(angleDeg)*Math.PI/180; // Use angle directly
 
+// Calculate position relative to center
+const x=Math.cos(angleRad)*radius;
+const y=Math.sin(angleRad)*radius;
 
-// Calculate position
-const x=centerX+Math.cos(angleRad)*radius;
-const y=centerY+Math.sin(angleRad)*radius;
-
-// Apply position
-item.style.left=`calc(50% + ${x}px)`;
-item.style.top=`calc(50% + ${y}px)`;
-item.style.transform='translate(-50%, -50%)';
+// Apply position - center the item then offset by calculated position
+item.style.left='50%';
+item.style.top='50%';
+item.style.transform=`translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
 }
 });
 }
