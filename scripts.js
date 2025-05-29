@@ -93,6 +93,14 @@ orb.style.transform='scale(1)';
 enterCasino(){
 $('welcomeScreen').classList.remove('active');
 $('mainCasino').classList.add('active');
+if(this.music.audio&&!this.music.on){
+this.music.audio.play().then(()=>{
+this.music.on=1;
+$('musicToggle').innerHTML='🎵';
+}).catch(()=>{
+console.log('Auto-play blocked by browser');
+});
+}
 }
 
 async toggleWallet(){
