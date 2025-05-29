@@ -781,16 +781,26 @@ const btn=$('musicToggle');
 this.music.audio=document.createElement('audio');
 this.music.audio.loop=1;
 this.music.audio.volume=0.3;
-this.music.audio.src='data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTuLz/bNfSkHK43Q8N2VQgsUYbjl7qhcGgRFot/iuV4fBTiPzffcHjZQp+z8FGxgzZGJR8dQ';
+this.music.audio.src='https://dn721902.ca.archive.org/0/items/tvtunes_26876/Hot%20Butter%20Popcorn.mp3';
+this.music.audio.crossOrigin='anonymous';
+this.music.on=1;
+this.music.audio.play().catch(()=>{
+this.music.on=0;
+btn.innerHTML='🔇';
+});
 btn.onclick=()=>{
 if(this.music.on){
 this.music.audio.pause();
 btn.innerHTML='🔇';
 this.music.on=0;
+this.notify('🎵 Music off');
 }else{
-this.music.audio.play().catch(()=>{});
+this.music.audio.play().catch(()=>{
+this.notify('❌ Music failed to load');
+});
 btn.innerHTML='🎵';
 this.music.on=1;
+this.notify('🎵 Hot Butter Popcorn!');
 }
 };
 }
