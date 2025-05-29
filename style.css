@@ -1,4 +1,4 @@
-/* style.css - Complete final version with orbital menu updates */
+/* style.css - Complete final version with slide-out menu updates */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 :root{--cp:#4A148C;--cb:#1A237E;--cm:#E91E63;--cg:#FFD700;--sb:#0A0A0A;--sw:#FFF;--pc:#00E5FF;--vg:#212121;--wg:#4CAF50;--lr:#F44336}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -34,6 +34,7 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 @keyframes coinExplode{0%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(0.2);opacity:0}}
 @keyframes shimmer{0%,100%{transform:translateX(-100%)}50%{transform:translateX(100%)}}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.8;transform:scale(1.02)}}
+@keyframes rotate{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 
 .welcome-screen{position:fixed;top:0;left:0;width:100%;height:100vh;display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;visibility:hidden;transition:all .5s ease;padding:.5rem;overflow-y:auto}
 .welcome-screen.active{opacity:1;visibility:visible}
@@ -118,15 +119,13 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 .cosmic-orb:hover{transform:scale(1.1);animation-duration:1s}
 .orb-core{font-size:1.8rem;z-index:2;filter:drop-shadow(0 0 10px rgba(255,255,255,.8))}
 
-.orbital-menu{position:fixed;left:-300px;top:0;width:280px;height:100vh;background:rgba(10,10,10,.98);backdrop-filter:blur(20px);border-right:2px solid rgba(255,215,0,.2);transition:left .4s cubic-bezier(0.4,0,0.2,1);z-index:999;display:flex;flex-direction:column;padding:1.5rem 1rem;box-shadow:3px 0 15px rgba(0,0,0,.4)}
+.orbital-menu{position:fixed;left:-320px;top:0;width:300px;height:100vh;background:rgba(10,10,10,.98);backdrop-filter:blur(20px);border-right:2px solid rgba(255,215,0,.2);transition:left .4s cubic-bezier(0.4,0,0.2,1);z-index:999;display:flex;flex-direction:column;padding:1.5rem 1rem;box-shadow:3px 0 15px rgba(0,0,0,.4)}
 .orbital-menu.open{left:0}
 
 .orbital-item{position:relative;width:100%;height:68px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,215,0,.15);display:flex;align-items:center;justify-content:flex-start;gap:1rem;padding:0 1.2rem;font-size:1rem;cursor:pointer;transition:all .25s ease;margin-bottom:1rem;box-shadow:0 2px 8px rgba(0,0,0,.15)}
 .orbital-item:hover{background:rgba(255,215,0,.12);border-color:rgba(255,215,0,.3);transform:translateX(5px);box-shadow:0 4px 12px rgba(255,215,0,.2)}
-.orbital-item::after{content:attr(title);flex:1;text-align:left;font-family:'JetBrains Mono',monospace;font-weight:600;color:#fff !important;font-size:.9rem !important;text-shadow:0 0 25px #FFD700 !important}
-.orbital-item:hover::after{text-shadow:0 0 30px #00E5FF !important}
-
-@keyframes rotate{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.orbital-item::after{content:attr(title);flex:1;text-align:left;font-family:'JetBrains Mono',monospace;font-weight:600;color:#FFD700 !important;font-size:.85rem !important;text-shadow:0 0 20px #FFD700 !important;filter:drop-shadow(0 0 15px #FFD700) !important}
+.orbital-item:hover::after{color:#00E5FF !important;text-shadow:0 0 25px #00E5FF !important;filter:drop-shadow(0 0 20px #00E5FF) !important}
 
 .floating-actions{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:10px;z-index:200}
 .floating-btn{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--cm),var(--cp));border:2px solid var(--cg);color:var(--sw);font-size:1.3rem;cursor:pointer;transition:all .3s ease;animation:subtleFloat 3s ease-in-out infinite;box-shadow:0 0 20px rgba(233,30,99,.5)}
@@ -148,12 +147,10 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 .game-card h3{font-family:'JetBrains Mono',monospace;font-size:1.5rem;color:var(--cg);margin-bottom:1rem}
 .max-win{background:var(--cm);color:var(--sw);padding:.5rem 1rem;border-radius:25px;font-weight:700;display:inline-block}
 
-/* NEW INFO SECTIONS STYLING */
 .info-header{text-align:center;margin-bottom:2rem}
 .info-header h2{font-family:'JetBrains Mono',monospace;font-size:2.5rem;background:linear-gradient(45deg,var(--cg),var(--pc),var(--cm));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
 .info-subtitle{color:#ccc;font-size:1.1rem;margin-bottom:1rem}
 
-/* HOW TO PLAY STYLES */
 .rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:2rem}
 .rule-card{background:rgba(255,255,255,.03);backdrop-filter:blur(15px);border:2px solid rgba(255,255,255,.1);border-radius:20px;padding:1.5rem;transition:all .3s ease}
 .rule-card:hover{transform:translateY(-5px);border-color:var(--cg)}
@@ -163,7 +160,6 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 .rule-content ul{margin:1rem 0;padding-left:1.5rem}
 .rule-content li{margin-bottom:.3rem}
 
-/* ABOUT SECTION STYLES */
 .about-content{display:grid;gap:2rem}
 .about-section{background:rgba(255,255,255,.03);backdrop-filter:blur(15px);border:2px solid rgba(255,255,255,.1);border-radius:20px;padding:2rem;position:relative}
 .section-icon{font-size:2.5rem;margin-bottom:1rem}
@@ -178,7 +174,6 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 .token-feature{background:rgba(255,255,255,.05);padding:1rem;border-radius:12px;border:1px solid rgba(255,255,255,.1)}
 .token-feature h4{color:var(--cm);margin-bottom:.5rem}
 
-/* WHITEPAPER STYLES */
 .whitepaper-content{max-height:80vh;overflow-y:auto;padding:1rem}
 .wp-header{text-align:center;margin-bottom:3rem;padding-bottom:2rem;border-bottom:2px solid var(--cg)}
 .wp-logo{width:80px;height:80px;border-radius:50%;border:3px solid var(--cg);filter:drop-shadow(0 0 20px var(--cg));animation:coinRotate 4s linear infinite,pulse 6s ease-in-out infinite;margin-bottom:1rem;object-fit:cover}
@@ -204,7 +199,6 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 .game-result.win{background:rgba(76,175,80,.2);border:2px solid var(--wg);color:var(--wg)}
 .game-result.lose{background:rgba(244,67,54,.2);border:2px solid var(--lr);color:var(--lr)}
 
-/* SLOTS GAME STYLES */
 .slots-machine{text-align:center;width:100%}
 .slots-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:100%;width:100%;margin:0 auto 1.5rem auto;background:rgba(0,0,0,.6);backdrop-filter:blur(10px);padding:1rem;border-radius:20px;border:3px solid var(--cg)}
 .slot-reel{width:100%;aspect-ratio:1;background:rgba(255,255,255,.05);backdrop-filter:blur(10px);border:2px solid var(--cg);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;transition:all .3s ease}
@@ -244,16 +238,12 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 .playing-card.back{background:linear-gradient(135deg,var(--cp),var(--cb));color:var(--cg);font-size:2rem;box-shadow:0 8px 20px rgba(74,20,140,.4),0 0 20px rgba(26,35,126,.3)}
 .game-controls{display:flex;justify-content:center;gap:.8rem;margin:1.5rem 0;flex-wrap:wrap}
 
-/* HI-LO GAME STYLES */
 .hilo-table{display:flex;flex-direction:column;align-items:center;gap:1.2rem;padding:1rem;width:100%;max-width:100%;overflow:hidden}
-
 .current-card-section{text-align:center;width:100%;background:linear-gradient(135deg,rgba(255,215,0,.1),rgba(0,229,255,.05));padding:1rem;border-radius:20px;border:3px solid var(--cg);position:relative}
 .current-card-section::before{content:'🎯';position:absolute;top:-15px;left:20px;font-size:2rem;background:var(--sb);padding:0 10px}
 .current-card-section h3{font-family:'JetBrains Mono',monospace;font-size:1.4rem;color:var(--cg);margin-bottom:1rem;text-shadow:0 0 10px var(--cg)}
-
 .current-card-area{display:flex;align-items:center;justify-content:center;gap:2rem;flex-wrap:wrap}
 .main-card-display .playing-card{width:100px;height:150px;font-size:1.8rem;border:4px solid var(--cg);box-shadow:0 15px 40px rgba(255,215,0,.4),0 0 30px rgba(255,215,0,.3);transform:scale(1.1)}
-
 .streak-section{background:linear-gradient(135deg,rgba(0,229,255,.1),rgba(59,130,246,.05));padding:1rem;border-radius:16px;border:2px solid var(--pc);max-width:50%;position:relative}
 .streak-section::before{content:'🔥';position:absolute;top:-12px;left:15px;font-size:1.5rem;background:var(--sb);padding:0 8px}
 .streak-title{font-family:'JetBrains Mono',monospace;font-size:1rem;color:var(--pc);margin-bottom:.5rem;text-align:center}
@@ -261,7 +251,6 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 .streak-card{min-width:35px;height:50px;background:linear-gradient(135deg,#f8f9fa,#e9ecef);border:2px solid var(--pc);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:var(--sb);flex-shrink:0;animation:cardSlideIn .5s ease-out;box-shadow:0 4px 12px rgba(0,229,255,.3)}
 .streak-card.red{color:var(--cm)}
 .streak-placeholder{color:var(--pc);font-family:'JetBrains Mono',monospace;font-size:.8rem;opacity:.8;font-style:italic}
-
 .prediction-section{text-align:center;width:100%;background:linear-gradient(135deg,rgba(236,72,153,.1),rgba(168,85,247,.05));padding:1rem;border-radius:20px;border:3px solid var(--cm);position:relative}
 .prediction-section::before{content:'🤔';position:absolute;top:-15px;left:20px;font-size:2rem;background:var(--sb);padding:0 10px}
 .prediction-section h3{font-family:'JetBrains Mono',monospace;font-size:1.4rem;color:var(--cm);margin-bottom:1.5rem;text-shadow:0 0 10px var(--cm)}
@@ -272,14 +261,12 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 .hilo-btn:hover{transform:scale(1.1) translateY(-3px);box-shadow:0 18px 45px rgba(0,229,255,.6),0 0 40px rgba(59,130,246,.5)}
 .hilo-btn:disabled{background:var(--vg);border-color:var(--vg);color:#666;cursor:not-allowed;transform:scale(1);box-shadow:none}
 .hilo-btn:disabled::before{display:none}
-
 .next-card-section{text-align:center;width:100%;background:linear-gradient(135deg,rgba(34,197,94,.1),rgba(16,185,129,.05));padding:1rem;border-radius:20px;border:3px solid var(--wg);position:relative}
 .next-card-section::before{content:'❓';position:absolute;top:-15px;left:20px;font-size:2rem;background:var(--sb);padding:0 10px}
 .next-card-section h3{font-family:'JetBrains Mono',monospace;font-size:1.4rem;color:var(--wg);margin-bottom:1rem;text-shadow:0 0 10px var(--wg)}
 .card-display{display:flex;justify-content:center;align-items:center;margin:.5rem 0;min-height:120px}
 .next-card-section .playing-card{border:4px solid var(--wg);box-shadow:0 15px 40px rgba(34,197,94,.4),0 0 30px rgba(34,197,94,.3);transform:scale(1.1)}
 
-/* COSMIC DICE STYLES */
 .dice-table{display:flex;flex-direction:column;align-items:center;gap:1.5rem;padding:1rem;width:100%;max-width:100%;overflow:hidden}
 .dice-display{display:flex;justify-content:center;align-items:center;gap:2rem;margin:1rem 0;padding:1.5rem;background:linear-gradient(135deg,rgba(34,197,94,.1),rgba(6,182,212,.1));backdrop-filter:blur(15px);border-radius:24px;border:3px solid transparent;background-clip:padding-box;position:relative}
 .dice-display::before{content:'';position:absolute;inset:0;padding:3px;background:linear-gradient(135deg,#22c55e,#06b6d4,#3b82f6);border-radius:24px;mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask-composite:exclude;animation:diceGlow 4s ease-in-out infinite}
@@ -319,9 +306,8 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 .cosmic-orb-menu{top:110px;right:15px}
 .cosmic-orb{width:50px;height:50px}
 .orb-core{font-size:1.4rem}
-.orbital-menu{width:180px;height:180px}
-.orbital-item{width:32px;height:32px;font-size:.9rem}
-.orbital-item::after{font-size:.6rem;bottom:-30px;padding:.2rem .4rem}
+.orbital-menu{width:250px;padding:1.5rem .8rem}
+.orbital-item{height:50px;font-size:1rem;padding:0 1rem;margin-bottom:.8rem}
 .floating-actions{bottom:15px;right:15px}
 .floating-btn{width:40px;height:40px;font-size:1.1rem}
 .welcome-screen{padding:.3rem;height:100vh;overflow-y:auto}
