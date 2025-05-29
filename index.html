@@ -240,7 +240,7 @@
 
 <div class="plinko-container">
 <div class="plinko-board">
-<canvas id="plinkoCanvas" width="400" height="350"></canvas>
+<canvas id="plinkoCanvas" width="400" height="450"></canvas>
 </div>
 <div class="multipliers-container">
 <div class="multipliers">
@@ -259,7 +259,7 @@
 <div class="multiplier" data-mult="10">10x</div>
 </div>
 </div>
-<button id="dropBtn" class="cosmic-btn">DROP BALL</button>
+<button id="dropBtn" class="cosmic-btn plinko-drop-btn">🌌 DROP BALL</button>
 </div>
 
 <div id="plinkoResult" class="game-result"></div>
@@ -318,38 +318,38 @@
 </div>
 </div>
 
-<div class="hilo-table">
-<div class="current-card-section">
+<div class="hilo-game-container">
+<div class="current-card-display">
 <h3>Current Card</h3>
-<div class="current-card-area">
-<div id="currentCard" class="main-card-display">
-<div class="playing-card">?</div>
-</div>
-<div class="streak-section">
-<div class="streak-title">Your Streak</div>
-<div id="streakCards" class="streak-cards">
-<div class="streak-placeholder">Build it!</div>
+<div id="currentCard" class="hilo-card-area">
+<div class="playing-card hilo-main-card">?</div>
 </div>
 </div>
+
+<div class="prediction-controls">
+<p class="prediction-text">Will the next card be higher or lower?</p>
+<div class="hilo-buttons">
+<button id="higherBtn" class="hilo-btn higher-btn" disabled>⬆️ HIGHER</button>
+<button id="lowerBtn" class="hilo-btn lower-btn" disabled>⬇️ LOWER</button>
 </div>
 </div>
-<div class="prediction-section">
-<h3>Your Prediction</h3>
-<p style="color: #ccc; margin-bottom: 1rem;">Will the next card be higher or lower?</p>
-<div class="hilo-controls">
-<button id="higherBtn" class="cosmic-btn hilo-btn" disabled>⬆️ HIGHER</button>
-<button id="lowerBtn" class="cosmic-btn hilo-btn" disabled>⬇️ LOWER</button>
+
+<div class="streak-info">
+<div class="streak-display">
+<span class="streak-label">🔥 Streak:</span>
+<span class="streak-count">0</span>
 </div>
-<button id="dealHiloBtn" class="cosmic-btn" style="margin-top: 1rem; background: linear-gradient(135deg, var(--cg), var(--pc)); border: 3px solid var(--cg);">🚀 START GAME</button>
-<button id="cashoutBtn" class="cosmic-btn cash-btn" disabled style="margin-top: 1rem;">💰 CASH OUT</button>
-</div>
-<div class="next-card-section">
-<h3>Mystery Card</h3>
-<div id="nextCard" class="card-display">
-<div class="playing-card back">🚀</div>
+<div id="streakCards" class="mini-streak-cards">
+<div class="streak-placeholder">Start playing!</div>
 </div>
 </div>
+
+<div class="hilo-actions">
+<button id="dealHiloBtn" class="cosmic-btn start-btn">🚀 START GAME</button>
+<button id="cashoutBtn" class="cosmic-btn cash-btn" disabled>💰 CASH OUT</button>
 </div>
+</div>
+
 <div id="hiloResult" class="game-result"></div>
 </div>
 </div>
