@@ -307,13 +307,13 @@ body{font-family:'Inter',sans-serif;background:var(--sb);color:var(--sw);overflo
 .tech-features{grid-template-columns:1fr}
 .token-features{grid-template-columns:1fr}
 .whitepaper-content{max-height:85vh}
-.hilo-table{gap:1.5rem;padding:1rem}
-.current-card-section,.prediction-section,.next-card-section{padding:1rem}
+.hilo-table{gap:1.2rem;padding:1rem}
+.current-card-section,.prediction-section,.next-card-section{padding:.8rem}
 .current-card-section h3,.prediction-section h3,.next-card-section h3{font-size:1.2rem}
 .current-card-section::before,.prediction-section::before,.next-card-section::before{font-size:1.5rem;top:-12px}
 .current-card-area{flex-direction:column;gap:1rem}
-.main-card-display .playing-card{width:80px;height:120px;font-size:1.4rem;transform:scale(1)}
-.next-card-section .playing-card{width:80px;height:120px;font-size:1.4rem;transform:scale(1)}
+.main-card-display .playing-card{width:65px;height:98px;font-size:1.2rem;transform:scale(1)}
+.next-card-section .playing-card{width:65px;height:98px;font-size:1.2rem;transform:scale(1)}
 .streak-section{max-width:90%;padding:.8rem}
 .streak-title{font-size:.9rem}
 .streak-cards{justify-content:center}
