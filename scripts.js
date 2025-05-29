@@ -1,7 +1,7 @@
 // AMINA CASINO - STREAMLINED COSMIC ENGINE
 class AminaCasino{
 constructor(){
-this.balance={HC:1000,AMINA:475};
+this.balance={HC:this.getHCBalance(),AMINA:0};
 this.currency='HC';
 this.wallet=null;
 this.aminaId=1107424865;
@@ -15,6 +15,34 @@ dice:{bet:null,roll1:1,roll2:1}
 };
 this.music={on:0,audio:null};
 this.init();
+}
+
+getHCBalance(){
+const today=new Date().toDateString();
+const stored=localStorage.getItem('hc_data');
+if(stored){
+const data=JSON.parse(stored);
+if(data.date===today)return data.balance;
+}
+localStorage.setItem('hc_data',JSON.stringify({date:today,balance:1000}));
+return 1000;
+}
+
+saveHCBalance(){
+const today=new Date().toDateString();
+localStorage.setItem('hc_data',JSON.stringify({date:today,balance:this.balance.HC}));
+}
+
+async fetchAminaBalance(wallet){
+try{
+const response=await fetch(`https://mainnet-idx.algonode.cloud/v2/accounts/${wallet}/assets`);
+const data=await response.json();
+const aminaAsset=data.assets?.find(a=>a['asset-id']===this.aminaId);
+return aminaAsset?aminaAsset.amount/1000000:0;
+}catch(e){
+console.error('Balance fetch error:',e);
+return 0;
+}
 }
 
 init(){
@@ -64,7 +92,7 @@ $('welcomeScreen').classList.remove('active');
 $('mainCasino').classList.add('active');
 }
 
-toggleWallet(){
+async toggleWallet(){
 if(this.wallet){
 this.wallet=null;
 this.balance.AMINA=0;
@@ -75,7 +103,7 @@ this.notify('Wallet disconnected');
 const addr=prompt('Enter Algorand wallet:');
 if(addr&&addr.length===58){
 this.wallet=addr;
-this.balance.AMINA=475;
+this.balance.AMINA=await this.fetchAminaBalance(addr);
 this.updateWalletUI();
 this.notify('Wallet connected! 🚀');
 }else if(addr)this.notify('Invalid address');
@@ -87,10 +115,13 @@ const btn=$('walletBtn');
 btn.innerHTML=this.wallet?'🔓 '+this.wallet.slice(0,4)+'...'+this.wallet.slice(-4):'🔗 Connect Wallet';
 }
 
-toggleCurrency(){
+async toggleCurrency(){
 if(this.currency==='HC'&&!this.wallet){
 this.notify('🔗 Connect wallet for AMINA!');
 return;
+}
+if(this.currency==='HC'&&this.wallet){
+this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
 }
 this.currency=this.currency==='HC'?'AMINA':'HC';
 const toggle=$('currencyToggle'),text=$('.currency-text');
@@ -124,7 +155,7 @@ if(bets.includes(curr))sel.value=curr;
 
 updateDisplay(){
 const bal=this.balance[this.currency];
-$('balanceAmount').textContent=bal.toFixed(4);
+$('balanceAmount').textContent=this.currency==='AMINA'?bal.toFixed(6):bal.toFixed(0);
 $('currencySymbol').textContent=this.currency;
 ['slots','plinko','blackjack','hilo','dice'].forEach(g=>{
 const el=$(`${g}Currency`);
@@ -138,6 +169,7 @@ this.notify('Insufficient balance!');
 return 0;
 }
 this.balance[this.currency]-=amt;
+if(this.currency==='HC')this.saveHCBalance();
 this.updateDisplay();
 return 1;
 }
@@ -145,6 +177,7 @@ return 1;
 addBalance(amt){
 if(this.currency==='AMINA')amt*=0.95; // 5% rake
 this.balance[this.currency]+=amt;
+if(this.currency==='HC')this.saveHCBalance();
 this.updateDisplay();
 }
 
