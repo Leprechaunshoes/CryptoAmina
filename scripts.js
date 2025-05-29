@@ -1,4 +1,4 @@
-// scripts.js - Clean Casino with Orbital Menu
+// scripts.js - Clean Final Version with Orbital Menu
 class AminaCasino{
 constructor(){
 this.balance={HC:1000,AMINA:0};
@@ -56,15 +56,6 @@ playing=!playing;
 });
 document.body.appendChild(btn);
 document.body.appendChild(audio);
-document.getElementById('enterCasino')?.addEventListener('click',()=>{
-setTimeout(()=>{
-if(!playing){
-audio.play().catch(()=>{});
-playing=true;
-btn.innerHTML='🎵';
-}
-},800);
-});
 }
 
 startEffects(){
@@ -188,9 +179,6 @@ document.head.appendChild(style);
 
 setupUI(){
 this.setupCosmicOrb();
-document.querySelectorAll('.floating-btn[data-game]').forEach(btn=>{
-btn.onclick=()=>this.switchGame(btn.dataset.game);
-});
 document.querySelectorAll('.game-card').forEach(card=>{
 card.onclick=()=>this.switchGame(card.dataset.game);
 });
@@ -411,7 +399,7 @@ btn.onclick=()=>this.selectDiceBet(btn.dataset.bet);
 });
 }
 
-// GAME IMPLEMENTATIONS
+// HI-LO GAME
 initHilo(){
 this.hiloCard=null;
 this.cardStreak=[];
@@ -521,6 +509,7 @@ container.innerHTML='';
 container.appendChild(cardEl);
 }
 
+// DICE GAME
 initDice(){
 this.selectedDiceBet=null;
 this.resetDiceUI();
@@ -573,7 +562,7 @@ setTimeout(()=>this.resetDiceUI(),3000);
 },1000);
 }
 
-// REMAINING GAMES - SLOTS, PLINKO, BLACKJACK (keeping existing implementations)
+// SLOTS GAME
 initSlots(){
 const grid=document.getElementById('slotsGrid');
 if(!grid)return;
@@ -678,18 +667,9 @@ async dropPlinko(){
 const bet=+document.getElementById('plinkoBet').value;
 if(this.activeBalls.length>=this.maxBalls)return this.showResult('plinko',`Max ${this.maxBalls} balls at once!`,'info');
 if(!(await this.deductBalance(bet)))return this.showResult('plinko','Insufficient balance!','lose');
-
 const ballId=Date.now()+Math.random();
 const ball={
-id:ballId,
-x:this.ctx.canvas.width/2,
-y:15,
-vx:0,
-vy:0,
-r:4,
-g:0.2,
-b:0.3,
-bet:bet,
+id:ballId,x:this.ctx.canvas.width/2,y:15,vx:0,vy:0,r:4,g:0.2,b:0.3,bet:bet,
 color:`hsl(${Math.random()*360},70%,60%)`
 };
 this.activeBalls.push(ball);
@@ -701,13 +681,9 @@ const animate=()=>{
 if(!this.activeBalls.find(b=>b.id===ball.id))return;
 this.drawBoard();
 this.activeBalls.forEach(b=>{
-b.vy+=b.g;
-b.x+=b.vx;
-b.y+=b.vy;
+b.vy+=b.g;b.x+=b.vx;b.y+=b.vy;
 this.pegs.forEach(p=>{
-const dx=b.x-p.x;
-const dy=b.y-p.y;
-const d=Math.sqrt(dx*dx+dy*dy);
+const dx=b.x-p.x,dy=b.y-p.y,d=Math.sqrt(dx*dx+dy*dy);
 if(d<b.r+p.r){
 const a=Math.atan2(dy,dx);
 b.x=p.x+Math.cos(a)*(b.r+p.r+1);
@@ -718,10 +694,8 @@ b.vy=Math.abs(b.vy)*b.b+0.3;
 });
 if(b.x<b.r){b.x=b.r;b.vx=Math.abs(b.vx)*0.5;}
 if(b.x>this.ctx.canvas.width-b.r){b.x=this.ctx.canvas.width-b.r;b.vx=-Math.abs(b.vx)*0.5;}
-this.ctx.beginPath();
-this.ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
-this.ctx.fillStyle=b.color;
-this.ctx.fill();
+this.ctx.beginPath();this.ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+this.ctx.fillStyle=b.color;this.ctx.fill();
 if(b.y>this.ctx.canvas.height-30){
 let slot=Math.floor(b.x/(this.ctx.canvas.width/13));
 slot=Math.max(0,Math.min(12,slot));
@@ -729,9 +703,7 @@ this.handleBallLanding(b,slot);
 this.activeBalls=this.activeBalls.filter(ball=>ball.id!==b.id);
 }
 });
-if(this.activeBalls.length>0){
-requestAnimationFrame(animate);
-}
+if(this.activeBalls.length>0)requestAnimationFrame(animate);
 };
 animate();
 }
@@ -752,10 +724,7 @@ setTimeout(()=>m.classList.remove('hit'),1000);
 
 // BLACKJACK GAME
 initBlackjack(){
-this.pHand=[];
-this.dHand=[];
-this.active=false;
-this.deck=[];
+this.pHand=[];this.dHand=[];this.active=false;this.deck=[];
 const suits=['♠','♥','♦','♣'];
 const vals=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 suits.forEach(s=>vals.forEach(v=>this.deck.push({v,s})));
@@ -789,8 +758,7 @@ stand(){
 if(!this.active)return;
 while(this.getVal(this.dHand)<17)this.dHand.push(this.deck.pop());
 this.updateBJ(true);
-const pv=this.getVal(this.pHand);
-const dv=this.getVal(this.dHand);
+const pv=this.getVal(this.pHand),dv=this.getVal(this.dHand);
 if(dv>21)this.endBJ('🎉 Dealer busts!',this.bet*2,'win');
 else if(pv>dv)this.endBJ('🎉 You win!',this.bet*2,'win');
 else if(pv<dv)this.endBJ('😔 Dealer wins!',0,'lose');
