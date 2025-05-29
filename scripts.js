@@ -1,4 +1,4 @@
-// scripts.js - Complete Casino with Multi-Ball Plinko
+// scripts.js - Complete Casino with Multi-Ball Plinko + New Sections
 class AminaCasino{
 constructor(){
 this.balance={HC:1000,AMINA:0};
@@ -187,6 +187,7 @@ document.head.appendChild(style);
 }
 
 setupUI(){
+// Setup navigation for all sections including new ones
 document.querySelectorAll('.nav-btn:not(.donation-btn)').forEach(btn=>{
 btn.onclick=()=>this.switchGame(btn.dataset.game);
 });
@@ -199,6 +200,8 @@ switchGame(game){
 document.querySelectorAll('.game-screen,.nav-btn').forEach(el=>el.classList.remove('active'));
 document.getElementById(game).classList.add('active');
 document.querySelector(`[data-game="${game}"]`).classList.add('active');
+
+// Initialize specific games when switching to them
 if(game==='plinko')setTimeout(()=>this.initPlinko(),100);
 if(game==='hilo')setTimeout(()=>this.initHilo(),100);
 if(game==='dice')setTimeout(()=>this.initDice(),100);
