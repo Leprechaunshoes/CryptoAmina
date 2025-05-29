@@ -38,7 +38,7 @@ try{
 const response=await fetch(`https://mainnet-idx.algonode.cloud/v2/accounts/${wallet}/assets`);
 const data=await response.json();
 const aminaAsset=data.assets?.find(a=>a['asset-id']===this.aminaId);
-const balance=aminaAsset?aminaAsset.amount/1000000:0;
+const balance=aminaAsset?aminaAsset.amount/100000:0;
 console.log('AMINA Balance:',balance);
 return balance;
 }catch(e){
