@@ -80,18 +80,28 @@
 </div>
 </header>
 
-<nav class="nav-menu">
-<button class="nav-btn active" data-game="home">🏠 Home</button>
-<button class="nav-btn" data-game="slots">🎰 Slots</button>
-<button class="nav-btn" data-game="plinko">🌌 Plinko</button>
-<button class="nav-btn" data-game="blackjack">♠️ Blackjack</button>
-<button class="nav-btn" data-game="hilo">📈 Hi-Lo</button>
-<button class="nav-btn" data-game="dice">🎲 Dice</button>
-<button class="nav-btn" data-game="howtoplay">❓ How to Play</button>
-<button class="nav-btn" data-game="about">📜 About</button>
-<button class="nav-btn" data-game="whitepaper">🚀 Whitepaper</button>
-<button class="nav-btn donation-btn" onclick="showDonationModal()">💎 Donate</button>
-</nav>
+<div class="cosmic-orb-menu">
+<button id="cosmicOrb" class="cosmic-orb">
+<div class="orb-core">🌌</div>
+</button>
+<div id="orbitalMenu" class="orbital-menu">
+<button class="orbital-item" data-game="home" style="--angle: 0deg">🏠</button>
+<button class="orbital-item" data-game="slots" style="--angle: 45deg">🎰</button>
+<button class="orbital-item" data-game="plinko" style="--angle: 90deg">🌌</button>
+<button class="orbital-item" data-game="blackjack" style="--angle: 135deg">♠️</button>
+<button class="orbital-item" data-game="hilo" style="--angle: 180deg">📈</button>
+<button class="orbital-item" data-game="dice" style="--angle: 225deg">🎲</button>
+<button class="orbital-item" data-game="howtoplay" style="--angle: 270deg">❓</button>
+<button class="orbital-item" data-game="about" style="--angle: 315deg">📜</button>
+</div>
+</div>
+
+<div class="floating-actions">
+<button class="floating-btn" data-game="whitepaper">🚀</button>
+<button class="floating-btn donation-btn" onclick="showDonationModal()">💎</button>
+</div>
+
+<nav class="nav-menu" style="display: none;"></nav>
 
 <main class="main-content">
 <div id="home" class="game-screen active">
@@ -536,8 +546,6 @@
 </div>
 <div id="blackjackResult" class="game-result"></div>
 </div>
-</div>
-</main>
 </div>
 
 <div id="hilo" class="game-screen">
