@@ -194,7 +194,6 @@ menuOpen=!menuOpen;
 if(menuOpen){
 menu.classList.add('open');
 orb.style.transform='scale(0.8)';
-this.positionOrbitalItems();
 }else{
 menu.classList.remove('open');
 orb.style.transform='scale(1)';
@@ -215,30 +214,6 @@ if(!e.target.closest('.cosmic-orb-menu')&&menuOpen){
 menuOpen=false;
 menu.classList.remove('open');
 orb.style.transform='scale(1)';
-}
-});
-}
-
-positionOrbitalItems(){
-const items=document.querySelectorAll('.orbital-item');
-const radius=window.innerWidth<768?70:85; // Tighter orbit for kick-ass look
-const menuRect=document.getElementById('orbitalMenu').getBoundingClientRect();
-
-items.forEach((item,index)=>{
-// Get the angle from the style attribute
-const angleMatch=item.style.cssText.match(/--angle:\s*(\d+)deg/);
-if(angleMatch){
-const angleDeg=parseInt(angleMatch[1]);
-const angleRad=(angleDeg)*Math.PI/180; // Use angle directly
-
-// Calculate position relative to center
-const x=Math.cos(angleRad)*radius;
-const y=Math.sin(angleRad)*radius;
-
-// Apply position - center the item then offset by calculated position
-item.style.left='50%';
-item.style.top='50%';
-item.style.transform=`translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
 }
 });
 }
