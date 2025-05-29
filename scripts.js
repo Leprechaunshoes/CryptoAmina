@@ -1,4 +1,4 @@
-// scripts.js - Clean Final Version with Orbital Menu
+// scripts.js - Clean Final Version with Fixed Orbital Menu
 class AminaCasino{
 constructor(){
 this.balance={HC:1000,AMINA:0};
@@ -194,6 +194,7 @@ menuOpen=!menuOpen;
 if(menuOpen){
 menu.classList.add('open');
 orb.style.transform='scale(0.8)';
+this.positionOrbitalItems();
 }else{
 menu.classList.remove('open');
 orb.style.transform='scale(1)';
@@ -214,6 +215,32 @@ if(!e.target.closest('.cosmic-orb-menu')&&menuOpen){
 menuOpen=false;
 menu.classList.remove('open');
 orb.style.transform='scale(1)';
+}
+});
+}
+
+positionOrbitalItems(){
+const items=document.querySelectorAll('.orbital-item');
+const radius=window.innerWidth<768?110:140; // Smaller radius on mobile
+const centerX=0;
+const centerY=0;
+
+items.forEach((item,index)=>{
+// Get the angle from the style attribute
+const angleMatch=item.style.cssText.match(/--angle:\s*(\d+)deg/);
+if(angleMatch){
+const angleDeg=parseInt(angleMatch[1]);
+const angleRad=(angleDeg-90)*Math.PI/180; // Subtract 90 to start from top
+
+
+// Calculate position
+const x=centerX+Math.cos(angleRad)*radius;
+const y=centerY+Math.sin(angleRad)*radius;
+
+// Apply position
+item.style.left=`calc(50% + ${x}px)`;
+item.style.top=`calc(50% + ${y}px)`;
+item.style.transform='translate(-50%, -50%)';
 }
 });
 }
