@@ -120,16 +120,17 @@ if(this.currency==='HC'&&!this.wallet){
 this.notify('🔗 Connect wallet for AMINA!');
 return;
 }
-this.currency=this.currency==='HC'?'AMINA':'HC';
-if(this.currency==='AMINA'&&this.wallet){
+const newCurrency=this.currency==='HC'?'AMINA':'HC';
+const toggle=$('currencyToggle'),text=$('.currency-text');
+
+if(newCurrency==='AMINA'){
 this.notify('Fetching AMINA balance...');
 this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
-}
-const toggle=$('currencyToggle'),text=$('.currency-text');
-if(this.currency==='AMINA'){
+this.currency='AMINA';
 toggle.classList.add('amina');
 text.textContent='AMINA';
 }else{
+this.currency='HC';
 toggle.classList.remove('amina');
 text.textContent='HC';
 }
