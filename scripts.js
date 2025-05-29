@@ -221,7 +221,7 @@ orb.style.transform='scale(1)';
 
 positionOrbitalItems(){
 const items=document.querySelectorAll('.orbital-item');
-const radius=window.innerWidth<768?90:120; // Adjusted radius
+const radius=window.innerWidth<768?70:85; // Tighter orbit for kick-ass look
 const menuRect=document.getElementById('orbitalMenu').getBoundingClientRect();
 
 items.forEach((item,index)=>{
