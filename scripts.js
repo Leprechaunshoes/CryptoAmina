@@ -381,7 +381,7 @@ initPlinko(){
 const canvas=$('plinkoCanvas');
 if(!canvas)return;
 canvas.width=400;
-canvas.height=350;
+canvas.height=450;
 this.ctx=canvas.getContext('2d');
 this.games.plinko.balls=[];
 this.setupPegs();
@@ -392,12 +392,12 @@ $('dropBtn').onclick=()=>this.dropBall();
 setupPegs(){
 this.pegs=[];
 const w=400;
-for(let row=0;row<8;row++){
+for(let row=0;row<10;row++){
 const n=row+3;
 const space=w*0.8/(n+1);
 const start=(w-w*0.8)/2;
 for(let i=0;i<n;i++){
-this.pegs.push({x:start+space*(i+1),y:40+row*25,r:3});
+this.pegs.push({x:start+space*(i+1),y:50+row*35,r:3});
 }
 }
 }
@@ -405,7 +405,7 @@ this.pegs.push({x:start+space*(i+1),y:40+row*25,r:3});
 drawBoard(){
 const ctx=this.ctx;
 ctx.fillStyle='#1a2332';
-ctx.fillRect(0,0,400,350);
+ctx.fillRect(0,0,400,450);
 this.pegs.forEach(p=>{
 ctx.beginPath();
 ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
@@ -455,7 +455,7 @@ if(b.x<b.r||b.x>400-b.r){
 b.vx*=-0.5;
 b.x=b.x<b.r?b.r:400-b.r;
 }
-if(b.y>320){
+if(b.y>420){
 const slot=Math.floor(b.x/(400/13));
 const mults=[10,3,1.5,1.4,1.1,1,0.5,1,1.1,1.4,1.5,3,10];
 const mult=mults[Math.max(0,Math.min(12,slot))];
