@@ -614,7 +614,7 @@ $('cashoutBtn').onclick=()=>this.cashoutHilo();
 }
 
 resetHiloUI(){
-$('currentCard').innerHTML='<div class="playing-card">?</div>';
+$('currentCard').innerHTML='<div class="playing-card hilo-main-card">?</div>';
 $('dealHiloBtn').style.display='block';
 $('higherBtn').disabled=1;
 $('lowerBtn').disabled=1;
@@ -672,9 +672,11 @@ setTimeout(()=>this.resetHiloUI(),3000);
 
 updateStreakDisplay(){
 const container=$('streakCards');
+const countEl=document.querySelector('.streak-count');
 if(!container)return;
+if(countEl)countEl.textContent=this.games.hilo.streak;
 if(this.games.hilo.streak===0){
-container.innerHTML='<div class="streak-placeholder">Build it!</div>';
+container.innerHTML='<div class="streak-placeholder">Start playing!</div>';
 }else{
 container.innerHTML='';
 for(let i=0;i<Math.min(this.games.hilo.streak,10);i++){
@@ -702,7 +704,7 @@ displayCard(id,card){
 const container=$(id);
 container.innerHTML='';
 const cardEl=document.createElement('div');
-cardEl.className='playing-card';
+cardEl.className='playing-card hilo-main-card';
 cardEl.innerHTML=`${card.value}<br>${card.suit}`;
 if(['♥','♦'].includes(card.suit))cardEl.classList.add('red');
 container.appendChild(cardEl);
