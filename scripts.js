@@ -1,10 +1,9 @@
-// scripts.js - Clean Final Version with Fixed Orbital Menu
+// scripts.js - Complete with COSMIC CHAOS! 🚀⚡🌌
 class AminaCasino{
 constructor(){
 this.balance={HC:1000,AMINA:0};
 this.currentCurrency='HC';
 this.isAmina=false;
-this.slotSymbols=['⭐','🌟','💫','🌌','🪐','🌙','☄️','🚀','👽','🛸'];
 this.connectedAccount=null;
 this.myAlgoWallet=null;
 this.casinoWallet='6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI';
@@ -13,6 +12,18 @@ this.hiloCard=null;
 this.selectedDiceBet=null;
 this.activeBalls=[];
 this.maxBalls=7;
+
+// 🚀 COSMIC CHAOS CONFIGURATION 🚀
+this.cosmicSymbols = ['⭐','🌟','💫','🌌','🪐','🌙','☄️','🚀','👽','🛸'];
+this.scatterSymbol = '🌠';
+this.chaosGrid = Array(5).fill().map(() => Array(6).fill(''));
+this.currentMultiplier = 1;
+this.freeSpins = 0;
+this.totalWin = 0;
+this.isSpinning = false;
+this.cascadeCount = 0;
+this.autoplay = { active: false, spins: 0, remaining: 0 };
+
 setTimeout(()=>this.init(),500);
 }
 
@@ -23,6 +34,430 @@ this.setupWalletButton();
 this.updateDisplay();
 this.initMyAlgo();
 this.initEffects();
+this.initCosmicChaos();
+}
+
+// 🌌 COSMIC CHAOS INITIALIZATION 🌌
+initCosmicChaos() {
+    this.createChaosGrid();
+    this.fillGridRandomly();
+    this.updateChaosDisplay();
+    
+    document.getElementById('spinBtn').onclick = () => this.spinCosmicChaos();
+    document.getElementById('buyBonusBtn').onclick = () => this.buyBonusRound();
+    document.getElementById('autoplayBtn').onclick = () => this.toggleAutoplay();
+}
+
+createChaosGrid() {
+    const grid = document.getElementById('chaosGrid');
+    if (!grid) return;
+    
+    grid.innerHTML = '';
+    grid.style.cssText = `
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        grid-template-rows: repeat(5, 1fr);
+        gap: 6px;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background: rgba(0,0,0,0.6);
+        border-radius: 20px;
+        border: 3px solid var(--cg);
+        box-shadow: 0 0 30px rgba(255,215,0,0.3);
+        min-height: 400px;
+    `;
+    
+    for (let row = 0; row < 5; row++) {
+        for (let col = 0; col < 6; col++) {
+            const cell = document.createElement('div');
+            cell.className = 'chaos-symbol';
+            cell.id = `symbol-${row}-${col}`;
+            cell.style.cssText = `
+                aspect-ratio: 1;
+                background: rgba(255,255,255,0.05);
+                border: 2px solid var(--pc);
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 2rem;
+                transition: all 0.3s ease;
+                cursor: pointer;
+            `;
+            grid.appendChild(cell);
+        }
+    }
+}
+
+fillGridRandomly() {
+    for (let row = 0; row < 5; row++) {
+        for (let col = 0; col < 6; col++) {
+            this.chaosGrid[row][col] = this.cosmicSymbols[Math.floor(Math.random() * this.cosmicSymbols.length)];
+        }
+    }
+}
+
+updateChaosDisplay() {
+    for (let row = 0; row < 5; row++) {
+        for (let col = 0; col < 6; col++) {
+            const cell = document.getElementById(`symbol-${row}-${col}`);
+            const symbol = this.chaosGrid[row][col];
+            
+            if (cell && symbol) {
+                cell.textContent = symbol;
+                cell.style.textShadow = '0 0 10px #FFD700';
+            }
+        }
+    }
+    
+    document.getElementById('currentMultiplier').textContent = `${this.currentMultiplier}x`;
+    document.getElementById('freeSpinsCount').textContent = this.freeSpins;
+    document.getElementById('totalWin').textContent = this.totalWin.toFixed(2);
+    document.getElementById('winCurrency').textContent = this.currentCurrency;
+}
+
+// 🚀 MAIN SPIN FUNCTION 🚀
+async spinCosmicChaos() {
+    if (this.isSpinning) return;
+    
+    const bet = +document.getElementById('slotsBet').value;
+    
+    if (this.freeSpins === 0) {
+        if (!(await this.deductBalance(bet))) {
+            return this.showResult('slots', 'Insufficient balance!', 'lose');
+        }
+    } else {
+        this.freeSpins--;
+    }
+    
+    this.isSpinning = true;
+    this.cascadeCount = 0;
+    this.totalWin = 0;
+    
+    this.toggleSpinButton(false);
+    
+    await this.performSpin(bet);
+    
+    this.isSpinning = false;
+    this.toggleSpinButton(true);
+    
+    if (this.autoplay.active && this.autoplay.remaining > 0) {
+        this.autoplay.remaining--;
+        if (this.autoplay.remaining > 0) {
+            setTimeout(() => this.spinCosmicChaos(), 1500);
+        } else {
+            this.stopAutoplay();
+        }
+    }
+}
+
+async performSpin(bet) {
+    await this.animateSpinning();
+    this.generateNewGrid();
+    this.updateChaosDisplay();
+    this.checkForScatters();
+    await this.cascadeSequence(bet);
+    this.showFinalResults(bet);
+}
+
+async animateSpinning() {
+    return new Promise(resolve => {
+        const duration = 1200;
+        const startTime = Date.now();
+        
+        const animate = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            if (progress < 0.8) {
+                for (let row = 0; row < 5; row++) {
+                    for (let col = 0; col < 6; col++) {
+                        if (Math.random() < 0.3) {
+                            const cell = document.getElementById(`symbol-${row}-${col}`);
+                            const randomSymbol = this.cosmicSymbols[Math.floor(Math.random() * this.cosmicSymbols.length)];
+                            cell.textContent = randomSymbol;
+                            cell.style.transform = 'scale(0.8) rotate(180deg)';
+                        }
+                    }
+                }
+            }
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                document.querySelectorAll('.chaos-symbol').forEach(cell => {
+                    cell.style.transform = 'scale(1) rotate(0deg)';
+                });
+                resolve();
+            }
+        };
+        
+        animate();
+    });
+}
+
+generateNewGrid() {
+    this.fillGridRandomly();
+    
+    for (let row = 0; row < 5; row++) {
+        for (let col = 0; col < 6; col++) {
+            if (Math.random() < 0.05) {
+                this.chaosGrid[row][col] = this.scatterSymbol;
+            }
+        }
+    }
+}
+
+checkForScatters() {
+    let scatterCount = 0;
+    
+    for (let row = 0; row < 5; row++) {
+        for (let col = 0; col < 6; col++) {
+            if (this.chaosGrid[row][col] === this.scatterSymbol) {
+                scatterCount++;
+            }
+        }
+    }
+    
+    if (scatterCount >= 3) {
+        this.freeSpins += 10;
+        this.currentMultiplier = Math.min(this.currentMultiplier + 1, 10);
+        this.createCelebration('🌠', 15);
+        this.notify(`🌠 ${scatterCount} SCATTERS! +10 Free Spins!`, 'success');
+    }
+}
+
+async cascadeSequence(bet) {
+    let hasWins = true;
+    
+    while (hasWins) {
+        this.cascadeCount++;
+        const clusters = this.findAllClusters();
+        
+        if (clusters.length === 0) {
+            hasWins = false;
+            break;
+        }
+        
+        const cascadeWin = this.calculateClusterWins(clusters, bet);
+        this.totalWin += cascadeWin;
+        
+        await this.animateClusterWins(clusters);
+        await this.cascadeSymbols();
+        
+        if (this.cascadeCount > 1) {
+            this.currentMultiplier = Math.min(this.currentMultiplier + 1, 50);
+        }
+        
+        this.updateChaosDisplay();
+        await new Promise(resolve => setTimeout(resolve, 600));
+    }
+}
+
+findAllClusters() {
+    const visited = Array(5).fill().map(() => Array(6).fill(false));
+    const clusters = [];
+    
+    for (let row = 0; row < 5; row++) {
+        for (let col = 0; col < 6; col++) {
+            if (!visited[row][col] && this.chaosGrid[row][col] !== '') {
+                const cluster = this.findCluster(row, col, this.chaosGrid[row][col], visited);
+                if (cluster.length >= 5) {
+                    clusters.push({
+                        symbol: this.chaosGrid[row][col],
+                        positions: cluster,
+                        size: cluster.length
+                    });
+                }
+            }
+        }
+    }
+    
+    return clusters;
+}
+
+findCluster(row, col, symbol, visited) {
+    if (row < 0 || row >= 5 || col < 0 || col >= 6 || 
+        visited[row][col] || this.chaosGrid[row][col] !== symbol) {
+        return [];
+    }
+    
+    visited[row][col] = true;
+    const cluster = [{row, col}];
+    
+    const directions = [
+        [-1, 0], [1, 0], [0, -1], [0, 1],
+        [-1, -1], [-1, 1], [1, -1], [1, 1]
+    ];
+    
+    directions.forEach(([dr, dc]) => {
+        cluster.push(...this.findCluster(row + dr, col + dc, symbol, visited));
+    });
+    
+    return cluster;
+}
+
+calculateClusterWins(clusters, bet) {
+    let totalWin = 0;
+    
+    clusters.forEach(cluster => {
+        let multiplier = 1;
+        
+        if (cluster.size >= 20) multiplier = 500;
+        else if (cluster.size >= 15) multiplier = 50;
+        else if (cluster.size >= 10) multiplier = 10;
+        else if (cluster.size >= 5) multiplier = 2;
+        
+        multiplier *= this.currentMultiplier;
+        
+        // Random meteors for big clusters
+        if (cluster.size >= 10 && Math.random() < 0.3) {
+            const meteorMult = [2, 3, 5, 10][Math.floor(Math.random() * 4)];
+            multiplier *= meteorMult;
+            this.notify(`☄️ METEOR x${meteorMult}!`, 'success');
+        }
+        
+        const clusterWin = bet * multiplier;
+        totalWin += clusterWin;
+    });
+    
+    return totalWin;
+}
+
+async animateClusterWins(clusters) {
+    return new Promise(resolve => {
+        clusters.forEach(cluster => {
+            cluster.positions.forEach(({row, col}) => {
+                const cell = document.getElementById(`symbol-${row}-${col}`);
+                if (cell) {
+                    cell.style.background = 'linear-gradient(45deg, #FFD700, #FF6B35)';
+                    cell.style.boxShadow = '0 0 25px #FFD700';
+                    cell.style.transform = 'scale(1.2)';
+                    cell.style.animation = 'pulse 0.8s ease-in-out';
+                }
+            });
+        });
+        
+        setTimeout(resolve, 800);
+    });
+}
+
+async cascadeSymbols() {
+    return new Promise(resolve => {
+        for (let col = 0; col < 6; col++) {
+            let writeIndex = 4;
+            
+            for (let row = 4; row >= 0; row--) {
+                const cell = document.getElementById(`symbol-${row}-${col}`);
+                if (cell && !cell.style.animation.includes('pulse')) {
+                    if (writeIndex !== row && writeIndex >= 0) {
+                        this.chaosGrid[writeIndex][col] = this.chaosGrid[row][col];
+                        this.chaosGrid[row][col] = '';
+                    }
+                    writeIndex--;
+                }
+            }
+            
+            while (writeIndex >= 0) {
+                this.chaosGrid[writeIndex][col] = this.cosmicSymbols[Math.floor(Math.random() * this.cosmicSymbols.length)];
+                writeIndex--;
+            }
+        }
+        
+        document.querySelectorAll('.chaos-symbol').forEach(cell => {
+            cell.style.animation = '';
+            cell.style.background = 'rgba(255,255,255,0.05)';
+            cell.style.boxShadow = '';
+            cell.style.transform = 'scale(1)';
+        });
+        
+        setTimeout(resolve, 400);
+    });
+}
+
+showFinalResults(bet) {
+    if (this.totalWin > 0) {
+        this.addBalance(this.totalWin);
+        
+        let message = `🌟 COSMIC WIN! +${this.totalWin.toFixed(2)} ${this.currentCurrency}`;
+        
+        if (this.cascadeCount > 1) {
+            message += ` (${this.cascadeCount} cascades!)`;
+        }
+        
+        if (this.totalWin >= bet * 100) {
+            message = `🚀 MEGA WIN! +${this.totalWin.toFixed(2)} ${this.currentCurrency}`;
+            this.createRain('🪙', 20);
+            this.createCelebration('🚀', 12);
+        } else if (this.totalWin >= bet * 20) {
+            message = `⭐ BIG WIN! +${this.totalWin.toFixed(2)} ${this.currentCurrency}`;
+            this.createCelebration('⭐', 8);
+        }
+        
+        this.showResult('slots', message, 'win');
+    } else {
+        this.showResult('slots', 'No clusters this time! ⭐', 'lose');
+    }
+    
+    this.currentMultiplier = this.freeSpins > 0 ? Math.max(this.currentMultiplier, 2) : 1;
+    this.updateChaosDisplay();
+}
+
+async buyBonusRound() {
+    const bet = +document.getElementById('slotsBet').value;
+    const bonusCost = bet * 100;
+    
+    if (!(await this.deductBalance(bonusCost))) {
+        return this.showResult('slots', 'Insufficient balance for bonus!', 'lose');
+    }
+    
+    this.freeSpins = 10;
+    this.currentMultiplier = 3;
+    
+    this.createCelebration('🚀', 15);
+    this.notify('🚀 BONUS PURCHASED! 10 Free Spins with 3x multiplier!', 'success');
+    
+    setTimeout(() => this.spinCosmicChaos(), 1000);
+}
+
+toggleAutoplay() {
+    if (this.autoplay.active) {
+        this.stopAutoplay();
+    } else {
+        this.startAutoplay();
+    }
+}
+
+startAutoplay() {
+    const spins = +document.getElementById('autoplaySpins').value;
+    this.autoplay = { active: true, spins: spins, remaining: spins };
+    
+    document.getElementById('autoplayBtn').textContent = '⏸️ Stop';
+    document.getElementById('autoplayBtn').style.background = 'linear-gradient(135deg, #F44336, #D32F2F)';
+    
+    this.notify(`🔄 Autoplay started: ${spins} spins`, 'info');
+    
+    if (!this.isSpinning) {
+        this.spinCosmicChaos();
+    }
+}
+
+stopAutoplay() {
+    this.autoplay.active = false;
+    this.autoplay.remaining = 0;
+    
+    document.getElementById('autoplayBtn').textContent = '🔄 Auto';
+    document.getElementById('autoplayBtn').style.background = 'linear-gradient(135deg, var(--cg), var(--pc))';
+    
+    this.notify('⏸️ Autoplay stopped', 'info');
+}
+
+toggleSpinButton(enabled) {
+    const btn = document.getElementById('spinBtn');
+    btn.disabled = !enabled;
+    btn.textContent = enabled ? '⚡ SPIN ⚡' : '🌀 SPINNING...';
 }
 
 initMyAlgo(){
@@ -173,6 +608,7 @@ style.textContent=`
 @keyframes coinFloat{0%{transform:translateY(0) rotate(0deg);opacity:0}10%{opacity:1}100%{transform:translateY(-50vh) rotate(360deg);opacity:0}}
 @keyframes screenShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
 @keyframes coinExplode{0%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(0.2);opacity:0}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.7;transform:scale(1.05)}}
 `;
 document.head.appendChild(style);
 }
@@ -221,6 +657,7 @@ orb.style.transform='scale(1)';
 switchGame(game){
 document.querySelectorAll('.game-screen').forEach(el=>el.classList.remove('active'));
 document.getElementById(game).classList.add('active');
+if(game==='slots')setTimeout(()=>this.initCosmicChaos(),100);
 if(game==='plinko')setTimeout(()=>this.initPlinko(),100);
 if(game==='hilo')setTimeout(()=>this.initHilo(),100);
 if(game==='dice')setTimeout(()=>this.initDice(),100);
@@ -379,8 +816,6 @@ setTimeout(()=>el.classList.remove('show'),4000);
 }
 
 setupGames(){
-this.initSlots();
-document.getElementById('spinBtn').onclick=()=>this.spinSlots();
 this.initPlinko();
 document.getElementById('dropBtn').onclick=()=>this.dropPlinko();
 this.initBlackjack();
@@ -560,69 +995,6 @@ this.showResult('dice',`🎲 Rolled ${total} - No win!`,'lose');
 }
 setTimeout(()=>this.resetDiceUI(),3000);
 },1000);
-}
-
-// SLOTS GAME
-initSlots(){
-const grid=document.getElementById('slotsGrid');
-if(!grid)return;
-grid.innerHTML='';
-for(let i=0;i<15;i++){
-const reel=document.createElement('div');
-reel.className='slot-reel';
-reel.textContent=this.slotSymbols[Math.floor(Math.random()*this.slotSymbols.length)];
-grid.appendChild(reel);
-}
-if(!document.getElementById('slotPayouts')){
-const table=document.createElement('div');
-table.id='slotPayouts';
-table.className='payout-table';
-table.innerHTML='<h3>💰 PAYOUTS</h3><div class="payout-grid"><div class="payout-row high"><span>5 MATCH</span><span>100x</span></div><div class="payout-row med"><span>4 MATCH</span><span>25x</span></div><div class="payout-row low"><span>3 MATCH</span><span>5x</span></div></div>';
-document.querySelector('#slots .game-container').appendChild(table);
-}
-}
-
-async spinSlots(){
-const bet=+document.getElementById('slotsBet').value;
-if(!(await this.deductBalance(bet)))return this.showResult('slots','Insufficient balance!','lose');
-const reels=document.querySelectorAll('.slot-reel');
-const btn=document.getElementById('spinBtn');
-btn.disabled=true;
-btn.textContent='SPINNING...';
-reels.forEach(r=>r.classList.add('spinning'));
-setTimeout(()=>{
-const results=[];
-reels.forEach(r=>{
-r.classList.remove('spinning');
-const sym=this.slotSymbols[Math.floor(Math.random()*this.slotSymbols.length)];
-r.textContent=sym;
-results.push(sym);
-});
-const win=this.calcSlotWin(results,bet);
-if(win>0){
-this.addBalance(win);
-this.showResult('slots',`🌟 WIN! +${win} ${this.currentCurrency}`,'win');
-}else{
-this.showResult('slots','No win this time!','lose');
-}
-btn.disabled=false;
-btn.textContent='SPIN';
-},1500);
-}
-
-calcSlotWin(results,bet){
-const rows=[[results[0],results[1],results[2],results[3],results[4]],[results[5],results[6],results[7],results[8],results[9]],[results[10],results[11],results[12],results[13],results[14]]];
-let win=0;
-rows.forEach(row=>{
-const counts={};
-row.forEach(s=>counts[s]=(counts[s]||0)+1);
-Object.entries(counts).forEach(([s,c])=>{
-if(c>=5)win+=bet*100;
-else if(c>=4)win+=bet*25;
-else if(c>=3)win+=bet*5;
-});
-});
-return win;
 }
 
 // PLINKO GAME
