@@ -284,7 +284,7 @@ body{font-family:Inter,sans-serif;background:var(--sb);color:var(--sw);overflow-
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
 .modal-close{background:none;border:none;color:var(--cg);font-size:2rem;cursor:pointer}
 .wallet-input-group{display:flex;gap:.5rem;margin:1rem 0}
-.wallet-input-group input{flex:1;padding:.8rem;border:2px solid var(--cg);border-radius:12px;background:#00008;color:var(--sw);font-family:JetBrains Mono,monospace;font-size:.8rem}
+.wallet-input-group input{flex:1;padding:.8rem;border:2px solid var(--cg);border-radius:12px;background:#fff;color:#000;font-family:JetBrains Mono,monospace;font-size:.8rem}
 .copy-btn{background:var(--cg);color:var(--sb);border:none;padding:.8rem 1rem;border-radius:12px;cursor:pointer;font-weight:700}
 .donation-note{text-align:center;font-size:.9rem;color:var(--pc);margin-top:1rem}
 
