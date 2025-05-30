@@ -548,7 +548,6 @@ document.body.appendChild(modal);
 manualDepositComplete(amount){
 this.notify('✅ Manual deposit initiated! Checking for transaction...');
 setTimeout(()=>{
-this.balance.AMINA-=amount;
 this.casinoCredits+=amount;
 this.saveCasinoCredits();
 this.updateCashierDisplay();
