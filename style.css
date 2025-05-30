@@ -221,7 +221,7 @@ body{font-family:Inter,sans-serif;background:var(--sb);color:var(--sw);overflow-
 .die-glow{position:absolute;inset:-15px;background:radial-gradient(circle,#4A148C 30%,#9C27B0 50%,transparent 70%);border-radius:50%;animation:brandGlow 2s ease-in-out infinite;z-index:-1}
 .die-body{width:100%;height:100%;position:relative;transform-style:preserve-3d}
 .die-face{position:absolute;width:120px;height:120px;background:linear-gradient(135deg,#001a2e,#4A148C,#9C27B0);border:3px solid #FFD700;border-radius:15px;display:grid;place-items:center;box-shadow:0 0 25px #FFD700,inset 0 0 20px #4A148C4d;backface-visibility:hidden;opacity:0;transition:opacity .3s ease}
-.die-face.active{opacity:1}
+.die-face.active{opacity:1!important}
 .face-1{transform:rotateY(0deg) translateZ(60px);grid-template:1fr/1fr}
 .face-2{transform:rotateY(90deg) translateZ(60px);grid-template:1fr 1fr/1fr;gap:25px;padding:15px}
 .face-3{transform:rotateY(180deg) translateZ(60px);grid-template:1fr 1fr 1fr/1fr;gap:10px;padding:10px}
@@ -231,6 +231,11 @@ body{font-family:Inter,sans-serif;background:var(--sb);color:var(--sw);overflow-
 .mega-dot{width:18px;height:18px;border-radius:50%;background:radial-gradient(circle,#fff 30%,#FFD700 70%);box-shadow:0 0 15px #FFD700,0 0 25px #fff,inset 0 0 8px #fff;animation:dotPulse 3s ease-in-out infinite;border:2px solid #FFD700}
 .mega-letter{font-size:48px;font-family:JetBrains Mono,monospace;font-weight:900;color:#FFD700;text-shadow:0 0 25px #FFD700,0 0 40px #4A148C,0 0 55px #fff;animation:brandPulse 3s ease-in-out infinite;filter:drop-shadow(0 0 15px #FFD700)}
 .cosmic-particles{position:absolute;inset:0;pointer-events:none;z-index:1}
+@keyframes brandFloat{0%,100%{transform:translateY(0px)}50%{transform:translateY(-10px)}}
+@keyframes cosmicRoll{0%{transform:rotateX(0deg) rotateY(0deg)}100%{transform:rotateX(1080deg) rotateY(1080deg)}}
+@keyframes brandGlow{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.15)}}
+@keyframes brandPulse{0%,100%{box-shadow:0 0 20px #FFD700,0 0 35px #4A148C;text-shadow:0 0 25px #FFD700,0 0 40px #4A148C,0 0 55px #fff}50%{box-shadow:0 0 30px #FFD700,0 0 50px #4A148C;text-shadow:0 0 35px #FFD700,0 0 55px #4A148C,0 0 70px #fff}}
+@keyframes dotPulse{0%,100%{box-shadow:0 0 10px #FFD700,0 0 20px #fff,inset 0 0 10px #fff}50%{box-shadow:0 0 15px #FFD700,0 0 30px #fff,inset 0 0 15px #fff}}
 .dice-table{display:flex;flex-direction:column;align-items:center;gap:1.5rem}
 .dice-total{font-family:JetBrains Mono,monospace;font-size:1.4rem;color:var(--cg);margin-top:1rem;text-shadow:0 0 10px var(--cg)}
 .dice-betting{width:100%;max-width:500px;text-align:center}
