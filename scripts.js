@@ -179,8 +179,7 @@ const toggle=$('currencyToggle');
 const text=toggle.querySelector('.currency-text');
 
 if(newCurrency==='AMINA'){
-this.notify('Fetching AMINA balance...');
-this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
+this.notify('Fetching real AMINA balance...');
 await this.refreshAminaBalance();
 this.currency='AMINA';
 toggle.classList.add('amina');
