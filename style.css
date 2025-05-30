@@ -252,9 +252,9 @@ body{font-family:Inter,sans-serif;background:var(--sb);color:var(--sw);overflow-
 .streak-card.red{color:var(--cm)}
 .streak-placeholder{color:var(--pc);font-family:JetBrains Mono,monospace;font-size:.8rem;opacity:.8;font-style:italic}
 
-.dice-display{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2rem;padding:3rem;background:radial-gradient(circle,#22c55e1a,#4caf501a);border-radius:25px;border:3px solid var(--wg);perspective:1200px;min-height:300px;position:relative;overflow:hidden}
+.dice-display{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1.5rem;padding:2rem;background:radial-gradient(circle,#22c55e1a,#4caf501a);border-radius:25px;border:3px solid var(--wg);perspective:1200px;min-height:250px;position:relative;overflow:hidden}
 
-.cosmic-dice-container{display:flex;gap:4rem;align-items:center;justify-content:center;position:relative;z-index:2}
+.cosmic-dice-container{display:flex;gap:3rem;align-items:center;justify-content:center;position:relative;z-index:2;margin:1rem 0}
 
 .legendary-die{width:120px;height:120px;position:relative;transform-style:preserve-3d;animation:simpleFloat 4s ease-in-out infinite;cursor:pointer;transition:all .3s ease;filter:drop-shadow(0 0 20px var(--cg))}
 
