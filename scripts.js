@@ -6,7 +6,7 @@ this.currency='HC';
 this.wallet=this.getStoredWallet();
 this.peraWallet=null;
 this.aminaId=1107424865;
-this.casinoWallet='6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI';
+this.casinoWallet='UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCFN7PAVCT2H4G4JEZKJK6W7UG44';
 this.casinoCredits=this.getCasinoCredits();
 this.games={
 slots:{symbols:['⭐','🌟','💫','🌌','🪐','🌙','☄️','🚀','👽','🛸'],scatter:'🌠',grid:[],spinning:0,win:0,mult:1,spins:0},
@@ -1261,12 +1261,21 @@ document.body.appendChild(el);
 setTimeout(()=>el.remove(),10000);
 }
 
-addBackendTestButton(){
-const btn=document.createElement('button');
-btn.textContent='🧪 Test Backend';
-btn.style.cssText=`position:fixed;top:10px;left:10px;z-index:1000;background:linear-gradient(135deg,#4CAF50,#45a049);color:white;border:none;padding:10px 15px;border-radius:8px;cursor:pointer;font-family:JetBrains Mono,monospace;font-weight:700;font-size:12px;transition:transform .3s ease`;
-btn.onclick=()=>this.testBackend();
-document.body.appendChild(btn);
+// ADD ADMIN FUNCTIONS
+adminCreditUser(amount){
+this.casinoCredits+=amount;
+this.saveCasinoCredits();
+this.updateCashierDisplay();
+this.addTransaction('admin_credit',amount);
+this.notify(`🛠️ Admin credited ${amount} AMINA`);
+}
+
+adminCheckBalances(){
+console.log('=== ADMIN BALANCE CHECK ===');
+console.log('Casino Credits:',this.casinoCredits);
+console.log('Wallet Balance:',this.balance.AMINA);
+console.log('Stored Credits:',localStorage.getItem('casino_credits'));
+console.log('Stored Wallet:',localStorage.getItem('connected_wallet'));
 }
 
 async testBackend(){
