@@ -572,17 +572,31 @@ this.notify('❌ Insufficient casino credits');
 return;
 }
 try{
-this.notify('🔄 Processing withdrawal...');
-this.notify('⚠️ IMPORTANT: Withdrawals are manual - contact casino admin with your wallet address and amount to receive your AMINA tokens.');
+this.notify('🔄 Processing secure withdrawal...');
+const response=await fetch('/.netlify/functions/process-bet',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+action:'process_withdrawal',
+playerWallet:this.wallet,
+amount:amount
+})
+});
+const result=await response.json();
+if(result.success){
 this.casinoCredits-=amount;
+this.balance.AMINA+=amount;
 this.saveCasinoCredits();
 this.updateCashierDisplay();
 this.addTransaction('withdraw',amount);
 $('withdrawAmount').value='';
-this.notify(`📝 Withdrawal request logged: ${amount.toFixed(8)} AMINA. Contact admin to complete.`);
+this.notify(`✅ Withdrawal successful! ${amount.toFixed(8)} AMINA sent to wallet. TX: ${result.txId.slice(0,8)}...`);
+}else{
+this.notify(`❌ Withdrawal failed: ${result.error}`);
+}
 }catch(error){
 console.error('Withdraw error:',error);
-this.notify('❌ Withdrawal failed');
+this.notify('❌ Withdrawal failed - try again later');
 }
 }
 
