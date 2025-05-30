@@ -1,4 +1,4 @@
-// AMINA CASINO - PROVABLY FAIR COSMIC ENGINE
+// AMINA CASINO - FRESH COSMIC ENGINE
 class AminaCasino{
 constructor(){
 this.balance={HC:this.getHCBalance(),AMINA:0};
@@ -14,117 +14,7 @@ hilo:{card:null,streak:0,bet:0,active:0},
 dice:{bet:null,val1:1,val2:1,rolling:0}
 };
 this.music={on:0,audio:null};
-this.fair={
-seeds:{},
-nonces:{},
-lastGame:null
-};
 this.init();
-}
-
-// === PROVABLY FAIR SYSTEM ===
-async sha256(text){
-const encoder=new TextEncoder();
-const data=encoder.encode(text);
-const hash=await crypto.subtle.digest('SHA-256',data);
-return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-
-generateSeed(length=64){
-const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-let result='';
-for(let i=0;i<length;i++){
-result+=chars.charAt(Math.floor(Math.random()*chars.length));
-}
-return result;
-}
-
-async initGameSeeds(game){
-if(!this.fair.seeds[game]){
-const serverSeed=this.generateSeed();
-const clientSeed=this.generateSeed(32);
-const serverHash=await this.sha256(serverSeed);
-this.fair.seeds[game]={
-server:serverSeed,
-client:clientSeed,
-hash:serverHash
-};
-this.fair.nonces[game]=0;
-}
-this.updateSeedDisplay(game);
-}
-
-updateSeedDisplay(game){
-const hash=$(`${game}ServerHash`)||$('serverHash');
-const client=$(`${game}ClientSeed`)||$('clientSeed');
-const nonce=$(`${game}Nonce`)||$('nonceDisplay');
-if(hash)hash.textContent=this.fair.seeds[game]?.hash?.substring(0,16)+'...'||'-';
-if(client)client.value=this.fair.seeds[game]?.client||'';
-if(nonce)nonce.textContent=this.fair.nonces[game]||0;
-}
-
-async changeSeed(game){
-const input=$(`${game}ClientSeed`)||$('clientSeed');
-const newSeed=input.value||this.generateSeed(32);
-this.fair.seeds[game].client=newSeed;
-input.value=newSeed;
-this.notify('🔄 Client seed updated!');
-}
-
-async generateResult(game,min,max,nonce){
-const seeds=this.fair.seeds[game];
-const combined=`${seeds.server}:${seeds.client}:${nonce||this.fair.nonces[game]}`;
-const hash=await this.sha256(combined);
-const num=parseInt(hash.substring(0,8),16);
-return min+Math.floor((num/(0xffffffff+1))*(max-min+1));
-}
-
-async verifyGame(game){
-if(!this.fair.lastGame||this.fair.lastGame.game!==game){
-this.notify('❌ No recent game to verify!');
-return;
-}
-const last=this.fair.lastGame;
-const combined=`${last.serverSeed}:${last.clientSeed}:${last.nonce}`;
-const hash=await this.sha256(combined);
-const serverHash=await this.sha256(last.serverSeed);
-const num=parseInt(hash.substring(0,8),16);
-let expectedResult;
-if(game==='dice'){
-const dice1=1+Math.floor((num/(0xffffffff+1))*6);
-const hash2=await this.sha256(combined+':1');
-const num2=parseInt(hash2.substring(0,8),16);
-const dice2=1+Math.floor((num2/(0xffffffff+1))*6);
-expectedResult={dice1,dice2,total:dice1+dice2};
-}else{
-expectedResult=last.min+Math.floor((num/(0xffffffff+1))*(last.max-last.min+1));
-}
-const valid=JSON.stringify(expectedResult)===JSON.stringify(last.result);
-this.showVerification({...last,hash,serverHash,expectedResult,valid,num});
-}
-
-showVerification(data){
-const content=`
-<div class="verify-content">
-<h4>🔍 Game Verification</h4>
-<div class="verify-result ${data.valid?'valid':'invalid'}">
-${data.valid?'✅ VALID - Game was fair!':'❌ INVALID - Possible manipulation!'}
-</div>
-<div class="verify-steps">
-<div class="verify-step"><strong>Server Seed:</strong> ${data.serverSeed}</div>
-<div class="verify-step"><strong>Client Seed:</strong> ${data.clientSeed}</div>
-<div class="verify-step"><strong>Nonce:</strong> ${data.nonce}</div>
-<div class="verify-step"><strong>Combined:</strong> ${data.serverSeed}:${data.clientSeed}:${data.nonce}</div>
-<div class="verify-step"><strong>SHA256 Hash:</strong> ${data.hash}</div>
-<div class="verify-step"><strong>Hex Number:</strong> ${data.num.toString(16)}</div>
-<div class="verify-step"><strong>Expected Result:</strong> ${JSON.stringify(data.expectedResult)}</div>
-<div class="verify-step"><strong>Actual Result:</strong> ${JSON.stringify(data.result)}</div>
-<div class="verify-step"><strong>Server Hash Check:</strong> ${data.serverHash===data.hash?'✅':'❌'}</div>
-</div>
-</div>
-`;
-$('verifyContent').innerHTML=content;
-showVerifyModal();
 }
 
 getHCBalance(){
@@ -305,10 +195,9 @@ if(this.currency==='HC')this.saveHCBalance();
 this.updateDisplay();
 }
 
-async switchGame(id){
+switchGame(id){
 $$('.game-screen').forEach(s=>s.classList.remove('active'));
 $(id).classList.add('active');
-await this.initGameSeeds(id);
 if(id==='slots')this.initSlots();
 if(id==='plinko')this.initPlinko();
 if(id==='blackjack')this.initBJ();
@@ -328,18 +217,13 @@ setTimeout(()=>div.remove(),300);
 },3000);
 }
 
-showFairModal(game){
-const seeds=this.fair.seeds[game]||{};
-$('modalServerHash').textContent=seeds.hash?.substring(0,16)+'...'||'-';
-$('modalClientSeed').value=seeds.client||'';
-$('modalNonce').textContent=this.fair.nonces[game]||0;
-$('modalChangeSeed').onclick=()=>{
-const newSeed=$('modalClientSeed').value||this.generateSeed(32);
-this.fair.seeds[game].client=newSeed;
-$('modalClientSeed').value=newSeed;
-this.notify('🔄 Client seed updated!');
-};
-showFairModal();
+showResult(game,msg,type='info'){
+const el=$(`${game}Result`);
+if(el){
+el.textContent=msg;
+el.className=`game-result show ${type}`;
+setTimeout(()=>el.classList.remove('show'),4000);
+}
 }
 
 // === COSMIC CHAOS SLOTS ===
@@ -369,13 +253,11 @@ grid.appendChild(sym);
 }
 }
 
-async fillGrid(){
+fillGrid(){
 const syms=this.games.slots.symbols;
 for(let r=0;r<5;r++){
 for(let c=0;c<6;c++){
-const result=await this.generateResult('slots',0,syms.length-1);
-this.games.slots.grid[r][c]=syms[result];
-this.fair.nonces.slots++;
+this.games.slots.grid[r][c]=syms[Math.floor(Math.random()*syms.length)];
 }
 }
 }
@@ -392,7 +274,6 @@ $('currentMultiplier').textContent=`${this.games.slots.mult}x`;
 $('freeSpinsCount').textContent=this.games.slots.spins;
 $('totalWin').textContent=this.games.slots.win.toFixed(2);
 $('winCurrency').textContent=this.currency;
-this.updateSeedDisplay('slots');
 }
 
 async spinSlots(){
@@ -405,8 +286,8 @@ this.games.slots.win=0;
 $$('.chaos-symbol').forEach(s=>s.classList.add('spinning'));
 await new Promise(resolve=>{
 let spins=0;
-const interval=setInterval(async()=>{
-await this.fillGrid();
+const interval=setInterval(()=>{
+this.fillGrid();
 this.updateSlotsDisplay();
 spins++;
 if(spins>=20){
@@ -431,6 +312,7 @@ const sym=$(`chaos-${idx}`);
 if(sym)sym.classList.add('winning');
 });
 });
+// Check scatters
 let scatters=0;
 for(let r=0;r<5;r++){
 for(let c=0;c<6;c++){
@@ -442,19 +324,11 @@ this.games.slots.spins+=10;
 this.games.slots.mult=Math.min(this.games.slots.mult+1,10);
 this.notify(`🌠 ${scatters} SCATTERS! +10 Free Spins!`);
 }
+// Bonus check (2% chance)
 if(Math.random()<0.02){
 totalWin+=bet*(10+Math.floor(Math.random()*90));
 this.notify('🌠 BONUS! Cosmic multiplier!');
 }
-this.fair.lastGame={
-game:'slots',
-serverSeed:this.fair.seeds.slots.server,
-clientSeed:this.fair.seeds.slots.client,
-nonce:this.fair.nonces.slots,
-result:this.games.slots.grid,
-min:0,
-max:this.games.slots.symbols.length-1
-};
 this.games.slots.win=totalWin;
 if(totalWin>0){
 this.addBalance(totalWin);
@@ -559,13 +433,10 @@ if(!this.deductBalance(bet))return;
 if(this.games.plinko.balls.length>=this.games.plinko.max){
 return this.notify(`Max ${this.games.plinko.max} balls!`);
 }
-const slot=await this.generateResult('plinko',0,12);
-this.fair.nonces.plinko++;
 const ball={
 id:Date.now()+Math.random(),
 x:200+(Math.random()-0.5)*20,y:15,vx:(Math.random()-0.5)*0.3,vy:0,r:6,g:0.06,b:0.9,bet:bet,
-color:`hsl(${Math.random()*360},70%,60%)`,
-targetSlot:slot
+color:`hsl(${Math.random()*360},70%,60%)`
 };
 this.games.plinko.balls.push(ball);
 this.animatePlinko();
@@ -596,9 +467,9 @@ b.vx*=-0.7;
 b.x=b.x<b.r?b.r:400-b.r;
 }
 if(b.y>420){
-const slot=b.targetSlot;
+const slot=Math.floor(b.x/(400/13));
 const mults=[10,3,1.5,1.4,1.1,1,0.5,1,1.1,1.4,1.5,3,10];
-const mult=mults[slot];
+const mult=mults[Math.max(0,Math.min(12,slot))];
 const win=b.bet*mult;
 this.addBalance(win);
 this.showResult('plinko',`Ball hit ${mult}x! Won ${win.toFixed(2)} ${this.currency}`,win>=b.bet?'win':'lose');
@@ -608,15 +479,6 @@ m.classList.add('hit');
 setTimeout(()=>m.classList.remove('hit'),1000);
 }
 });
-this.fair.lastGame={
-game:'plinko',
-serverSeed:this.fair.seeds.plinko.server,
-clientSeed:this.fair.seeds.plinko.client,
-nonce:this.fair.nonces.plinko,
-result:slot,
-min:0,
-max:12
-};
 this.games.plinko.balls.splice(idx,1);
 }
 });
@@ -644,11 +506,10 @@ this.games.bj.deck=[];
 suits.forEach(s=>vals.forEach(v=>this.games.bj.deck.push({v,s})));
 }
 
-async shuffleDeck(){
+shuffleDeck(){
 const deck=this.games.bj.deck;
 for(let i=deck.length-1;i>0;i--){
-const j=await this.generateResult('blackjack',0,i);
-this.fair.nonces.blackjack++;
+const j=Math.floor(Math.random()*(i+1));
 [deck[i],deck[j]]=[deck[j],deck[i]];
 }
 }
@@ -663,11 +524,10 @@ $('hitBtn').disabled=1;
 $('standBtn').disabled=1;
 }
 
-async dealBJ(){
+dealBJ(){
 const bet=+$('blackjackBet').value;
 if(!this.deductBalance(bet))return;
 this.games.bj.bet=bet;
-await this.shuffleDeck();
 this.games.bj.pHand=[this.games.bj.deck.pop(),this.games.bj.deck.pop()];
 this.games.bj.dHand=[this.games.bj.deck.pop(),this.games.bj.deck.pop()];
 this.games.bj.active=1;
@@ -695,21 +555,10 @@ this.games.bj.dHand.push(this.games.bj.deck.pop());
 this.updateBJ(1);
 const pVal=this.getHandVal(this.games.bj.pHand);
 const dVal=this.getHandVal(this.games.bj.dHand);
-let result,win=0;
-if(dVal>21){result='🎉 Dealer busts! You win!';win=this.games.bj.bet*2;}
-else if(pVal>dVal){result='🎉 You win!';win=this.games.bj.bet*2;}
-else if(pVal<dVal){result='😔 Dealer wins';win=0;}
-else{result='🤝 Push! Bet returned';win=this.games.bj.bet;}
-this.fair.lastGame={
-game:'blackjack',
-serverSeed:this.fair.seeds.blackjack.server,
-clientSeed:this.fair.seeds.blackjack.client,
-nonce:this.fair.nonces.blackjack,
-result:{player:pVal,dealer:dVal,outcome:result},
-min:0,
-max:51
-};
-this.endBJ(result,win);
+if(dVal>21)this.endBJ('🎉 Dealer busts! You win!',this.games.bj.bet*2);
+else if(pVal>dVal)this.endBJ('🎉 You win!',this.games.bj.bet*2);
+else if(pVal<dVal)this.endBJ('😔 Dealer wins',0);
+else this.endBJ('🤝 Push! Bet returned',this.games.bj.bet);
 }
 
 getHandVal(hand){
@@ -761,6 +610,7 @@ $('standBtn').disabled=1;
 setTimeout(()=>{
 this.resetBJUI();
 this.createDeck();
+this.shuffleDeck();
 },3000);
 }
 
@@ -783,13 +633,13 @@ $('cashoutBtn').disabled=1;
 this.updateStreakDisplay();
 }
 
-async startHilo(){
+startHilo(){
 const bet=+$('hiloBet').value;
 if(!this.deductBalance(bet))return;
 this.games.hilo.bet=bet;
 this.games.hilo.streak=0;
 this.games.hilo.active=1;
-this.games.hilo.card=await this.getRandCard();
+this.games.hilo.card=this.getRandCard();
 this.displayCard('currentCard',this.games.hilo.card);
 $('dealHiloBtn').style.display='none';
 $('higherBtn').disabled=0;
@@ -798,23 +648,14 @@ $('cashoutBtn').disabled=0;
 this.updateStreakDisplay();
 }
 
-async guessHilo(guess){
+guessHilo(guess){
 if(!this.games.hilo.active)return;
-const next=await this.getRandCard();
+const next=this.getRandCard();
 const curr=this.getCardVal(this.games.hilo.card);
 const nextVal=this.getCardVal(next);
 let correct=0;
 if(guess==='higher'&&nextVal>curr)correct=1;
 if(guess==='lower'&&nextVal<curr)correct=1;
-this.fair.lastGame={
-game:'hilo',
-serverSeed:this.fair.seeds.hilo.server,
-clientSeed:this.fair.seeds.hilo.client,
-nonce:this.fair.nonces.hilo,
-result:{current:curr,next:nextVal,guess,correct},
-min:1,
-max:13
-};
 if(correct){
 this.games.hilo.streak++;
 this.games.hilo.card=next;
@@ -858,13 +699,10 @@ container.appendChild(card);
 }
 }
 
-async getRandCard(){
+getRandCard(){
 const suits=['♠','♥','♦','♣'];
 const vals=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
-const suitIdx=await this.generateResult('hilo',0,3);
-const valIdx=await this.generateResult('hilo',0,12);
-this.fair.nonces.hilo+=2;
-return{suit:suits[suitIdx],value:vals[valIdx]};
+return{suit:suits[Math.floor(Math.random()*4)],value:vals[Math.floor(Math.random()*13)]};
 }
 
 getCardVal(card){
@@ -883,7 +721,7 @@ if(['♥','♦'].includes(card.suit))cardEl.classList.add('red');
 container.appendChild(cardEl);
 }
 
-// === NEBULA DICE (PROVABLY FAIR) ===
+// === NEBULA DICE (PERFECT 2D DESIGN) ===
 initDice(){
 this.games.dice={bet:null,val1:1,val2:1,rolling:0};
 this.setupDiceFaces();
@@ -893,6 +731,7 @@ $$('.bet-option').forEach(btn=>btn.onclick=()=>this.selectBet(btn.dataset.bet));
 }
 
 setupDiceFaces(){
+// Create dots for each dice face
 ['dice1','dice2'].forEach(diceId=>{
 for(let face=1;face<=6;face++){
 const faceEl=$(diceId).querySelector(`.face-${face}`);
@@ -932,9 +771,8 @@ if(!this.games.dice.bet||this.games.dice.rolling)return;
 const bet=+$('diceBet').value;
 if(!this.deductBalance(bet))return;
 this.games.dice.rolling=1;
-this.games.dice.val1=await this.generateResult('dice',1,6);
-this.games.dice.val2=await this.generateResult('dice',1,6);
-this.fair.nonces.dice+=2;
+this.games.dice.val1=Math.floor(Math.random()*6)+1;
+this.games.dice.val2=Math.floor(Math.random()*6)+1;
 $('dice1').classList.add('rolling');
 $('dice2').classList.add('rolling');
 await new Promise(r=>setTimeout(r,1500));
@@ -948,15 +786,6 @@ let win=0,mult=1;
 if(this.games.dice.bet==='low'&&total>=2&&total<=6){win=1;mult=2;}
 if(this.games.dice.bet==='high'&&total>=8&&total<=12){win=1;mult=2;}
 if(this.games.dice.bet==='seven'&&total===7){win=1;mult=5;}
-this.fair.lastGame={
-game:'dice',
-serverSeed:this.fair.seeds.dice.server,
-clientSeed:this.fair.seeds.dice.client,
-nonce:this.fair.nonces.dice-2,
-result:{dice1:this.games.dice.val1,dice2:this.games.dice.val2,total},
-min:1,
-max:6
-};
 if(win){
 const winAmt=bet*mult;
 this.addBalance(winAmt);
@@ -1037,10 +866,6 @@ function $$(sel){return document.querySelectorAll(sel)}
 function openAminaExplorer(){window.open('https://explorer.perawallet.app/asset/1107424865/','_blank')}
 function showDonationModal(){$('donationModal').style.display='flex'}
 function closeDonationModal(){$('donationModal').style.display='none'}
-function showFairModal(){$('fairModal').style.display='flex'}
-function closeFairModal(){$('fairModal').style.display='none'}
-function showVerifyModal(){$('verifyModal').style.display='flex'}
-function closeVerifyModal(){$('verifyModal').style.display='none'}
 function copyDonationAddress(){
 const input=$('donationWallet');
 input.select();
