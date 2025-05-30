@@ -493,32 +493,32 @@ this.notify('❌ Deposit failed: '+error.message);
 
 showManualTransactionModal(txnData){
 const modal=document.createElement('div');
-modal.style.cssText='position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:10000;padding:10px;box-sizing:border-box';
+modal.style.cssText='position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:10000;padding:5px;box-sizing:border-box';
 modal.innerHTML=`
-<div style="background:#1a2332;border-radius:15px;padding:15px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto;border:2px solid #ffd700;color:white;font-family:JetBrains Mono,monospace">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
-<h3 style="margin:0;color:#ffd700;font-size:16px">📝 Manual Signing</h3>
-<button onclick="this.closest('div').remove()" style="background:none;border:none;color:#ffd700;font-size:20px;cursor:pointer">&times;</button>
+<div style="background:#1a2332;border-radius:10px;padding:12px;width:95%;max-width:350px;max-height:85vh;overflow-y:auto;border:2px solid #ffd700;color:white;font-family:JetBrains Mono,monospace;font-size:11px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+<h3 style="margin:0;color:#ffd700;font-size:14px">📝 Manual Signing</h3>
+<button onclick="this.closest('div').remove()" style="background:none;border:none;color:#ffd700;font-size:18px;cursor:pointer">&times;</button>
 </div>
-<div style="background:#2a3441;padding:10px;border-radius:8px;margin-bottom:15px;font-size:12px">
+<div style="background:#2a3441;padding:8px;border-radius:6px;margin-bottom:12px;font-size:10px">
 <div><strong>Amount:</strong> ${txnData.amount} AMINA</div>
 <div><strong>To:</strong> Casino</div>
 <div><strong>Asset:</strong> ${txnData.assetId}</div>
 </div>
-<div style="margin-bottom:15px">
-<h4 style="color:#ffd700;font-size:14px;margin:10px 0 5px">🔗 Option 1: Copy Transaction</h4>
-<textarea readonly onclick="this.select()" style="width:100%;height:60px;background:#2a3441;color:white;border:1px solid #ffd700;border-radius:5px;padding:5px;font-size:10px;box-sizing:border-box">${txnData.transaction}</textarea>
-<button onclick="navigator.clipboard.writeText('${txnData.transaction}');alert('Copied!')" style="background:#ffd700;color:#000;border:none;padding:8px 15px;border-radius:5px;margin:5px 0;cursor:pointer;font-size:12px">📋 Copy</button>
+<div style="margin-bottom:12px">
+<h4 style="color:#ffd700;font-size:12px;margin:8px 0 4px">🔗 Copy Transaction</h4>
+<textarea readonly onclick="this.select()" style="width:100%;height:50px;background:#2a3441;color:white;border:1px solid #ffd700;border-radius:4px;padding:4px;font-size:9px;box-sizing:border-box;resize:none">${txnData.transaction}</textarea>
+<button onclick="navigator.clipboard.writeText('${txnData.transaction}');alert('Copied!')" style="background:#ffd700;color:#000;border:none;padding:6px 12px;border-radius:4px;margin:4px 0;cursor:pointer;font-size:10px;width:100%">📋 Copy Transaction</button>
 </div>
-<div style="margin-bottom:15px">
-<h4 style="color:#ffd700;font-size:14px;margin:10px 0 5px">📱 Option 2: Send Manually</h4>
-<p style="font-size:12px;margin:5px 0">Send exactly <strong>${txnData.amount} AMINA</strong> to:</p>
-<input readonly onclick="this.select()" value="${txnData.to}" style="width:100%;background:#2a3441;color:white;border:1px solid #ffd700;border-radius:5px;padding:5px;font-size:10px;box-sizing:border-box">
-<button onclick="navigator.clipboard.writeText('${txnData.to}');alert('Address copied!')" style="background:#ffd700;color:#000;border:none;padding:8px 15px;border-radius:5px;margin:5px 0;cursor:pointer;font-size:12px">📋 Copy Address</button>
+<div style="margin-bottom:12px">
+<h4 style="color:#ffd700;font-size:12px;margin:8px 0 4px">📱 Send Manually</h4>
+<p style="font-size:10px;margin:4px 0">Send exactly <strong>${txnData.amount} AMINA</strong> to:</p>
+<input readonly onclick="this.select()" value="${txnData.to}" style="width:100%;background:#2a3441;color:white;border:1px solid #ffd700;border-radius:4px;padding:4px;font-size:9px;box-sizing:border-box;margin:2px 0">
+<button onclick="navigator.clipboard.writeText('${txnData.to}');alert('Address copied!')" style="background:#ffd700;color:#000;border:none;padding:6px 12px;border-radius:4px;margin:4px 0;cursor:pointer;font-size:10px;width:100%">📋 Copy Address</button>
 </div>
-<div style="display:flex;gap:10px;margin-top:15px">
-<button onclick="this.closest('div').remove();casino.manualDepositComplete(${txnData.amount})" style="background:#28a745;color:white;border:none;padding:10px 15px;border-radius:5px;cursor:pointer;font-size:12px;flex:1">✅ Sent</button>
-<button onclick="this.closest('div').remove()" style="background:#dc3545;color:white;border:none;padding:10px 15px;border-radius:5px;cursor:pointer;font-size:12px;flex:1">❌ Cancel</button>
+<div style="display:flex;gap:8px;margin-top:10px">
+<button onclick="this.closest('div').remove();casino.manualDepositComplete(${txnData.amount})" style="background:#28a745;color:white;border:none;padding:8px 10px;border-radius:4px;cursor:pointer;font-size:10px;flex:1">✅ Sent</button>
+<button onclick="this.closest('div').remove()" style="background:#dc3545;color:white;border:none;padding:8px 10px;border-radius:4px;cursor:pointer;font-size:10px;flex:1">❌ Cancel</button>
 </div>
 </div>`;
 document.body.appendChild(modal);
