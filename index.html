@@ -88,7 +88,6 @@
 </div>
 <div class="floating-actions">
 <button class="floating-btn music-btn" id="musicToggle" title="Music">🎵</button>
-<button class="floating-btn verify-btn" onclick="showVerifyModal()" title="Verify Games">🛡️</button>
 <button class="floating-btn donation-btn" onclick="showDonationModal()" title="Donate">💎</button>
 </div>
 <main class="main-content">
@@ -145,24 +144,10 @@
 <span id="slotsCurrency">HC</span>
 <button id="buyBonusBtn" class="buy-bonus-btn">🚀 Buy Bonus (100x)</button>
 </div>
+<div class="fair-controls">
+<button onclick="casino.verifyGame('slots')" class="fair-verify-btn" title="Verify Last Game">🛡️</button>
+<button onclick="casino.showFairModal('slots')" class="fair-info-btn" title="Fairness Info">ℹ️</button>
 </div>
-<div class="fairness-display">
-<div class="seed-info">
-<div class="seed-item">
-<span class="seed-label">🔒 Server Hash:</span>
-<span id="serverHash" class="seed-value">-</span>
-</div>
-<div class="seed-item">
-<span class="seed-label">🎯 Client Seed:</span>
-<input type="text" id="clientSeed" class="seed-input" placeholder="Enter your seed" maxlength="32">
-<button id="changeClientSeed" class="seed-btn">🔄</button>
-</div>
-<div class="seed-item">
-<span class="seed-label">📊 Nonce:</span>
-<span id="nonceDisplay" class="seed-value">0</span>
-</div>
-</div>
-<button id="verifyBtn" class="verify-btn">🛡️ Verify Last Game</button>
 </div>
 <div class="cosmic-chaos-machine">
 <div class="chaos-info-panel">
@@ -233,24 +218,10 @@
 </select>
 <span id="plinkoCurrency">HC</span>
 </div>
+<div class="fair-controls">
+<button onclick="casino.verifyGame('plinko')" class="fair-verify-btn" title="Verify Last Game">🛡️</button>
+<button onclick="casino.showFairModal('plinko')" class="fair-info-btn" title="Fairness Info">ℹ️</button>
 </div>
-<div class="fairness-display">
-<div class="seed-info">
-<div class="seed-item">
-<span class="seed-label">🔒 Server Hash:</span>
-<span id="plinkoServerHash" class="seed-value">-</span>
-</div>
-<div class="seed-item">
-<span class="seed-label">🎯 Client Seed:</span>
-<input type="text" id="plinkoClientSeed" class="seed-input" placeholder="Enter your seed" maxlength="32">
-<button onclick="casino.changeSeed('plinko')" class="seed-btn">🔄</button>
-</div>
-<div class="seed-item">
-<span class="seed-label">📊 Nonce:</span>
-<span id="plinkoNonce" class="seed-value">0</span>
-</div>
-</div>
-<button onclick="casino.verifyGame('plinko')" class="verify-btn">🛡️ Verify Last Game</button>
 </div>
 <div class="plinko-container">
 <div class="plinko-board">
@@ -291,24 +262,10 @@
 </select>
 <span id="blackjackCurrency">HC</span>
 </div>
+<div class="fair-controls">
+<button onclick="casino.verifyGame('blackjack')" class="fair-verify-btn" title="Verify Last Game">🛡️</button>
+<button onclick="casino.showFairModal('blackjack')" class="fair-info-btn" title="Fairness Info">ℹ️</button>
 </div>
-<div class="fairness-display">
-<div class="seed-info">
-<div class="seed-item">
-<span class="seed-label">🔒 Server Hash:</span>
-<span id="blackjackServerHash" class="seed-value">-</span>
-</div>
-<div class="seed-item">
-<span class="seed-label">🎯 Client Seed:</span>
-<input type="text" id="blackjackClientSeed" class="seed-input" placeholder="Enter your seed" maxlength="32">
-<button onclick="casino.changeSeed('blackjack')" class="seed-btn">🔄</button>
-</div>
-<div class="seed-item">
-<span class="seed-label">📊 Nonce:</span>
-<span id="blackjackNonce" class="seed-value">0</span>
-</div>
-</div>
-<button onclick="casino.verifyGame('blackjack')" class="verify-btn">🛡️ Verify Last Game</button>
 </div>
 <div class="blackjack-table">
 <div class="dealer-section">
@@ -341,24 +298,10 @@
 </select>
 <span id="hiloCurrency">HC</span>
 </div>
+<div class="fair-controls">
+<button onclick="casino.verifyGame('hilo')" class="fair-verify-btn" title="Verify Last Game">🛡️</button>
+<button onclick="casino.showFairModal('hilo')" class="fair-info-btn" title="Fairness Info">ℹ️</button>
 </div>
-<div class="fairness-display">
-<div class="seed-info">
-<div class="seed-item">
-<span class="seed-label">🔒 Server Hash:</span>
-<span id="hiloServerHash" class="seed-value">-</span>
-</div>
-<div class="seed-item">
-<span class="seed-label">🎯 Client Seed:</span>
-<input type="text" id="hiloClientSeed" class="seed-input" placeholder="Enter your seed" maxlength="32">
-<button onclick="casino.changeSeed('hilo')" class="seed-btn">🔄</button>
-</div>
-<div class="seed-item">
-<span class="seed-label">📊 Nonce:</span>
-<span id="hiloNonce" class="seed-value">0</span>
-</div>
-</div>
-<button onclick="casino.verifyGame('hilo')" class="verify-btn">🛡️ Verify Last Game</button>
 </div>
 <div class="hilo-game-container">
 <div class="current-card-display">
@@ -404,24 +347,10 @@
 </select>
 <span id="diceCurrency">HC</span>
 </div>
+<div class="fair-controls">
+<button onclick="casino.verifyGame('dice')" class="fair-verify-btn" title="Verify Last Game">🛡️</button>
+<button onclick="casino.showFairModal('dice')" class="fair-info-btn" title="Fairness Info">ℹ️</button>
 </div>
-<div class="fairness-display">
-<div class="seed-info">
-<div class="seed-item">
-<span class="seed-label">🔒 Server Hash:</span>
-<span id="diceServerHash" class="seed-value">-</span>
-</div>
-<div class="seed-item">
-<span class="seed-label">🎯 Client Seed:</span>
-<input type="text" id="diceClientSeed" class="seed-input" placeholder="Enter your seed" maxlength="32">
-<button onclick="casino.changeSeed('dice')" class="seed-btn">🔄</button>
-</div>
-<div class="seed-item">
-<span class="seed-label">📊 Nonce:</span>
-<span id="diceNonce" class="seed-value">0</span>
-</div>
-</div>
-<button onclick="casino.verifyGame('dice')" class="verify-btn">🛡️ Verify Last Game</button>
 </div>
 <div class="dice-game">
 <div class="dice-display">
@@ -690,6 +619,46 @@
 </div>
 </div>
 </main>
+</div>
+<div id="fairModal" class="modal-overlay" style="display: none;">
+<div class="modal-content fair-modal">
+<div class="modal-header">
+<h3>🛡️ Provably Fair Details</h3>
+<button class="modal-close" onclick="closeFairModal()">&times;</button>
+</div>
+<div class="modal-body">
+<div id="fairContent">
+<div class="fair-section">
+<h4>🔒 Current Seeds</h4>
+<div class="seed-display">
+<div class="seed-row">
+<span class="seed-label">Server Hash:</span>
+<span id="modalServerHash" class="seed-value">-</span>
+</div>
+<div class="seed-row">
+<span class="seed-label">Client Seed:</span>
+<input type="text" id="modalClientSeed" class="seed-input" maxlength="32">
+<button id="modalChangeSeed" class="seed-btn">🔄</button>
+</div>
+<div class="seed-row">
+<span class="seed-label">Nonce:</span>
+<span id="modalNonce" class="seed-value">0</span>
+</div>
+</div>
+</div>
+<div class="fair-section">
+<h4>ℹ️ How It Works</h4>
+<p>Every game outcome is generated using cryptographic seeds that you can verify:</p>
+<ul>
+<li><strong>Server Seed:</strong> Our random input (hidden until after your bet)</li>
+<li><strong>Client Seed:</strong> Your random input (change it anytime)</li>
+<li><strong>Nonce:</strong> Counter that increments with each round</li>
+</ul>
+<p>After each game, you can verify the result was fair and not manipulated.</p>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="verifyModal" class="modal-overlay" style="display: none;">
 <div class="modal-content verify-modal">
