@@ -783,14 +783,28 @@ setTimeout(()=>this.resetDiceUI(),2000);
 showDiceFace(diceId,value){
 const dice=$(diceId);
 if(!dice)return;
-$$(`#${diceId} .face`).forEach((f,i)=>{
+// Hide all faces first
+$$(`#${diceId} .face`).forEach(f=>{
 f.classList.remove('active');
 f.style.opacity='0';
 });
+// Show the correct face with proper dots
 const face=dice.querySelector(`.f${value}`);
 if(face){
+this.createDots(face,value);
 face.classList.add('active');
 face.style.opacity='1';
+}
+}
+
+createDots(face,value){
+// Clear any existing content
+face.innerHTML='';
+// Create dots based on dice value
+for(let i=0;i<value;i++){
+const dot=document.createElement('span');
+dot.className='dot';
+face.appendChild(dot);
 }
 }
 
