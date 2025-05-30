@@ -20,9 +20,18 @@ this.init();
 }
 
 initPeraWallet(){
-this.peraWallet=new PeraWalletConnect({
-shouldShowSignTxnToast:false
-});
+try{
+if(typeof PeraWalletConnect !== 'undefined'){
+this.peraWallet=new PeraWalletConnect({shouldShowSignTxnToast:false});
+console.log('✅ Pera Wallet initialized');
+}else{
+console.log('⚠️ Pera Wallet not loaded, using fallback');
+this.peraWallet=null;
+}
+}catch(error){
+console.log('⚠️ Pera Wallet init failed, using fallback');
+this.peraWallet=null;
+}
 }
 
 getHCBalance(){
@@ -114,13 +123,28 @@ console.log('Auto-play blocked by browser');
 
 async toggleWallet(){
 if(this.wallet){
+if(this.peraWallet){
 await this.peraWallet.disconnect();
+}
 this.wallet=null;
 this.balance.AMINA=0;
 if(this.currency==='AMINA')this.toggleCurrency();
 this.updateWalletUI();
 this.notify('🔓 Wallet disconnected');
 }else{
+if(!this.peraWallet){
+this.notify('⚠️ Pera Wallet not available - using manual entry');
+const addr=prompt('Enter Algorand wallet:');
+if(addr&&addr.length===58){
+this.wallet=addr;
+this.balance.AMINA=await this.fetchAminaBalance(addr);
+this.updateWalletUI();
+this.notify('✅ Wallet connected manually');
+}else if(addr){
+this.notify('❌ Invalid address');
+}
+return;
+}
 try{
 const accounts=await this.peraWallet.connect();
 if(accounts.length>0){
