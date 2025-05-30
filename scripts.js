@@ -11,7 +11,7 @@ slots:{symbols:['⭐','🌟','💫','🌌','🪐','🌙','☄️','🚀','👽',
 plinko:{balls:[],max:5},
 bj:{pHand:[],dHand:[],deck:[],active:0,bet:0},
 hilo:{card:null,streak:0,bet:0,active:0},
-dice:{bet:null,roll1:1,roll2:1,showingBrand:1,rolling:0}
+dice:{bet:null,val1:1,val2:1,rolling:0}
 };
 this.music={on:0,audio:null};
 this.init();
@@ -721,26 +721,24 @@ if(['♥','♦'].includes(card.suit))cardEl.classList.add('red');
 container.appendChild(cardEl);
 }
 
-// === NEBULA DICE (REALISTIC CASINO DICE) ===
+// === NEBULA DICE (FIXED) ===
 initDice(){
-this.games.dice={bet:null,roll1:1,roll2:1,showingBrand:1,rolling:0};
+this.games.dice={bet:null,val1:1,val2:1,rolling:0};
 this.resetDiceUI();
-this.updateDiceDisplay();
 $('rollBtn').onclick=()=>this.rollDice();
 $$('.bet-option').forEach(btn=>btn.onclick=()=>this.selectDiceBet(btn.dataset.bet));
 }
 
 resetDiceUI(){
-$('diceTotal').textContent='2';
-$('selectedBet').textContent='None';
 $('rollBtn').disabled=1;
+$('selectedBet').textContent='None';
 $$('.bet-option').forEach(btn=>btn.classList.remove('selected'));
-this.games.dice.roll1=1;
-this.games.dice.roll2=1;
-this.games.dice.showingBrand=1;
+this.games.dice.val1=1;
+this.games.dice.val2=1;
 this.games.dice.rolling=0;
-this.setBrandMode('dice1','A');
-this.setBrandMode('dice2','C');
+this.showDiceFace('dice1',1);
+this.showDiceFace('dice2',1);
+this.updateTotal();
 }
 
 selectDiceBet(bet){
@@ -756,25 +754,17 @@ if(!this.games.dice.bet||this.games.dice.rolling)return;
 const bet=+$('diceBet').value;
 if(!this.deductBalance(bet))return;
 this.games.dice.rolling=1;
-this.games.dice.showingBrand=0;
-// Generate random results
-this.games.dice.roll1=Math.floor(Math.random()*6)+1;
-this.games.dice.roll2=Math.floor(Math.random()*6)+1;
-const total=this.games.dice.roll1+this.games.dice.roll2;
-// Start rolling animation
+this.games.dice.val1=Math.floor(Math.random()*6)+1;
+this.games.dice.val2=Math.floor(Math.random()*6)+1;
+const total=this.games.dice.val1+this.games.dice.val2;
 $('dice1').classList.add('rolling');
 $('dice2').classList.add('rolling');
-// Hide all faces during roll
-this.hideAllFaces('dice1');
-this.hideAllFaces('dice2');
-await new Promise(resolve=>setTimeout(resolve,2000));
-// Show results
-this.setDiceFace('dice1',this.games.dice.roll1);
-this.setDiceFace('dice2',this.games.dice.roll2);
-$('diceTotal').textContent=total;
+await new Promise(r=>setTimeout(r,1500));
 $('dice1').classList.remove('rolling');
 $('dice2').classList.remove('rolling');
-// Calculate wins
+this.showDiceFace('dice1',this.games.dice.val1);
+this.showDiceFace('dice2',this.games.dice.val2);
+this.updateTotal();
 let win=0,mult=1;
 if(this.games.dice.bet==='low'&&total>=2&&total<=6){win=1;mult=2;}
 if(this.games.dice.bet==='high'&&total>=8&&total<=12){win=1;mult=2;}
@@ -787,78 +777,26 @@ this.showResult('dice',`🎲 WIN! Rolled ${total} - Won ${winAmt.toFixed(2)} ${t
 this.showResult('dice',`🎲 Rolled ${total} - No win!`,'lose');
 }
 this.games.dice.rolling=0;
-// Return to A/C after 1.7 seconds
-setTimeout(()=>{
-this.games.dice.showingBrand=1;
-this.resetDiceUI();
-},1700);
+setTimeout(()=>this.resetDiceUI(),2000);
 }
 
-hideAllFaces(diceId){
+showDiceFace(diceId,value){
 const dice=$(diceId);
 if(!dice)return;
-const allFaces=dice.querySelectorAll('.die-face');
-allFaces.forEach(face=>{
-face.style.opacity='0';
-face.classList.remove('active');
+$$(`#${diceId} .face`).forEach((f,i)=>{
+f.classList.remove('active');
+f.style.opacity='0';
 });
-}
-
-updateDiceDisplay(){
-if(this.games.dice.showingBrand){
-this.setBrandMode('dice1','A');
-this.setBrandMode('dice2','C');
-}else{
-this.setDiceFace('dice1',this.games.dice.roll1);
-this.setDiceFace('dice2',this.games.dice.roll2);
+const face=dice.querySelector(`.f${value}`);
+if(face){
+face.classList.add('active');
+face.style.opacity='1';
 }
 }
 
-setDiceFace(diceId,value){
-const dice=$(diceId);
-if(!dice)return;
-// Hide all faces first
-const allFaces=dice.querySelectorAll('.die-face');
-allFaces.forEach(face=>{
-face.style.opacity='0';
-face.classList.remove('active');
-});
-// Show the target face with dots
-const targetFace=dice.querySelector(`.face-${value}`);
-if(targetFace){
-// Ensure the face has proper dot structure
-this.createDots(targetFace,value);
-targetFace.style.opacity='1';
-targetFace.classList.add('active');
-}
-}
-
-createDots(face,value){
-// Clear existing content and create proper dots
-face.innerHTML='';
-for(let i=0;i<value;i++){
-const dot=document.createElement('div');
-dot.className='mega-dot';
-face.appendChild(dot);
-}
-}
-
-setBrandMode(diceId,letter){
-const dice=$(diceId);
-if(!dice)return;
-// Hide all faces
-const allFaces=dice.querySelectorAll('.die-face');
-allFaces.forEach(face=>{
-face.style.opacity='0';
-face.classList.remove('active');
-});
-// Show face-1 with brand letter
-const face1=dice.querySelector('.face-1');
-if(face1){
-face1.innerHTML=`<div class="mega-letter">${letter}</div>`;
-face1.style.opacity='1';
-face1.classList.add('active');
-}
+updateTotal(){
+const total=this.games.dice.val1+this.games.dice.val2;
+$('diceTotal').textContent=total;
 }
 
 // === GAME SETUP ===
