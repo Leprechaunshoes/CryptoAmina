@@ -63,14 +63,25 @@ return 0;
 initPeraWallet(){
 try{
 if(typeof PeraWalletConnect !== 'undefined'){
-this.peraWallet=new PeraWalletConnect({shouldShowSignTxnToast:false});
-console.log('✅ Pera Wallet initialized');
+this.peraWallet=new PeraWalletConnect({shouldShowSignTxnToast:false,chainId:416001});
+if(typeof this.peraWallet.connect==='function'&&typeof this.peraWallet.signTransaction==='function'){
+console.log('✅ Pera Wallet initialized successfully');
+this.peraWallet.connector?.on('disconnect',()=>{
+console.log('Pera Wallet disconnected');
+this.wallet=null;
+this.balance.AMINA=0;
+this.updateWalletUI();
+});
 }else{
-console.log('⚠️ Pera Wallet not loaded, using fallback');
+console.log('⚠️ Pera Wallet object incomplete');
+this.peraWallet=null;
+}
+}else{
+console.log('⚠️ PeraWalletConnect not found in global scope');
 this.peraWallet=null;
 }
 }catch(error){
-console.log('⚠️ Pera Wallet init failed, using fallback');
+console.error('Pera Wallet initialization failed:',error);
 this.peraWallet=null;
 }
 }
@@ -133,8 +144,12 @@ console.log('Auto-play blocked by browser');
 
 async toggleWallet(){
 if(this.wallet){
-if(this.peraWallet){
+try{
+if(this.peraWallet&&typeof this.peraWallet.disconnect==='function'){
 await this.peraWallet.disconnect();
+}
+}catch(disconnectError){
+console.log('Disconnect error (non-critical):',disconnectError);
 }
 this.wallet=null;
 this.balance.AMINA=0;
@@ -156,19 +171,31 @@ this.notify('❌ Invalid address');
 return;
 }
 try{
+const reconnectedAccounts=await this.peraWallet.reconnectSession();
+if(reconnectedAccounts&&reconnectedAccounts.length>0){
+this.wallet=reconnectedAccounts[0];
+this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
+this.updateWalletUI();
+this.notify('🚀 Pera Wallet reconnected!');
+return;
+}
 const accounts=await this.peraWallet.connect();
-if(accounts.length>0){
+if(accounts&&accounts.length>0){
 this.wallet=accounts[0];
 this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
 this.updateWalletUI();
 this.notify('🚀 Pera Wallet connected!');
+}else{
+this.notify('❌ No accounts found');
 }
 }catch(error){
 console.error('Wallet connection failed:',error);
-if(error.type===4001){
+if(error.type===4001||error.message?.includes('cancelled')){
 this.notify('❌ Connection cancelled');
+}else if(error.message?.includes('rejected')){
+this.notify('❌ Connection rejected');
 }else{
-this.notify('❌ Connection failed - check Pera Wallet');
+this.notify('❌ Connection failed - check Pera Wallet app');
 }
 }
 }
@@ -323,6 +350,22 @@ console.error('Balance refresh error:',error);
 }
 }
 
+validateWalletState(){
+if(!this.wallet){
+this.notify('🔗 Please connect your wallet first');
+return false;
+}
+if(!this.peraWallet){
+this.notify('❌ Pera Wallet not initialized');
+return false;
+}
+if(typeof this.peraWallet.signTransaction!=='function'){
+this.notify('❌ Wallet connection lost. Please reconnect.');
+return false;
+}
+return true;
+}
+
 // === CASHIER SYSTEM ===
 initCashier(){
 this.updateCashierDisplay();
@@ -337,10 +380,7 @@ if($('casinoCredits'))$('casinoCredits').textContent=`${this.casinoCredits.toFix
 }
 
 async depositAmina(){
-if(!this.wallet){
-this.notify('🔗 Connect wallet first!');
-return;
-}
+if(!this.validateWalletState())return;
 const amount=parseFloat($('depositAmount').value);
 if(!amount||amount<=0){
 this.notify('❌ Enter valid amount');
@@ -361,16 +401,54 @@ playerWallet:this.wallet,
 amount:amount
 })
 });
+if(!response.ok){
+throw new Error(`HTTP error! status: ${response.status}`);
+}
 const result=await response.json();
-if(result.success){
+if(!result.success){
+this.notify('❌ Transaction creation failed: '+result.error);
+return;
+}
+if(!result.transaction){
+this.notify('❌ No transaction data received');
+return;
+}
 this.notify('✍️ Sign deposit in Pera Wallet...');
+let txnBytes;
+try{
 const binaryString=atob(result.transaction);
-const txnBytes=new Uint8Array(binaryString.length);
+txnBytes=new Uint8Array(binaryString.length);
 for(let i=0;i<binaryString.length;i++){
 txnBytes[i]=binaryString.charCodeAt(i);
 }
-const signedTxns=await this.peraWallet.signTransaction([txnBytes]);
+}catch(decodeError){
+console.error('Transaction decode error:',decodeError);
+this.notify('❌ Invalid transaction format');
+return;
+}
+const connectedAccounts=await this.peraWallet.reconnectSession();
+if(!connectedAccounts||connectedAccounts.length===0){
+this.notify('❌ Wallet not connected. Please reconnect.');
+return;
+}
+let signedTxns;
+try{
+signedTxns=await this.peraWallet.signTransaction([txnBytes]);
+if(!signedTxns||signedTxns.length===0){
+this.notify('❌ Transaction signing failed or cancelled');
+return;
+}
+}catch(signError){
+console.error('Signing error:',signError);
+if(signError.message&&signError.message.includes('cancelled')){
+this.notify('❌ Transaction cancelled by user');
+}else{
+this.notify('❌ Signing failed: '+signError.message);
+}
+return;
+}
 this.notify('📡 Submitting to blockchain...');
+try{
 const algodClient=new algosdk.Algodv2('','https://mainnet-api.algonode.cloud','');
 const {txId}=await algodClient.sendRawTransaction(signedTxns).do();
 this.notify(`💰 Deposit confirmed! TX: ${txId.slice(0,8)}...`);
@@ -380,16 +458,13 @@ this.saveCasinoCredits();
 this.updateCashierDisplay();
 this.addTransaction('deposit',amount);
 $('depositAmount').value='';
-}else{
-this.notify('❌ Transaction failed: '+result.error);
+}catch(submitError){
+console.error('Submit error:',submitError);
+this.notify('❌ Blockchain submission failed: '+submitError.message);
 }
 }catch(error){
 console.error('Deposit error:',error);
-if(error.message?.includes('cancelled')){
-this.notify('❌ Transaction cancelled');
-}else{
-this.notify('❌ Deposit failed - '+error.message);
-}
+this.notify('❌ Deposit failed: '+error.message);
 }
 }
 
