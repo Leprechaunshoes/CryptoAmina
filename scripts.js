@@ -4,6 +4,7 @@ constructor(){
 this.balance={HC:this.getHCBalance(),AMINA:0};
 this.currency='HC';
 this.wallet=null;
+this.peraWallet=null;
 this.aminaId=1107424865;
 this.casinoWallet='6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI';
 this.games={
@@ -14,7 +15,14 @@ hilo:{card:null,streak:0,bet:0,active:0},
 dice:{bet:null,val1:1,val2:1,rolling:0}
 };
 this.music={on:0,audio:null};
+this.initPeraWallet();
 this.init();
+}
+
+initPeraWallet(){
+this.peraWallet=new PeraWalletConnect({
+shouldShowSignTxnToast:false
+});
 }
 
 getHCBalance(){
@@ -106,19 +114,29 @@ console.log('Auto-play blocked by browser');
 
 async toggleWallet(){
 if(this.wallet){
+await this.peraWallet.disconnect();
 this.wallet=null;
 this.balance.AMINA=0;
 if(this.currency==='AMINA')this.toggleCurrency();
 this.updateWalletUI();
-this.notify('Wallet disconnected');
+this.notify('🔓 Wallet disconnected');
 }else{
-const addr=prompt('Enter Algorand wallet:');
-if(addr&&addr.length===58){
-this.wallet=addr;
-this.balance.AMINA=await this.fetchAminaBalance(addr);
+try{
+const accounts=await this.peraWallet.connect();
+if(accounts.length>0){
+this.wallet=accounts[0];
+this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
 this.updateWalletUI();
-this.notify('Wallet connected! 🚀');
-}else if(addr)this.notify('Invalid address');
+this.notify('🚀 Pera Wallet connected!');
+}
+}catch(error){
+console.error('Wallet connection failed:',error);
+if(error.type===4001){
+this.notify('❌ Connection cancelled');
+}else{
+this.notify('❌ Connection failed - check Pera Wallet');
+}
+}
 }
 }
 
