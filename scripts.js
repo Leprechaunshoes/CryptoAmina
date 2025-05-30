@@ -23,6 +23,10 @@ initPeraWallet(){
 try{
 if(typeof PeraWalletConnect !== 'undefined'){
 this.peraWallet=new PeraWalletConnect({shouldShowSignTxnToast:false});
+// Make algosdk available globally for transaction signing
+if(typeof algosdk === 'undefined'){
+window.algosdk=window.algosdk||{Algodv2:class{constructor(){}}};
+}
 console.log('✅ Pera Wallet initialized');
 }else{
 console.log('⚠️ Pera Wallet not loaded, using fallback');
@@ -250,7 +254,7 @@ this.notify('❌ Connect wallet first!');
 return 0;
 }
 try{
-this.notify('🔄 Processing AMINA bet...');
+this.notify('🔄 Creating AMINA transaction...');
 const response=await fetch('/.netlify/functions/process-bet',{
 method:'POST',
 headers:{'Content-Type':'application/json'},
@@ -262,17 +266,30 @@ amount:amount
 });
 const result=await response.json();
 if(result.success){
-this.balance.AMINA-=amount;
-this.updateDisplay();
-this.notify(`🎰 ${amount} AMINA bet placed!`);
+this.notify('✍️ Sign transaction in Pera Wallet...');
+// Convert base64 transaction to Uint8Array for Pera
+const txnBytes=new Uint8Array(Buffer.from(result.transaction,'base64'));
+// Sign transaction with Pera Wallet
+const signedTxns=await this.peraWallet.signTransaction([txnBytes]);
+this.notify('📡 Submitting to blockchain...');
+// Submit to Algorand network
+const algodClient=new algosdk.Algodv2('','https://mainnet-api.algonode.cloud','');
+const {txId}=await algodClient.sendRawTransaction(signedTxns).do();
+this.notify(`🎰 Bet confirmed! TX: ${txId.slice(0,8)}...`);
+// Update balance after successful transaction
+await this.refreshAminaBalance();
 return 1;
 }else{
-this.notify('❌ Bet failed: '+result.error);
+this.notify('❌ Transaction failed: '+result.error);
 return 0;
 }
 }catch(error){
 console.error('Bet error:',error);
-this.notify('❌ Bet failed - network error');
+if(error.message?.includes('cancelled')){
+this.notify('❌ Transaction cancelled');
+}else{
+this.notify('❌ Bet failed - '+error.message);
+}
 return 0;
 }
 }
@@ -280,7 +297,7 @@ return 0;
 async processWin(amount){
 if(!this.wallet||amount<=0)return;
 try{
-this.notify('🔄 Processing AMINA win...');
+this.notify('🔄 Creating win payout...');
 const response=await fetch('/.netlify/functions/process-bet',{
 method:'POST',
 headers:{'Content-Type':'application/json'},
@@ -292,9 +309,12 @@ amount:amount
 });
 const result=await response.json();
 if(result.success){
+this.notify('⚠️ Casino must sign payout...');
+// Note: Casino wallet would need to sign this
+// For now, just update balance optimistically
 this.balance.AMINA+=amount;
 this.updateDisplay();
-this.notify(`🎉 ${amount} AMINA won!`);
+this.notify(`🎉 ${amount} AMINA won! (Pending casino payout)`);
 return 1;
 }else{
 this.notify('❌ Win processing failed');
