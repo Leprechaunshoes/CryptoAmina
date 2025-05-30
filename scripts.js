@@ -329,7 +329,10 @@ if(id==='plinko')this.initPlinko();
 if(id==='blackjack')this.initBJ();
 if(id==='hilo')this.initHilo();
 if(id==='dice')this.initDice();
-if(id==='cashier')this.initCashier();
+if(id==='cashier'){
+this.initCashier();
+setTimeout(()=>this.forceUpdateCashier(),100);
+}
 }
 
 notify(msg,type='info'){
@@ -402,9 +405,20 @@ console.log('🏦 Cashier initialized. Current balances:',{AMINA:this.balance.AM
 }
 
 updateCashierDisplay(){
-if($('walletBalance'))$('walletBalance').textContent=`${this.balance.AMINA.toFixed(8)} AMINA`;
-if($('casinoCredits'))$('casinoCredits').textContent=`${this.casinoCredits.toFixed(8)} AMINA`;
-console.log('💰 Cashier Display Updated:',{walletBalance:this.balance.AMINA,casinoCredits:this.casinoCredits});
+const walletEl=$('walletBalance');
+const creditsEl=$('casinoCredits');
+if(walletEl)walletEl.textContent=`${this.balance.AMINA.toFixed(8)} AMINA`;
+if(creditsEl)creditsEl.textContent=`${this.casinoCredits.toFixed(8)} AMINA`;
+}
+
+forceUpdateCashier(){
+this.updateCashierDisplay();
+if(this.wallet&&this.balance.AMINA===0){
+this.fetchAminaBalance(this.wallet).then(bal=>{
+this.balance.AMINA=bal;
+this.updateCashierDisplay();
+});
+}
 }
 
 async depositAmina(){
@@ -1265,11 +1279,11 @@ addBackendTestButton(){
 adminCreditUser(amount){
 this.casinoCredits+=amount;
 this.saveCasinoCredits();
-this.updateCashierDisplay();
 this.updateDisplay();
+this.updateCashierDisplay();
 this.addTransaction('deposit',amount);
 this.notify(`🛠️ Admin credited ${amount} AMINA`);
-console.log(`✅ Credited ${amount} AMINA. New balance: ${this.casinoCredits}`);
+setTimeout(()=>this.forceUpdateCashier(),200);
 }
 
 adminCheckBalances(){
@@ -1317,12 +1331,19 @@ try{
 const accounts=await this.peraWallet.reconnectSession();
 if(accounts&&accounts.length>0){
 this.wallet=accounts[0];
+this.saveWallet();
 this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
 this.updateWalletUI();
-console.log('🔄 Wallet auto-reconnected');
+this.updateCashierDisplay();
+console.log('🔄 Wallet auto-reconnected with balance');
 }
 }catch(error){
-console.log('Auto-reconnect skipped:',error.message);
+if(this.wallet){
+this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
+this.updateWalletUI();
+this.updateCashierDisplay();
+console.log('🔄 Manual wallet mode - balance loaded');
+}
 }
 }
 
