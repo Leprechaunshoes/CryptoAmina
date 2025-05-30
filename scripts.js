@@ -215,8 +215,13 @@ if(bets.includes(curr))sel.value=curr;
 }
 
 updateDisplay(){
-const bal=this.balance[this.currency];
-$('balanceAmount').textContent=this.currency==='AMINA'?bal.toFixed(8):bal.toFixed(0);
+if(this.currency==='AMINA'){
+const bal=this.casinoCredits||0;
+$('balanceAmount').textContent=bal.toFixed(8);
+}else{
+const bal=this.balance.HC;
+$('balanceAmount').textContent=bal.toFixed(0);
+}
 $('currencySymbol').textContent=this.currency;
 ['slots','plinko','blackjack','hilo','dice'].forEach(g=>{
 const el=$(`${g}Currency`);
@@ -225,27 +230,37 @@ if(el)el.textContent=this.currency;
 }
 
 async deductBalance(amt){
-if(this.balance[this.currency]<amt){
+if(this.currency==='AMINA'){
+if(this.casinoCredits<amt){
+this.notify('❌ Insufficient credits! Visit Cashier to deposit.');
+return 0;
+}
+this.casinoCredits-=amt;
+this.saveCasinoCredits();
+this.updateDisplay();
+return 1;
+}else{
+if(this.balance.HC<amt){
 this.notify('Insufficient balance!');
 return 0;
 }
-if(this.currency==='AMINA'&&this.wallet){
-return await this.placeBet(amt);
-}
-this.balance[this.currency]-=amt;
-if(this.currency==='HC')this.saveHCBalance();
+this.balance.HC-=amt;
+this.saveHCBalance();
 this.updateDisplay();
 return 1;
 }
+}
 
 async addBalance(amt){
-if(this.currency==='AMINA'&&this.wallet){
-return await this.processWin(amt);
-}
-if(this.currency==='AMINA')amt*=0.95; // 5% rake
-this.balance[this.currency]+=amt;
-if(this.currency==='HC')this.saveHCBalance();
+if(this.currency==='AMINA'){
+this.casinoCredits+=amt*0.95; // 5% rake
+this.saveCasinoCredits();
 this.updateDisplay();
+}else{
+this.balance.HC+=amt;
+this.saveHCBalance();
+this.updateDisplay();
+}
 }
 
 async placeBet(amount){
@@ -963,8 +978,121 @@ const face=dice.querySelector(`.face-${value}`);
 if(face)face.classList.add('active');
 }
 
-updateTotal(){
-$('diceTotal').textContent=this.games.dice.val1+this.games.dice.val2;
+// === CASHIER SYSTEM ===
+initCashier(){
+this.casinoCredits=this.getCasinoCredits();
+this.updateCashierDisplay();
+$('depositBtn').onclick=()=>this.depositAmina();
+$('withdrawBtn').onclick=()=>this.withdrawAmina();
+}
+
+getCasinoCredits(){
+const stored=localStorage.getItem('casino_credits');
+return stored?parseFloat(stored):0;
+}
+
+saveCasinoCredits(){
+localStorage.setItem('casino_credits',this.casinoCredits.toString());
+}
+
+updateCashierDisplay(){
+if($('walletBalance'))$('walletBalance').textContent=`${this.balance.AMINA.toFixed(8)} AMINA`;
+if($('casinoCredits'))$('casinoCredits').textContent=`${this.casinoCredits.toFixed(8)} AMINA`;
+}
+
+async depositAmina(){
+if(!this.wallet){
+this.notify('🔗 Connect wallet first!');
+return;
+}
+const amount=parseFloat($('depositAmount').value);
+if(!amount||amount<=0){
+this.notify('❌ Enter valid amount');
+return;
+}
+if(amount>this.balance.AMINA){
+this.notify('❌ Insufficient AMINA balance');
+return;
+}
+try{
+this.notify('🔄 Processing deposit...');
+// Simulate deposit (in real version, this would be a blockchain transaction)
+this.balance.AMINA-=amount;
+this.casinoCredits+=amount;
+this.saveCasinoCredits();
+this.updateCashierDisplay();
+this.addTransaction('deposit',amount);
+$('depositAmount').value='';
+this.notify(`✅ Deposited ${amount.toFixed(8)} AMINA!`);
+}catch(error){
+console.error('Deposit error:',error);
+this.notify('❌ Deposit failed');
+}
+}
+
+async withdrawAmina(){
+if(!this.wallet){
+this.notify('🔗 Connect wallet first!');
+return;
+}
+const amount=parseFloat($('withdrawAmount').value);
+if(!amount||amount<=0){
+this.notify('❌ Enter valid amount');
+return;
+}
+if(amount>this.casinoCredits){
+this.notify('❌ Insufficient casino credits');
+return;
+}
+try{
+this.notify('🔄 Processing withdrawal...');
+// Simulate withdrawal (in real version, this would be a blockchain transaction)
+this.casinoCredits-=amount;
+this.balance.AMINA+=amount;
+this.saveCasinoCredits();
+this.updateCashierDisplay();
+this.addTransaction('withdraw',amount);
+$('withdrawAmount').value='';
+this.notify(`✅ Withdrew ${amount.toFixed(8)} AMINA!`);
+}catch(error){
+console.error('Withdraw error:',error);
+this.notify('❌ Withdrawal failed');
+}
+}
+
+addTransaction(type,amount){
+const transactions=JSON.parse(localStorage.getItem('transactions')||'[]');
+const tx={
+id:Date.now(),
+type:type,
+amount:amount,
+timestamp:new Date().toISOString(),
+status:'completed'
+};
+transactions.unshift(tx);
+transactions.splice(10); // Keep only last 10
+localStorage.setItem('transactions',JSON.stringify(transactions));
+this.updateTransactionList();
+}
+
+updateTransactionList(){
+const list=$('transactionList');
+if(!list)return;
+const transactions=JSON.parse(localStorage.getItem('transactions')||'[]');
+if(transactions.length===0){
+list.innerHTML='<div class="transaction-placeholder">No transactions yet. Make your first deposit!</div>';
+return;
+}
+list.innerHTML=transactions.map(tx=>`
+<div class="transaction-item">
+<div class="tx-icon">${tx.type==='deposit'?'💰':'💸'}</div>
+<div class="tx-details">
+<div class="tx-type">${tx.type==='deposit'?'Deposit':'Withdrawal'}</div>
+<div class="tx-amount">${tx.amount.toFixed(8)} AMINA</div>
+</div>
+<div class="tx-time">${new Date(tx.timestamp).toLocaleTimeString()}</div>
+</div>
+`).join('');
 }
 
 // === GAME SETUP ===
