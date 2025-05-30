@@ -1,5 +1,5 @@
 // netlify/functions/process-bet.js
-// REAL AMINA TOKEN TRANSACTION PROCESSOR
+// REAL AMINA TOKEN TRANSACTION PROCESSOR - 8 DECIMALS
 
 const algosdk = require('algosdk');
 
@@ -47,7 +47,7 @@ exports.handler = async (event, context) => {
           CASINO_WALLET,            // to  
           undefined,                // close remainder to
           undefined,                // revocation target
-          Math.round(amount * 1000000), // amount (convert to microAMINA)
+          Math.round(amount * 100000000), // amount (convert to 8 decimal places)
           undefined,                // note
           AMINA_ASSET_ID,          // asset ID
           params                    // suggested params
@@ -71,7 +71,7 @@ exports.handler = async (event, context) => {
           playerWallet,             // to (player)
           undefined,                // close remainder to
           undefined,                // revocation target
-          Math.round(amount * 1000000), // amount (convert to microAMINA)
+          Math.round(amount * 100000000), // amount (convert to 8 decimal places)
           undefined,                // note
           AMINA_ASSET_ID,          // asset ID
           params                    // suggested params
@@ -93,13 +93,13 @@ exports.handler = async (event, context) => {
         // Check player's AMINA balance
         const accountInfo = await algodClient.accountInformation(playerWallet).do();
         const aminaAsset = accountInfo.assets?.find(asset => asset['asset-id'] === AMINA_ASSET_ID);
-        const balance = aminaAsset ? aminaAsset.amount / 1000000 : 0;
+        const balance = aminaAsset ? aminaAsset.amount / 100000000 : 0; // 8 decimals
         
         response = {
           success: true,
           balance: balance,
           wallet: playerWallet,
-          message: `💰 Balance: ${balance} AMINA`
+          message: `💰 Balance: ${balance.toFixed(8)} AMINA`
         };
         break;
 
