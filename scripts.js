@@ -537,17 +537,12 @@ modal.innerHTML=`
 <div style="background:#1a2332;border-radius:10px;padding:12px;width:95%;max-width:350px;max-height:85vh;overflow-y:auto;border:2px solid #ffd700;color:white;font-family:JetBrains Mono,monospace;font-size:11px">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
 <h3 style="margin:0;color:#ffd700;font-size:14px">📝 Manual Signing</h3>
-<button onclick="this.closest('div').remove()" style="background:none;border:none;color:#ffd700;font-size:18px;cursor:pointer">&times;</button>
+<button onclick="this.closest('div').parentElement.remove()" style="background:none;border:none;color:#ffd700;font-size:18px;cursor:pointer">&times;</button>
 </div>
 <div style="background:#2a3441;padding:8px;border-radius:6px;margin-bottom:12px;font-size:10px">
 <div><strong>Amount:</strong> ${txnData.amount} AMINA</div>
 <div><strong>To:</strong> Casino</div>
 <div><strong>Asset:</strong> ${txnData.assetId}</div>
-</div>
-<div style="margin-bottom:12px">
-<h4 style="color:#ffd700;font-size:12px;margin:8px 0 4px">🔗 Copy Transaction</h4>
-<textarea readonly onclick="this.select()" style="width:100%;height:50px;background:#2a3441;color:white;border:1px solid #ffd700;border-radius:4px;padding:4px;font-size:9px;box-sizing:border-box;resize:none">${txnData.transaction}</textarea>
-<button onclick="navigator.clipboard.writeText('${txnData.transaction}');alert('Copied!')" style="background:#ffd700;color:#000;border:none;padding:6px 12px;border-radius:4px;margin:4px 0;cursor:pointer;font-size:10px;width:100%">📋 Copy Transaction</button>
 </div>
 <div style="margin-bottom:12px">
 <h4 style="color:#ffd700;font-size:12px;margin:8px 0 4px">📱 Send Manually</h4>
@@ -556,8 +551,8 @@ modal.innerHTML=`
 <button onclick="navigator.clipboard.writeText('${this.casinoWallet}');alert('Address copied!')" style="background:#ffd700;color:#000;border:none;padding:6px 12px;border-radius:4px;margin:4px 0;cursor:pointer;font-size:10px;width:100%">📋 Copy Address</button>
 </div>
 <div style="display:flex;gap:8px;margin-top:10px">
-<button onclick="this.closest('div').remove();casino.manualDepositComplete(${txnData.amount})" style="background:#28a745;color:white;border:none;padding:8px 10px;border-radius:4px;cursor:pointer;font-size:10px;flex:1">✅ Sent</button>
-<button onclick="this.closest('div').remove()" style="background:#dc3545;color:white;border:none;padding:8px 10px;border-radius:4px;cursor:pointer;font-size:10px;flex:1">❌ Cancel</button>
+<button onclick="this.closest('div').parentElement.remove();casino.manualDepositComplete(${txnData.amount})" style="background:#28a745;color:white;border:none;padding:8px 10px;border-radius:4px;cursor:pointer;font-size:10px;flex:1">✅ Sent</button>
+<button onclick="this.closest('div').parentElement.remove()" style="background:#dc3545;color:white;border:none;padding:8px 10px;border-radius:4px;cursor:pointer;font-size:10px;flex:1">❌ Cancel</button>
 </div>
 </div>`;
 document.body.appendChild(modal);
@@ -1322,9 +1317,22 @@ async checkDepositStatus(){
 try{
 const response=await fetch('/.netlify/functions/monitor-deposits');
 const result=await response.json();
-if(result.success&&result.processed>0){
-await this.refreshUserBalances();
-this.notify(`💰 Deposit confirmed! ${result.processed} transaction(s) processed.`);
+if(result.success&&result.credits&&result.credits.length>0){
+let totalCredited=0;
+result.credits.forEach(credit=>{
+if(credit.wallet===this.wallet){
+this.casinoCredits+=credit.amount;
+totalCredited+=credit.amount;
+this.addTransaction('deposit',credit.amount);
+}
+});
+
+if(totalCredited>0){
+this.saveCasinoCredits();
+this.updateCashierDisplay();
+this.updateDisplay();
+this.notify(`💰 Deposit confirmed! ${totalCredited.toFixed(8)} AMINA credited!`);
+}
 }
 }catch(error){
 console.log('Monitor check failed:',error);
