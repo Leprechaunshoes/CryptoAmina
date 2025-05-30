@@ -55,9 +55,19 @@ try{
 const response=await fetch(`https://mainnet-idx.algonode.cloud/v2/accounts/${wallet}/assets`);
 const data=await response.json();
 const aminaAsset=data.assets?.find(a=>a['asset-id']===this.aminaId);
-const balance=aminaAsset?aminaAsset.amount/1000000:0;
-console.log('AMINA Balance:',balance);
+if(aminaAsset){
+// Get the raw amount first
+console.log('Raw AMINA amount:',aminaAsset.amount);
+// Try different decimal divisions
+const bal6=aminaAsset.amount/1000000;
+const bal8=aminaAsset.amount/100000000;
+console.log('6 decimals:',bal6,'8 decimals:',bal8);
+// Use 6 decimals for now
+const balance=bal6;
+console.log('Final AMINA Balance:',balance);
 return balance;
+}
+return 0;
 }catch(e){
 console.error('Balance fetch error:',e);
 this.notify('❌ Error fetching balance');
