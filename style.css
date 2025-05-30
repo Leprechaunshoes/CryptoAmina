@@ -411,3 +411,5 @@ css
   color: white !important;
   padding: 20px !important;
 }
+css
+#cashier { background: red !important; min-height: 500px !important; }
