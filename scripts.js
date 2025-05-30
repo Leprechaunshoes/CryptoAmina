@@ -731,8 +731,6 @@ $$('.bet-option').forEach(btn=>btn.onclick=()=>this.selectDiceBet(btn.dataset.be
 }
 
 resetDiceUI(){
-$('dice1').textContent='';
-$('dice2').textContent='';
 $('diceTotal').textContent='2';
 $('selectedBet').textContent='None';
 $('rollBtn').disabled=1;
@@ -785,28 +783,20 @@ this.setDiceFace('dice2',this.games.dice.roll2);
 
 setDiceFace(diceId,value){
 const dice=$(diceId);
-const faces=dice.querySelectorAll('.die-face');
-faces.forEach(face=>face.style.display='none');
-const configs={
-1:{face:'front',dots:['dot-center']},
-2:{face:'right',dots:['dot-top-left','dot-bottom-right']},
-3:{face:'left',dots:['dot-top-left','dot-middle-center','dot-bottom-right']},
-4:{face:'top',dots:['dot-top-left','dot-top-right','dot-bottom-left','dot-bottom-right']},
-5:{face:'bottom',dots:['dot-top-left','dot-top-right','dot-middle-center','dot-bottom-left','dot-bottom-right']},
-6:{face:'back',dots:['dot-top-left','dot-top-right','dot-middle-left','dot-middle-right','dot-bottom-left','dot-bottom-right']}
+if(!dice)return;
+const dotConfigs={
+1:`<div class="dot dot-center"></div>`,
+2:`<div class="dot dot-top-left"></div><div class="dot dot-bottom-right"></div>`,
+3:`<div class="dot dot-top-left"></div><div class="dot dot-center"></div><div class="dot dot-bottom-right"></div>`,
+4:`<div class="dot dot-top-left"></div><div class="dot dot-top-right"></div><div class="dot dot-bottom-left"></div><div class="dot dot-bottom-right"></div>`,
+5:`<div class="dot dot-top-left"></div><div class="dot dot-top-right"></div><div class="dot dot-center"></div><div class="dot dot-bottom-left"></div><div class="dot dot-bottom-right"></div>`,
+6:`<div class="dot dot-top-left"></div><div class="dot dot-top-right"></div><div class="dot dot-middle-left"></div><div class="dot dot-middle-right"></div><div class="dot dot-bottom-left"></div><div class="dot dot-bottom-right"></div>`
 };
-const config=configs[value];
-const targetFace=dice.querySelector(`.${config.face}`);
-if(targetFace){
-faces.forEach(face=>face.style.display='none');
-targetFace.style.display='flex';
-const allDots=targetFace.querySelectorAll('.dot');
-allDots.forEach(dot=>dot.style.display='none');
-config.dots.forEach(dotClass=>{
-const dot=targetFace.querySelector(`.${dotClass}`);
-if(dot)dot.style.display='block';
-});
-}
+dice.innerHTML=`
+<div class="die-face front dice-dots-${value}">
+${dotConfigs[value]}
+</div>
+`;
 }
 
 // === GAME SETUP ===
