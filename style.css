@@ -405,3 +405,9 @@ body{font-family:Inter,sans-serif;background:var(--sb);color:var(--sw);overflow-
 .deposit-controls,.withdraw-controls{flex-direction:column}
 .deposit-controls input,.withdraw-controls input{min-width:unset}
 }
+css
+#cashier {
+  background: red !important;
+  color: white !important;
+  padding: 20px !important;
+}
