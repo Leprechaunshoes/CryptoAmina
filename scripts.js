@@ -311,7 +311,7 @@ return 1;
 
 async addBalance(amt){
 if(this.currency==='AMINA'){
-this.casinoCredits+=amt*0.95; // 5% rake
+this.casinoCredits+=amt*0.99; // 1% rake - sustainable empire building!
 this.saveCasinoCredits();
 this.updateDisplay();
 }else{
