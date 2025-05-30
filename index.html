@@ -76,14 +76,15 @@
 </button>
 <div id="orbitalMenu" class="orbital-menu">
 <button class="orbital-item" data-game="home" style="--angle: 0deg" title="Home">🏠</button>
-<button class="orbital-item" data-game="slots" style="--angle: 40deg" title="Cosmic Chaos">🎰</button>
-<button class="orbital-item" data-game="plinko" style="--angle: 80deg" title="Quantum Plinko">🌌</button>
-<button class="orbital-item" data-game="blackjack" style="--angle: 120deg" title="Galaxy Blackjack">♠️</button>
-<button class="orbital-item" data-game="hilo" style="--angle: 160deg" title="Cosmic Hi-Lo">📈</button>
-<button class="orbital-item" data-game="dice" style="--angle: 200deg" title="Nebula Dice">🎲</button>
-<button class="orbital-item" data-game="howtoplay" style="--angle: 240deg" title="How to Play">❓</button>
-<button class="orbital-item" data-game="about" style="--angle: 280deg" title="About">📜</button>
-<button class="orbital-item" data-game="whitepaper" style="--angle: 320deg" title="Whitepaper">🚀</button>
+<button class="orbital-item" data-game="slots" style="--angle: 36deg" title="Cosmic Chaos">🎰</button>
+<button class="orbital-item" data-game="plinko" style="--angle: 72deg" title="Quantum Plinko">🌌</button>
+<button class="orbital-item" data-game="blackjack" style="--angle: 108deg" title="Galaxy Blackjack">♠️</button>
+<button class="orbital-item" data-game="hilo" style="--angle: 144deg" title="Cosmic Hi-Lo">📈</button>
+<button class="orbital-item" data-game="dice" style="--angle: 180deg" title="Nebula Dice">🎲</button>
+<button class="orbital-item" data-game="cashier" style="--angle: 216deg" title="Cashier">🏦</button>
+<button class="orbital-item" data-game="howtoplay" style="--angle: 252deg" title="How to Play">❓</button>
+<button class="orbital-item" data-game="about" style="--angle: 288deg" title="About">📜</button>
+<button class="orbital-item" data-game="whitepaper" style="--angle: 324deg" title="Whitepaper">🚀</button>
 </div>
 </div>
 <div class="floating-actions">
@@ -367,7 +368,52 @@
 <button id="rollBtn" class="cosmic-btn" disabled>🎲 ROLL DICE</button>
 </div>
 </div>
-<div id="diceResult" class="game-result"></div>
+<div id="cashier" class="game-screen">
+<div class="game-container">
+<div class="info-header">
+<h2>🏦 Cashier</h2>
+<p class="info-subtitle">Deposit AMINA tokens to play or withdraw your winnings</p>
+</div>
+<div class="cashier-content">
+<div class="balance-section">
+<div class="balance-card">
+<div class="balance-icon">🪙</div>
+<h3>Wallet Balance</h3>
+<div class="balance-amount" id="walletBalance">0.00000000 AMINA</div>
+<p>Real AMINA in your Pera Wallet</p>
+</div>
+<div class="balance-card">
+<div class="balance-icon">🎰</div>
+<h3>Casino Credits</h3>
+<div class="balance-amount" id="casinoCredits">0.00000000 AMINA</div>
+<p>Available for gaming</p>
+</div>
+</div>
+<div class="cashier-actions">
+<div class="action-card">
+<h3>💰 Deposit AMINA</h3>
+<p>Send AMINA from your wallet to get casino credits</p>
+<div class="deposit-controls">
+<input type="number" id="depositAmount" placeholder="Amount to deposit" step="0.00000001" min="0">
+<button id="depositBtn" class="cosmic-btn deposit-btn">🔄 Deposit</button>
+</div>
+</div>
+<div class="action-card">
+<h3>💸 Withdraw Credits</h3>
+<p>Convert casino credits back to AMINA in your wallet</p>
+<div class="withdraw-controls">
+<input type="number" id="withdrawAmount" placeholder="Amount to withdraw" step="0.00000001" min="0">
+<button id="withdrawBtn" class="cosmic-btn withdraw-btn">💰 Withdraw</button>
+</div>
+</div>
+</div>
+<div class="transaction-history">
+<h3>📋 Recent Transactions</h3>
+<div id="transactionList" class="transaction-list">
+<div class="transaction-placeholder">No transactions yet. Make your first deposit!</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div id="howtoplay" class="game-screen">
