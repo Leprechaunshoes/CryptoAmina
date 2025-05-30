@@ -19,9 +19,8 @@ this.music={on:0,audio:null};
 this.initPeraWallet();
 this.init();
 if(this.wallet){
-this.loadWalletBalance();
-this.updateWalletUI();
 this.autoReconnectWallet();
+this.updateWalletUI();
 }
 }
 
@@ -399,11 +398,13 @@ this.updateCashierDisplay();
 $('depositBtn').onclick=()=>this.depositAmina();
 $('withdrawBtn').onclick=()=>this.withdrawAmina();
 this.updateTransactionList();
+console.log('🏦 Cashier initialized. Current balances:',{AMINA:this.balance.AMINA,Credits:this.casinoCredits});
 }
 
 updateCashierDisplay(){
 if($('walletBalance'))$('walletBalance').textContent=`${this.balance.AMINA.toFixed(8)} AMINA`;
 if($('casinoCredits'))$('casinoCredits').textContent=`${this.casinoCredits.toFixed(8)} AMINA`;
+console.log('💰 Cashier Display Updated:',{walletBalance:this.balance.AMINA,casinoCredits:this.casinoCredits});
 }
 
 async depositAmina(){
@@ -1265,8 +1266,10 @@ adminCreditUser(amount){
 this.casinoCredits+=amount;
 this.saveCasinoCredits();
 this.updateCashierDisplay();
+this.updateDisplay();
 this.addTransaction('deposit',amount);
 this.notify(`🛠️ Admin credited ${amount} AMINA`);
+console.log(`✅ Credited ${amount} AMINA. New balance: ${this.casinoCredits}`);
 }
 
 adminCheckBalances(){
