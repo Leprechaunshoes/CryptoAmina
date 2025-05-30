@@ -54,6 +54,7 @@ this.setupGames();
 this.setupMusic();
 this.createEffects();
 this.updateDisplay();
+this.addBackendTestButton();
 console.log('🚀 Amina Casino LIVE!');
 }
 
@@ -857,6 +858,28 @@ el.textContent=syms[Math.floor(Math.random()*4)];
 el.style.cssText=`position:fixed;font-size:${Math.random()*10+15}px;pointer-events:none;z-index:-1;left:${Math.random()*100}%;top:100vh;opacity:${Math.random()*0.6+0.2};animation:floatUp ${Math.random()*4+6}s linear forwards`;
 document.body.appendChild(el);
 setTimeout(()=>el.remove(),10000);
+}
+
+// === BACKEND TEST BUTTON (NEW) ===
+addBackendTestButton(){
+const btn=document.createElement('button');
+btn.textContent='🧪 Test Backend';
+btn.style.cssText=`position:fixed;top:10px;left:10px;z-index:1000;background:linear-gradient(135deg,#4CAF50,#45a049);color:white;border:none;padding:10px 15px;border-radius:8px;cursor:pointer;font-family:JetBrains Mono,monospace;font-weight:700;font-size:12px;transition:transform .3s ease`;
+btn.onclick=()=>this.testBackend();
+document.body.appendChild(btn);
+}
+
+async testBackend(){
+console.log('🚀 Testing Amina Casino backend...');
+try{
+const response=await fetch('/.netlify/functions/hello-casino');
+const data=await response.json();
+console.log('✅ Backend Response:',data);
+this.notify(`🚀 Backend LIVE! ${data.games.length} games detected!`);
+}catch(error){
+console.error('❌ Backend test failed:',error);
+this.notify('❌ Backend test failed - check console');
+}
 }
 }
 
