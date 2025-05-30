@@ -223,7 +223,7 @@ body{font-family:Inter,sans-serif;background:var(--sb);color:var(--sw);overflow-
 .playing-card{width:80px;height:120px;background:linear-gradient(135deg,#f8f9fa,#e9ecef);border:3px solid var(--cg);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;color:var(--sb);transition:all .3s ease;box-shadow:0 4px 15px #0005;animation:cardDeal .5s ease-out;position:relative;overflow:hidden}
 .playing-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#fff1,transparent);border-radius:9px;pointer-events:none}
 .playing-card:hover{transform:translateY(-5px);box-shadow:0 12px 30px #0006,0 0 25px #ffd7006a}
-.playing-card.red{color:var(--cm)}
+.playing-card.red{color:var(--cp)}
 .playing-card.back{background:linear-gradient(135deg,var(--cp),var(--cb));color:var(--cg);font-size:2rem;box-shadow:0 8px 20px #4a148c6a,0 0 20px #1a237e4d}
 
 .game-controls,.hilo-controls{display:flex;justify-content:center;gap:1rem;margin:1rem 0;flex-wrap:wrap}
@@ -276,6 +276,8 @@ body{font-family:Inter,sans-serif;background:var(--sb);color:var(--sw);overflow-
 .face-6{transform:rotateX(-90deg) translateZ(60px);grid-template:1fr 1fr 1fr/1fr 1fr;gap:8px;padding:12px}
 
 .mega-dot{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle,#fff,var(--cg));box-shadow:0 0 15px var(--cg),0 0 25px var(--pc);animation:simplePulse 3s ease-in-out infinite}
+
+.mega-letter{font-size:48px;font-family:JetBrains Mono,monospace;font-weight:900;color:var(--cg);text-shadow:0 0 20px var(--cg),0 0 30px var(--pc);animation:simplePulse 3s ease-in-out infinite}
 
 .mega-dot::after{display:none}
 
