@@ -2,7 +2,7 @@
 const algosdk=require('algosdk');
 const client=new algosdk.Algodv2('','https://mainnet-api.algonode.cloud','');
 const AMINA_ID=1107424865;
-const CASINO_ADDR=process.env.CASINO_ADDRESS||'6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI';
+const CASINO_ADDR=process.env.CASINO_ADDRESS||'UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCFN7PAVCT2H4G4JEZKJK6W7UG44';
 const CASINO_KEY=process.env.CASINO_PRIVATE_KEY;
 const DAILY_LIM=parseFloat(process.env.DAILY_LIMIT||'1000');
 const MAX_WITH=parseFloat(process.env.MAX_WITHDRAWAL||'100');
