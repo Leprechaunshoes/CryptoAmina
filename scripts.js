@@ -328,13 +328,18 @@ setTimeout(()=>div.remove(),300);
 },3000);
 }
 
-showResult(game,msg,type='info'){
-const el=$(`${game}Result`);
-if(el){
-el.textContent=msg;
-el.className=`game-result show ${type}`;
-setTimeout(()=>el.classList.remove('show'),4000);
-}
+showFairModal(game){
+const seeds=this.fair.seeds[game]||{};
+$('modalServerHash').textContent=seeds.hash?.substring(0,16)+'...'||'-';
+$('modalClientSeed').value=seeds.client||'';
+$('modalNonce').textContent=this.fair.nonces[game]||0;
+$('modalChangeSeed').onclick=()=>{
+const newSeed=$('modalClientSeed').value||this.generateSeed(32);
+this.fair.seeds[game].client=newSeed;
+$('modalClientSeed').value=newSeed;
+this.notify('🔄 Client seed updated!');
+};
+showFairModal();
 }
 
 // === COSMIC CHAOS SLOTS ===
@@ -350,8 +355,6 @@ this.updateSlotsDisplay();
 $('spinBtn').onclick=()=>this.spinSlots();
 $('buyBonusBtn').onclick=()=>this.buyBonus();
 $('autoplayBtn').onclick=()=>this.toggleAuto();
-$('changeClientSeed').onclick=()=>this.changeSeed('slots');
-$('verifyBtn').onclick=()=>this.verifyGame('slots');
 }
 
 createSlotsGrid(){
@@ -1034,6 +1037,8 @@ function $$(sel){return document.querySelectorAll(sel)}
 function openAminaExplorer(){window.open('https://explorer.perawallet.app/asset/1107424865/','_blank')}
 function showDonationModal(){$('donationModal').style.display='flex'}
 function closeDonationModal(){$('donationModal').style.display='none'}
+function showFairModal(){$('fairModal').style.display='flex'}
+function closeFairModal(){$('fairModal').style.display='none'}
 function showVerifyModal(){$('verifyModal').style.display='flex'}
 function closeVerifyModal(){$('verifyModal').style.display='none'}
 function copyDonationAddress(){
