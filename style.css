@@ -371,3 +371,37 @@ body{font-family:Inter,sans-serif;background:var(--sb);color:var(--sw);overflow-
 .wallet-btn{font-size:.8rem;padding:.6rem 1rem}
 .game-grid{grid-template-columns:1fr;gap:1rem}
 }
+/* CASHIER STYLES */
+.cashier-content{display:grid;gap:2rem}
+.balance-section{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;margin-bottom:2rem}
+.balance-card{background:#fff05;backdrop-filter:blur(15px);border:2px solid var(--cg);border-radius:20px;padding:1.5rem;text-align:center;transition:all .3s ease}
+.balance-card:hover{transform:translateY(-5px);border-color:var(--pc);box-shadow:0 15px 30px #0008}
+.balance-icon{font-size:2.5rem;margin-bottom:1rem}
+.balance-card h3{font-family:JetBrains Mono,monospace;color:var(--cg);font-size:1.2rem;margin-bottom:1rem}
+.balance-amount{font-family:JetBrains Mono,monospace;font-size:1.5rem;font-weight:700;color:var(--pc);margin-bottom:.5rem}
+.balance-card p{color:#ccc;font-size:.9rem}
+.cashier-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;margin-bottom:2rem}
+.action-card{background:#fff08;backdrop-filter:blur(15px);border:2px solid #fff1;border-radius:20px;padding:1.5rem;transition:all .3s ease}
+.action-card:hover{transform:translateY(-3px);border-color:var(--cg)}
+.action-card h3{font-family:JetBrains Mono,monospace;color:var(--cg);margin-bottom:1rem}
+.action-card p{color:#ccc;margin-bottom:1rem;line-height:1.4}
+.deposit-controls,.withdraw-controls{display:flex;gap:1rem;flex-wrap:wrap}
+.deposit-controls input,.withdraw-controls input{flex:1;min-width:150px;padding:.8rem;border:2px solid var(--cg);border-radius:12px;background:#fff1;color:var(--sw);font-family:JetBrains Mono,monospace}
+.deposit-controls input::placeholder,.withdraw-controls input::placeholder{color:#888}
+.deposit-btn{background:linear-gradient(135deg,var(--wg),#22c55e);border:2px solid var(--wg)}
+.withdraw-btn{background:linear-gradient(135deg,var(--cm),var(--cp));border:2px solid var(--cm)}
+.transaction-history{background:#fff05;backdrop-filter:blur(15px);border:2px solid #fff1;border-radius:20px;padding:1.5rem}
+.transaction-history h3{font-family:JetBrains Mono,monospace;color:var(--cg);margin-bottom:1rem}
+.transaction-list{display:flex;flex-direction:column;gap:.5rem;max-height:300px;overflow-y:auto}
+.transaction-placeholder{text-align:center;color:#888;font-style:italic;padding:2rem}
+.transaction-item{display:flex;align-items:center;gap:1rem;padding:1rem;background:#fff08;border-radius:12px;border:1px solid #fff1}
+.tx-icon{font-size:1.5rem;flex-shrink:0}
+.tx-details{flex:1}
+.tx-type{font-family:JetBrains Mono,monospace;font-weight:700;color:var(--pc);font-size:.9rem}
+.tx-amount{font-family:JetBrains Mono,monospace;color:var(--cg);font-size:.8rem}
+.tx-time{font-family:JetBrains Mono,monospace;color:#888;font-size:.7rem}
+@media (max-width:768px){
+.balance-section,.cashier-actions{grid-template-columns:1fr}
+.deposit-controls,.withdraw-controls{flex-direction:column}
+.deposit-controls input,.withdraw-controls input{min-width:unset}
+}
