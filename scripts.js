@@ -267,8 +267,12 @@ amount:amount
 const result=await response.json();
 if(result.success){
 this.notify('✍️ Sign transaction in Pera Wallet...');
-// Convert base64 transaction to Uint8Array for Pera
-const txnBytes=new Uint8Array(Buffer.from(result.transaction,'base64'));
+// Convert base64 to Uint8Array without Buffer
+const binaryString=atob(result.transaction);
+const txnBytes=new Uint8Array(binaryString.length);
+for(let i=0;i<binaryString.length;i++){
+txnBytes[i]=binaryString.charCodeAt(i);
+}
 // Sign transaction with Pera Wallet
 const signedTxns=await this.peraWallet.signTransaction([txnBytes]);
 this.notify('📡 Submitting to blockchain...');
