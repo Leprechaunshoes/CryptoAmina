@@ -11,7 +11,7 @@ slots:{symbols:['⭐','🌟','💫','🌌','🪐','🌙','☄️','🚀','👽',
 plinko:{balls:[],max:5},
 bj:{pHand:[],dHand:[],deck:[],active:0,bet:0},
 hilo:{card:null,streak:0,bet:0,active:0},
-dice:{bet:null,roll1:1,roll2:1}
+dice:{bet:null,roll1:1,roll2:1,showingBrand:1}
 };
 this.music={on:0,audio:null};
 this.init();
@@ -722,9 +722,9 @@ if(['♥','♦'].includes(card.suit))cardEl.classList.add('red');
 container.appendChild(cardEl);
 }
 
-// === NEBULA DICE ===
+// === NEBULA DICE (UPDATED) ===
 initDice(){
-this.games.dice={bet:null,roll1:1,roll2:1};
+this.games.dice={bet:null,roll1:1,roll2:1,showingBrand:1};
 this.resetDiceUI();
 this.updateDiceDisplay();
 $('rollBtn').onclick=()=>this.rollDice();
@@ -738,8 +738,9 @@ $('rollBtn').disabled=1;
 $$('.bet-option').forEach(btn=>btn.classList.remove('selected'));
 this.games.dice.roll1=1;
 this.games.dice.roll2=1;
-this.setDiceStandby('dice1');
-this.setDiceStandby('dice2');
+this.games.dice.showingBrand=1;
+this.setBrandMode('dice1','A');
+this.setBrandMode('dice2','C');
 }
 
 selectDiceBet(bet){
@@ -754,6 +755,7 @@ async rollDice(){
 if(!this.games.dice.bet)return;
 const bet=+$('diceBet').value;
 if(!this.deductBalance(bet))return;
+this.games.dice.showingBrand=0;
 $('dice1').classList.add('rolling');
 $('dice2').classList.add('rolling');
 await new Promise(resolve=>setTimeout(resolve,2000));
@@ -775,12 +777,20 @@ this.showResult('dice',`🎲 WIN! Rolled ${total} - Won ${winAmt.toFixed(2)} ${t
 }else{
 this.showResult('dice',`🎲 Rolled ${total} - No win!`,'lose');
 }
-setTimeout(()=>this.resetDiceUI(),3000);
+setTimeout(()=>{
+this.games.dice.showingBrand=1;
+this.resetDiceUI();
+},3000);
 }
 
 updateDiceDisplay(){
+if(this.games.dice.showingBrand){
+this.setBrandMode('dice1','A');
+this.setBrandMode('dice2','C');
+}else{
 this.setDiceFace('dice1',this.games.dice.roll1);
 this.setDiceFace('dice2',this.games.dice.roll2);
+}
 }
 
 setDiceFace(diceId,value){
@@ -791,18 +801,17 @@ allFaces.forEach(face=>face.style.opacity='0');
 const targetFace=dice.querySelector(`.face-${value}`);
 if(targetFace){
 targetFace.style.opacity='1';
-targetFace.style.transform=targetFace.style.transform+' scale(1)';
 }
 }
 
-setDiceStandby(diceId){
+setBrandMode(diceId,letter){
 const dice=$(diceId);
 if(!dice)return;
 const allFaces=dice.querySelectorAll('.die-face');
 allFaces.forEach(face=>face.style.opacity='0');
 const face1=dice.querySelector('.face-1');
 if(face1){
-face1.innerHTML='<div class="mega-letter">A</div>';
+face1.innerHTML=`<div class="mega-letter">${letter}</div>`;
 face1.style.opacity='1';
 }
 }
