@@ -334,7 +334,6 @@ setTimeout(()=>el.classList.remove('show'),4000);
 
 async refreshAminaBalance(){
 if(!this.wallet)return;
-// Skip backend refresh if using manual wallet - just keep current balance
 if(!this.peraWallet){
 this.notify(`💰 Manual wallet mode - balance: ${this.balance.AMINA.toFixed(8)} AMINA`);
 this.updateDisplay();
@@ -365,7 +364,6 @@ if(!this.wallet){
 this.notify('🔗 Please connect your wallet first');
 return false;
 }
-// Only validate Pera Wallet if it's being used (not manual entry)
 if(this.peraWallet&&typeof this.peraWallet.signTransaction!=='function'){
 this.notify('❌ Wallet connection lost. Please reconnect.');
 return false;
@@ -375,7 +373,6 @@ return true;
 
 // === CASHIER SYSTEM ===
 initCashier(){
-// Remove the Pera Wallet validation - allow manual wallets
 this.updateCashierDisplay();
 $('depositBtn').onclick=()=>this.depositAmina();
 $('withdrawBtn').onclick=()=>this.withdrawAmina();
@@ -426,7 +423,6 @@ this.notify('❌ No transaction data received');
 return;
 }
 
-// Check if Pera Wallet is available and connected
 if(this.peraWallet){
 this.notify('✍️ Sign deposit in Pera Wallet...');
 let txnBytes;
@@ -478,7 +474,6 @@ console.error('Submit error:',submitError);
 this.notify('❌ Blockchain submission failed: '+submitError.message);
 }
 }else{
-// Manual wallet mode - provide transaction for external signing
 this.notify('📝 Manual wallet detected - preparing transaction...');
 const txnData={
 transaction:result.transaction,
@@ -498,82 +493,39 @@ this.notify('❌ Deposit failed: '+error.message);
 
 showManualTransactionModal(txnData){
 const modal=document.createElement('div');
-modal.className='modal-overlay manual-txn-modal';
+modal.style.cssText='position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:10000;padding:10px;box-sizing:border-box';
 modal.innerHTML=`
-<div class="modal-content">
-<div class="modal-header">
-<h3>📝 Manual Transaction Signing</h3>
-<button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
+<div style="background:#1a2332;border-radius:15px;padding:15px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto;border:2px solid #ffd700;color:white;font-family:JetBrains Mono,monospace">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+<h3 style="margin:0;color:#ffd700;font-size:16px">📝 Manual Signing</h3>
+<button onclick="this.closest('div').remove()" style="background:none;border:none;color:#ffd700;font-size:20px;cursor:pointer">&times;</button>
 </div>
-<div class="modal-body">
-<p>Since you're using manual wallet entry, please sign this transaction with your preferred method:</p>
-<div class="txn-details">
-<div class="txn-field">
-<strong>From:</strong> ${txnData.from}
+<div style="background:#2a3441;padding:10px;border-radius:8px;margin-bottom:15px;font-size:12px">
+<div><strong>Amount:</strong> ${txnData.amount} AMINA</div>
+<div><strong>To:</strong> Casino</div>
+<div><strong>Asset:</strong> ${txnData.assetId}</div>
 </div>
-<div class="txn-field">
-<strong>To:</strong> ${txnData.to}
+<div style="margin-bottom:15px">
+<h4 style="color:#ffd700;font-size:14px;margin:10px 0 5px">🔗 Option 1: Copy Transaction</h4>
+<textarea readonly onclick="this.select()" style="width:100%;height:60px;background:#2a3441;color:white;border:1px solid #ffd700;border-radius:5px;padding:5px;font-size:10px;box-sizing:border-box">${txnData.transaction}</textarea>
+<button onclick="navigator.clipboard.writeText('${txnData.transaction}');alert('Copied!')" style="background:#ffd700;color:#000;border:none;padding:8px 15px;border-radius:5px;margin:5px 0;cursor:pointer;font-size:12px">📋 Copy</button>
 </div>
-<div class="txn-field">
-<strong>Amount:</strong> ${txnData.amount} AMINA (${Math.round(txnData.amount*100000000)} micro units)
+<div style="margin-bottom:15px">
+<h4 style="color:#ffd700;font-size:14px;margin:10px 0 5px">📱 Option 2: Send Manually</h4>
+<p style="font-size:12px;margin:5px 0">Send exactly <strong>${txnData.amount} AMINA</strong> to:</p>
+<input readonly onclick="this.select()" value="${txnData.to}" style="width:100%;background:#2a3441;color:white;border:1px solid #ffd700;border-radius:5px;padding:5px;font-size:10px;box-sizing:border-box">
+<button onclick="navigator.clipboard.writeText('${txnData.to}');alert('Address copied!')" style="background:#ffd700;color:#000;border:none;padding:8px 15px;border-radius:5px;margin:5px 0;cursor:pointer;font-size:12px">📋 Copy Address</button>
 </div>
-<div class="txn-field">
-<strong>Asset ID:</strong> ${txnData.assetId}
+<div style="display:flex;gap:10px;margin-top:15px">
+<button onclick="this.closest('div').remove();casino.manualDepositComplete(${txnData.amount})" style="background:#28a745;color:white;border:none;padding:10px 15px;border-radius:5px;cursor:pointer;font-size:12px;flex:1">✅ Sent</button>
+<button onclick="this.closest('div').remove()" style="background:#dc3545;color:white;border:none;padding:10px 15px;border-radius:5px;cursor:pointer;font-size:12px;flex:1">❌ Cancel</button>
 </div>
-<div class="txn-field">
-<strong>Note:</strong> ${txnData.note}
-</div>
-</div>
-<div class="signing-options">
-<h4>Choose your signing method:</h4>
-<div class="signing-method">
-<h5>🔗 Option 1: Copy Transaction (Recommended)</h5>
-<p>Copy the base64 transaction below and sign it with your wallet app or SDK:</p>
-<textarea readonly class="txn-textarea" onclick="this.select()">${txnData.transaction}</textarea>
-<button onclick="navigator.clipboard.writeText('${txnData.transaction}');alert('Transaction copied!')" class="copy-btn">📋 Copy Transaction</button>
-</div>
-<div class="signing-method">
-<h5>🛠️ Option 2: Manual Parameters</h5>
-<p>Use these parameters in your wallet app or SDK:</p>
-<div class="manual-params">
-<code>
-algosdk.makeAssetTransferTxnWithSuggestedParams(<br>
-&nbsp;&nbsp;"${txnData.from}",<br>
-&nbsp;&nbsp;"${txnData.to}",<br>
-&nbsp;&nbsp;undefined,<br>
-&nbsp;&nbsp;undefined,<br>
-&nbsp;&nbsp;${Math.round(txnData.amount*100000000)}, // ${txnData.amount} AMINA<br>
-&nbsp;&nbsp;undefined,<br>
-&nbsp;&nbsp;${txnData.assetId}, // AMINA Asset ID<br>
-&nbsp;&nbsp;params<br>
-)
-</code>
-</div>
-</div>
-<div class="signing-method">
-<h5>📱 Option 3: Send Manually</h5>
-<p>Send exactly <strong>${txnData.amount} AMINA</strong> directly to the casino wallet:</p>
-<div class="manual-address">
-<input type="text" value="${txnData.to}" readonly onclick="this.select()">
-<button onclick="navigator.clipboard.writeText('${txnData.to}');alert('Address copied!')" class="copy-btn">📋 Copy</button>
-</div>
-<p class="warning">⚠️ Make sure to send exactly ${txnData.amount} AMINA or your deposit won't be credited correctly!</p>
-</div>
-</div>
-<div class="modal-footer">
-<button onclick="this.closest('.modal-overlay').remove();casino.manualDepositComplete(${txnData.amount})" class="cosmic-btn">✅ I've Sent the Transaction</button>
-<button onclick="this.closest('.modal-overlay').remove()" class="cosmic-btn secondary">❌ Cancel</button>
-</div>
-</div>
-</div>
-`;
+</div>`;
 document.body.appendChild(modal);
 }
 
 manualDepositComplete(amount){
 this.notify('✅ Manual deposit initiated! Checking for transaction...');
-// In a real implementation, you'd monitor the blockchain for the transaction
-// For now, we'll simulate the deposit after a delay
 setTimeout(()=>{
 this.balance.AMINA-=amount;
 this.casinoCredits+=amount;
