@@ -784,19 +784,13 @@ this.setDiceFace('dice2',this.games.dice.roll2);
 setDiceFace(diceId,value){
 const dice=$(diceId);
 if(!dice)return;
-const dotConfigs={
-1:`<div class="dot dot-center"></div>`,
-2:`<div class="dot dot-top-left"></div><div class="dot dot-bottom-right"></div>`,
-3:`<div class="dot dot-top-left"></div><div class="dot dot-center"></div><div class="dot dot-bottom-right"></div>`,
-4:`<div class="dot dot-top-left"></div><div class="dot dot-top-right"></div><div class="dot dot-bottom-left"></div><div class="dot dot-bottom-right"></div>`,
-5:`<div class="dot dot-top-left"></div><div class="dot dot-top-right"></div><div class="dot dot-center"></div><div class="dot dot-bottom-left"></div><div class="dot dot-bottom-right"></div>`,
-6:`<div class="dot dot-top-left"></div><div class="dot dot-top-right"></div><div class="dot dot-middle-left"></div><div class="dot dot-middle-right"></div><div class="dot dot-bottom-left"></div><div class="dot dot-bottom-right"></div>`
-};
-dice.innerHTML=`
-<div class="die-face front dice-dots-${value}">
-${dotConfigs[value]}
-</div>
-`;
+const allFaces=dice.querySelectorAll('.die-face');
+allFaces.forEach(face=>face.style.opacity='0');
+const targetFace=dice.querySelector(`.face-${value}`);
+if(targetFace){
+targetFace.style.opacity='1';
+targetFace.style.transform=targetFace.style.transform+' scale(1)';
+}
 }
 
 // === GAME SETUP ===
