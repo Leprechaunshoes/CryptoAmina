@@ -534,8 +534,8 @@ modal.innerHTML=`
 <div style="margin-bottom:12px">
 <h4 style="color:#ffd700;font-size:12px;margin:8px 0 4px">📱 Send Manually</h4>
 <p style="font-size:10px;margin:4px 0">Send exactly <strong>${txnData.amount} AMINA</strong> to:</p>
-<input readonly onclick="this.select()" value="${txnData.to}" style="width:100%;background:#2a3441;color:white;border:1px solid #ffd700;border-radius:4px;padding:4px;font-size:9px;box-sizing:border-box;margin:2px 0">
-<button onclick="navigator.clipboard.writeText('${txnData.to}');alert('Address copied!')" style="background:#ffd700;color:#000;border:none;padding:6px 12px;border-radius:4px;margin:4px 0;cursor:pointer;font-size:10px;width:100%">📋 Copy Address</button>
+<input readonly onclick="this.select()" value="${this.casinoWallet}" style="width:100%;background:#2a3441;color:white;border:1px solid #ffd700;border-radius:4px;padding:4px;font-size:9px;box-sizing:border-box;margin:2px 0">
+<button onclick="navigator.clipboard.writeText('${this.casinoWallet}');alert('Address copied!')" style="background:#ffd700;color:#000;border:none;padding:6px 12px;border-radius:4px;margin:4px 0;cursor:pointer;font-size:10px;width:100%">📋 Copy Address</button>
 </div>
 <div style="display:flex;gap:8px;margin-top:10px">
 <button onclick="this.closest('div').remove();casino.manualDepositComplete(${txnData.amount})" style="background:#28a745;color:white;border:none;padding:8px 10px;border-radius:4px;cursor:pointer;font-size:10px;flex:1">✅ Sent</button>
@@ -1261,6 +1261,10 @@ document.body.appendChild(el);
 setTimeout(()=>el.remove(),10000);
 }
 
+addBackendTestButton(){
+// Admin function placeholder - to be implemented
+}
+
 // ADD ADMIN FUNCTIONS
 adminCreditUser(amount){
 this.casinoCredits+=amount;
@@ -1308,7 +1312,7 @@ function closeDonationModal(){$('donationModal').style.display='none'}
 function copyDonationAddress(){
 const input=$('donationWallet');
 input.select();
-document.execCommand('copy');
+document.execComponent('copy');
 alert('Address copied! 🚀');
 }
 
