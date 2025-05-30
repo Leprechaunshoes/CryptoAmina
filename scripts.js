@@ -3,7 +3,7 @@ class AminaCasino{
 constructor(){
 this.balance={HC:this.getHCBalance(),AMINA:0};
 this.currency='HC';
-this.wallet=null;
+this.wallet=this.getStoredWallet();
 this.peraWallet=null;
 this.aminaId=1107424865;
 this.casinoWallet='6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI';
@@ -18,6 +18,10 @@ dice:{bet:null,val1:1,val2:1,rolling:0}
 this.music={on:0,audio:null};
 this.initPeraWallet();
 this.init();
+if(this.wallet){
+this.loadWalletBalance();
+this.updateWalletUI();
+}
 }
 
 getHCBalance(){
@@ -34,6 +38,19 @@ return 1000;
 saveHCBalance(){
 const today=new Date().toDateString();
 localStorage.setItem('hc_data',JSON.stringify({date:today,balance:this.balance.HC}));
+}
+
+getStoredWallet(){
+const stored=localStorage.getItem('connected_wallet');
+return stored?JSON.parse(stored):null;
+}
+
+saveWallet(){
+localStorage.setItem('connected_wallet',JSON.stringify(this.wallet));
+}
+
+clearWallet(){
+localStorage.removeItem('connected_wallet');
 }
 
 getCasinoCredits(){
@@ -153,6 +170,7 @@ console.log('Disconnect error (non-critical):',disconnectError);
 }
 this.wallet=null;
 this.balance.AMINA=0;
+this.clearWallet();
 if(this.currency==='AMINA')this.toggleCurrency();
 this.updateWalletUI();
 this.notify('🔓 Wallet disconnected');
@@ -162,6 +180,7 @@ this.notify('⚠️ Pera Wallet not available - using manual entry');
 const addr=prompt('Enter Algorand wallet:');
 if(addr&&addr.length===58){
 this.wallet=addr;
+this.saveWallet();
 this.balance.AMINA=await this.fetchAminaBalance(addr);
 this.updateWalletUI();
 this.notify('✅ Wallet connected manually');
@@ -174,6 +193,7 @@ try{
 const reconnectedAccounts=await this.peraWallet.reconnectSession();
 if(reconnectedAccounts&&reconnectedAccounts.length>0){
 this.wallet=reconnectedAccounts[0];
+this.saveWallet();
 this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
 this.updateWalletUI();
 this.notify('🚀 Pera Wallet reconnected!');
@@ -182,6 +202,7 @@ return;
 const accounts=await this.peraWallet.connect();
 if(accounts&&accounts.length>0){
 this.wallet=accounts[0];
+this.saveWallet();
 this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
 this.updateWalletUI();
 this.notify('🚀 Pera Wallet connected!');
@@ -552,14 +573,13 @@ return;
 }
 try{
 this.notify('🔄 Processing withdrawal...');
-this.notify('⚠️ Casino will send AMINA to your wallet...');
+this.notify('⚠️ IMPORTANT: Withdrawals are manual - contact casino admin with your wallet address and amount to receive your AMINA tokens.');
 this.casinoCredits-=amount;
-this.balance.AMINA+=amount;
 this.saveCasinoCredits();
 this.updateCashierDisplay();
 this.addTransaction('withdraw',amount);
 $('withdrawAmount').value='';
-this.notify(`✅ Withdrew ${amount.toFixed(8)} AMINA! Check wallet in 4-6 seconds.`);
+this.notify(`📝 Withdrawal request logged: ${amount.toFixed(8)} AMINA. Contact admin to complete.`);
 }catch(error){
 console.error('Withdraw error:',error);
 this.notify('❌ Withdrawal failed');
