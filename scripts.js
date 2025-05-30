@@ -731,12 +731,15 @@ $$('.bet-option').forEach(btn=>btn.onclick=()=>this.selectDiceBet(btn.dataset.be
 }
 
 resetDiceUI(){
-$('dice1').textContent='⚀';
-$('dice2').textContent='⚀';
+$('dice1').textContent='';
+$('dice2').textContent='';
 $('diceTotal').textContent='2';
 $('selectedBet').textContent='None';
 $('rollBtn').disabled=1;
 $$('.bet-option').forEach(btn=>btn.classList.remove('selected'));
+this.games.dice.roll1=1;
+this.games.dice.roll2=1;
+this.updateDiceDisplay();
 }
 
 selectDiceBet(bet){
@@ -753,13 +756,11 @@ const bet=+$('diceBet').value;
 if(!this.deductBalance(bet))return;
 $('dice1').classList.add('rolling');
 $('dice2').classList.add('rolling');
-await new Promise(resolve=>setTimeout(resolve,1000));
+await new Promise(resolve=>setTimeout(resolve,2000));
 this.games.dice.roll1=Math.floor(Math.random()*6)+1;
 this.games.dice.roll2=Math.floor(Math.random()*6)+1;
 const total=this.games.dice.roll1+this.games.dice.roll2;
-const syms=['⚀','⚁','⚂','⚃','⚄','⚅'];
-$('dice1').textContent=syms[this.games.dice.roll1-1];
-$('dice2').textContent=syms[this.games.dice.roll2-1];
+this.updateDiceDisplay();
 $('diceTotal').textContent=total;
 $('dice1').classList.remove('rolling');
 $('dice2').classList.remove('rolling');
@@ -775,6 +776,37 @@ this.showResult('dice',`🎲 WIN! Rolled ${total} - Won ${winAmt.toFixed(2)} ${t
 this.showResult('dice',`🎲 Rolled ${total} - No win!`,'lose');
 }
 setTimeout(()=>this.resetDiceUI(),3000);
+}
+
+updateDiceDisplay(){
+this.setDiceFace('dice1',this.games.dice.roll1);
+this.setDiceFace('dice2',this.games.dice.roll2);
+}
+
+setDiceFace(diceId,value){
+const dice=$(diceId);
+const faces=dice.querySelectorAll('.die-face');
+faces.forEach(face=>face.style.display='none');
+const configs={
+1:{face:'front',dots:['dot-center']},
+2:{face:'right',dots:['dot-top-left','dot-bottom-right']},
+3:{face:'left',dots:['dot-top-left','dot-middle-center','dot-bottom-right']},
+4:{face:'top',dots:['dot-top-left','dot-top-right','dot-bottom-left','dot-bottom-right']},
+5:{face:'bottom',dots:['dot-top-left','dot-top-right','dot-middle-center','dot-bottom-left','dot-bottom-right']},
+6:{face:'back',dots:['dot-top-left','dot-top-right','dot-middle-left','dot-middle-right','dot-bottom-left','dot-bottom-right']}
+};
+const config=configs[value];
+const targetFace=dice.querySelector(`.${config.face}`);
+if(targetFace){
+faces.forEach(face=>face.style.display='none');
+targetFace.style.display='flex';
+const allDots=targetFace.querySelectorAll('.dot');
+allDots.forEach(dot=>dot.style.display='none');
+config.dots.forEach(dotClass=>{
+const dot=targetFace.querySelector(`.${dotClass}`);
+if(dot)dot.style.display='block';
+});
+}
 }
 
 // === GAME SETUP ===
