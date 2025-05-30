@@ -21,6 +21,7 @@ this.init();
 if(this.wallet){
 this.loadWalletBalance();
 this.updateWalletUI();
+this.autoReconnectWallet();
 }
 }
 
@@ -546,14 +547,8 @@ document.body.appendChild(modal);
 }
 
 manualDepositComplete(amount){
-this.notify('✅ Manual deposit initiated! Checking for transaction...');
-setTimeout(()=>{
-this.casinoCredits+=amount;
-this.saveCasinoCredits();
-this.updateCashierDisplay();
-this.addTransaction('deposit',amount);
-this.notify(`💰 Deposit of ${amount} AMINA confirmed!`);
-},3000);
+this.notify('✅ Manual deposit submitted! Admin will verify and credit your account.');
+this.addPendingDeposit(amount);
 }
 
 async withdrawAmina(){
@@ -1270,7 +1265,7 @@ adminCreditUser(amount){
 this.casinoCredits+=amount;
 this.saveCasinoCredits();
 this.updateCashierDisplay();
-this.addTransaction('admin_credit',amount);
+this.addTransaction('deposit',amount);
 this.notify(`🛠️ Admin credited ${amount} AMINA`);
 }
 
@@ -1280,6 +1275,52 @@ console.log('Casino Credits:',this.casinoCredits);
 console.log('Wallet Balance:',this.balance.AMINA);
 console.log('Stored Credits:',localStorage.getItem('casino_credits'));
 console.log('Stored Wallet:',localStorage.getItem('connected_wallet'));
+}
+
+addPendingDeposit(amount){
+const pending=JSON.parse(localStorage.getItem('pending_deposits')||'[]');
+pending.push({
+id:Date.now(),
+amount:amount,
+wallet:this.wallet,
+timestamp:new Date().toISOString(),
+status:'pending'
+});
+localStorage.setItem('pending_deposits',JSON.stringify(pending));
+console.log(`📋 Pending deposit: ${amount} AMINA from ${this.wallet}`);
+}
+
+adminViewPending(){
+const pending=JSON.parse(localStorage.getItem('pending_deposits')||'[]');
+console.log('=== PENDING DEPOSITS ===');
+pending.forEach(p=>console.log(`${p.amount} AMINA from ${p.wallet.slice(0,8)}... at ${new Date(p.timestamp).toLocaleString()}`));
+return pending;
+}
+
+adminApprovePending(index){
+const pending=JSON.parse(localStorage.getItem('pending_deposits')||'[]');
+if(pending[index]){
+const deposit=pending[index];
+this.adminCreditUser(deposit.amount);
+pending.splice(index,1);
+localStorage.setItem('pending_deposits',JSON.stringify(pending));
+console.log(`✅ Approved deposit: ${deposit.amount} AMINA`);
+}
+}
+
+async autoReconnectWallet(){
+if(!this.peraWallet)return;
+try{
+const accounts=await this.peraWallet.reconnectSession();
+if(accounts&&accounts.length>0){
+this.wallet=accounts[0];
+this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
+this.updateWalletUI();
+console.log('🔄 Wallet auto-reconnected');
+}
+}catch(error){
+console.log('Auto-reconnect skipped:',error.message);
+}
 }
 
 async testBackend(){
