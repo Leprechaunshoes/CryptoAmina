@@ -361,6 +361,7 @@ if(id==='plinko')this.initPlinko();
 if(id==='blackjack')this.initBJ();
 if(id==='hilo')this.initHilo();
 if(id==='dice')this.initDice();
+if(id==='cashier')this.initCashier();
 }
 
 notify(msg,type='info'){
