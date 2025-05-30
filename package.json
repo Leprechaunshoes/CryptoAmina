@@ -1,0 +1,11 @@
+{
+  "name": "amina-casino-backend",
+  "version": "1.0.0",
+  "description": "AMINA Casino backend functions for Algorand blockchain",
+  "dependencies": {
+    "algosdk": "^2.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
