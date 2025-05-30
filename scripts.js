@@ -181,6 +181,7 @@ const text=toggle.querySelector('.currency-text');
 if(newCurrency==='AMINA'){
 this.notify('Fetching AMINA balance...');
 this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
+await this.refreshAminaBalance();
 this.currency='AMINA';
 toggle.classList.add('amina');
 text.textContent='AMINA';
@@ -220,10 +221,13 @@ if(el)el.textContent=this.currency;
 });
 }
 
-deductBalance(amt){
+async deductBalance(amt){
 if(this.balance[this.currency]<amt){
 this.notify('Insufficient balance!');
 return 0;
+}
+if(this.currency==='AMINA'&&this.wallet){
+return await this.placeBet(amt);
 }
 this.balance[this.currency]-=amt;
 if(this.currency==='HC')this.saveHCBalance();
@@ -231,11 +235,98 @@ this.updateDisplay();
 return 1;
 }
 
-addBalance(amt){
+async addBalance(amt){
+if(this.currency==='AMINA'&&this.wallet){
+return await this.processWin(amt);
+}
 if(this.currency==='AMINA')amt*=0.95; // 5% rake
 this.balance[this.currency]+=amt;
 if(this.currency==='HC')this.saveHCBalance();
 this.updateDisplay();
+}
+
+async placeBet(amount){
+if(!this.wallet){
+this.notify('❌ Connect wallet first!');
+return 0;
+}
+try{
+this.notify('🔄 Processing AMINA bet...');
+const response=await fetch('/.netlify/functions/process-bet',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+action:'place_bet',
+playerWallet:this.wallet,
+amount:amount
+})
+});
+const result=await response.json();
+if(result.success){
+this.balance.AMINA-=amount;
+this.updateDisplay();
+this.notify(`🎰 ${amount} AMINA bet placed!`);
+return 1;
+}else{
+this.notify('❌ Bet failed: '+result.error);
+return 0;
+}
+}catch(error){
+console.error('Bet error:',error);
+this.notify('❌ Bet failed - network error');
+return 0;
+}
+}
+
+async processWin(amount){
+if(!this.wallet||amount<=0)return;
+try{
+this.notify('🔄 Processing AMINA win...');
+const response=await fetch('/.netlify/functions/process-bet',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+action:'process_win',
+playerWallet:this.wallet,
+amount:amount
+})
+});
+const result=await response.json();
+if(result.success){
+this.balance.AMINA+=amount;
+this.updateDisplay();
+this.notify(`🎉 ${amount} AMINA won!`);
+return 1;
+}else{
+this.notify('❌ Win processing failed');
+return 0;
+}
+}catch(error){
+console.error('Win error:',error);
+this.notify('❌ Win processing failed');
+return 0;
+}
+}
+
+async refreshAminaBalance(){
+if(!this.wallet)return;
+try{
+const response=await fetch('/.netlify/functions/process-bet',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+action:'check_balance',
+playerWallet:this.wallet
+})
+});
+const result=await response.json();
+if(result.success){
+this.balance.AMINA=result.balance;
+this.updateDisplay();
+}
+}catch(error){
+console.error('Balance refresh error:',error);
+}
 }
 
 switchGame(id){
@@ -918,6 +1009,16 @@ const response=await fetch('/.netlify/functions/hello-casino');
 const data=await response.json();
 console.log('✅ Backend Response:',data);
 this.notify(`🚀 Backend LIVE! ${data.games.length} games detected!`);
+
+// Test AMINA transaction function too
+const testTx=await fetch('/.netlify/functions/process-bet',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({action:'check_balance',playerWallet:'test'})
+});
+const txResult=await testTx.json();
+console.log('✅ Transaction Function:',txResult);
+this.notify('🔥 AMINA transaction system ready!');
 }catch(error){
 console.error('❌ Backend test failed:',error);
 this.notify('❌ Backend test failed - check console');
