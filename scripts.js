@@ -1,4 +1,4 @@
-// AMINA CASINO - STREAMLINED COSMIC ENGINE
+// AMINA CASINO - FRESH COSMIC ENGINE
 class AminaCasino{
 constructor(){
 this.balance={HC:this.getHCBalance(),AMINA:0};
@@ -721,27 +721,44 @@ if(['♥','♦'].includes(card.suit))cardEl.classList.add('red');
 container.appendChild(cardEl);
 }
 
-// === NEBULA DICE (FIXED) ===
+// === NEBULA DICE (PERFECT 2D DESIGN) ===
 initDice(){
 this.games.dice={bet:null,val1:1,val2:1,rolling:0};
-this.resetDiceUI();
+this.setupDiceFaces();
+this.resetDice();
 $('rollBtn').onclick=()=>this.rollDice();
-$$('.bet-option').forEach(btn=>btn.onclick=()=>this.selectDiceBet(btn.dataset.bet));
+$$('.bet-option').forEach(btn=>btn.onclick=()=>this.selectBet(btn.dataset.bet));
 }
 
-resetDiceUI(){
+setupDiceFaces(){
+// Create dots for each dice face
+['dice1','dice2'].forEach(diceId=>{
+for(let face=1;face<=6;face++){
+const faceEl=$(diceId).querySelector(`.face-${face}`);
+if(faceEl){
+faceEl.innerHTML='';
+for(let i=0;i<face;i++){
+const dot=document.createElement('div');
+dot.className='dice-dot';
+faceEl.appendChild(dot);
+}
+}
+}
+});
+}
+
+resetDice(){
 $('rollBtn').disabled=1;
 $('selectedBet').textContent='None';
 $$('.bet-option').forEach(btn=>btn.classList.remove('selected'));
 this.games.dice.val1=1;
 this.games.dice.val2=1;
-this.games.dice.rolling=0;
-this.showDiceFace('dice1',1);
-this.showDiceFace('dice2',1);
+this.showFace('dice1',1);
+this.showFace('dice2',1);
 this.updateTotal();
 }
 
-selectDiceBet(bet){
+selectBet(bet){
 this.games.dice.bet=bet;
 $$('.bet-option').forEach(btn=>btn.classList.remove('selected'));
 document.querySelector(`[data-bet="${bet}"]`).classList.add('selected');
@@ -756,15 +773,15 @@ if(!this.deductBalance(bet))return;
 this.games.dice.rolling=1;
 this.games.dice.val1=Math.floor(Math.random()*6)+1;
 this.games.dice.val2=Math.floor(Math.random()*6)+1;
-const total=this.games.dice.val1+this.games.dice.val2;
 $('dice1').classList.add('rolling');
 $('dice2').classList.add('rolling');
 await new Promise(r=>setTimeout(r,1500));
 $('dice1').classList.remove('rolling');
 $('dice2').classList.remove('rolling');
-this.showDiceFace('dice1',this.games.dice.val1);
-this.showDiceFace('dice2',this.games.dice.val2);
+this.showFace('dice1',this.games.dice.val1);
+this.showFace('dice2',this.games.dice.val2);
 this.updateTotal();
+const total=this.games.dice.val1+this.games.dice.val2;
 let win=0,mult=1;
 if(this.games.dice.bet==='low'&&total>=2&&total<=6){win=1;mult=2;}
 if(this.games.dice.bet==='high'&&total>=8&&total<=12){win=1;mult=2;}
@@ -777,40 +794,18 @@ this.showResult('dice',`🎲 WIN! Rolled ${total} - Won ${winAmt.toFixed(2)} ${t
 this.showResult('dice',`🎲 Rolled ${total} - No win!`,'lose');
 }
 this.games.dice.rolling=0;
-setTimeout(()=>this.resetDiceUI(),2000);
+setTimeout(()=>this.resetDice(),2000);
 }
 
-showDiceFace(diceId,value){
+showFace(diceId,value){
 const dice=$(diceId);
-if(!dice)return;
-// Hide all faces first
-$$(`#${diceId} .face`).forEach(f=>{
-f.classList.remove('active');
-f.style.opacity='0';
-});
-// Show the correct face with proper dots
-const face=dice.querySelector(`.f${value}`);
-if(face){
-this.createDots(face,value);
-face.classList.add('active');
-face.style.opacity='1';
-}
-}
-
-createDots(face,value){
-// Clear any existing content
-face.innerHTML='';
-// Create dots based on dice value
-for(let i=0;i<value;i++){
-const dot=document.createElement('span');
-dot.className='dot';
-face.appendChild(dot);
-}
+$$(`#${diceId} .dice-face`).forEach(f=>f.classList.remove('active'));
+const face=dice.querySelector(`.face-${value}`);
+if(face)face.classList.add('active');
 }
 
 updateTotal(){
-const total=this.games.dice.val1+this.games.dice.val2;
-$('diceTotal').textContent=total;
+$('diceTotal').textContent=this.games.dice.val1+this.games.dice.val2;
 }
 
 // === GAME SETUP ===
