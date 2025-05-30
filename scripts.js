@@ -8,6 +8,8 @@ this.peraWallet=null;
 this.aminaId=1107424865;
 this.casinoWallet='UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCFN7PAVCT2H4G4JEZKJK6W7UG44';
 this.casinoCredits=this.getCasinoCredits();
+this.monitoringActive=false;
+this.monitorInterval=null;
 this.games={
 slots:{symbols:['⭐','🌟','💫','🌌','🪐','🌙','☄️','🚀','👽','🛸'],scatter:'🌠',grid:[],spinning:0,win:0,mult:1,spins:0},
 plinko:{balls:[],max:5},
@@ -562,8 +564,9 @@ document.body.appendChild(modal);
 }
 
 manualDepositComplete(amount){
-this.notify('✅ Manual deposit submitted! Admin will verify and credit your account.');
+this.notify('⏳ Processing deposit... Please wait 1-2 minutes for confirmation.');
 this.addPendingDeposit(amount);
+this.startDepositMonitoring();
 }
 
 async withdrawAmina(){
@@ -1296,15 +1299,55 @@ console.log('Stored Wallet:',localStorage.getItem('connected_wallet'));
 
 addPendingDeposit(amount){
 const pending=JSON.parse(localStorage.getItem('pending_deposits')||'[]');
-pending.push({
+const newDeposit={
 id:Date.now(),
 amount:amount,
 wallet:this.wallet,
 timestamp:new Date().toISOString(),
 status:'pending'
-});
+};
+pending.push(newDeposit);
 localStorage.setItem('pending_deposits',JSON.stringify(pending));
-console.log(`📋 Pending deposit: ${amount} AMINA from ${this.wallet}`);
+this.updatePendingStatus();
+}
+
+startDepositMonitoring(){
+if(this.monitoringActive)return;
+this.monitoringActive=true;
+this.monitorInterval=setInterval(()=>this.checkDepositStatus(),30000);
+this.checkDepositStatus();
+}
+
+async checkDepositStatus(){
+try{
+const response=await fetch('/.netlify/functions/monitor-deposits');
+const result=await response.json();
+if(result.success&&result.processed>0){
+await this.refreshUserBalances();
+this.notify(`💰 Deposit confirmed! ${result.processed} transaction(s) processed.`);
+}
+}catch(error){
+console.log('Monitor check failed:',error);
+}
+}
+
+async refreshUserBalances(){
+if(this.wallet){
+this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
+}
+this.casinoCredits=this.getCasinoCredits();
+this.updateCashierDisplay();
+this.updateDisplay();
+this.updatePendingStatus();
+}
+
+updatePendingStatus(){
+const pending=JSON.parse(localStorage.getItem('pending_deposits')||'[]');
+const activePending=pending.filter(p=>p.status==='pending'&&Date.now()-new Date(p.timestamp).getTime()<1800000);
+if(activePending.length===0&&this.monitoringActive){
+clearInterval(this.monitorInterval);
+this.monitoringActive=false;
+}
 }
 
 adminViewPending(){
