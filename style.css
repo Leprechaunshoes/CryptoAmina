@@ -110,6 +110,8 @@ body{font-family:Inter,sans-serif;background:var(--sb);color:var(--sw);overflow-
 .game-result.show{opacity:1;transform:translateY(0)}
 .game-result.win{background:#4caf503a;border:2px solid var(--wg);color:var(--wg)}
 .game-result.lose{background:#f443363a;border:2px solid var(--lr);color:var(--lr)}
+
+/* COSMIC CHAOS SLOTS */
 .cosmic-chaos-machine{background:#000c;backdrop-filter:blur(15px);border:3px solid var(--cg);border-radius:24px;padding:25px;margin-bottom:20px;box-shadow:0 20px 50px #0008;position:relative;overflow:hidden;animation:chaosGlow 4s ease-in-out infinite}
 .chaos-info-panel{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding:15px;background:#fff08;border-radius:16px;border:1px solid #ffd70033}
 .multiplier-display,.current-multiplier,.free-spins-display,.win-display{display:flex;align-items:center;gap:8px}
@@ -140,6 +142,8 @@ body{font-family:Inter,sans-serif;background:var(--sb);color:var(--sw);overflow-
 .feature-card:hover{transform:translateY(-3px);border-color:var(--cg);box-shadow:0 8px 25px #ffd70033}
 .feature-card h4{font-family:JetBrains Mono,monospace;color:var(--cg);margin-bottom:8px;font-size:1rem}
 .feature-card p{color:#ccc;font-size:.85rem;line-height:1.3}
+
+/* QUANTUM PLINKO */
 .plinko-container{display:flex;flex-direction:column;align-items:center;gap:1rem}
 .plinko-board{max-width:400px;width:100%;background:#fff05;border:3px solid var(--cg);border-radius:20px;overflow:hidden;box-shadow:0 8px 25px #0005}
 #plinkoCanvas{display:block;width:100%;height:auto}
@@ -155,6 +159,20 @@ body{font-family:Inter,sans-serif;background:var(--sb);color:var(--sw);overflow-
 .multiplier[data-mult="0.5"]{background:#374151;color:#9ca3af}
 .multiplier.hit{transform:scale(1.1);box-shadow:0 0 15px var(--cm);animation:multiplierHit 1s ease-in-out}
 .plinko-drop-btn{padding:1rem 2rem;font-size:1.2rem;background:linear-gradient(135deg,var(--pc),var(--cm));margin-top:1rem}
+
+/* GALAXY BLACKJACK */
+.blackjack-table{display:flex;flex-direction:column;align-items:center;gap:1.5rem}
+.dealer-section,.player-section{text-align:center;width:100%}
+.dealer-section h3,.player-section h3{font-family:JetBrains Mono,monospace;color:var(--cg);margin-bottom:1rem}
+.card-container{display:flex;justify-content:center;gap:.8rem;min-height:120px;align-items:center;flex-wrap:wrap}
+.playing-card{width:80px;height:120px;background:linear-gradient(135deg,#f8f9fa,#e9ecef);border:3px solid var(--cg);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;color:var(--sb);transition:all .3s ease;box-shadow:0 4px 15px #0005;animation:cardDeal .5s ease-out;position:relative;overflow:hidden}
+.playing-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#fff1,transparent);border-radius:9px;pointer-events:none}
+.playing-card:hover{transform:translateY(-5px);box-shadow:0 12px 30px #0006,0 0 25px #ffd7006a}
+.playing-card.red{color:var(--cp)}
+.playing-card.back{background:linear-gradient(135deg,var(--cp),var(--cb));color:var(--cg);font-size:2rem;box-shadow:0 8px 20px #4a148c6a,0 0 20px #1a237e4d}
+.game-controls{display:flex;justify-content:center;gap:1rem;margin:1rem 0;flex-wrap:wrap}
+
+/* COSMIC HI-LO */
 .hilo-game-container{display:flex;flex-direction:column;gap:2rem;align-items:center;width:100%;max-width:500px;margin:0 auto}
 .current-card-display{text-align:center;width:100%}
 .current-card-display h3{font-family:JetBrains Mono,monospace;color:var(--cg);margin-bottom:1rem;font-size:1.3rem}
@@ -179,52 +197,47 @@ body{font-family:Inter,sans-serif;background:var(--sb);color:var(--sw);overflow-
 .streak-placeholder{color:var(--pc);font-family:JetBrains Mono,monospace;font-size:.9rem;opacity:.8}
 .hilo-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;width:100%}
 .start-btn{background:linear-gradient(135deg,var(--cg),var(--pc));border:3px solid var(--cg);padding:1rem 2rem;font-size:1.1rem}
-.blackjack-table,.hilo-table{display:flex;flex-direction:column;align-items:center;gap:1.5rem}
-.dealer-section,.player-section,.current-card-section{text-align:center;width:100%}
-.dealer-section h3,.player-section h3{font-family:JetBrains Mono,monospace;color:var(--cg);margin-bottom:1rem}
-.card-container,.card-display{display:flex;justify-content:center;gap:.8rem;min-height:120px;align-items:center;flex-wrap:wrap}
-.playing-card{width:80px;height:120px;background:linear-gradient(135deg,#f8f9fa,#e9ecef);border:3px solid var(--cg);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;color:var(--sb);transition:all .3s ease;box-shadow:0 4px 15px #0005;animation:cardDeal .5s ease-out;position:relative;overflow:hidden}
-.playing-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#fff1,transparent);border-radius:9px;pointer-events:none}
-.playing-card:hover{transform:translateY(-5px);box-shadow:0 12px 30px #0006,0 0 25px #ffd7006a}
-.playing-card.red{color:var(--cp)}
-.playing-card.back{background:linear-gradient(135deg,var(--cp),var(--cb));color:var(--cg);font-size:2rem;box-shadow:0 8px 20px #4a148c6a,0 0 20px #1a237e4d}
-.game-controls,.hilo-controls{display:flex;justify-content:center;gap:1rem;margin:1rem 0;flex-wrap:wrap}
-.current-card-section,.prediction-section,.next-card-section{background:#fff05;padding:1.5rem;border-radius:20px;border:3px solid transparent;position:relative}
-.current-card-section{background:linear-gradient(135deg,#ffd7001a,#00e5ff0d);border-color:var(--cg)}
-.prediction-section{background:linear-gradient(135deg,#e91e631a,#a855f70d);border-color:var(--cm)}
-.next-card-section{background:linear-gradient(135deg,#22c55e1a,#10b9810d);border-color:var(--wg)}
-.current-card-section::before{content:'🎯';position:absolute;top:-15px;left:20px;font-size:2rem;background:var(--sb);padding:0 10px}
-.prediction-section::before{content:'🤔';position:absolute;top:-15px;left:20px;font-size:2rem;background:var(--sb);padding:0 10px}
-.next-card-section::before{content:'❓';position:absolute;top:-15px;left:20px;font-size:2rem;background:var(--sb);padding:0 10px}
-.current-card-section h3{font-family:JetBrains Mono,monospace;font-size:1.4rem;color:var(--cg);margin-bottom:1rem;text-shadow:0 0 10px var(--cg)}
-.prediction-section h3{font-family:JetBrains Mono,monospace;font-size:1.4rem;color:var(--cm);margin-bottom:1.5rem;text-shadow:0 0 10px var(--cm)}
-.next-card-section h3{font-family:JetBrains Mono,monospace;font-size:1.4rem;color:var(--wg);margin-bottom:1rem;text-shadow:0 0 10px var(--wg)}
-.current-card-area{display:flex;align-items:center;justify-content:center;gap:2rem;flex-wrap:wrap}
-.main-card-display .playing-card{width:100px;height:150px;font-size:1.8rem;border:4px solid var(--cg);box-shadow:0 15px 40px #ffd7006a,0 0 30px #ffd7004d;transform:scale(1.1)}
-.next-card-section .playing-card{border:4px solid var(--wg);box-shadow:0 15px 40px #22c55e6a,0 0 30px #22c55e4d;transform:scale(1.1)}
-.streak-section{background:linear-gradient(135deg,#00e5ff1a,#3b82f60d);padding:1rem;border-radius:16px;border:2px solid var(--pc);max-width:50%;position:relative}
-.streak-section::before{content:'🔥';position:absolute;top:-12px;left:15px;font-size:1.5rem;background:var(--sb);padding:0 8px}
-.streak-title{font-family:JetBrains Mono,monospace;font-size:1rem;color:var(--pc);margin-bottom:.5rem;text-align:center}
-.streak-cards{display:flex;gap:.3rem;align-items:center;flex-wrap:wrap;justify-content:center}
 .streak-card{min-width:35px;height:50px;background:linear-gradient(135deg,#f8f9fa,#e9ecef);border:2px solid var(--pc);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:var(--sb);flex-shrink:0;animation:cardSlideIn .5s ease-out;box-shadow:0 4px 12px #00e5ff4d}
 .streak-card.red{color:var(--cm)}
-.streak-placeholder{color:var(--pc);font-family:JetBrains Mono,monospace;font-size:.8rem;opacity:.8;font-style:italic}
-.dice-display{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1.5rem;padding:2rem;background:radial-gradient(circle,#4A148C15,#9C27B015);border-radius:25px;border:3px solid var(--wg);perspective:1000px;min-height:250px;position:relative;overflow:hidden}
-.cosmic-dice-container{display:flex;gap:3rem;align-items:center;justify-content:center;position:relative;z-index:2;margin:1rem auto;width:100%}
-.die{width:120px;height:120px;position:relative;transform-style:preserve-3d;cursor:pointer;transition:transform .3s ease;filter:drop-shadow(0 0 20px var(--cp))}
-.die:hover{transform:scale(1.05)}
-.die.rolling{animation:diceRoll 2s ease-out}
-.face{position:absolute;width:120px;height:120px;background:linear-gradient(135deg,#001a2e,var(--cp),#9C27B0);border:3px solid var(--cg);border-radius:15px;display:flex;align-items:center;justify-content:center;font-family:JetBrains Mono,monospace;font-weight:900;font-size:48px;color:var(--cg);text-shadow:0 0 25px var(--cg),0 0 40px var(--cp);box-shadow:0 0 25px var(--cg),inset 0 0 20px #4A148C4d;backface-visibility:hidden;opacity:0;transition:opacity .3s ease}
-.face.active{opacity:1}
-.f1{transform:rotateY(0deg) translateZ(60px)}
-.f2{transform:rotateY(90deg) translateZ(60px);display:grid;grid-template:1fr 1fr/1fr;gap:20px;padding:20px;font-size:0}
-.f3{transform:rotateY(180deg) translateZ(60px);display:grid;grid-template:1fr 1fr 1fr/1fr;gap:15px;padding:15px;font-size:0}
-.f4{transform:rotateY(270deg) translateZ(60px);display:grid;grid-template:1fr 1fr/1fr 1fr;gap:15px;padding:15px;font-size:0}
-.f5{transform:rotateX(90deg) translateZ(60px);display:grid;grid-template:1fr 1fr 1fr/1fr 1fr;gap:8px;padding:12px;font-size:0}
-.f6{transform:rotateX(-90deg) translateZ(60px);display:grid;grid-template:1fr 1fr 1fr/1fr 1fr;gap:5px;padding:10px;font-size:0}
-.dot{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle,#fff 30%,var(--cg) 70%);box-shadow:0 0 15px var(--cg),0 0 25px #fff;border:2px solid var(--cg)}
-.dice-table{display:flex;flex-direction:column;align-items:center;gap:1.5rem}
-.dice-total{font-family:JetBrains Mono,monospace;font-size:1.4rem;color:var(--cg);margin-top:1rem;text-shadow:0 0 10px var(--cg)}
+
+/* NEBULA DICE - CLEAN 2D DESIGN */
+.dice-game{display:flex;flex-direction:column;align-items:center;gap:2rem;width:100%}
+.dice-display{display:flex;flex-direction:column;align-items:center;gap:1.5rem;padding:2rem;background:linear-gradient(135deg,#4A148C15,#9C27B015);border-radius:25px;border:3px solid var(--cg);min-height:200px;width:100%;max-width:500px}
+.dice-container{display:flex;gap:3rem;align-items:center;justify-content:center}
+.dice{width:100px;height:100px;position:relative;background:linear-gradient(135deg,#000,var(--cp));border:3px solid var(--cg);border-radius:15px;box-shadow:0 0 25px var(--cg),inset 0 0 20px #4A148C4d;transition:transform .3s ease}
+.dice:hover{transform:scale(1.05)}
+.dice.rolling{animation:diceRoll 1.5s ease-out}
+.dice-face{position:absolute;inset:0;display:grid;place-items:center;gap:8px;padding:10px;opacity:0;transition:opacity .3s ease;border-radius:12px}
+.dice-face.active{opacity:1}
+.dice-face::before{content:'';position:absolute;inset:0;background:inherit;border-radius:inherit}
+.face-1{grid-template:1fr/1fr}
+.face-2{grid-template:1fr 1fr/1fr;padding:15px}
+.face-3{grid-template:1fr 1fr 1fr/1fr;padding:12px}
+.face-4{grid-template:1fr 1fr/1fr 1fr;padding:12px}
+.face-5{grid-template:1fr 1fr 1fr/1fr 1fr;padding:8px}
+.face-6{grid-template:1fr 1fr 1fr/1fr 1fr;padding:6px}
+.dice-dot{width:14px;height:14px;border-radius:50%;background:radial-gradient(circle,#fff 30%,var(--cg) 70%);box-shadow:0 0 10px var(--cg),0 0 15px #fff;border:2px solid var(--cg);grid-area:1/1}
+.face-2 .dice-dot:nth-child(1){grid-area:1/1}
+.face-2 .dice-dot:nth-child(2){grid-area:2/1}
+.face-3 .dice-dot:nth-child(1){grid-area:1/1}
+.face-3 .dice-dot:nth-child(2){grid-area:2/1}
+.face-3 .dice-dot:nth-child(3){grid-area:3/1}
+.face-4 .dice-dot:nth-child(1){grid-area:1/1}
+.face-4 .dice-dot:nth-child(2){grid-area:1/2}
+.face-4 .dice-dot:nth-child(3){grid-area:2/1}
+.face-4 .dice-dot:nth-child(4){grid-area:2/2}
+.face-5 .dice-dot:nth-child(1){grid-area:1/1}
+.face-5 .dice-dot:nth-child(2){grid-area:1/2}
+.face-5 .dice-dot:nth-child(3){grid-area:2/1}
+.face-5 .dice-dot:nth-child(4){grid-area:3/1}
+.face-5 .dice-dot:nth-child(5){grid-area:3/2}
+.face-6 .dice-dot:nth-child(1){grid-area:1/1}
+.face-6 .dice-dot:nth-child(2){grid-area:1/2}
+.face-6 .dice-dot:nth-child(3){grid-area:2/1}
+.face-6 .dice-dot:nth-child(4){grid-area:2/2}
+.face-6 .dice-dot:nth-child(5){grid-area:3/1}
+.face-6 .dice-dot:nth-child(6){grid-area:3/2}
+.dice-total{font-family:JetBrains Mono,monospace;font-size:1.4rem;color:var(--cg);text-shadow:0 0 10px var(--cg);margin-top:1rem}
 .dice-betting{width:100%;max-width:500px;text-align:center}
 .dice-betting h3{font-family:JetBrains Mono,monospace;color:var(--cg);margin-bottom:1rem}
 .bet-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1rem}
@@ -234,6 +247,8 @@ body{font-family:Inter,sans-serif;background:var(--sb);color:var(--sw);overflow-
 .selected-bet{font-family:JetBrains Mono,monospace;color:var(--pc);margin-bottom:1rem}
 .dice-controls{width:100%}
 .dice-controls .cosmic-btn{width:100%;max-width:300px;margin:0 auto;display:block}
+
+/* INFO PAGES */
 .info-header{text-align:center;margin-bottom:2rem}
 .info-header h2{font-family:JetBrains Mono,monospace;font-size:2.5rem;background:linear-gradient(45deg,var(--cg),var(--pc),var(--cm));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
 .info-subtitle{color:#ccc;font-size:1.1rem;margin-bottom:1rem}
@@ -272,6 +287,8 @@ body{font-family:Inter,sans-serif;background:var(--sb);color:var(--sw);overflow-
 .wp-section ul{margin:1rem 0;padding-left:2rem}
 .wp-section li{margin-bottom:.5rem;line-height:1.4}
 .wp-conclusion{text-align:center;font-size:1.1rem;color:var(--cg);font-weight:700;margin-top:2rem}
+
+/* MODAL */
 .modal-overlay{position:fixed;inset:0;background:#000c;backdrop-filter:blur(8px);display:flex;justify-content:center;align-items:center;z-index:1000}
 .modal-content{background:#4a148ce6;backdrop-filter:blur(15px);border:2px solid var(--cg);border-radius:24px;padding:2rem;max-width:400px;width:90%}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
@@ -280,4 +297,77 @@ body{font-family:Inter,sans-serif;background:var(--sb);color:var(--sw);overflow-
 .wallet-input-group input{flex:1;padding:.8rem;border:2px solid var(--cg);border-radius:12px;background:#fff;color:#000;font-family:JetBrains Mono,monospace;font-size:.8rem}
 .copy-btn{background:var(--cg);color:var(--sb);border:none;padding:.8rem 1rem;border-radius:12px;cursor:pointer;font-weight:700}
 .donation-note{text-align:center;font-size:.9rem;color:var(--pc);margin-top:1rem}
-@media (max-width:768px){.hilo-buttons{flex-direction:column;align-items:center}.hilo-btn{width:100%;max-width:200px}.hilo-actions{flex-direction:column;align-items:center}.hilo-actions .cosmic-btn{width:100%;max-width:250px}.multiplier{padding:.5rem .2rem;font-size:.75rem;min-width:24px}.plinko-drop-btn{padding:.9rem 1.5rem;font-size:1.1rem}.hilo-main-card{width:100px;height:150px;font-size:1.6rem}.streak-info{padding:1rem}.cosmic-orb-menu{top:110px;right:15px}.cosmic-orb{width:50px;height:50px}.orb-core{font-size:1.4rem}.orbital-menu{width:250px;padding:1.5rem .8rem}.orbital-item{height:50px;padding:0 1rem;margin-bottom:.8rem}.floating-actions{bottom:15px;right:15px}.floating-btn{width:40px;height:40px;font-size:1.1rem}.welcome-screen{padding:.3rem;overflow-y:auto}.welcome-content{max-width:95%;max-height:85vh;padding:.8rem;margin:0;overflow-y:auto}.main-content{padding:.5rem;overflow:hidden}.game-container{padding:1rem;margin:0}.rules-grid{grid-template-columns:1fr}.rule-card{padding:1rem}.about-section{padding:1.5rem}.tech-features{grid-template-columns:1fr}.token-features{grid-template-columns:1fr}.whitepaper-content{max-height:85vh}.hilo-table{gap:1rem;padding:.6rem}.current-card-section,.prediction-section,.next-card-section{padding:.6rem}.current-card-section h3,.prediction-section h3,.next-card-section h3{font-size:1.2rem}.current-card-section::before,.prediction-section::before,.next-card-section::before{font-size:1.5rem;top:-12px}.current-card-area{flex-direction:column;gap:1rem}.main-card-display .playing-card{width:55px;height:85px;font-size:1rem;transform:scale(1)}.next-card-section .playing-card{width:55px;height:85px;font-size:1rem;transform:scale(1)}.streak-section{max-width:90%;padding:.8rem}.streak-title{font-size:.9rem}.streak-cards{justify-content:center}.streak-card{min-width:30px;height:42px;font-size:.55rem}.hilo-controls{flex-direction:column;gap:1rem;width:100%}.dice-table{gap:1rem;padding:.8rem}.dice-display{gap:1.5rem;padding:1rem;margin:.8rem 0}.die{width:100px;height:100px}.face{width:100px;height:100px;font-size:40px}.dot{width:14px;height:14px}.dice-betting h3{font-size:1.1rem;margin-bottom:.8rem}.bet-options{gap:.8rem;grid-template-columns:1fr}.bet-option{padding:.7rem .8rem;font-size:.85rem}.selected-bet{font-size:.9rem;margin-bottom:.8rem}.dice-controls .cosmic-btn{padding:.9rem 1.2rem;font-size:1rem}.chaos-grid{gap:4px;padding:15px;min-height:280px;max-width:350px}.chaos-symbol{font-size:1.4rem}.playing-card{width:70px;height:105px;font-size:1rem}.game-header h2{font-size:1.5rem}.bet-controls{padding:.8rem;gap:.8rem}.game-result{font-size:.9rem;padding:.8rem}.wallet-input-group{flex-direction:column}.cosmic-chaos-machine{padding:15px;margin-bottom:15px}.chaos-info-panel{flex-direction:column;gap:10px;padding:10px}.multiplier-display{gap:15px}.chaos-controls{gap:15px}.spin-btn{padding:12px 30px;font-size:1.2rem}.buy-bonus-btn{padding:10px 20px;font-size:.9rem}.chaos-features{grid-template-columns:1fr;gap:10px}.feature-card{padding:12px}.feature-card h4{font-size:.9rem}.feature-card p{font-size:.8rem}.hero-coin{width:50px;height:50px;margin-bottom:.3rem}.hero-title{font-size:1.6rem;margin-bottom:.2rem}.hero-subtitle{font-size:.9rem;margin-bottom:.8rem}.game-info{margin:.8rem 0}.game-info h3{font-size:1rem;margin-bottom:.6rem}.welcome-description{font-size:.8rem;padding:0 .3rem;margin-bottom:.8rem}.info-grid{gap:.5rem;margin-bottom:.6rem}.info-item{padding:.6rem;gap:.5rem}.info-content h4{font-size:.8rem;margin-bottom:.2rem}.info-item p{font-size:.75rem;line-height:1.2}.get-amina-flash{margin-top:.5rem}.enter-btn{padding:.7rem 1.2rem;font-size:.9rem;margin-top:.6rem}.info-icon{font-size:1rem}.logo{font-size:1.8rem}.welcome-title{font-size:2rem}.header-content{flex-direction:column;gap:.8rem;padding:0 1rem}.header-controls{gap:.8rem;flex-wrap:wrap;justify-content:center}.wallet-btn{font-size:.8rem;padding:.6rem 1rem}.game-grid{grid-template-columns:1fr;gap:1rem}}
+
+/* RESPONSIVE */
+@media (max-width:768px){
+.hilo-buttons{flex-direction:column;align-items:center}
+.hilo-btn{width:100%;max-width:200px}
+.hilo-actions{flex-direction:column;align-items:center}
+.hilo-actions .cosmic-btn{width:100%;max-width:250px}
+.multiplier{padding:.5rem .2rem;font-size:.75rem;min-width:24px}
+.plinko-drop-btn{padding:.9rem 1.5rem;font-size:1.1rem}
+.hilo-main-card{width:100px;height:150px;font-size:1.6rem}
+.streak-info{padding:1rem}
+.cosmic-orb-menu{top:110px;right:15px}
+.cosmic-orb{width:50px;height:50px}
+.orb-core{font-size:1.4rem}
+.orbital-menu{width:250px;padding:1.5rem .8rem}
+.orbital-item{height:50px;padding:0 1rem;margin-bottom:.8rem}
+.floating-actions{bottom:15px;right:15px}
+.floating-btn{width:40px;height:40px;font-size:1.1rem}
+.welcome-screen{padding:.3rem;overflow-y:auto}
+.welcome-content{max-width:95%;max-height:85vh;padding:.8rem;margin:0;overflow-y:auto}
+.main-content{padding:.5rem;overflow:hidden}
+.game-container{padding:1rem;margin:0}
+.rules-grid{grid-template-columns:1fr}
+.rule-card{padding:1rem}
+.about-section{padding:1.5rem}
+.tech-features{grid-template-columns:1fr}
+.token-features{grid-template-columns:1fr}
+.whitepaper-content{max-height:85vh}
+.dice-container{gap:2rem}
+.dice{width:80px;height:80px}
+.dice-dot{width:12px;height:12px}
+.dice-display{padding:1.5rem;gap:1rem}
+.dice-betting h3{font-size:1.1rem;margin-bottom:.8rem}
+.bet-options{gap:.8rem;grid-template-columns:1fr}
+.bet-option{padding:.7rem .8rem;font-size:.85rem}
+.selected-bet{font-size:.9rem;margin-bottom:.8rem}
+.dice-controls .cosmic-btn{padding:.9rem 1.2rem;font-size:1rem}
+.chaos-grid{gap:4px;padding:15px;min-height:280px;max-width:350px}
+.chaos-symbol{font-size:1.4rem}
+.playing-card{width:70px;height:105px;font-size:1rem}
+.game-header h2{font-size:1.5rem}
+.bet-controls{padding:.8rem;gap:.8rem}
+.game-result{font-size:.9rem;padding:.8rem}
+.wallet-input-group{flex-direction:column}
+.cosmic-chaos-machine{padding:15px;margin-bottom:15px}
+.chaos-info-panel{flex-direction:column;gap:10px;padding:10px}
+.multiplier-display{gap:15px}
+.chaos-controls{gap:15px}
+.spin-btn{padding:12px 30px;font-size:1.2rem}
+.buy-bonus-btn{padding:10px 20px;font-size:.9rem}
+.chaos-features{grid-template-columns:1fr;gap:10px}
+.feature-card{padding:12px}
+.feature-card h4{font-size:.9rem}
+.feature-card p{font-size:.8rem}
+.hero-coin{width:50px;height:50px;margin-bottom:.3rem}
+.hero-title{font-size:1.6rem;margin-bottom:.2rem}
+.hero-subtitle{font-size:.9rem;margin-bottom:.8rem}
+.game-info{margin:.8rem 0}
+.game-info h3{font-size:1rem;margin-bottom:.6rem}
+.welcome-description{font-size:.8rem;padding:0 .3rem;margin-bottom:.8rem}
+.info-grid{gap:.5rem;margin-bottom:.6rem}
+.info-item{padding:.6rem;gap:.5rem}
+.info-content h4{font-size:.8rem;margin-bottom:.2rem}
+.info-item p{font-size:.75rem;line-height:1.2}
+.get-amina-flash{margin-top:.5rem}
+.enter-btn{padding:.7rem 1.2rem;font-size:.9rem;margin-top:.6rem}
+.info-icon{font-size:1rem}
+.logo{font-size:1.8rem}
+.welcome-title{font-size:2rem}
+.header-content{flex-direction:column;gap:.8rem;padding:0 1rem}
+.header-controls{gap:.8rem;flex-wrap:wrap;justify-content:center}
+.wallet-btn{font-size:.8rem;padding:.6rem 1rem}
+.game-grid{grid-template-columns:1fr;gap:1rem}
+}
