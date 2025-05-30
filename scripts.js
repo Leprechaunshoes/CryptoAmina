@@ -258,7 +258,7 @@ this.updateDisplay();
 }
 
 updateBets(){
-const bets=this.currency==='HC'?['1','5','10']:['0.05','0.1','0.2'];
+const bets=this.currency==='HC'?['1','5','10']:['0.01','0.02','0.05'];
 ['slots','plinko','blackjack','hilo','dice'].forEach(g=>{
 const sel=$(`${g}Bet`);
 if(sel){
