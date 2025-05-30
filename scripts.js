@@ -726,6 +726,7 @@ container.appendChild(cardEl);
 initDice(){
 this.games.dice={bet:null,roll1:1,roll2:1};
 this.resetDiceUI();
+this.updateDiceDisplay();
 $('rollBtn').onclick=()=>this.rollDice();
 $$('.bet-option').forEach(btn=>btn.onclick=()=>this.selectDiceBet(btn.dataset.bet));
 }
@@ -737,7 +738,8 @@ $('rollBtn').disabled=1;
 $$('.bet-option').forEach(btn=>btn.classList.remove('selected'));
 this.games.dice.roll1=1;
 this.games.dice.roll2=1;
-this.updateDiceDisplay();
+this.setDiceStandby('dice1');
+this.setDiceStandby('dice2');
 }
 
 selectDiceBet(bet){
@@ -790,6 +792,18 @@ const targetFace=dice.querySelector(`.face-${value}`);
 if(targetFace){
 targetFace.style.opacity='1';
 targetFace.style.transform=targetFace.style.transform+' scale(1)';
+}
+}
+
+setDiceStandby(diceId){
+const dice=$(diceId);
+if(!dice)return;
+const allFaces=dice.querySelectorAll('.die-face');
+allFaces.forEach(face=>face.style.opacity='0');
+const face1=dice.querySelector('.face-1');
+if(face1){
+face1.innerHTML='<div class="mega-letter">A</div>';
+face1.style.opacity='1';
 }
 }
 
