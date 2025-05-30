@@ -351,17 +351,45 @@ this.notify('❌ Insufficient AMINA balance');
 return;
 }
 try{
-this.notify('🔄 Processing deposit...');
+this.notify('🔄 Creating deposit transaction...');
+const response=await fetch('/.netlify/functions/process-bet',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+action:'place_bet',
+playerWallet:this.wallet,
+amount:amount
+})
+});
+const result=await response.json();
+if(result.success){
+this.notify('✍️ Sign deposit in Pera Wallet...');
+const binaryString=atob(result.transaction);
+const txnBytes=new Uint8Array(binaryString.length);
+for(let i=0;i<binaryString.length;i++){
+txnBytes[i]=binaryString.charCodeAt(i);
+}
+const signedTxns=await this.peraWallet.signTransaction([txnBytes]);
+this.notify('📡 Submitting to blockchain...');
+const algodClient=new algosdk.Algodv2('','https://mainnet-api.algonode.cloud','');
+const {txId}=await algodClient.sendRawTransaction(signedTxns).do();
+this.notify(`💰 Deposit confirmed! TX: ${txId.slice(0,8)}...`);
 this.balance.AMINA-=amount;
 this.casinoCredits+=amount;
 this.saveCasinoCredits();
 this.updateCashierDisplay();
 this.addTransaction('deposit',amount);
 $('depositAmount').value='';
-this.notify(`✅ Deposited ${amount.toFixed(8)} AMINA!`);
+}else{
+this.notify('❌ Transaction failed: '+result.error);
+}
 }catch(error){
 console.error('Deposit error:',error);
-this.notify('❌ Deposit failed');
+if(error.message?.includes('cancelled')){
+this.notify('❌ Transaction cancelled');
+}else{
+this.notify('❌ Deposit failed - '+error.message);
+}
 }
 }
 
@@ -381,13 +409,14 @@ return;
 }
 try{
 this.notify('🔄 Processing withdrawal...');
+this.notify('⚠️ Casino will send AMINA to your wallet...');
 this.casinoCredits-=amount;
 this.balance.AMINA+=amount;
 this.saveCasinoCredits();
 this.updateCashierDisplay();
 this.addTransaction('withdraw',amount);
 $('withdrawAmount').value='';
-this.notify(`✅ Withdrew ${amount.toFixed(8)} AMINA!`);
+this.notify(`✅ Withdrew ${amount.toFixed(8)} AMINA! Check wallet in 4-6 seconds.`);
 }catch(error){
 console.error('Withdraw error:',error);
 this.notify('❌ Withdrawal failed');
