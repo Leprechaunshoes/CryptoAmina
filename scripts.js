@@ -216,7 +216,11 @@ const toggle=$('currencyToggle');
 const text=toggle.querySelector('.currency-text');
 
 if(newCurrency==='AMINA'){
-this.notify('Fetching real AMINA balance...');
+if(!this.wallet){
+this.notify('🔗 Connect wallet first to use AMINA!');
+return;
+}
+this.notify('Switching to AMINA mode...');
 await this.refreshAminaBalance();
 this.currency='AMINA';
 toggle.classList.add('amina');
@@ -330,6 +334,12 @@ setTimeout(()=>el.classList.remove('show'),4000);
 
 async refreshAminaBalance(){
 if(!this.wallet)return;
+// Skip backend refresh if using manual wallet - just keep current balance
+if(!this.peraWallet){
+this.notify(`💰 Manual wallet mode - balance: ${this.balance.AMINA.toFixed(8)} AMINA`);
+this.updateDisplay();
+return;
+}
 try{
 const response=await fetch('/.netlify/functions/process-bet',{
 method:'POST',
@@ -365,6 +375,7 @@ return true;
 
 // === CASHIER SYSTEM ===
 initCashier(){
+// Remove the Pera Wallet validation - allow manual wallets
 this.updateCashierDisplay();
 $('depositBtn').onclick=()=>this.depositAmina();
 $('withdrawBtn').onclick=()=>this.withdrawAmina();
