@@ -8,10 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 </head>
 <body>
-<!-- COSMIC BACKGROUND -->
 <div class="cosmic-bg"></div>
-
-<!-- WELCOME SCREEN -->
 <div id="welcomeScreen" class="welcome-screen active">
 <div class="welcome-content">
 <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina" class="hero-coin">
@@ -47,10 +44,7 @@
 <button id="enterCasino" class="enter-btn">🚀 ENTER CASINO</button>
 </div>
 </div>
-
-<!-- MAIN CASINO -->
 <div id="mainCasino" class="main-casino">
-<!-- HEADER -->
 <header class="header">
 <div class="header-content">
 <div class="logo-section">
@@ -76,8 +70,6 @@
 </div>
 </div>
 </header>
-
-<!-- COSMIC ORB MENU -->
 <div class="cosmic-orb-menu">
 <button id="cosmicOrb" class="cosmic-orb">
 <div class="orb-core">👽</div>
@@ -94,16 +86,11 @@
 <button class="orbital-item" data-game="whitepaper" style="--angle: 320deg" title="Whitepaper">🚀</button>
 </div>
 </div>
-
-<!-- FLOATING ACTIONS -->
 <div class="floating-actions">
 <button class="floating-btn music-btn" id="musicToggle" title="Music">🎵</button>
 <button class="floating-btn donation-btn" onclick="showDonationModal()" title="Donate">💎</button>
 </div>
-
-<!-- MAIN CONTENT -->
 <main class="main-content">
-<!-- HOME SCREEN -->
 <div id="home" class="game-screen active">
 <div class="welcome-container">
 <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina" class="welcome-coin">
@@ -143,8 +130,6 @@
 </div>
 </div>
 </div>
-
-<!-- COSMIC CHAOS SLOTS -->
 <div id="slots" class="game-screen">
 <div class="game-container">
 <div class="game-header">
@@ -160,7 +145,6 @@
 <button id="buyBonusBtn" class="buy-bonus-btn">🚀 Buy Bonus (100x)</button>
 </div>
 </div>
-
 <div class="cosmic-chaos-machine">
 <div class="chaos-info-panel">
 <div class="multiplier-display">
@@ -179,12 +163,10 @@
 <span id="winCurrency" class="win-currency">HC</span>
 </div>
 </div>
-
 <div class="chaos-grid-container">
 <div id="chaosGrid" class="chaos-grid"></div>
 <div class="meteor-shower" id="meteorShower"></div>
 </div>
-
 <div class="chaos-controls">
 <button id="spinBtn" class="cosmic-btn spin-btn">⚡ SPIN ⚡</button>
 <div class="autoplay-controls">
@@ -197,7 +179,6 @@
 </select>
 </div>
 </div>
-
 <div class="chaos-features">
 <div class="feature-card">
 <h4>🌟 Cluster Pays</h4>
@@ -217,12 +198,9 @@
 </div>
 </div>
 </div>
-
 <div id="slotsResult" class="game-result"></div>
 </div>
 </div>
-
-<!-- QUANTUM PLINKO -->
 <div id="plinko" class="game-screen">
 <div class="game-container">
 <div class="game-header">
@@ -237,7 +215,6 @@
 <span id="plinkoCurrency">HC</span>
 </div>
 </div>
-
 <div class="plinko-container">
 <div class="plinko-board">
 <canvas id="plinkoCanvas" width="400" height="450"></canvas>
@@ -261,12 +238,9 @@
 </div>
 <button id="dropBtn" class="cosmic-btn plinko-drop-btn">🌌 DROP BALL</button>
 </div>
-
 <div id="plinkoResult" class="game-result"></div>
 </div>
 </div>
-
-<!-- GALAXY BLACKJACK -->
 <div id="blackjack" class="game-screen">
 <div class="game-container">
 <div class="game-header">
@@ -281,7 +255,6 @@
 <span id="blackjackCurrency">HC</span>
 </div>
 </div>
-
 <div class="blackjack-table">
 <div class="dealer-section">
 <h3>Dealer: <span id="dealerScore">0</span></h3>
@@ -297,12 +270,9 @@
 <button id="standBtn" class="cosmic-btn" disabled>STAND</button>
 </div>
 </div>
-
 <div id="blackjackResult" class="game-result"></div>
 </div>
 </div>
-
-<!-- COSMIC HI-LO -->
 <div id="hilo" class="game-screen">
 <div class="game-container">
 <div class="game-header">
@@ -317,7 +287,6 @@
 <span id="hiloCurrency">HC</span>
 </div>
 </div>
-
 <div class="hilo-game-container">
 <div class="current-card-display">
 <h3>Current Card</h3>
@@ -325,7 +294,6 @@
 <div class="playing-card hilo-main-card">?</div>
 </div>
 </div>
-
 <div class="prediction-controls">
 <p class="prediction-text">Will the next card be higher or lower?</p>
 <div class="hilo-buttons">
@@ -333,7 +301,6 @@
 <button id="lowerBtn" class="hilo-btn lower-btn" disabled>⬇️ LOWER</button>
 </div>
 </div>
-
 <div class="streak-info">
 <div class="streak-display">
 <span class="streak-label">🔥 Streak:</span>
@@ -343,18 +310,14 @@
 <div class="streak-placeholder">Start playing!</div>
 </div>
 </div>
-
 <div class="hilo-actions">
 <button id="dealHiloBtn" class="cosmic-btn start-btn">🚀 START GAME</button>
 <button id="cashoutBtn" class="cosmic-btn cash-btn" disabled>💰 CASH OUT</button>
 </div>
 </div>
-
 <div id="hiloResult" class="game-result"></div>
 </div>
 </div>
-
-<!-- NEBULA DICE -->
 <div id="dice" class="game-screen">
 <div class="game-container">
 <div class="game-header">
@@ -369,14 +332,13 @@
 <span id="diceCurrency">HC</span>
 </div>
 </div>
-
 <div class="dice-table">
 <div class="dice-display">
 <div class="cosmic-dice-container">
 <div id="dice1" class="legendary-die">
 <div class="die-glow"></div>
 <div class="die-body">
-<div class="die-face face-1"><div class="mega-dot"></div></div>
+<div class="die-face face-1"><div class="mega-letter">A</div></div>
 <div class="die-face face-2"><div class="mega-dot"></div><div class="mega-dot"></div></div>
 <div class="die-face face-3"><div class="mega-dot"></div><div class="mega-dot"></div><div class="mega-dot"></div></div>
 <div class="die-face face-4"><div class="mega-dot"></div><div class="mega-dot"></div><div class="mega-dot"></div><div class="mega-dot"></div></div>
@@ -387,7 +349,7 @@
 <div id="dice2" class="legendary-die">
 <div class="die-glow"></div>
 <div class="die-body">
-<div class="die-face face-1"><div class="mega-dot"></div></div>
+<div class="die-face face-1"><div class="mega-letter">C</div></div>
 <div class="die-face face-2"><div class="mega-dot"></div><div class="mega-dot"></div></div>
 <div class="die-face face-3"><div class="mega-dot"></div><div class="mega-dot"></div><div class="mega-dot"></div></div>
 <div class="die-face face-4"><div class="mega-dot"></div><div class="mega-dot"></div><div class="mega-dot"></div><div class="mega-dot"></div></div>
@@ -399,7 +361,6 @@
 <div class="cosmic-particles"></div>
 <div class="dice-total">Total: <span id="diceTotal">2</span></div>
 </div>
-
 <div class="dice-betting">
 <h3>Choose Your Bet:</h3>
 <div class="bet-options">
@@ -409,17 +370,13 @@
 </div>
 <div class="selected-bet">Selected: <span id="selectedBet">None</span></div>
 </div>
-
 <div class="dice-controls">
 <button id="rollBtn" class="cosmic-btn" disabled>🎲 ROLL DICE</button>
 </div>
 </div>
-
 <div id="diceResult" class="game-result"></div>
 </div>
 </div>
-
-<!-- HOW TO PLAY -->
 <div id="howtoplay" class="game-screen">
 <div class="game-container">
 <div class="info-header">
@@ -449,7 +406,6 @@
 <p><strong>Max Win:</strong> 1,000x your bet | <strong>RTP:</strong> 96.2% | <strong>Volatility:</strong> High</p>
 </div>
 </div>
-
 <div class="rule-card plinko-rule">
 <div class="rule-icon">🌌</div>
 <h3>Quantum Plinko</h3>
@@ -461,7 +417,6 @@
 <p><strong>RTP:</strong> 97.2% | <strong>House Edge:</strong> 2.8%</p>
 </div>
 </div>
-
 <div class="rule-card blackjack-rule">
 <div class="rule-icon">♠️</div>
 <h3>Galaxy Blackjack</h3>
@@ -473,7 +428,6 @@
 <p><strong>RTP:</strong> 99.4% | <strong>House Edge:</strong> 0.6%</p>
 </div>
 </div>
-
 <div class="rule-card hilo-rule">
 <div class="rule-icon">📈</div>
 <h3>Cosmic Hi-Lo</h3>
@@ -486,7 +440,6 @@
 <p><strong>RTP:</strong> 98.1% | <strong>House Edge:</strong> 1.9%</p>
 </div>
 </div>
-
 <div class="rule-card dice-rule">
 <div class="rule-icon">🎲</div>
 <h3>Nebula Dice</h3>
@@ -505,7 +458,6 @@
 </div>
 </div>
 </div>
-<!-- ABOUT -->
 <div id="about" class="game-screen">
 <div class="game-container">
 <div class="info-header">
@@ -519,7 +471,6 @@
 <p>Amina Casino represents the next evolution in online gaming - a fully decentralized, provably fair casino built on the Algorand blockchain. We're pioneering a new era where players can enjoy their favorite games with complete transparency, lightning-fast transactions, and absolute fairness guaranteed by blockchain technology.</p>
 <p>Our vision extends beyond traditional gaming. We're building a community-driven ecosystem where every spin, every bet, and every win contributes to a sustainable and rewarding experience for all cosmic travelers.</p>
 </div>
-
 <div class="about-section tech-section">
 <div class="section-icon">⚡</div>
 <h3>Why Algorand Blockchain?</h3>
@@ -542,7 +493,6 @@
 </div>
 </div>
 </div>
-
 <div class="about-section fairness-section">
 <div class="section-icon">🛡️</div>
 <h3>Provably Fair Gaming</h3>
@@ -555,7 +505,6 @@
 </ul>
 <p>You don't have to trust us - you can verify us.</p>
 </div>
-
 <div class="about-section token-section">
 <div class="section-icon">🪙</div>
 <h3>AMINA Token Integration</h3>
@@ -576,7 +525,6 @@
 </div>
 <p><strong>Getting Started:</strong> Connect your Algorand wallet and opt-in to AMINA token to experience true decentralized gaming. New users start with 1000 House Coins for risk-free play!</p>
 </div>
-
 <div class="about-section contact-section">
 <div class="section-icon">📡</div>
 <h3>Join the Cosmic Community</h3>
@@ -586,8 +534,6 @@
 </div>
 </div>
 </div>
-
-<!-- WHITEPAPER -->
 <div id="whitepaper" class="game-screen">
 <div class="game-container">
 <div class="whitepaper-content">
@@ -600,14 +546,12 @@
 <p>Version 1.0 | Published 2025 | Built on Algorand</p>
 </div>
 </div>
-
 <div class="wp-section">
 <h2>🚀 Executive Summary</h2>
 <p>Amina Casino represents a paradigm shift in online gaming, combining the excitement of traditional casino games with the transparency and fairness of blockchain technology. Built on the Algorand blockchain, our platform offers players a truly decentralized gaming experience where every outcome is verifiable, every transaction is instant, and every player has equal opportunity for cosmic fortune.</p>
 <p>The global online gambling market, valued at over $66 billion in 2024, suffers from a fundamental trust problem. Players must rely on centralized operators' promises of fairness, often facing slow withdrawals, high fees, and opaque game mechanics. Amina Casino solves these issues through blockchain integration, offering provably fair games, instant settlements, and complete transparency.</p>
 <p>Our ecosystem features five core games - Cosmic Chaos Slots, Quantum Plinko, Galaxy Blackjack, Cosmic Hi-Lo, and Nebula Dice - each designed with optimal RTPs and engaging mechanics. Players can bet using either House Coins (HC) for practice or AMINA tokens for real crypto gaming, creating a seamless bridge between traditional and decentralized gaming.</p>
 </div>
-
 <div class="wp-section">
 <h2>📊 Market Analysis & Opportunity</h2>
 <h3>Current Market Challenges</h3>
@@ -618,7 +562,6 @@
 <li><strong>Regulatory Complexity:</strong> Licensing requirements create barriers and limit innovation</li>
 <li><strong>Centralized Control:</strong> Operators can modify rules, freeze accounts, or manipulate outcomes</li>
 </ul>
-
 <h3>Blockchain Gaming Advantages</h3>
 <p>Decentralized gaming platforms like Amina Casino offer compelling solutions:</p>
 <ul>
@@ -627,21 +570,17 @@
 <li><strong>Global Accessibility:</strong> No geographic restrictions or traditional banking requirements</li>
 <li><strong>Transparent Operations:</strong> Smart contracts execute automatically without human intervention</li>
 </ul>
-
 <h3>Algorand Ecosystem Growth</h3>
 <p>The Algorand blockchain provides an ideal foundation for gaming applications, with over 20 million accounts, $2.7 billion in total value locked, and growing DeFi adoption. As one of the first comprehensive gaming platforms on Algorand, Amina Casino is positioned to capture significant market share in the expanding ecosystem.</p>
 </div>
-
 <div class="wp-section">
 <h2>⚡ Technology & Architecture</h2>
 <p>Amina Casino leverages Algorand's unique properties to deliver superior gaming experiences, featuring automated game logic, provably fair outcomes, and seamless token integration across five engaging games with industry-competitive RTPs.</p>
 </div>
-
 <div class="wp-section">
 <h2>🪙 Tokenomics & AMINA Integration</h2>
 <p>The AMINA token (ASA #1107424865) serves as the primary gaming currency, enabling direct betting, governance participation, and exclusive access to premium features. Our dual currency system bridges traditional gaming with decentralized finance.</p>
 </div>
-
 <div class="wp-section">
 <h2>🛣️ Roadmap & Future Vision</h2>
 <p>Amina Casino aims to become the premier destination for decentralized gaming, setting industry standards for fairness, innovation, and player experience through continuous development and community-driven governance.</p>
@@ -652,8 +591,6 @@
 </div>
 </main>
 </div>
-
-<!-- DONATION MODAL -->
 <div id="donationModal" class="modal-overlay" style="display: none;">
 <div class="modal-content">
 <div class="modal-header">
@@ -673,7 +610,6 @@
 </div>
 </div>
 </div>
-
 <script src="scripts.js"></script>
 </body>
 </html>
