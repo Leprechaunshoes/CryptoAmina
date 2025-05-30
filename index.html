@@ -28,8 +28,8 @@
 <div class="info-item">
 <span class="info-icon">🎮</span>
 <div class="info-content">
-<h4>5 Cosmic Games</h4>
-<p>Cosmic Chaos Slots, Quantum Plinko, Galaxy Blackjack, Cosmic Hi-Lo, and Nebula Dice await your cosmic fortune with wins up to 1,000x your bet!</p>
+<h4>5 Provably Fair Games</h4>
+<p>Cosmic Chaos Slots, Quantum Plinko, Galaxy Blackjack, Cosmic Hi-Lo, and Nebula Dice - all with cryptographic verification!</p>
 </div>
 </div>
 <div class="info-item get-amina-flash" onclick="openAminaExplorer()">
@@ -88,6 +88,7 @@
 </div>
 <div class="floating-actions">
 <button class="floating-btn music-btn" id="musicToggle" title="Music">🎵</button>
+<button class="floating-btn verify-btn" onclick="showVerifyModal()" title="Verify Games">🛡️</button>
 <button class="floating-btn donation-btn" onclick="showDonationModal()" title="Donate">💎</button>
 </div>
 <main class="main-content">
@@ -95,7 +96,7 @@
 <div class="welcome-container">
 <img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina" class="welcome-coin">
 <h2 class="welcome-title">Choose Your Game</h2>
-<p class="welcome-text">Experience cosmic gaming</p>
+<p class="welcome-text">Experience provably fair cosmic gaming</p>
 <div class="game-grid">
 <div class="game-card" data-game="slots">
 <div class="game-icon">🎰</div>
@@ -144,6 +145,24 @@
 <span id="slotsCurrency">HC</span>
 <button id="buyBonusBtn" class="buy-bonus-btn">🚀 Buy Bonus (100x)</button>
 </div>
+</div>
+<div class="fairness-display">
+<div class="seed-info">
+<div class="seed-item">
+<span class="seed-label">🔒 Server Hash:</span>
+<span id="serverHash" class="seed-value">-</span>
+</div>
+<div class="seed-item">
+<span class="seed-label">🎯 Client Seed:</span>
+<input type="text" id="clientSeed" class="seed-input" placeholder="Enter your seed" maxlength="32">
+<button id="changeClientSeed" class="seed-btn">🔄</button>
+</div>
+<div class="seed-item">
+<span class="seed-label">📊 Nonce:</span>
+<span id="nonceDisplay" class="seed-value">0</span>
+</div>
+</div>
+<button id="verifyBtn" class="verify-btn">🛡️ Verify Last Game</button>
 </div>
 <div class="cosmic-chaos-machine">
 <div class="chaos-info-panel">
@@ -215,6 +234,24 @@
 <span id="plinkoCurrency">HC</span>
 </div>
 </div>
+<div class="fairness-display">
+<div class="seed-info">
+<div class="seed-item">
+<span class="seed-label">🔒 Server Hash:</span>
+<span id="plinkoServerHash" class="seed-value">-</span>
+</div>
+<div class="seed-item">
+<span class="seed-label">🎯 Client Seed:</span>
+<input type="text" id="plinkoClientSeed" class="seed-input" placeholder="Enter your seed" maxlength="32">
+<button onclick="casino.changeSeed('plinko')" class="seed-btn">🔄</button>
+</div>
+<div class="seed-item">
+<span class="seed-label">📊 Nonce:</span>
+<span id="plinkoNonce" class="seed-value">0</span>
+</div>
+</div>
+<button onclick="casino.verifyGame('plinko')" class="verify-btn">🛡️ Verify Last Game</button>
+</div>
 <div class="plinko-container">
 <div class="plinko-board">
 <canvas id="plinkoCanvas" width="400" height="450"></canvas>
@@ -255,6 +292,24 @@
 <span id="blackjackCurrency">HC</span>
 </div>
 </div>
+<div class="fairness-display">
+<div class="seed-info">
+<div class="seed-item">
+<span class="seed-label">🔒 Server Hash:</span>
+<span id="blackjackServerHash" class="seed-value">-</span>
+</div>
+<div class="seed-item">
+<span class="seed-label">🎯 Client Seed:</span>
+<input type="text" id="blackjackClientSeed" class="seed-input" placeholder="Enter your seed" maxlength="32">
+<button onclick="casino.changeSeed('blackjack')" class="seed-btn">🔄</button>
+</div>
+<div class="seed-item">
+<span class="seed-label">📊 Nonce:</span>
+<span id="blackjackNonce" class="seed-value">0</span>
+</div>
+</div>
+<button onclick="casino.verifyGame('blackjack')" class="verify-btn">🛡️ Verify Last Game</button>
+</div>
 <div class="blackjack-table">
 <div class="dealer-section">
 <h3>Dealer: <span id="dealerScore">0</span></h3>
@@ -286,6 +341,24 @@
 </select>
 <span id="hiloCurrency">HC</span>
 </div>
+</div>
+<div class="fairness-display">
+<div class="seed-info">
+<div class="seed-item">
+<span class="seed-label">🔒 Server Hash:</span>
+<span id="hiloServerHash" class="seed-value">-</span>
+</div>
+<div class="seed-item">
+<span class="seed-label">🎯 Client Seed:</span>
+<input type="text" id="hiloClientSeed" class="seed-input" placeholder="Enter your seed" maxlength="32">
+<button onclick="casino.changeSeed('hilo')" class="seed-btn">🔄</button>
+</div>
+<div class="seed-item">
+<span class="seed-label">📊 Nonce:</span>
+<span id="hiloNonce" class="seed-value">0</span>
+</div>
+</div>
+<button onclick="casino.verifyGame('hilo')" class="verify-btn">🛡️ Verify Last Game</button>
 </div>
 <div class="hilo-game-container">
 <div class="current-card-display">
@@ -332,6 +405,24 @@
 <span id="diceCurrency">HC</span>
 </div>
 </div>
+<div class="fairness-display">
+<div class="seed-info">
+<div class="seed-item">
+<span class="seed-label">🔒 Server Hash:</span>
+<span id="diceServerHash" class="seed-value">-</span>
+</div>
+<div class="seed-item">
+<span class="seed-label">🎯 Client Seed:</span>
+<input type="text" id="diceClientSeed" class="seed-input" placeholder="Enter your seed" maxlength="32">
+<button onclick="casino.changeSeed('dice')" class="seed-btn">🔄</button>
+</div>
+<div class="seed-item">
+<span class="seed-label">📊 Nonce:</span>
+<span id="diceNonce" class="seed-value">0</span>
+</div>
+</div>
+<button onclick="casino.verifyGame('dice')" class="verify-btn">🛡️ Verify Last Game</button>
+</div>
 <div class="dice-game">
 <div class="dice-display">
 <div class="dice-container">
@@ -377,6 +468,22 @@
 <p class="info-subtitle">Master the cosmic games and maximize your wins</p>
 </div>
 <div class="rules-grid">
+<div class="rule-card fairness-rule">
+<div class="rule-icon">🛡️</div>
+<h3>Provably Fair Gaming</h3>
+<div class="rule-content">
+<p><strong>What is Provably Fair?</strong> Every game outcome is cryptographically verifiable, ensuring complete transparency and fairness.</p>
+<p><strong>How it Works:</strong></p>
+<ul>
+<li><strong>Server Seed:</strong> We generate a random seed (kept secret until after your bet)</li>
+<li><strong>Client Seed:</strong> You provide your own random input</li>
+<li><strong>Server Hash:</strong> We show you a hash of our seed before the game</li>
+<li><strong>Nonce:</strong> A counter that increments with each round</li>
+<li><strong>Verification:</strong> After the game, we reveal our seed so you can verify the outcome</li>
+</ul>
+<p><strong>Your Security:</strong> You can verify every single game result was fair and not manipulated. Click the 🛡️ Verify button after any game!</p>
+</div>
+</div>
 <div class="rule-card slots-rule">
 <div class="rule-icon">🎰</div>
 <h3>Cosmic Chaos</h3>
@@ -491,12 +598,12 @@
 <h3>Provably Fair Gaming</h3>
 <p>Traditional online casinos ask you to trust them. We don't. Every game outcome in Amina Casino is verifiable on the Algorand blockchain:</p>
 <ul>
-<li><strong>Transparent Randomness:</strong> All random events use blockchain-generated entropy</li>
-<li><strong>No House Manipulation:</strong> Smart contracts execute automatically without human intervention</li>
-<li><strong>Public Verification:</strong> Every bet and outcome is recorded permanently on-chain</li>
+<li><strong>Transparent Randomness:</strong> All random events use cryptographic seeds you can verify</li>
+<li><strong>No House Manipulation:</strong> Outcomes are determined before you even place your bet</li>
+<li><strong>Public Verification:</strong> Every bet and outcome can be cryptographically verified</li>
 <li><strong>Open Source Logic:</strong> Game mechanics are transparent and auditable</li>
 </ul>
-<p>You don't have to trust us - you can verify us.</p>
+<p>You don't have to trust us - you can verify us with mathematics.</p>
 </div>
 <div class="about-section token-section">
 <div class="section-icon">🪙</div>
@@ -583,6 +690,19 @@
 </div>
 </div>
 </main>
+</div>
+<div id="verifyModal" class="modal-overlay" style="display: none;">
+<div class="modal-content verify-modal">
+<div class="modal-header">
+<h3>🛡️ Verify Game Result</h3>
+<button class="modal-close" onclick="closeVerifyModal()">&times;</button>
+</div>
+<div class="modal-body">
+<div id="verifyContent">
+<p>No recent game to verify. Play a game first!</p>
+</div>
+</div>
+</div>
 </div>
 <div id="donationModal" class="modal-overlay" style="display: none;">
 <div class="modal-content">
