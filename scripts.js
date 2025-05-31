@@ -481,18 +481,66 @@ this.notify('❌ Wallet required for deposits');
 return;
 }
 
-this.notify('⏳ Credits will appear in 5 minutes after blockchain confirmation...');
-this.addTransaction('deposit',amount);
+this.notify('🔍 Verifying on blockchain...');
+this.syncCreditsFromServer(); // Fix Safari while verifying
 
-setTimeout(async()=>{
+try{
+// Check for actual AMINA transaction
+const verified=await this.verifyBlockchainDeposit(amount);
+if(!verified){
+this.notify('❌ No matching deposit found - send AMINA first!');
+return;
+}
+
+// Only credit if real transaction found
 const success=await this.updateServerCredits('add_credits',amount);
 if(!success){
 this.casinoCredits+=amount;
 this.updateDisplay();
 this.updateCashierDisplay();
 }
-this.notify(`💰 Deposit confirmed! ${amount.toFixed(8)} AMINA credited!`);
-},5*60*1000);
+this.addTransaction('deposit',amount);
+this.notify(`✅ Deposit verified! ${amount.toFixed(8)} AMINA credited!`);
+
+}catch(error){
+this.notify('❌ Verification failed - contact support if you sent AMINA');
+}
+}
+
+async verifyBlockchainDeposit(expectedAmount){
+try{
+// Sync credits while checking (kills Safari bird)
+this.syncCreditsFromServer();
+
+const response=await fetch(`https://mainnet-idx.algonode.cloud/v2/accounts/${this.casinoWallet}/transactions?limit=50&asset-id=${this.aminaId}`);
+const data=await response.json();
+
+if(!data.transactions)return false;
+
+const fiveMinutesAgo=Date.now()-(5*60*1000);
+const expectedMicro=Math.floor(expectedAmount*100000000);
+
+for(const tx of data.transactions){
+if(tx['round-time']*1000<fiveMinutesAgo)continue;
+
+if(tx['tx-type']==='axfer'&&
+   tx['asset-transfer-transaction']?.['receiver']===this.casinoWallet&&
+   tx['asset-transfer-transaction']?.['sender']===this.wallet&&
+   tx['asset-transfer-transaction']?.['asset-id']===this.aminaId){
+
+const txAmount=tx['asset-transfer-transaction']['amount'];
+if(Math.abs(txAmount-expectedMicro)<=1000){
+this.notify(`🎯 Transaction found: ${tx.id.slice(0,8)}...`);
+return true;
+}
+}
+}
+return false;
+
+}catch(error){
+this.syncCreditsFromServer(); // Safari fix on error too
+return false;
+}
 }
 
 async withdrawAmina(){
