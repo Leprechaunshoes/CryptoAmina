@@ -1,19 +1,22 @@
-// monitor-deposits.js - DIRECT STORAGE WORKING
+// monitor-deposits.js - API CALLS FIXED
 const algosdk=require('algosdk');
 
 const AMINA_ID=1107424865;
 const CASINO_ADDR=process.env.CASINO_ADDRESS||'UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCFN7PAVCT2H4G4JEZKJK6W7UG44';
 
-// Shared storage with casino-credits
-if (!global.sharedCredits) {
-  global.sharedCredits = {};
+async function addCreditsViaAPI(wallet, amount, txnId) {
+  try {
+    const response = await fetch('https://cryptoamina.netlify.app/.netlify/functions/casino-credits', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({action: 'add_credits', wallet: wallet, amount: amount, txnId: txnId})
+    });
+    const result = await response.json();
+    return result.success;
+  } catch (error) {
+    return false;
+  }
 }
-if (!global.sharedProcessedTxns) {
-  global.sharedProcessedTxns = new Set();
-}
-
-let globalCredits = global.sharedCredits;
-let globalProcessedTxns = global.sharedProcessedTxns;
 
 exports.handler=async(event,context)=>{
 if(event.httpMethod==='OPTIONS'){
@@ -31,21 +34,18 @@ let processed=0;
 let creditedAmounts=[];
 
 for(const txn of txns){
-if(globalProcessedTxns.has(txn.id))continue;
-
 const twoHoursAgo = now - (2*60*60*1000);
 if(txn.timestamp <= twoHoursAgo)continue;
 if(txn.assetId!==AMINA_ID || txn.receiver!==CASINO_ADDR)continue;
 
 const amount = Math.ceil((txn.amount/100000000) * 100000000) / 100000000;
 
-// DIRECT CREDIT
-const currentBalance = globalCredits[txn.sender] || 0;
-globalCredits[txn.sender] = currentBalance + amount;
-globalProcessedTxns.add(txn.id);
-
+// API CALL TO ADD CREDITS
+const success = await addCreditsViaAPI(txn.sender, amount, txn.id);
+if(success){
 creditedAmounts.push({amount,wallet:txn.sender,txnId:txn.id});
 processed++;
+}
 }
 
 return{
