@@ -7,15 +7,28 @@ const CASINO_ADDR=process.env.CASINO_ADDRESS||'UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCF
 
 async function addCreditsViaAPI(wallet, amount, txnId) {
   try {
+    console.log(`🔄 API Call: wallet=${wallet.slice(0,8)}..., amount=${amount}, txnId=${txnId?.slice(0,8)}...`);
+    
     const response = await fetch('https://cryptoamina.netlify.app/.netlify/functions/casino-credits', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({action: 'add_credits', wallet: wallet, amount: amount, txnId: txnId})
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        action: 'add_credits', 
+        wallet: wallet, 
+        amount: parseFloat(amount),
+        txnId: txnId
+      })
     });
+    
     const result = await response.json();
+    console.log(`📝 API Response: success=${result.success}, error=${result.error || 'none'}`);
+    
     return result.success;
   } catch (error) {
-    console.error('API call failed:', error);
+    console.error(`❌ API Error: ${error.message}`);
     return false;
   }
 }
