@@ -382,10 +382,50 @@ return;
 
 // === CASHIER SYSTEM ===
 initCashier(){
-this.updateCashierDisplay();
-$('depositBtn').onclick=()=>this.depositAmina();
-$('withdrawBtn').onclick=()=>this.withdrawAmina();
-this.updateTransactionList();
+this.showCashierComingSoon();
+}
+
+showCashierComingSoon(){
+const cashierScreen=$('cashier');
+if(!cashierScreen)return;
+
+// Create overlay
+const overlay=document.createElement('div');
+overlay.style.cssText=`
+position:absolute;
+top:0;left:0;width:100%;height:100%;
+background:rgba(0,0,0,0.85);
+display:flex;flex-direction:column;
+align-items:center;justify-content:center;
+z-index:1000;border-radius:10px;
+backdrop-filter:blur(10px);
+`;
+
+overlay.innerHTML=`
+<div style="text-align:center;color:white;font-family:JetBrains Mono,monospace">
+<div style="font-size:4rem;margin-bottom:1rem">🔧</div>
+<h2 style="color:#FFD700;font-size:2rem;margin:1rem 0;text-shadow:0 0 20px #FFD700">COMING SOON</h2>
+<p style="font-size:1.2rem;margin:1rem 0;opacity:0.9">Cashier System Under Development</p>
+<div style="background:rgba(255,215,0,0.1);border:1px solid #FFD700;border-radius:8px;padding:1rem;margin:1rem 0;max-width:400px">
+<p style="font-size:0.9rem;line-height:1.5;margin:0">We're implementing bulletproof deposit/withdrawal systems. Play with HC coins for now while we perfect the AMINA integration!</p>
+</div>
+<div style="display:flex;gap:10px;justify-content:center;margin-top:1.5rem">
+<div style="width:8px;height:8px;background:#FFD700;border-radius:50%;animation:pulse 1.5s infinite"></div>
+<div style="width:8px;height:8px;background:#FFD700;border-radius:50%;animation:pulse 1.5s infinite 0.3s"></div>
+<div style="width:8px;height:8px;background:#FFD700;border-radius:50%;animation:pulse 1.5s infinite 0.6s"></div>
+</div>
+</div>
+<style>
+@keyframes pulse {
+0%, 100% { opacity: 0.3; transform: scale(1); }
+50% { opacity: 1; transform: scale(1.2); }
+}
+</style>
+`;
+
+// Make cashier screen relative positioned
+cashierScreen.style.position='relative';
+cashierScreen.appendChild(overlay);
 }
 
 updateCashierDisplay(){
