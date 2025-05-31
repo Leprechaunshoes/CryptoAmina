@@ -7,7 +7,7 @@ this.wallet=this.getStoredWallet();
 this.peraWallet=null;
 this.aminaId=1107424865;
 this.casinoWallet='UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCFN7PAVCT2H4G4JEZKJK6W7UG44';
-this.casinoCredits=this.getCasinoCredits();
+this.casinoCredits=0;
 this.games={
 slots:{symbols:['⭐','🌟','💫','🌌','🪐','🌙','☄️','🚀','👽','🛸'],scatter:'🌠',grid:[],spinning:0,win:0,mult:1,spins:0},
 plinko:{balls:[],max:5},
@@ -20,6 +20,7 @@ this.initPeraWallet();
 this.init();
 if(this.wallet){
 this.updateWalletUI();
+this.syncCreditsFromServer();
 }
 }
 
@@ -52,35 +53,45 @@ clearWallet(){
 localStorage.removeItem('connected_wallet');
 }
 
-getCasinoCredits(){
-const stored=localStorage.getItem('casino_credits');
-return stored?parseFloat(stored):0;
-}
-
-saveCasinoCredits(){
-localStorage.setItem('casino_credits',this.casinoCredits.toString());
-}
-
-// Admin function to recover deposits from server records
-async recoverDepositsFromServer(){
+// SERVER-FIRST CREDIT SYSTEM
+async syncCreditsFromServer(){
 if(!this.wallet)return;
 try{
 const response=await fetch('/.netlify/functions/casino-credits',{
 method:'POST',
 headers:{'Content-Type':'application/json'},
-body:JSON.stringify({action:'get_deposits',wallet:this.wallet})
+body:JSON.stringify({action:'get_balance',wallet:this.wallet})
 });
 const result=await response.json();
-if(result.success&&result.totalDeposits>0){
-this.casinoCredits=result.totalDeposits;
-this.saveCasinoCredits();
+if(result.success){
+this.casinoCredits=result.balance||0;
 this.updateDisplay();
 this.updateCashierDisplay();
-this.notify(`💰 Recovered ${result.totalDeposits.toFixed(8)} AMINA from server records!`);
 }
 }catch(error){
-this.notify('❌ Recovery failed - contact admin');
+console.log('Sync failed, using local fallback');
 }
+}
+
+async updateServerCredits(action,amount){
+if(!this.wallet)return false;
+try{
+const response=await fetch('/.netlify/functions/casino-credits',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({action:action,wallet:this.wallet,amount:amount})
+});
+const result=await response.json();
+if(result.success){
+this.casinoCredits=result.newBalance||result.balance||0;
+this.updateDisplay();
+this.updateCashierDisplay();
+return true;
+}
+}catch(error){
+console.log('Server update failed');
+}
+return false;
 }
 
 async fetchAminaBalance(wallet){
@@ -203,6 +214,7 @@ this.wallet=addr;
 this.saveWallet();
 this.balance.AMINA=await this.fetchAminaBalance(addr);
 this.updateWalletUI();
+this.syncCreditsFromServer();
 this.notify('✅ Wallet connected manually');
 }else if(addr){
 this.notify('❌ Invalid address');
@@ -216,6 +228,7 @@ this.wallet=reconnectedAccounts[0];
 this.saveWallet();
 this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
 this.updateWalletUI();
+this.syncCreditsFromServer();
 this.notify('🚀 Pera Wallet reconnected!');
 return;
 }
@@ -225,6 +238,7 @@ this.wallet=accounts[0];
 this.saveWallet();
 this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
 this.updateWalletUI();
+this.syncCreditsFromServer();
 this.notify('🚀 Pera Wallet connected!');
 }else{
 this.notify('❌ No accounts found');
@@ -313,9 +327,11 @@ if(this.casinoCredits<amt){
 this.notify('❌ Insufficient credits! Visit Cashier.');
 return 0;
 }
+const success=await this.updateServerCredits('deduct_credits',amt);
+if(!success){
 this.casinoCredits-=amt;
-this.saveCasinoCredits();
 this.updateDisplay();
+}
 return 1;
 }else{
 if(this.balance.HC<amt){
@@ -331,9 +347,11 @@ return 1;
 
 async addBalance(amt){
 if(this.currency==='AMINA'){
+const success=await this.updateServerCredits('add_credits',amt*0.99);
+if(!success){
 this.casinoCredits+=amt*0.99;
-this.saveCasinoCredits();
 this.updateDisplay();
+}
 }else{
 this.balance.HC+=amt;
 this.saveHCBalance();
@@ -382,49 +400,10 @@ return;
 
 // === CASHIER SYSTEM ===
 initCashier(){
-this.showCashierComingSoon();
-}
-
-showCashierComingSoon(){
-const cashierScreen=$('cashier');
-if(!cashierScreen)return;
-
-// Create overlay
-const overlay=document.createElement('div');
-overlay.style.cssText=`
-position:fixed;
-top:0;left:0;width:100vw;height:100vh;
-background:rgba(0,0,0,0.9);
-display:flex;flex-direction:column;
-align-items:center;justify-content:center;
-z-index:10000;
-backdrop-filter:blur(10px);
-`;
-
-overlay.innerHTML=`
-<div style="text-align:center;color:white;font-family:JetBrains Mono,monospace;padding:2rem">
-<div style="font-size:3rem;margin-bottom:0.5rem">🔧</div>
-<h2 style="color:#FFD700;font-size:1.8rem;margin:0.5rem 0;text-shadow:0 0 20px #FFD700">COMING SOON</h2>
-<p style="font-size:1rem;margin:0.5rem 0;opacity:0.9">Cashier System Under Development</p>
-<div style="background:rgba(255,215,0,0.1);border:1px solid #FFD700;border-radius:8px;padding:1rem;margin:1rem 0;max-width:350px">
-<p style="font-size:0.85rem;line-height:1.4;margin:0">We're implementing bulletproof deposit/withdrawal systems. Play with HC coins for now!</p>
-</div>
-<button onclick="this.parentElement.parentElement.remove()" style="background:#FFD700;color:#000;border:none;padding:0.8rem 2rem;border-radius:8px;font-family:JetBrains Mono,monospace;font-weight:bold;cursor:pointer;margin-top:1rem;font-size:0.9rem">👈 BACK TO GAMES</button>
-<div style="display:flex;gap:8px;justify-content:center;margin-top:1rem">
-<div style="width:6px;height:6px;background:#FFD700;border-radius:50%;animation:pulse 1.5s infinite"></div>
-<div style="width:6px;height:6px;background:#FFD700;border-radius:50%;animation:pulse 1.5s infinite 0.3s"></div>
-<div style="width:6px;height:6px;background:#FFD700;border-radius:50%;animation:pulse 1.5s infinite 0.6s"></div>
-</div>
-</div>
-<style>
-@keyframes pulse {
-0%, 100% { opacity: 0.3; transform: scale(1); }
-50% { opacity: 1; transform: scale(1.2); }
-}
-</style>
-`;
-
-document.body.appendChild(overlay);
+this.updateCashierDisplay();
+$('depositBtn').onclick=()=>this.depositAmina();
+$('withdrawBtn').onclick=()=>this.withdrawAmina();
+this.updateTransactionList();
 }
 
 updateCashierDisplay(){
@@ -497,38 +476,19 @@ this.closeDepositModal();
 this.manualDepositComplete(amount);
 }
 
-manualDepositComplete(amount){
+async manualDepositComplete(amount){
 if(!this.wallet){
 this.notify('❌ Wallet required for deposits');
 return;
 }
-// Hybrid: Add to localStorage immediately + verify server-side
+const success=await this.updateServerCredits('add_credits',amount);
+if(!success){
 this.casinoCredits+=amount;
-this.saveCasinoCredits();
 this.updateDisplay();
 this.updateCashierDisplay();
+}
 this.addTransaction('deposit',amount);
 this.notify(`💰 Deposit confirmed! ${amount.toFixed(8)} AMINA credited!`);
-// Also record on server for verification/recovery
-this.recordDepositOnServer(amount);
-}
-
-async recordDepositOnServer(amount){
-try{
-await fetch('/.netlify/functions/casino-credits',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({
-action:'record_deposit',
-wallet:this.wallet,
-amount:amount,
-timestamp:new Date().toISOString()
-})
-});
-}catch(error){
-// Silent fail - localStorage still works
-console.log('Server recording failed - not critical');
-}
 }
 
 async withdrawAmina(){
