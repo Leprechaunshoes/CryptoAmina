@@ -421,12 +421,13 @@ this.showManualTransactionModal(txnData);
 
 showManualTransactionModal(txnData){
 const modal=document.createElement('div');
+modal.id='depositModal';
 modal.style.cssText='position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:10000;padding:5px;box-sizing:border-box';
 modal.innerHTML=`
 <div style="background:#1a2332;border-radius:10px;padding:12px;width:95%;max-width:350px;max-height:85vh;overflow-y:auto;border:2px solid #ffd700;color:white;font-family:JetBrains Mono,monospace;font-size:11px">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
 <h3 style="margin:0;color:#ffd700;font-size:14px">📝 Manual Signing</h3>
-<button onclick="this.closest('div').parentElement.remove()" style="background:none;border:none;color:#ffd700;font-size:18px;cursor:pointer">&times;</button>
+<button onclick="casino.closeDepositModal()" style="background:none;border:none;color:#ffd700;font-size:18px;cursor:pointer">&times;</button>
 </div>
 <div style="background:#2a3441;padding:8px;border-radius:6px;margin-bottom:12px;font-size:10px">
 <div><strong>Amount:</strong> ${txnData.amount} AMINA</div>
@@ -440,11 +441,21 @@ modal.innerHTML=`
 <button onclick="navigator.clipboard.writeText('${this.casinoWallet}');alert('Address copied!')" style="background:#ffd700;color:#000;border:none;padding:6px 12px;border-radius:4px;margin:4px 0;cursor:pointer;font-size:10px;width:100%">📋 Copy Address</button>
 </div>
 <div style="display:flex;gap:8px;margin-top:10px">
-<button onclick="this.closest('div').parentElement.remove();casino.manualDepositComplete(${txnData.amount})" style="background:#28a745;color:white;border:none;padding:8px 10px;border-radius:4px;cursor:pointer;font-size:10px;flex:1">✅ Sent</button>
-<button onclick="this.closest('div').parentElement.remove()" style="background:#dc3545;color:white;border:none;padding:8px 10px;border-radius:4px;cursor:pointer;font-size:10px;flex:1">❌ Cancel</button>
+<button onclick="casino.completeDeposit(${txnData.amount})" style="background:#28a745;color:white;border:none;padding:8px 10px;border-radius:4px;cursor:pointer;font-size:10px;flex:1">✅ Sent</button>
+<button onclick="casino.closeDepositModal()" style="background:#dc3545;color:white;border:none;padding:8px 10px;border-radius:4px;cursor:pointer;font-size:10px;flex:1">❌ Cancel</button>
 </div>
 </div>`;
 document.body.appendChild(modal);
+}
+
+closeDepositModal(){
+const modal=document.getElementById('depositModal');
+if(modal)modal.remove();
+}
+
+completeDeposit(amount){
+this.closeDepositModal();
+this.manualDepositComplete(amount);
 }
 
 manualDepositComplete(amount){
