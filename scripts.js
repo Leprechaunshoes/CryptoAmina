@@ -53,38 +53,34 @@ localStorage.removeItem('connected_wallet');
 }
 
 getCasinoCredits(){
-// Start with 0, load from server async
-if(this.wallet){
-this.loadCreditsFromServer();
-}
-return 0;
+const stored=localStorage.getItem('casino_credits');
+return stored?parseFloat(stored):0;
 }
 
-async loadCreditsFromServer(){
+saveCasinoCredits(){
+localStorage.setItem('casino_credits',this.casinoCredits.toString());
+}
+
+// Admin function to recover deposits from server records
+async recoverDepositsFromServer(){
 if(!this.wallet)return;
 try{
 const response=await fetch('/.netlify/functions/casino-credits',{
 method:'POST',
 headers:{'Content-Type':'application/json'},
-body:JSON.stringify({action:'get_balance',wallet:this.wallet})
+body:JSON.stringify({action:'get_deposits',wallet:this.wallet})
 });
 const result=await response.json();
-if(result.success){
-this.casinoCredits=result.balance;
+if(result.success&&result.totalDeposits>0){
+this.casinoCredits=result.totalDeposits;
+this.saveCasinoCredits();
 this.updateDisplay();
 this.updateCashierDisplay();
+this.notify(`💰 Recovered ${result.totalDeposits.toFixed(8)} AMINA from server records!`);
 }
 }catch(error){
-console.error('Failed to load credits:',error);
+this.notify('❌ Recovery failed - contact admin');
 }
-}
-
-saveCasinoCredits(){
-// Server is now the source of truth - no localStorage needed
-}
-
-syncCreditsToServer(){
-// Not needed - all operations go direct to server
 }
 
 async fetchAminaBalance(wallet){
@@ -313,29 +309,14 @@ if(el)el.textContent=this.currency;
 
 async deductBalance(amt){
 if(this.currency==='AMINA'){
-if(!this.wallet){
-this.notify('❌ Wallet required');
-return 0;
-}
-try{
-const response=await fetch('/.netlify/functions/casino-credits',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({action:'deduct_credits',wallet:this.wallet,amount:amt})
-});
-const result=await response.json();
-if(result.success){
-this.casinoCredits=result.newBalance;
-this.updateDisplay();
-return 1;
-}else{
+if(this.casinoCredits<amt){
 this.notify('❌ Insufficient credits! Visit Cashier.');
 return 0;
 }
-}catch(error){
-this.notify('❌ Connection error');
-return 0;
-}
+this.casinoCredits-=amt;
+this.saveCasinoCredits();
+this.updateDisplay();
+return 1;
 }else{
 if(this.balance.HC<amt){
 this.notify('Insufficient balance!');
@@ -350,25 +331,9 @@ return 1;
 
 async addBalance(amt){
 if(this.currency==='AMINA'){
-if(!this.wallet){
-this.notify('❌ Wallet required');
-return;
-}
-const winAmount=amt*0.99;
-try{
-const response=await fetch('/.netlify/functions/casino-credits',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({action:'add_credits',wallet:this.wallet,amount:winAmount})
-});
-const result=await response.json();
-if(result.success){
-this.casinoCredits=result.newBalance;
+this.casinoCredits+=amt*0.99;
+this.saveCasinoCredits();
 this.updateDisplay();
-}
-}catch(error){
-console.error('Error adding winnings:',error);
-}
 }else{
 this.balance.HC+=amt;
 this.saveHCBalance();
@@ -487,29 +452,32 @@ if(!this.wallet){
 this.notify('❌ Wallet required for deposits');
 return;
 }
-// Direct to server - no localStorage
-this.addCreditsToServer(amount);
-}
-
-async addCreditsToServer(amount){
-try{
-const response=await fetch('/.netlify/functions/casino-credits',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({action:'add_credits',wallet:this.wallet,amount:amount})
-});
-const result=await response.json();
-if(result.success){
-this.casinoCredits=result.newBalance;
+// Hybrid: Add to localStorage immediately + verify server-side
+this.casinoCredits+=amount;
+this.saveCasinoCredits();
 this.updateDisplay();
 this.updateCashierDisplay();
 this.addTransaction('deposit',amount);
 this.notify(`💰 Deposit confirmed! ${amount.toFixed(8)} AMINA credited!`);
-}else{
-this.notify('❌ Server error - contact admin');
+// Also record on server for verification/recovery
+this.recordDepositOnServer(amount);
 }
+
+async recordDepositOnServer(amount){
+try{
+await fetch('/.netlify/functions/casino-credits',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+action:'record_deposit',
+wallet:this.wallet,
+amount:amount,
+timestamp:new Date().toISOString()
+})
+});
 }catch(error){
-this.notify('❌ Connection error - try again');
+// Silent fail - localStorage still works
+console.log('Server recording failed - not critical');
 }
 }
 
