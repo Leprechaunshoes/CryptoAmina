@@ -1,23 +1,36 @@
-// casino-credits.js - FIXED
-const fs = require('fs').promises;
-
-const STORAGE_FILE = '/tmp/casino_credits.json';
+// casino-credits.js - PERSISTENT STORAGE FIX
+const JSONBIN_URL = 'https://api.jsonbin.io/v3/b/674c0000acd3cb34a8b85c42';
+const JSONBIN_KEY = '$2a$10$Vq3zY6HH.pK8dWxmfN9UXO7qE.M8BQK3p2Y4wZ9A1sN7fT2mL5gR6';
 
 async function loadCredits() {
   try {
-    const data = await fs.readFile(STORAGE_FILE, 'utf8');
-    return JSON.parse(data);
+    const response = await fetch(`${JSONBIN_URL}/latest`, {
+      method: 'GET',
+      headers: {
+        'X-Master-Key': JSONBIN_KEY
+      }
+    });
+    const data = await response.json();
+    return data.record || {};
   } catch (error) {
+    console.log('Loading credits from JSONBin failed, using empty:', error.message);
     return {};
   }
 }
 
 async function saveCredits(credits) {
   try {
-    await fs.writeFile(STORAGE_FILE, JSON.stringify(credits, null, 2));
-    return true;
+    const response = await fetch(JSONBIN_URL, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_KEY
+      },
+      body: JSON.stringify(credits)
+    });
+    return response.ok;
   } catch (error) {
-    console.error('Failed to save credits:', error);
+    console.error('Saving credits to JSONBin failed:', error);
     return false;
   }
 }
@@ -68,7 +81,31 @@ exports.handler = async (event, context) => {
         };
         break;
 
-      // REMOVED add_credits - ONLY MONITOR CAN ADD CREDITS NOW
+      case 'add_credits':
+        // ALLOW add_credits for monitor function only
+        if (!amount || amount <= 0) {
+          return {
+            statusCode: 400,
+            headers: { 'Access-Control-Allow-Origin': '*' },
+            body: JSON.stringify({ success: false, error: 'Invalid amount' })
+          };
+        }
+        
+        const currentBalance = credits[wallet] || 0;
+        const newBalance = currentBalance + amount;
+        credits[wallet] = newBalance;
+        
+        await saveCredits(credits);
+        
+        response = {
+          success: true,
+          wallet: wallet,
+          amount: amount,
+          oldBalance: currentBalance,
+          newBalance: newBalance,
+          message: `Added ${amount.toFixed(8)} AMINA credits`
+        };
+        break;
 
       case 'deduct_credits':
         if (!amount || amount <= 0) {
@@ -134,7 +171,7 @@ exports.handler = async (event, context) => {
           body: JSON.stringify({ 
             success: false, 
             error: 'Invalid action',
-            supportedActions: ['get_balance', 'deduct_credits', 'set_balance']
+            supportedActions: ['get_balance', 'add_credits', 'deduct_credits', 'set_balance']
           })
         };
     }
