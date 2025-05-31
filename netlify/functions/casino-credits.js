@@ -1,16 +1,8 @@
 // casino-credits.js - SIMPLE STORAGE FIX
 // Using simple in-memory storage that persists during function lifetime
 
-// Initialize from monitor if available
-if (!global.sharedCredits) {
-  global.sharedCredits = {};
-}
-if (!global.sharedProcessedTxns) {
-  global.sharedProcessedTxns = new Set();
-}
-
-let globalCredits = global.sharedCredits;
-let globalProcessedTxns = global.sharedProcessedTxns;
+let globalCredits = {};
+let globalProcessedTxns = new Set();
 
 exports.handler = async (event, context) => {
   if (event.httpMethod === 'OPTIONS') {
