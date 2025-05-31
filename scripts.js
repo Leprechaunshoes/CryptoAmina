@@ -22,10 +22,6 @@ this.init();
 if(this.wallet){
 this.updateWalletUI();
 this.syncCreditsFromServer();
-this.fetchAminaBalance(this.wallet).then(balance => {
-this.balance.AMINA = balance;
-this.updateCashierDisplay();
-});
 }
 }
 
@@ -438,9 +434,13 @@ initCashier(){
 this.updateCashierDisplay();
 // Fetch real wallet balance when cashier loads
 if(this.wallet){
+console.log('Fetching balance for:', this.wallet);
 this.fetchAminaBalance(this.wallet).then(balance => {
+console.log('Fetched balance:', balance);
 this.balance.AMINA = balance;
 this.updateCashierDisplay();
+}).catch(error => {
+console.log('Balance fetch failed:', error);
 });
 }
 $('depositBtn').onclick=()=>this.depositAmina();
