@@ -20,7 +20,6 @@ this.initPeraWallet();
 this.init();
 if(this.wallet){
 this.updateWalletUI();
-this.tryLoadServerCredits();
 }
 }
 
@@ -54,11 +53,14 @@ localStorage.removeItem('connected_wallet');
 }
 
 getCasinoCredits(){
-const stored=localStorage.getItem('casino_credits');
-return stored?parseFloat(stored):0;
+// Start with 0, load from server async
+if(this.wallet){
+this.loadCreditsFromServer();
+}
+return 0;
 }
 
-async tryLoadServerCredits(){
+async loadCreditsFromServer(){
 if(!this.wallet)return;
 try{
 const response=await fetch('/.netlify/functions/casino-credits',{
@@ -67,35 +69,22 @@ headers:{'Content-Type':'application/json'},
 body:JSON.stringify({action:'get_balance',wallet:this.wallet})
 });
 const result=await response.json();
-if(result.success&&result.balance>this.casinoCredits){
+if(result.success){
 this.casinoCredits=result.balance;
-localStorage.setItem('casino_credits',this.casinoCredits.toString());
 this.updateDisplay();
 this.updateCashierDisplay();
 }
 }catch(error){
-// Silent fail
+console.error('Failed to load credits:',error);
 }
 }
 
 saveCasinoCredits(){
-localStorage.setItem('casino_credits',this.casinoCredits.toString());
-// Also sync to server (but don't break if it fails)
-if(this.wallet){
-this.syncCreditsToServer().catch(()=>console.log('Server sync failed - no problem'));
-}
+// Server is now the source of truth - no localStorage needed
 }
 
-async syncCreditsToServer(){
-try{
-await fetch('/.netlify/functions/casino-credits',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({action:'set_balance',wallet:this.wallet,amount:this.casinoCredits})
-});
-}catch(error){
-// Silent fail - localStorage still works
-}
+syncCreditsToServer(){
+// Not needed - all operations go direct to server
 }
 
 async fetchAminaBalance(wallet){
@@ -324,14 +313,29 @@ if(el)el.textContent=this.currency;
 
 async deductBalance(amt){
 if(this.currency==='AMINA'){
-if(this.casinoCredits<amt){
-this.notify('❌ Insufficient credits! Visit Cashier to deposit.');
+if(!this.wallet){
+this.notify('❌ Wallet required');
 return 0;
 }
-this.casinoCredits-=amt;
-this.saveCasinoCredits();
+try{
+const response=await fetch('/.netlify/functions/casino-credits',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({action:'deduct_credits',wallet:this.wallet,amount:amt})
+});
+const result=await response.json();
+if(result.success){
+this.casinoCredits=result.newBalance;
 this.updateDisplay();
 return 1;
+}else{
+this.notify('❌ Insufficient credits! Visit Cashier.');
+return 0;
+}
+}catch(error){
+this.notify('❌ Connection error');
+return 0;
+}
 }else{
 if(this.balance.HC<amt){
 this.notify('Insufficient balance!');
@@ -346,9 +350,25 @@ return 1;
 
 async addBalance(amt){
 if(this.currency==='AMINA'){
-this.casinoCredits+=amt*0.99;
-this.saveCasinoCredits();
+if(!this.wallet){
+this.notify('❌ Wallet required');
+return;
+}
+const winAmount=amt*0.99;
+try{
+const response=await fetch('/.netlify/functions/casino-credits',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({action:'add_credits',wallet:this.wallet,amount:winAmount})
+});
+const result=await response.json();
+if(result.success){
+this.casinoCredits=result.newBalance;
 this.updateDisplay();
+}
+}catch(error){
+console.error('Error adding winnings:',error);
+}
 }else{
 this.balance.HC+=amt;
 this.saveHCBalance();
@@ -463,12 +483,34 @@ document.body.appendChild(modal);
 }
 
 manualDepositComplete(amount){
-this.casinoCredits+=amount;
-this.saveCasinoCredits();
-this.updateCashierDisplay();
+if(!this.wallet){
+this.notify('❌ Wallet required for deposits');
+return;
+}
+// Direct to server - no localStorage
+this.addCreditsToServer(amount);
+}
+
+async addCreditsToServer(amount){
+try{
+const response=await fetch('/.netlify/functions/casino-credits',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({action:'add_credits',wallet:this.wallet,amount:amount})
+});
+const result=await response.json();
+if(result.success){
+this.casinoCredits=result.newBalance;
 this.updateDisplay();
+this.updateCashierDisplay();
 this.addTransaction('deposit',amount);
-this.notify(`💰 Deposit of ${amount} AMINA confirmed!`);
+this.notify(`💰 Deposit confirmed! ${amount.toFixed(8)} AMINA credited!`);
+}else{
+this.notify('❌ Server error - contact admin');
+}
+}catch(error){
+this.notify('❌ Connection error - try again');
+}
 }
 
 async withdrawAmina(){
