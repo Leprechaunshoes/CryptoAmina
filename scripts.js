@@ -344,10 +344,19 @@ return 1;
 }
 }
 
-async addBalance(amt){
+async addBalance(amt,source='win'){
 if(this.currency==='AMINA'){
-// DO NOTHING - only monitor can add AMINA credits
+if(source==='win'){
+// Save wins to server permanently
+const success=await this.updateServerCredits('add_credits',amt);
+if(!success){
+// Fallback to local if server fails
+this.casinoCredits+=amt;
 this.updateDisplay();
+this.updateCashierDisplay();
+}
+}
+// Ignore non-win additions (only monitor handles deposits)
 }else{
 this.balance.HC+=amt;
 this.saveHCBalance();
@@ -721,7 +730,7 @@ this.notify('🌠 BONUS! Cosmic multiplier!');
 }
 this.games.slots.win=totalWin;
 if(totalWin>0){
-await this.addBalance(totalWin);
+await this.addBalance(totalWin,'win');
 const winType=totalWin>=bet*20?'MEGA WIN':totalWin>=bet*5?'BIG WIN':'WIN';
 this.showResult('slots',`${winType}! +${totalWin.toFixed(2)} ${this.currency}`,'win');
 }else{
@@ -861,7 +870,7 @@ const slot=Math.floor(b.x/(400/13));
 const mults=[10,3,1.5,1.4,1.1,1,0.5,1,1.1,1.4,1.5,3,10];
 const mult=mults[Math.max(0,Math.min(12,slot))];
 const win=b.bet*mult;
-this.addBalance(win);
+this.addBalance(win,'win');
 this.showResult('plinko',`Ball hit ${mult}x! Won ${win.toFixed(2)} ${this.currency}`,win>=b.bet?'win':'lose');
 $$('.multiplier').forEach((m,i)=>{
 if(i===slot){
@@ -990,7 +999,7 @@ el.appendChild(card);
 async endBJ(msg,win=0){
 this.games.bj.active=0;
 if(win>0){
-await this.addBalance(win);
+await this.addBalance(win,'win');
 msg+=` +${win} ${this.currency}`;
 }
 this.updateBJ(1);
@@ -1061,7 +1070,7 @@ this.endHilo(0);
 async cashoutHilo(){
 if(!this.games.hilo.active)return;
 const win=this.games.hilo.bet*Math.pow(2,this.games.hilo.streak);
-await this.addBalance(win);
+await this.addBalance(win,'win');
 this.showResult('hilo',`💰 Cashed out! Won ${win.toFixed(2)} ${this.currency}`,'win');
 this.endHilo(win);
 }
@@ -1177,7 +1186,7 @@ if(this.games.dice.bet==='high'&&total>=8&&total<=12){win=1;mult=2;}
 if(this.games.dice.bet==='seven'&&total===7){win=1;mult=5;}
 if(win){
 const winAmt=bet*mult;
-await this.addBalance(winAmt);
+await this.addBalance(winAmt,'win');
 this.showResult('dice',`🎲 WIN! Rolled ${total} - Won ${winAmt.toFixed(2)} ${this.currency}`,'win');
 }else{
 this.showResult('dice',`🎲 Rolled ${total} - No win!`,'lose');
