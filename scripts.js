@@ -20,6 +20,7 @@ this.initPeraWallet();
 this.init();
 if(this.wallet){
 this.updateWalletUI();
+this.tryLoadServerCredits();
 }
 }
 
@@ -54,15 +55,11 @@ localStorage.removeItem('connected_wallet');
 
 getCasinoCredits(){
 const stored=localStorage.getItem('casino_credits');
-const localCredits=stored?parseFloat(stored):0;
-// Try to load from server as backup (but don't block)
-if(this.wallet){
-this.loadServerCredits().catch(()=>{});
-}
-return localCredits;
+return stored?parseFloat(stored):0;
 }
 
-async loadServerCredits(){
+async tryLoadServerCredits(){
+if(!this.wallet)return;
 try{
 const response=await fetch('/.netlify/functions/casino-credits',{
 method:'POST',
@@ -71,14 +68,13 @@ body:JSON.stringify({action:'get_balance',wallet:this.wallet})
 });
 const result=await response.json();
 if(result.success&&result.balance>this.casinoCredits){
-// Server has more credits - update localStorage
 this.casinoCredits=result.balance;
 localStorage.setItem('casino_credits',this.casinoCredits.toString());
 this.updateDisplay();
 this.updateCashierDisplay();
 }
 }catch(error){
-// Silent fail - keep using localStorage
+// Silent fail
 }
 }
 
