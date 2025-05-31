@@ -58,7 +58,7 @@ exports.handler = async (event, context) => {
           };
         }
 
-        // Check if transaction already processed
+        // Check if transaction already processed (only for deposits with txnId)
         if (txnId && globalProcessedTxns.has(txnId)) {
           return {
             statusCode: 400,
@@ -71,10 +71,12 @@ exports.handler = async (event, context) => {
         const newBalance = currentBalance + amount;
         globalCredits[wallet] = newBalance;
         
-        // Mark transaction as processed if txnId provided
+        // Mark transaction as processed only if txnId provided (deposits)
         if (txnId) {
           globalProcessedTxns.add(txnId);
         }
+        
+        console.log(`✅ ADDED ${amount} to ${wallet.slice(0,8)}... - New balance: ${newBalance}`);
         
         response = {
           success: true,
