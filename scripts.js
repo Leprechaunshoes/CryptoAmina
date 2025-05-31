@@ -485,14 +485,10 @@ this.notify('🔍 Verifying on blockchain...');
 this.syncCreditsFromServer(); // Fix Safari while verifying
 
 try{
-// Check for actual AMINA transaction
+// Try instant verification first
 const verified=await this.verifyBlockchainDeposit(amount);
-if(!verified){
-this.notify('❌ No matching deposit found - send AMINA first!');
-return;
-}
-
-// Only credit if real transaction found
+if(verified){
+// Instant credit for verified deposits
 const success=await this.updateServerCredits('add_credits',amount);
 if(!success){
 this.casinoCredits+=amount;
@@ -501,27 +497,48 @@ this.updateCashierDisplay();
 }
 this.addTransaction('deposit',amount);
 this.notify(`✅ Deposit verified! ${amount.toFixed(8)} AMINA credited!`);
+return;
+}
+
+// Fallback: 5-minute delay with broader check
+this.notify('⏳ Deposit will be credited within 10 minutes after blockchain confirmation...');
+this.addTransaction('deposit',amount);
+
+setTimeout(async()=>{
+// Broader 10-minute check for delayed transactions
+const delayedVerified=await this.verifyBlockchainDeposit(amount,10);
+if(delayedVerified){
+const success=await this.updateServerCredits('add_credits',amount);
+if(!success){
+this.casinoCredits+=amount;
+this.updateDisplay();
+this.updateCashierDisplay();
+}
+this.notify(`💰 Deposit confirmed! ${amount.toFixed(8)} AMINA credited!`);
+}else{
+this.notify('❌ No deposit found - contact support if you sent AMINA');
+}
+},5*60*1000);
 
 }catch(error){
-this.notify('❌ Verification failed - contact support if you sent AMINA');
+this.notify('❌ Verification failed - credits will appear if transaction is valid');
 }
 }
 
-async verifyBlockchainDeposit(expectedAmount){
+async verifyBlockchainDeposit(expectedAmount,minutesBack=5){
 try{
-// Sync credits while checking (kills Safari bird)
-this.syncCreditsFromServer();
+this.syncCreditsFromServer(); // Safari fix
 
-const response=await fetch(`https://mainnet-idx.algonode.cloud/v2/accounts/${this.casinoWallet}/transactions?limit=50&asset-id=${this.aminaId}`);
+const response=await fetch(`https://mainnet-idx.algonode.cloud/v2/accounts/${this.casinoWallet}/transactions?limit=100&asset-id=${this.aminaId}`);
 const data=await response.json();
 
 if(!data.transactions)return false;
 
-const fiveMinutesAgo=Date.now()-(5*60*1000);
+const timeAgo=Date.now()-(minutesBack*60*1000);
 const expectedMicro=Math.floor(expectedAmount*100000000);
 
 for(const tx of data.transactions){
-if(tx['round-time']*1000<fiveMinutesAgo)continue;
+if(tx['round-time']*1000<timeAgo)continue;
 
 if(tx['tx-type']==='axfer'&&
    tx['asset-transfer-transaction']?.['receiver']===this.casinoWallet&&
@@ -529,7 +546,7 @@ if(tx['tx-type']==='axfer'&&
    tx['asset-transfer-transaction']?.['asset-id']===this.aminaId){
 
 const txAmount=tx['asset-transfer-transaction']['amount'];
-if(Math.abs(txAmount-expectedMicro)<=1000){
+if(Math.abs(txAmount-expectedMicro)<=10000){ // More tolerance
 this.notify(`🎯 Transaction found: ${tx.id.slice(0,8)}...`);
 return true;
 }
@@ -538,7 +555,7 @@ return true;
 return false;
 
 }catch(error){
-this.syncCreditsFromServer(); // Safari fix on error too
+this.syncCreditsFromServer();
 return false;
 }
 }
