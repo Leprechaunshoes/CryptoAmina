@@ -492,7 +492,30 @@ this.notify(`💰 Deposit confirmed! ${amount.toFixed(8)} AMINA credited!`);
 }
 
 async withdrawAmina(){
-this.notify('Withdrawals temporarily disabled');
+if(!this.wallet){
+this.notify('🔗 Connect wallet first!');
+return;
+}
+const amount=parseFloat($('withdrawAmount').value);
+if(!amount||amount<=0){
+this.notify('❌ Enter valid amount');
+return;
+}
+if(amount>this.casinoCredits){
+this.notify('❌ Insufficient casino credits');
+return;
+}
+
+const success=await this.updateServerCredits('deduct_credits',amount);
+if(!success){
+this.casinoCredits-=amount;
+this.updateDisplay();
+this.updateCashierDisplay();
+}
+
+this.addTransaction('withdrawal',amount);
+this.notify(`💸 Withdrawal processed! ${amount.toFixed(8)} AMINA will be sent to your wallet`);
+$('withdrawAmount').value='';
 }
 
 addTransaction(type,amount){
