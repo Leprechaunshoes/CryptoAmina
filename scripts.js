@@ -8,6 +8,8 @@ this.peraWallet=null;
 this.aminaId=1107424865;
 this.casinoWallet='UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCFN7PAVCT2H4G4JEZKJK6W7UG44';
 this.casinoCredits=this.getCasinoCredits();
+this.monitoringActive=false;
+this.monitorInterval=null;
 this.games={
 slots:{symbols:['⭐','🌟','💫','🌌','🪐','🌙','☄️','🚀','👽','🛸'],scatter:'🌠',grid:[],spinning:0,win:0,mult:1,spins:0},
 plinko:{balls:[],max:5},
@@ -19,8 +21,15 @@ this.music={on:0,audio:null};
 this.initPeraWallet();
 this.init();
 if(this.wallet){
+this.autoReconnectWallet();
 this.updateWalletUI();
 }
+// Force update displays after everything loads
+setTimeout(()=>{
+this.casinoCredits=this.getCasinoCredits();
+this.updateDisplay();
+this.updateCashierDisplay();
+},1000);
 }
 
 getHCBalance(){
@@ -53,12 +62,33 @@ localStorage.removeItem('connected_wallet');
 }
 
 getCasinoCredits(){
-const stored=localStorage.getItem('casino_credits');
-return stored?parseFloat(stored):0;
+// Server-side storage - will be loaded async
+return 0;
+}
+
+async loadCasinoCredits(){
+if(!this.wallet)return 0;
+try{
+const response=await fetch('/.netlify/functions/casino-credits',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({action:'get_balance',wallet:this.wallet})
+});
+const result=await response.json();
+if(result.success){
+this.casinoCredits=result.balance;
+this.updateDisplay();
+this.updateCashierDisplay();
+return result.balance;
+}
+}catch(error){
+console.error('Failed to load casino credits:',error);
+}
+return 0;
 }
 
 saveCasinoCredits(){
-localStorage.setItem('casino_credits',this.casinoCredits.toString());
+// Server-side storage - no local saving needed
 }
 
 async fetchAminaBalance(wallet){
@@ -108,6 +138,7 @@ this.setupGames();
 this.setupMusic();
 this.createEffects();
 this.updateDisplay();
+this.addBackendTestButton();
 console.log('🚀 Amina Casino LIVE!');
 }
 
@@ -225,7 +256,7 @@ const btn=$('walletBtn');
 btn.innerHTML=this.wallet?'🔓 '+this.wallet.slice(0,4)+'...'+this.wallet.slice(-4):'🔗 Connect Wallet';
 }
 
-async toggleCurrency(){
+toggleCurrency(){
 if(this.currency==='HC'&&!this.wallet){
 this.notify('🔗 Connect wallet for AMINA!');
 return;
@@ -244,6 +275,8 @@ await this.refreshAminaBalance();
 this.currency='AMINA';
 toggle.classList.add('amina');
 text.textContent='AMINA';
+// Force reload credits when switching to AMINA
+this.casinoCredits=this.getCasinoCredits();
 }else{
 this.currency='HC';
 toggle.classList.remove('amina');
@@ -251,6 +284,8 @@ text.textContent='HC';
 }
 this.updateBets();
 this.updateDisplay();
+// Force another update after 500ms
+setTimeout(()=>this.updateDisplay(),500);
 }
 
 updateBets(){
@@ -272,6 +307,7 @@ if(bets.includes(curr))sel.value=curr;
 
 updateDisplay(){
 if(this.currency==='AMINA'){
+this.casinoCredits=this.getCasinoCredits(); // Force reload like cashier does
 const bal=this.casinoCredits||0;
 $('balanceAmount').textContent=bal.toFixed(8);
 }else{
@@ -309,7 +345,7 @@ return 1;
 
 async addBalance(amt){
 if(this.currency==='AMINA'){
-this.casinoCredits+=amt*0.99;
+this.casinoCredits+=amt*0.99; // 1% rake - sustainable empire building!
 this.saveCasinoCredits();
 this.updateDisplay();
 }else{
@@ -327,7 +363,10 @@ if(id==='plinko')this.initPlinko();
 if(id==='blackjack')this.initBJ();
 if(id==='hilo')this.initHilo();
 if(id==='dice')this.initDice();
-if(id==='cashier')this.initCashier();
+if(id==='cashier'){
+this.initCashier();
+setTimeout(()=>this.forceUpdateCashier(),100);
+}
 }
 
 notify(msg,type='info'){
@@ -353,9 +392,41 @@ setTimeout(()=>el.classList.remove('show'),4000);
 
 async refreshAminaBalance(){
 if(!this.wallet)return;
+if(!this.peraWallet){
 this.notify(`💰 Manual wallet mode - balance: ${this.balance.AMINA.toFixed(8)} AMINA`);
 this.updateDisplay();
 return;
+}
+try{
+const response=await fetch('/.netlify/functions/process-bet',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+action:'check_balance',
+playerWallet:this.wallet
+})
+});
+const result=await response.json();
+if(result.success){
+this.balance.AMINA=result.balance;
+this.updateDisplay();
+this.notify(`💰 Updated: ${result.balance.toFixed(8)} AMINA`);
+}
+}catch(error){
+console.error('Balance refresh error:',error);
+}
+}
+
+validateWalletState(){
+if(!this.wallet){
+this.notify('🔗 Please connect your wallet first');
+return false;
+}
+if(this.peraWallet&&typeof this.peraWallet.signTransaction!=='function'){
+this.notify('❌ Wallet connection lost. Please reconnect.');
+return false;
+}
+return true;
 }
 
 // === CASHIER SYSTEM ===
@@ -367,8 +438,20 @@ this.updateTransactionList();
 }
 
 updateCashierDisplay(){
-if($('walletBalance'))$('walletBalance').textContent=`${this.balance.AMINA.toFixed(8)} AMINA`;
-if($('casinoCredits'))$('casinoCredits').textContent=`${this.casinoCredits.toFixed(8)} AMINA`;
+const walletEl=$('walletBalance');
+const creditsEl=$('casinoCredits');
+if(walletEl)walletEl.textContent=`${this.balance.AMINA.toFixed(8)} AMINA`;
+if(creditsEl)creditsEl.textContent=`${this.casinoCredits.toFixed(8)} AMINA`;
+}
+
+forceUpdateCashier(){
+this.updateCashierDisplay();
+if(this.wallet&&this.balance.AMINA===0){
+this.fetchAminaBalance(this.wallet).then(bal=>{
+this.balance.AMINA=bal;
+this.updateCashierDisplay();
+});
+}
 }
 
 async depositAmina(){
@@ -386,8 +469,84 @@ this.notify('❌ Insufficient AMINA balance');
 return;
 }
 
+try{
+this.notify('🔄 Creating deposit transaction...');
+const response=await fetch('/.netlify/functions/process-bet',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+action:'place_bet',
+playerWallet:this.wallet,
+amount:amount
+})
+});
+if(!response.ok){
+throw new Error(`HTTP error! status: ${response.status}`);
+}
+const result=await response.json();
+if(!result.success){
+this.notify('❌ Transaction creation failed: '+result.error);
+return;
+}
+if(!result.transaction){
+this.notify('❌ No transaction data received');
+return;
+}
+
+if(this.peraWallet){
+this.notify('✍️ Sign deposit in Pera Wallet...');
+let txnBytes;
+try{
+const binaryString=atob(result.transaction);
+txnBytes=new Uint8Array(binaryString.length);
+for(let i=0;i<binaryString.length;i++){
+txnBytes[i]=binaryString.charCodeAt(i);
+}
+}catch(decodeError){
+console.error('Transaction decode error:',decodeError);
+this.notify('❌ Invalid transaction format');
+return;
+}
+const connectedAccounts=await this.peraWallet.reconnectSession();
+if(!connectedAccounts||connectedAccounts.length===0){
+this.notify('❌ Wallet not connected. Please reconnect.');
+return;
+}
+let signedTxns;
+try{
+signedTxns=await this.peraWallet.signTransaction([txnBytes]);
+if(!signedTxns||signedTxns.length===0){
+this.notify('❌ Transaction signing failed or cancelled');
+return;
+}
+}catch(signError){
+console.error('Signing error:',signError);
+if(signError.message&&signError.message.includes('cancelled')){
+this.notify('❌ Transaction cancelled by user');
+}else{
+this.notify('❌ Signing failed: '+signError.message);
+}
+return;
+}
+this.notify('📡 Submitting to blockchain...');
+try{
+const algodClient=new algosdk.Algodv2('','https://mainnet-api.algonode.cloud','');
+const {txId}=await algodClient.sendRawTransaction(signedTxns).do();
+this.notify(`💰 Deposit confirmed! TX: ${txId.slice(0,8)}...`);
+this.balance.AMINA-=amount;
+this.casinoCredits+=amount;
+this.saveCasinoCredits();
+this.updateCashierDisplay();
+this.addTransaction('deposit',amount);
+$('depositAmount').value='';
+}catch(submitError){
+console.error('Submit error:',submitError);
+this.notify('❌ Blockchain submission failed: '+submitError.message);
+}
+}else{
 this.notify('📝 Manual wallet detected - preparing transaction...');
 const txnData={
+transaction:result.transaction,
 amount:amount,
 from:this.wallet,
 to:this.casinoWallet,
@@ -395,6 +554,11 @@ note:`AMINA Casino Deposit: ${amount}`,
 assetId:this.aminaId
 };
 this.showManualTransactionModal(txnData);
+}
+}catch(error){
+console.error('Deposit error:',error);
+this.notify('❌ Deposit failed: '+error.message);
+}
 }
 
 showManualTransactionModal(txnData){
@@ -426,16 +590,52 @@ document.body.appendChild(modal);
 }
 
 manualDepositComplete(amount){
-this.casinoCredits+=amount;
-this.saveCasinoCredits();
-this.updateCashierDisplay();
-this.updateDisplay();
-this.addTransaction('deposit',amount);
-this.notify(`💰 Deposit of ${amount} AMINA confirmed!`);
+this.notify('⏳ Processing deposit... Please wait 1-2 minutes for confirmation.');
+this.addPendingDeposit(amount);
+this.startDepositMonitoring();
 }
 
 async withdrawAmina(){
-this.notify('Withdrawals temporarily disabled');
+if(!this.wallet){
+this.notify('🔗 Connect wallet first!');
+return;
+}
+const amount=parseFloat($('withdrawAmount').value);
+if(!amount||amount<=0){
+this.notify('❌ Enter valid amount');
+return;
+}
+if(amount>this.casinoCredits){
+this.notify('❌ Insufficient casino credits');
+return;
+}
+try{
+this.notify('🔄 Processing secure withdrawal...');
+const response=await fetch('/.netlify/functions/process-bet',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+action:'process_withdrawal',
+playerWallet:this.wallet,
+amount:amount
+})
+});
+const result=await response.json();
+if(result.success){
+this.casinoCredits-=amount;
+this.balance.AMINA+=amount;
+this.saveCasinoCredits();
+this.updateCashierDisplay();
+this.addTransaction('withdraw',amount);
+$('withdrawAmount').value='';
+this.notify(`✅ Withdrawal successful! ${amount.toFixed(8)} AMINA sent to wallet. TX: ${result.txId.slice(0,8)}...`);
+}else{
+this.notify(`❌ Withdrawal failed: ${result.error}`);
+}
+}catch(error){
+console.error('Withdraw error:',error);
+this.notify('❌ Withdrawal failed - try again later');
+}
 }
 
 addTransaction(type,amount){
@@ -471,6 +671,72 @@ list.innerHTML=transactions.map(tx=>`
 <div class="tx-time">${new Date(tx.timestamp).toLocaleTimeString()}</div>
 </div>
 `).join('');
+}
+
+addPendingDeposit(amount){
+const pending=JSON.parse(localStorage.getItem('pending_deposits')||'[]');
+const newDeposit={
+id:Date.now(),
+amount:amount,
+wallet:this.wallet,
+timestamp:new Date().toISOString(),
+status:'pending'
+};
+pending.push(newDeposit);
+localStorage.setItem('pending_deposits',JSON.stringify(pending));
+this.updatePendingStatus();
+}
+
+startDepositMonitoring(){
+if(this.monitoringActive)return;
+this.monitoringActive=true;
+this.monitorInterval=setInterval(()=>this.checkDepositStatus(),30000);
+this.checkDepositStatus();
+}
+
+async checkDepositStatus(){
+try{
+const response=await fetch('/.netlify/functions/monitor-deposits');
+const result=await response.json();
+if(result.success&&result.credits&&result.credits.length>0){
+let totalCredited=0;
+result.credits.forEach(credit=>{
+if(credit.wallet===this.wallet){
+this.casinoCredits+=credit.amount;
+totalCredited+=credit.amount;
+this.addTransaction('deposit',credit.amount);
+}
+});
+
+if(totalCredited>0){
+this.saveCasinoCredits();
+this.updateCashierDisplay();
+this.updateDisplay();
+this.notify(`💰 Deposit confirmed! ${totalCredited.toFixed(8)} AMINA credited!`);
+}
+}
+}catch(error){
+console.log('Monitor check failed:',error);
+}
+}
+
+async refreshUserBalances(){
+if(this.wallet){
+this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
+}
+this.casinoCredits=this.getCasinoCredits();
+this.updateCashierDisplay();
+this.updateDisplay();
+this.updatePendingStatus();
+}
+
+updatePendingStatus(){
+const pending=JSON.parse(localStorage.getItem('pending_deposits')||'[]');
+const activePending=pending.filter(p=>p.status==='pending'&&Date.now()-new Date(p.timestamp).getTime()<1800000);
+if(activePending.length===0&&this.monitoringActive){
+clearInterval(this.monitorInterval);
+this.monitoringActive=false;
+}
 }
 
 // === COSMIC CHAOS SLOTS ===
@@ -1098,6 +1364,94 @@ el.textContent=syms[Math.floor(Math.random()*4)];
 el.style.cssText=`position:fixed;font-size:${Math.random()*10+15}px;pointer-events:none;z-index:-1;left:${Math.random()*100}%;top:100vh;opacity:${Math.random()*0.6+0.2};animation:floatUp ${Math.random()*4+6}s linear forwards`;
 document.body.appendChild(el);
 setTimeout(()=>el.remove(),10000);
+}
+
+addBackendTestButton(){
+// Admin function placeholder - to be implemented
+}
+
+// ADD ADMIN FUNCTIONS
+adminCreditUser(amount){
+this.casinoCredits+=amount;
+this.saveCasinoCredits();
+this.updateCashierDisplay();
+this.updateDisplay();
+this.addTransaction('deposit',amount);
+this.notify(`🛠️ Admin credited ${amount} AMINA`);
+setTimeout(()=>this.forceUpdateCashier(),200);
+}
+
+adminCheckBalances(){
+console.log('=== ADMIN BALANCE CHECK ===');
+console.log('Casino Credits:',this.casinoCredits);
+console.log('Wallet Balance:',this.balance.AMINA);
+console.log('Stored Credits:',localStorage.getItem('casino_credits'));
+console.log('Stored Wallet:',localStorage.getItem('connected_wallet'));
+}
+
+adminViewPending(){
+const pending=JSON.parse(localStorage.getItem('pending_deposits')||'[]');
+console.log('=== PENDING DEPOSITS ===');
+pending.forEach(p=>console.log(`${p.amount} AMINA from ${p.wallet.slice(0,8)}... at ${new Date(p.timestamp).toLocaleString()}`));
+return pending;
+}
+
+adminApprovePending(index){
+const pending=JSON.parse(localStorage.getItem('pending_deposits')||'[]');
+if(pending[index]){
+const deposit=pending[index];
+this.adminCreditUser(deposit.amount);
+pending.splice(index,1);
+localStorage.setItem('pending_deposits',JSON.stringify(pending));
+console.log(`✅ Approved deposit: ${deposit.amount} AMINA`);
+}
+}
+
+async autoReconnectWallet(){
+if(!this.peraWallet)return;
+try{
+const accounts=await this.peraWallet.reconnectSession();
+if(accounts&&accounts.length>0){
+this.wallet=accounts[0];
+this.saveWallet();
+this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
+this.casinoCredits=this.getCasinoCredits(); // Force reload casino credits
+this.updateWalletUI();
+this.updateCashierDisplay();
+this.updateDisplay();
+console.log('🔄 Wallet auto-reconnected with balance and credits');
+}
+}catch(error){
+if(this.wallet){
+this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
+this.casinoCredits=this.getCasinoCredits(); // Force reload casino credits  
+this.updateWalletUI();
+this.updateCashierDisplay();
+this.updateDisplay();
+console.log('🔄 Manual wallet mode - balance and credits loaded');
+}
+}
+}
+
+async testBackend(){
+console.log('🚀 Testing Amina Casino backend...');
+try{
+const response=await fetch('/.netlify/functions/hello-casino');
+const data=await response.json();
+console.log('✅ Backend Response:',data);
+this.notify(`🚀 Backend LIVE! ${data.games.length} games detected!`);
+const testTx=await fetch('/.netlify/functions/process-bet',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({action:'check_balance',playerWallet:'test'})
+});
+const txResult=await testTx.json();
+console.log('✅ Transaction Function:',txResult);
+this.notify('🔥 AMINA transaction system ready!');
+}catch(error){
+console.error('❌ Backend test failed:',error);
+this.notify('❌ Backend test failed - check console');
+}
 }
 }
 
