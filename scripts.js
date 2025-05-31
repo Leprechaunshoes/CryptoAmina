@@ -7,7 +7,7 @@ this.wallet=this.getStoredWallet();
 this.peraWallet=null;
 this.aminaId=1107424865;
 this.casinoWallet='UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCFN7PAVCT2H4G4JEZKJK6W7UG44';
-this.casinoCredits=0; // Start with 0, load async
+this.casinoCredits=this.getCasinoCredits();
 this.monitoringActive=false;
 this.monitorInterval=null;
 this.games={
@@ -23,10 +23,6 @@ this.init();
 if(this.wallet){
 this.autoReconnectWallet();
 this.updateWalletUI();
-}
-// Load credits async without blocking
-if(this.wallet){
-this.loadCasinoCredits().catch(()=>console.log('Credits loading failed - will retry later'));
 }
 }
 
@@ -60,33 +56,12 @@ localStorage.removeItem('connected_wallet');
 }
 
 getCasinoCredits(){
-// Server-side storage - will be loaded async
-return 0;
-}
-
-async loadCasinoCredits(){
-if(!this.wallet)return 0;
-try{
-const response=await fetch('/.netlify/functions/casino-credits',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({action:'get_balance',wallet:this.wallet})
-});
-const result=await response.json();
-if(result.success){
-this.casinoCredits=result.balance;
-this.updateDisplay();
-this.updateCashierDisplay();
-return result.balance;
-}
-}catch(error){
-console.error('Failed to load casino credits:',error);
-}
-return 0;
+const stored=localStorage.getItem('casino_credits');
+return stored?parseFloat(stored):0;
 }
 
 saveCasinoCredits(){
-// Server-side storage - no local saving needed
+localStorage.setItem('casino_credits',this.casinoCredits.toString());
 }
 
 async fetchAminaBalance(wallet){
