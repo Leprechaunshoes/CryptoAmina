@@ -20,6 +20,15 @@ async function ensureTable() {
         );
         CREATE UNIQUE INDEX IF NOT EXISTS idx_wallet ON casino_sessions(wallet_address);
         CREATE UNIQUE INDEX IF NOT EXISTS idx_token ON casino_sessions(session_token);
+        
+        CREATE TABLE IF NOT EXISTS processed_transactions (
+          id SERIAL PRIMARY KEY,
+          transaction_id TEXT UNIQUE NOT NULL,
+          wallet_address TEXT NOT NULL,
+          amount DECIMAL(18,8) NOT NULL,
+          processed_at TIMESTAMP DEFAULT NOW()
+        );
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_txn_id ON processed_transactions(transaction_id);
       `
     });
   } catch (error) {
@@ -234,7 +243,7 @@ exports.handler = async (event, context) => {
           body: JSON.stringify({ 
             success: false, 
             error: 'Invalid action',
-            supportedActions: ['create_session', 'get_session', 'update_balance', 'add_credits']
+            supportedActions: ['create_session', 'get_session', 'update_balance', 'add_credits', 'check_transaction', 'mark_transaction']
           })
         };
     }
