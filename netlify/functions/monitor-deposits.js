@@ -1,54 +1,60 @@
-// monitor-deposits.js - TIME WINDOW FIX
+// monitor-deposits.js - PERSISTENT STORAGE FIX
 const algosdk=require('algosdk');
-const fs = require('fs').promises;
 
 const client=new algosdk.Algodv2('','https://mainnet-api.algonode.cloud','');
 const AMINA_ID=1107424865;
 const CASINO_ADDR=process.env.CASINO_ADDRESS||'UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCFN7PAVCT2H4G4JEZKJK6W7UG44';
 
-// SHARED STORAGE FILES
-const CREDITS_FILE = '/tmp/casino_credits.json';
-const PROCESSED_TXN_FILE = '/tmp/processed_transactions.json';
+// PERSISTENT STORAGE URLs
+const PROCESSED_TXN_URL = 'https://api.jsonbin.io/v3/b/674c0001e41b4d34e45f7c83';
+const JSONBIN_KEY = '$2a$10$Vq3zY6HH.pK8dWxmfN9UXO7qE.M8BQK3p2Y4wZ9A1sN7fT2mL5gR6';
 
-// EXTENDED TIME WINDOW - Look back 2 hours instead of 10 minutes
 let lastCheck=Date.now()-(2*60*60*1000); // 2 hours ago
 
-// LOAD/SAVE CREDITS (same as casino-credits.js)
-async function loadCredits() {
-  try {
-    const data = await fs.readFile(CREDITS_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return {};
-  }
-}
-
-async function saveCredits(credits) {
-  try {
-    await fs.writeFile(CREDITS_FILE, JSON.stringify(credits, null, 2));
-    return true;
-  } catch (error) {
-    console.error('Failed to save credits:', error);
-    return false;
-  }
-}
-
-// LOAD/SAVE PROCESSED TRANSACTIONS
 async function loadProcessedTxns() {
   try {
-    const data = await fs.readFile(PROCESSED_TXN_FILE, 'utf8');
-    return new Set(JSON.parse(data));
+    const response = await fetch(`${PROCESSED_TXN_URL}/latest`, {
+      method: 'GET',
+      headers: {
+        'X-Master-Key': JSONBIN_KEY
+      }
+    });
+    const data = await response.json();
+    return new Set(data.record || []);
   } catch (error) {
+    console.log('Loading processed txns failed, using empty set:', error.message);
     return new Set();
   }
 }
 
 async function saveProcessedTxns(txnSet) {
   try {
-    await fs.writeFile(PROCESSED_TXN_FILE, JSON.stringify([...txnSet]));
-    return true;
+    const response = await fetch(PROCESSED_TXN_URL, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_KEY
+      },
+      body: JSON.stringify([...txnSet])
+    });
+    return response.ok;
   } catch (error) {
-    console.error('Failed to save processed txns:', error);
+    console.error('Saving processed txns failed:', error);
+    return false;
+  }
+}
+
+async function addCreditsViaAPI(wallet, amount) {
+  try {
+    const response = await fetch('https://cryptoamina.netlify.app/.netlify/functions/casino-credits', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({action: 'add_credits', wallet: wallet, amount: amount})
+    });
+    const result = await response.json();
+    return result.success;
+  } catch (error) {
+    console.error('Failed to add credits via API:', error);
     return false;
   }
 }
@@ -66,7 +72,6 @@ try{
 const now=Date.now();
 const txns=await scanWalletTransactions();
 const processedTxns = await loadProcessedTxns();
-const credits = await loadCredits();
 let processed=0;
 let creditedAmounts=[];
 
@@ -78,7 +83,7 @@ console.log(`⏭️ Skipping already processed: ${txn.id.slice(0,8)}...`);
 continue;
 }
 
-// EXTENDED TIME CHECK - Look back 2 hours instead of lastCheck
+// EXTENDED TIME CHECK - Look back 2 hours
 const twoHoursAgo = now - (2*60*60*1000);
 if(txn.timestamp <= twoHoursAgo){
 console.log(`⏰ Skipping old transaction: ${txn.id.slice(0,8)}... (${new Date(txn.timestamp).toISOString()})`);
@@ -100,21 +105,21 @@ const amount = Math.ceil((txn.amount/100000000) * 100000000) / 100000000;
 
 console.log(`💰 PROCESSING: ${amount} AMINA from ${txn.sender.slice(0,8)}... - TX: ${txn.id.slice(0,8)}...`);
 
-// ADD CREDITS TO USER ACCOUNT
-const currentBalance = credits[txn.sender] || 0;
-credits[txn.sender] = currentBalance + amount;
+// ADD CREDITS VIA API CALL
+const success = await addCreditsViaAPI(txn.sender, amount);
 
-// MARK TRANSACTION AS PROCESSED
-processedTxns.add(txn.id);
-
-creditedAmounts.push({amount,wallet:txn.sender,txnId:txn.id});
-processed++;
-
-console.log(`✅ CREDITED: ${amount} AMINA to ${txn.sender.slice(0,8)}... - New balance: ${credits[txn.sender]}`);
+if(success) {
+  // MARK TRANSACTION AS PROCESSED ONLY IF CREDITS ADDED SUCCESSFULLY
+  processedTxns.add(txn.id);
+  creditedAmounts.push({amount,wallet:txn.sender,txnId:txn.id});
+  processed++;
+  console.log(`✅ CREDITED: ${amount} AMINA to ${txn.sender.slice(0,8)}...`);
+} else {
+  console.log(`❌ FAILED to credit: ${amount} AMINA to ${txn.sender.slice(0,8)}...`);
+}
 }
 
-// SAVE UPDATED DATA
-await saveCredits(credits);
+// SAVE UPDATED PROCESSED TRANSACTIONS
 await saveProcessedTxns(processedTxns);
 
 lastCheck=now;
@@ -146,7 +151,7 @@ body:JSON.stringify({success:false,error:error.message})
 async function scanWalletTransactions(){
 try{
 const params={
-limit:100, // Increased from 50 to 100
+limit:100,
 'asset-id':AMINA_ID,
 'tx-type':'axfer'
 };
