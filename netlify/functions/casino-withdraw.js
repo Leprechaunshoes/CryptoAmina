@@ -54,9 +54,9 @@ exports.handler = async (event, context) => {
     }
 
     // Get casino wallet private key from environment variable
-    const casinoMnemonic = process.env.CASINO_WALLET_MNEMONIC;
+    const casinoMnemonic = process.env.CASINO_PRIVATE_KEY;
     if (!casinoMnemonic) {
-      console.error('Casino wallet mnemonic not configured');
+      console.error('Casino wallet private key not configured');
       return {
         statusCode: 500,
         headers,
