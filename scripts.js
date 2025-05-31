@@ -8,8 +8,6 @@ this.peraWallet=null;
 this.aminaId=1107424865;
 this.casinoWallet='UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCFN7PAVCT2H4G4JEZKJK6W7UG44';
 this.casinoCredits=0;
-this.isIOS=this.detectIOS();
-this.lastKnownCredits=0;
 this.games={
 slots:{symbols:['⭐','🌟','💫','🌌','🪐','🌙','☄️','🚀','👽','🛸'],scatter:'🌠',grid:[],spinning:0,win:0,mult:1,spins:0},
 plinko:{balls:[],max:5},
@@ -24,7 +22,6 @@ if(this.wallet){
 this.updateWalletUI();
 this.syncCreditsFromServer();
 }
-this.startIOSProtection();
 }
 
 getHCBalance(){
@@ -57,88 +54,7 @@ localStorage.removeItem('connected_wallet');
 }
 
 // SERVER-FIRST CREDIT SYSTEM
-// IOS SAFARI BULLETPROOF PROTECTION
-detectIOS(){
-return /iPad|iPhone|iPod/.test(navigator.userAgent)||
-(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-}
-
-startIOSProtection(){
-if(!this.isIOS)return;
-console.log('🛡️ iOS Safari protection activated');
-
-// Aggressive sync every 15 seconds on iOS
-setInterval(()=>this.guardCredits(),15000);
-
-// Monitor page visibility changes (iOS backgrounding)
-document.addEventListener('visibilitychange',()=>{
-if(!document.hidden&&this.wallet){
-console.log('📱 iOS app returning - checking credits');
-setTimeout(()=>this.guardCredits(),1000);
-}
-});
-
-// Monitor storage events
-window.addEventListener('storage',()=>this.guardCredits());
-
-// Initial guard after short delay
-setTimeout(()=>this.guardCredits(),3000);
-}
-
-async guardCredits(){
-if(!this.wallet||this.currency!=='AMINA')return;
-
-try{
-// Check if credits mysteriously disappeared
-const currentCredits=this.casinoCredits||0;
-
-// If credits are 0 but we had credits before, something's wrong
-if(currentCredits===0&&this.lastKnownCredits>0){
-console.log('🚨 Credits lost - iOS Safari cleared storage!');
-await this.emergencyRecovery();
-return;
-}
-
-// Regular sync check
-const response=await fetch('/.netlify/functions/casino-credits',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({action:'get_balance',wallet:this.wallet})
-});
-
-const result=await response.json();
-if(result.success){
-const serverCredits=result.balance||0;
-
-// If server has more credits than local, restore them
-if(serverCredits>currentCredits){
-console.log(`🔄 iOS Recovery: ${currentCredits} → ${serverCredits}`);
-this.casinoCredits=serverCredits;
-this.lastKnownCredits=serverCredits;
-this.updateDisplay();
-this.updateCashierDisplay();
-this.notify(`🛡️ Credits restored: ${serverCredits.toFixed(8)} AMINA`);
-}else{
-this.lastKnownCredits=Math.max(currentCredits,serverCredits);
-}
-}
-}catch(error){
-console.log('Guard check failed:',error);
-}
-}
-
-async emergencyRecovery(){
-console.log('🚨 EMERGENCY RECOVERY ACTIVATED');
-try{
-await this.syncCreditsFromServer();
-if(this.casinoCredits>0){
-this.notify(`🆘 Emergency recovery! Found ${this.casinoCredits.toFixed(8)} AMINA`);
-this.lastKnownCredits=this.casinoCredits;
-}
-}catch(error){
-this.notify('❌ Recovery failed - contact support');
-}
-}
+async syncCreditsFromServer(){
 if(!this.wallet)return;
 try{
 const response=await fetch('/.netlify/functions/casino-credits',{
@@ -149,7 +65,6 @@ body:JSON.stringify({action:'get_balance',wallet:this.wallet})
 const result=await response.json();
 if(result.success){
 this.casinoCredits=result.balance||0;
-this.lastKnownCredits=this.casinoCredits;
 this.updateDisplay();
 this.updateCashierDisplay();
 }
@@ -169,7 +84,6 @@ body:JSON.stringify({action:action,wallet:this.wallet,amount:amount})
 const result=await response.json();
 if(result.success){
 this.casinoCredits=result.newBalance||result.balance||0;
-this.lastKnownCredits=this.casinoCredits;
 this.updateDisplay();
 this.updateCashierDisplay();
 return true;
