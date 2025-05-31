@@ -56,17 +56,17 @@ localStorage.removeItem('session_token');
 this.sessionToken=null;
 }
 
+getStoredWallet(){
+const stored=localStorage.getItem('connected_wallet');
+return stored?JSON.parse(stored):null;
+}
+
 saveWallet(){
 localStorage.setItem('connected_wallet',JSON.stringify(this.wallet));
 }
 
 clearWallet(){
 localStorage.removeItem('connected_wallet');
-}
-
-getStoredWallet(){
-const stored=localStorage.getItem('connected_wallet');
-return stored?JSON.parse(stored):null;
 }
 
 async syncCreditsFromServer(){
@@ -204,6 +204,12 @@ orb.style.transform='scale(1)';
 enterCasino(){
 $('welcomeScreen').classList.remove('active');
 $('mainCasino').classList.add('active');
+if(this.wallet){
+this.fetchAminaBalance(this.wallet).then(balance=>{
+this.balance.AMINA=balance;
+this.updateCashierDisplay();
+});
+}
 if(this.music.audio&&!this.music.on){
 this.music.audio.play().then(()=>{
 this.music.on=1;
@@ -373,16 +379,13 @@ return 1;
 async addBalance(amt,source='win'){
 if(this.currency==='AMINA'){
 if(source==='win'){
-// Save wins to server permanently
 const success=await this.updateServerCredits('add_credits',amt);
 if(!success){
-// Fallback to local if server fails
 this.casinoCredits+=amt;
 this.updateDisplay();
 this.updateCashierDisplay();
 }
 }
-// Ignore non-win additions (only monitor handles deposits)
 }else{
 this.balance.HC+=amt;
 this.saveHCBalance();
@@ -432,7 +435,6 @@ return;
 // === CASHIER SYSTEM ===
 initCashier(){
 this.updateCashierDisplay();
-// Fetch real wallet balance when cashier loads
 if(this.wallet){
 console.log('Fetching balance for:', this.wallet);
 this.fetchAminaBalance(this.wallet).then(balance => {
@@ -526,7 +528,6 @@ return;
 
 this.notify('🔍 Checking for your transaction...');
 
-// TRIGGER MONITOR TO CHECK FOR DEPOSITS
 try{
 await fetch('/.netlify/functions/monitor-deposits',{
 method:'POST',
@@ -536,24 +537,21 @@ headers:{'Content-Type':'application/json'}
 console.log('Monitor call failed, continuing...');
 }
 
-// START POLLING FOR CREDITS
 this.startDepositPolling(amount);
 }
 
 startDepositPolling(expectedAmount){
 let attempts = 0;
-const maxAttempts = 20; // 2 minutes max
-const pollInterval = 6000; // Every 6 seconds
+const maxAttempts = 20;
+const pollInterval = 6000;
 
 const poll = async () => {
 attempts++;
 
-// REFRESH BALANCE FROM SERVER
 await this.syncCreditsFromServer();
 
 this.notify(`🔍 Checking... (${attempts}/${maxAttempts})`);
 
-// CHECK IF WE HAVE ENOUGH NEW CREDITS
 if(this.casinoCredits >= expectedAmount){
 this.notify(`✅ Deposit confirmed! ${expectedAmount.toFixed(8)} AMINA credited!`);
 this.addTransaction('deposit', expectedAmount);
@@ -566,7 +564,6 @@ this.notify('⏰ Deposit check timed out. If you sent AMINA, it may take a few m
 return;
 }
 
-// CONTINUE POLLING
 setTimeout(poll, pollInterval);
 };
 
