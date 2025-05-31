@@ -1,8 +1,16 @@
-// casino-credits.js - SIMPLE STORAGE FIX
-// Using simple in-memory storage that persists during function lifetime
-
-let globalCredits = {};
-let globalProcessedTxns = new Set();
+// casino-credits.js - SESSION BASED
+async function callSessionManager(action, data) {
+  try {
+    const response = await fetch('https://cryptoamina.netlify.app/.netlify/functions/session-manager', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, ...data })
+    });
+    return await response.json();
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
 
 exports.handler = async (event, context) => {
   if (event.httpMethod === 'OPTIONS') {
@@ -26,132 +34,113 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const { action, wallet, amount, txnId } = JSON.parse(event.body || '{}');
-
-    if (!wallet || wallet.length !== 58) {
-      return {
-        statusCode: 400,
-        headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ success: false, error: 'Invalid wallet address' })
-      };
-    }
-
-    let response = {};
+    const { action, wallet, token, amount } = JSON.parse(event.body || '{}');
 
     switch (action) {
       case 'get_balance':
-        const balance = globalCredits[wallet] || 0;
-        response = {
-          success: true,
-          wallet: wallet,
-          balance: balance,
-          message: `Casino credits: ${balance.toFixed(8)} AMINA`
+        if (token) {
+          // Get balance by session token
+          const result = await callSessionManager('get_session', { token });
+          if (result.success) {
+            return {
+              statusCode: 200,
+              headers: { 'Access-Control-Allow-Origin': '*' },
+              body: JSON.stringify({
+                success: true,
+                balance: result.balance,
+                wallet: result.wallet,
+                token: result.token,
+                message: `Casino credits: ${result.balance.toFixed(8)} AMINA`
+              })
+            };
+          }
+        }
+
+        if (wallet) {
+          // Create or restore session by wallet
+          const result = await callSessionManager('create_session', { wallet });
+          return {
+            statusCode: 200,
+            headers: { 'Access-Control-Allow-Origin': '*' },
+            body: JSON.stringify({
+              success: true,
+              balance: result.balance || 0,
+              token: result.token,
+              wallet: wallet,
+              message: result.message || 'Session ready'
+            })
+          };
+        }
+
+        return {
+          statusCode: 400,
+          headers: { 'Access-Control-Allow-Origin': '*' },
+          body: JSON.stringify({ success: false, error: 'Token or wallet required' })
         };
-        break;
 
       case 'add_credits':
-        if (!amount || amount <= 0) {
+        if (!token || !amount || amount <= 0) {
           return {
             statusCode: 400,
             headers: { 'Access-Control-Allow-Origin': '*' },
-            body: JSON.stringify({ success: false, error: 'Invalid amount' })
+            body: JSON.stringify({ success: false, error: 'Token and valid amount required' })
           };
         }
 
-        // Check if transaction already processed (only for deposits with txnId)
-        if (txnId && globalProcessedTxns.has(txnId)) {
-          return {
-            statusCode: 400,
-            headers: { 'Access-Control-Allow-Origin': '*' },
-            body: JSON.stringify({ success: false, error: 'Transaction already processed' })
-          };
-        }
+        const addResult = await callSessionManager('add_credits', { token, amount });
         
-        const currentBalance = globalCredits[wallet] || 0;
-        const newBalance = currentBalance + amount;
-        globalCredits[wallet] = newBalance;
-        
-        // Mark transaction as processed only if txnId provided (deposits)
-        if (txnId) {
-          globalProcessedTxns.add(txnId);
-        }
-        
-        console.log(`✅ ADDED ${amount} to ${wallet.slice(0,8)}... - New balance: ${newBalance}`);
-        
-        response = {
-          success: true,
-          wallet: wallet,
-          amount: amount,
-          oldBalance: currentBalance,
-          newBalance: newBalance,
-          txnId: txnId,
-          message: `Added ${amount.toFixed(8)} AMINA credits`
+        return {
+          statusCode: addResult.success ? 200 : 400,
+          headers: { 'Access-Control-Allow-Origin': '*' },
+          body: JSON.stringify(addResult)
         };
-        break;
 
       case 'deduct_credits':
-        if (!amount || amount <= 0) {
+        if (!token || !amount || amount <= 0) {
           return {
             statusCode: 400,
             headers: { 'Access-Control-Allow-Origin': '*' },
-            body: JSON.stringify({ success: false, error: 'Invalid amount' })
+            body: JSON.stringify({ success: false, error: 'Token and valid amount required' })
           };
         }
 
-        const walletBalance = globalCredits[wallet] || 0;
-        if (walletBalance < amount) {
+        // Get current balance
+        const sessionResult = await callSessionManager('get_session', { token });
+        if (!sessionResult.success) {
+          return {
+            statusCode: 404,
+            headers: { 'Access-Control-Allow-Origin': '*' },
+            body: JSON.stringify({ success: false, error: 'Session not found' })
+          };
+        }
+
+        if (sessionResult.balance < amount) {
           return {
             statusCode: 400,
             headers: { 'Access-Control-Allow-Origin': '*' },
             body: JSON.stringify({ 
               success: false, 
               error: 'Insufficient credits',
-              balance: walletBalance
+              balance: sessionResult.balance
             })
           };
         }
 
-        const updatedBalance = walletBalance - amount;
-        globalCredits[wallet] = updatedBalance;
-        
-        response = {
-          success: true,
-          wallet: wallet,
-          amount: amount,
-          oldBalance: walletBalance,
-          newBalance: updatedBalance,
-          message: `Deducted ${amount.toFixed(8)} AMINA credits`
-        };
-        break;
+        const newBalance = sessionResult.balance - amount;
+        const updateResult = await callSessionManager('update_balance', { token, amount: newBalance });
 
-      case 'set_balance':
-        if (amount === undefined || amount < 0) {
-          return {
-            statusCode: 400,
-            headers: { 'Access-Control-Allow-Origin': '*' },
-            body: JSON.stringify({ success: false, error: 'Invalid balance amount' })
-          };
-        }
-
-        globalCredits[wallet] = amount;
-        
-        response = {
-          success: true,
-          wallet: wallet,
-          balance: amount,
-          message: `Set casino credits to ${amount.toFixed(8)} AMINA`
+        return {
+          statusCode: updateResult.success ? 200 : 400,
+          headers: { 'Access-Control-Allow-Origin': '*' },
+          body: JSON.stringify({
+            success: updateResult.success,
+            wallet: sessionResult.wallet,
+            amount: amount,
+            oldBalance: sessionResult.balance,
+            newBalance: newBalance,
+            message: `Deducted ${amount.toFixed(8)} AMINA credits`
+          })
         };
-        break;
-
-      case 'debug_info':
-        response = {
-          success: true,
-          totalWallets: Object.keys(globalCredits).length,
-          totalProcessedTxns: globalProcessedTxns.size,
-          allBalances: globalCredits,
-          processedTxnsList: [...globalProcessedTxns].slice(-10) // Last 10 txns
-        };
-        break;
 
       default:
         return {
@@ -160,19 +149,10 @@ exports.handler = async (event, context) => {
           body: JSON.stringify({ 
             success: false, 
             error: 'Invalid action',
-            supportedActions: ['get_balance', 'add_credits', 'deduct_credits', 'set_balance', 'debug_info']
+            supportedActions: ['get_balance', 'add_credits', 'deduct_credits']
           })
         };
     }
-
-    return {
-      statusCode: 200,
-      headers: { 
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(response)
-    };
 
   } catch (error) {
     console.error('Casino credits error:', error);
@@ -181,8 +161,7 @@ exports.handler = async (event, context) => {
       headers: { 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({ 
         success: false, 
-        error: 'Internal server error',
-        timestamp: new Date().toISOString()
+        error: 'Internal server error'
       })
     };
   }
