@@ -1,75 +1,21 @@
-// monitor-deposits.js - DIRECT STORAGE FIX
+// monitor-deposits.js - SIMPLE STORAGE FIX
 const algosdk=require('algosdk');
 
 const client=new algosdk.Algodv2('','https://mainnet-api.algonode.cloud','');
 const AMINA_ID=1107424865;
 const CASINO_ADDR=process.env.CASINO_ADDRESS||'UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCFN7PAVCT2H4G4JEZKJK6W7UG44';
 
-// PERSISTENT STORAGE URLs (same as casino-credits)
-const CREDITS_URL = 'https://api.jsonbin.io/v3/b/674c0000acd3cb34a8b85c42';
-const PROCESSED_TXN_URL = 'https://api.jsonbin.io/v3/b/674c0001e41b4d34e45f7c83';
-const JSONBIN_KEY = '$2a$10$Vq3zY6HH.pK8dWxmfN9UXO7qE.M8BQK3p2Y4wZ9A1sN7fT2mL5gR6';
-
-let lastCheck=Date.now()-(2*60*60*1000);
-
-async function loadCredits() {
+async function addCreditsViaAPI(wallet, amount, txnId) {
   try {
-    const response = await fetch(`${CREDITS_URL}/latest`, {
-      method: 'GET',
-      headers: { 'X-Master-Key': JSONBIN_KEY }
+    const response = await fetch('https://cryptoamina.netlify.app/.netlify/functions/casino-credits', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({action: 'add_credits', wallet: wallet, amount: amount, txnId: txnId})
     });
-    const data = await response.json();
-    return data.record || {};
+    const result = await response.json();
+    return result.success;
   } catch (error) {
-    console.log('Loading credits failed:', error.message);
-    return {};
-  }
-}
-
-async function saveCredits(credits) {
-  try {
-    const response = await fetch(CREDITS_URL, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_KEY
-      },
-      body: JSON.stringify(credits)
-    });
-    return response.ok;
-  } catch (error) {
-    console.error('Saving credits failed:', error);
-    return false;
-  }
-}
-
-async function loadProcessedTxns() {
-  try {
-    const response = await fetch(`${PROCESSED_TXN_URL}/latest`, {
-      method: 'GET',
-      headers: { 'X-Master-Key': JSONBIN_KEY }
-    });
-    const data = await response.json();
-    return new Set(data.record || []);
-  } catch (error) {
-    console.log('Loading processed txns failed:', error.message);
-    return new Set();
-  }
-}
-
-async function saveProcessedTxns(txnSet) {
-  try {
-    const response = await fetch(PROCESSED_TXN_URL, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_KEY
-      },
-      body: JSON.stringify([...txnSet])
-    });
-    return response.ok;
-  } catch (error) {
-    console.error('Saving processed txns failed:', error);
+    console.error('API call failed:', error);
     return false;
   }
 }
@@ -86,27 +32,20 @@ body:''
 try{
 const now=Date.now();
 const txns=await scanWalletTransactions();
-const processedTxns = await loadProcessedTxns();
-const credits = await loadCredits();
 let processed=0;
 let creditedAmounts=[];
+let errors=[];
 
-console.log(`🔍 Scanning ${txns.length} transactions, processed set has ${processedTxns.size} entries`);
+console.log(`🔍 Scanning ${txns.length} transactions`);
 
 for(const txn of txns){
-if(processedTxns.has(txn.id)){
-console.log(`⏭️ Already processed: ${txn.id.slice(0,8)}...`);
-continue;
-}
-
+// Look back 2 hours
 const twoHoursAgo = now - (2*60*60*1000);
 if(txn.timestamp <= twoHoursAgo){
-console.log(`⏰ Too old: ${txn.id.slice(0,8)}...`);
 continue;
 }
 
 if(txn.assetId!==AMINA_ID || txn.receiver!==CASINO_ADDR){
-console.log(`❌ Wrong asset/receiver: ${txn.id.slice(0,8)}...`);
 continue;
 }
 
@@ -114,24 +53,18 @@ const amount = Math.ceil((txn.amount/100000000) * 100000000) / 100000000;
 
 console.log(`💰 PROCESSING: ${amount} AMINA from ${txn.sender.slice(0,8)}... - TX: ${txn.id.slice(0,8)}...`);
 
-// DIRECTLY UPDATE CREDITS (no API call)
-const currentBalance = credits[txn.sender] || 0;
-credits[txn.sender] = currentBalance + amount;
+// ADD CREDITS VIA API (includes txn ID for duplicate prevention)
+const success = await addCreditsViaAPI(txn.sender, amount, txn.id);
 
-// MARK AS PROCESSED
-processedTxns.add(txn.id);
-
-creditedAmounts.push({amount,wallet:txn.sender,txnId:txn.id});
-processed++;
-
-console.log(`✅ CREDITED: ${amount} AMINA to ${txn.sender.slice(0,8)}... - New balance: ${credits[txn.sender]}`);
+if(success) {
+  creditedAmounts.push({amount,wallet:txn.sender,txnId:txn.id});
+  processed++;
+  console.log(`✅ CREDITED: ${amount} AMINA to ${txn.sender.slice(0,8)}...`);
+} else {
+  errors.push({txnId: txn.id, wallet: txn.sender, amount});
+  console.log(`❌ FAILED: ${amount} AMINA to ${txn.sender.slice(0,8)}...`);
 }
-
-// SAVE BOTH CREDITS AND PROCESSED TXNS
-const creditsSaved = await saveCredits(credits);
-const txnsSaved = await saveProcessedTxns(processedTxns);
-
-console.log(`💾 Credits saved: ${creditsSaved}, Txns saved: ${txnsSaved}`);
+}
 
 return{
 statusCode:200,
@@ -140,10 +73,8 @@ body:JSON.stringify({
 success:true,
 processed,
 credits:creditedAmounts,
-creditsSaved,
-txnsSaved,
+errors,
 totalTransactionsScanned: txns.length,
-processedSetSize: processedTxns.size,
 message:processed>0?`Credited ${processed} deposits`:'No new deposits'
 })
 };
@@ -153,7 +84,7 @@ console.error('Monitor error:',error);
 return{
 statusCode:500,
 headers:{'Access-Control-Allow-Origin':'*'},
-body:JSON.stringify({success:false,error:error.message,stack:error.stack})
+body:JSON.stringify({success:false,error:error.message})
 };
 }
 };
@@ -172,11 +103,8 @@ const txnResponse=await fetch(
 const data=await txnResponse.json();
 
 if(!data.transactions) {
-console.log('❌ No transactions in API response');
 return [];
 }
-
-console.log(`📊 API returned ${data.transactions.length} transactions`);
 
 return data.transactions
 .filter(tx=>tx['asset-transfer-transaction']&&tx['asset-transfer-transaction'].receiver===CASINO_ADDR)
