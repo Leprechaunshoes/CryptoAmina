@@ -7,7 +7,7 @@ this.wallet=this.getStoredWallet();
 this.peraWallet=null;
 this.aminaId=1107424865;
 this.casinoWallet='UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCFN7PAVCT2H4G4JEZKJK6W7UG44';
-this.casinoCredits=this.getCasinoCredits();
+this.casinoCredits=0; // Start with 0, load async
 this.monitoringActive=false;
 this.monitorInterval=null;
 this.games={
@@ -24,12 +24,10 @@ if(this.wallet){
 this.autoReconnectWallet();
 this.updateWalletUI();
 }
-// Force update displays after everything loads
-setTimeout(()=>{
-this.casinoCredits=this.getCasinoCredits();
-this.updateDisplay();
-this.updateCashierDisplay();
-},1000);
+// Load credits async without blocking
+if(this.wallet){
+this.loadCasinoCredits().catch(()=>console.log('Credits loading failed - will retry later'));
+}
 }
 
 getHCBalance(){
