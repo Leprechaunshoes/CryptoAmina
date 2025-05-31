@@ -1,24 +1,8 @@
-// monitor-deposits.js - PERSISTENT STORAGE FINAL
+// monitor-deposits.js - API CALLS FIXED
 const algosdk=require('algosdk');
 
 const AMINA_ID=1107424865;
 const CASINO_ADDR=process.env.CASINO_ADDRESS||'UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCFN7PAVCT2H4G4JEZKJK6W7UG44';
-
-const STORAGE_URL = 'https://api.github.com/gists/f1e2d3c4b5a6789012345678901234567890abcd';
-const GITHUB_TOKEN = 'ghp_1234567890abcdef1234567890abcdef12345678';
-
-async function loadProcessedTxns() {
-  try {
-    const response = await fetch(`${STORAGE_URL}`, {
-      headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
-    });
-    const gist = await response.json();
-    const content = gist.files['processed.json'].content;
-    return new Set(JSON.parse(content));
-  } catch (error) {
-    return new Set();
-  }
-}
 
 async function addCreditsViaAPI(wallet, amount, txnId) {
   try {
@@ -46,19 +30,17 @@ body:''
 try{
 const now=Date.now();
 const txns=await scanWalletTransactions();
-const processedTxns = await loadProcessedTxns();
 let processed=0;
 let creditedAmounts=[];
 
 for(const txn of txns){
-if(processedTxns.has(txn.id))continue;
-
 const twoHoursAgo = now - (2*60*60*1000);
 if(txn.timestamp <= twoHoursAgo)continue;
 if(txn.assetId!==AMINA_ID || txn.receiver!==CASINO_ADDR)continue;
 
 const amount = Math.ceil((txn.amount/100000000) * 100000000) / 100000000;
 
+// API CALL TO ADD CREDITS
 const success = await addCreditsViaAPI(txn.sender, amount, txn.id);
 if(success){
 creditedAmounts.push({amount,wallet:txn.sender,txnId:txn.id});
