@@ -1384,16 +1384,20 @@ if(accounts&&accounts.length>0){
 this.wallet=accounts[0];
 this.saveWallet();
 this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
+this.casinoCredits=this.getCasinoCredits(); // Force reload casino credits
 this.updateWalletUI();
 this.updateCashierDisplay();
-console.log('🔄 Wallet auto-reconnected with balance');
+this.updateDisplay();
+console.log('🔄 Wallet auto-reconnected with balance and credits');
 }
 }catch(error){
 if(this.wallet){
 this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
+this.casinoCredits=this.getCasinoCredits(); // Force reload casino credits  
 this.updateWalletUI();
 this.updateCashierDisplay();
-console.log('🔄 Manual wallet mode - balance loaded');
+this.updateDisplay();
+console.log('🔄 Manual wallet mode - balance and credits loaded');
 }
 }
 }
