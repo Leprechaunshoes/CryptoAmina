@@ -1,18 +1,35 @@
-// monitor-deposits.js - API CALLS FIXED
+// monitor-deposits.js - SESSION BASED
 const algosdk=require('algosdk');
 
 const AMINA_ID=1107424865;
 const CASINO_ADDR=process.env.CASINO_ADDRESS||'UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCFN7PAVCT2H4G4JEZKJK6W7UG44';
 
-async function addCreditsViaAPI(wallet, amount, txnId) {
+async function callSessionManager(action, data) {
   try {
-    const response = await fetch('https://cryptoamina.netlify.app/.netlify/functions/casino-credits', {
+    const response = await fetch('https://cryptoamina.netlify.app/.netlify/functions/session-manager', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({action: 'add_credits', wallet: wallet, amount: amount, txnId: txnId})
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, ...data })
     });
-    const result = await response.json();
-    return result.success;
+    return await response.json();
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async function addCreditsToWallet(wallet, amount, txnId) {
+  try {
+    // Create or get session for wallet
+    const sessionResult = await callSessionManager('create_session', { wallet });
+    if (!sessionResult.success) return false;
+
+    // Add credits to session
+    const addResult = await callSessionManager('add_credits', { 
+      token: sessionResult.token, 
+      amount: amount 
+    });
+    
+    return addResult.success;
   } catch (error) {
     return false;
   }
@@ -40,8 +57,7 @@ if(txn.assetId!==AMINA_ID || txn.receiver!==CASINO_ADDR)continue;
 
 const amount = Math.ceil((txn.amount/100000000) * 100000000) / 100000000;
 
-// API CALL TO ADD CREDITS
-const success = await addCreditsViaAPI(txn.sender, amount, txn.id);
+const success = await addCreditsToWallet(txn.sender, amount, txn.id);
 if(success){
 creditedAmounts.push({amount,wallet:txn.sender,txnId:txn.id});
 processed++;
