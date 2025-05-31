@@ -436,6 +436,13 @@ return;
 // === CASHIER SYSTEM ===
 initCashier(){
 this.updateCashierDisplay();
+// Fetch real wallet balance when cashier loads
+if(this.wallet){
+this.fetchAminaBalance(this.wallet).then(balance => {
+this.balance.AMINA = balance;
+this.updateCashierDisplay();
+});
+}
 $('depositBtn').onclick=()=>this.depositAmina();
 $('withdrawBtn').onclick=()=>this.withdrawAmina();
 this.updateTransactionList();
