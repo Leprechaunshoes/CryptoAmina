@@ -506,47 +506,24 @@ this.notify('❌ Insufficient casino credits');
 return;
 }
 
-this.notify('🔄 Processing withdrawal...');
+this.notify('🔄 Processing automated withdrawal...');
 
 try{
-// Create Algorand transaction
-const suggestedParams=await fetch('https://mainnet-api.algonode.cloud/v2/transactions/params').then(r=>r.json());
-const amountMicroAlgos=Math.floor(amount*100000000); // Convert to micro units
-
-const txn={
-type:'axfer',
-from:this.casinoWallet,
-to:this.wallet,
-assetIndex:this.aminaId,
-amount:amountMicroAlgos,
-fee:1000,
-firstRound:suggestedParams.lastRound,
-lastRound:suggestedParams.lastRound+1000,
-genesisHash:suggestedParams.genesisHash,
-genesisID:suggestedParams.genesisID
-};
-
-// For manual wallet mode, show transaction details
-if(!this.peraWallet){
-this.showManualWithdrawalModal({
-amount:amount,
-to:this.wallet,
-from:this.casinoWallet,
-assetId:this.aminaId
-});
-return;
-}
-
-// Use Pera Wallet for signing
-const signedTxn=await this.peraWallet.signTransaction([txn]);
-const response=await fetch('https://mainnet-api.algonode.cloud/v2/transactions',{
+// Call automated withdrawal backend
+const response=await fetch('/.netlify/functions/casino-withdraw',{
 method:'POST',
-headers:{'Content-Type':'application/x-binary'},
-body:signedTxn[0]
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+amount:amount,
+toAddress:this.wallet,
+wallet:this.wallet
+})
 });
 
-if(response.ok){
-// Only deduct credits after successful transaction
+const result=await response.json();
+
+if(result.success){
+// Withdrawal successful - deduct credits
 const success=await this.updateServerCredits('deduct_credits',amount);
 if(!success){
 this.casinoCredits-=amount;
@@ -555,67 +532,25 @@ this.updateCashierDisplay();
 }
 
 this.addTransaction('withdrawal',amount);
-this.notify(`✅ Withdrawal complete! ${amount.toFixed(8)} AMINA sent to your wallet`);
+this.notify(`✅ Withdrawal complete! ${amount.toFixed(8)} AMINA sent! TX: ${result.txId.slice(0,8)}...`);
 $('withdrawAmount').value='';
+
 }else{
-this.notify('❌ Withdrawal failed - try again');
+// Withdrawal failed
+if(result.refund){
+this.notify(`❌ ${result.error} - Credits remain in account`);
+}else{
+this.notify(`❌ ${result.error}`);
+}
 }
 
 }catch(error){
-console.error('Withdrawal error:',error);
-if(error.message?.includes('cancelled')||error.type===4001){
-this.notify('❌ Withdrawal cancelled');
-}else{
-this.notify('❌ Withdrawal failed - check connection');
-}
+console.error('Withdrawal request failed:',error);
+this.notify('❌ Network error - please try again');
 }
 }
 
-showManualWithdrawalModal(txnData){
-const modal=document.createElement('div');
-modal.id='withdrawModal';
-modal.style.cssText='position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:10000;padding:5px;box-sizing:border-box';
-modal.innerHTML=`
-<div style="background:#1a2332;border-radius:10px;padding:12px;width:95%;max-width:350px;max-height:85vh;overflow-y:auto;border:2px solid #ffd700;color:white;font-family:JetBrains Mono,monospace;font-size:11px">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-<h3 style="margin:0;color:#ffd700;font-size:14px">💸 Manual Withdrawal</h3>
-<button onclick="casino.closeWithdrawModal()" style="background:none;border:none;color:#ffd700;font-size:18px;cursor:pointer">&times;</button>
-</div>
-<div style="background:#2a3441;padding:8px;border-radius:6px;margin-bottom:12px;font-size:10px">
-<div><strong>Amount:</strong> ${txnData.amount} AMINA</div>
-<div><strong>From:</strong> Casino</div>
-<div><strong>To:</strong> Your Wallet</div>
-<div><strong>Asset:</strong> ${txnData.assetId}</div>
-</div>
-<div style="margin-bottom:12px">
-<h4 style="color:#ffd700;font-size:12px;margin:8px 0 4px">⚠️ Manual Process Required</h4>
-<p style="font-size:10px;margin:4px 0">Casino will send <strong>${txnData.amount} AMINA</strong> manually to your wallet. This may take a few minutes.</p>
-</div>
-<div style="display:flex;gap:8px;margin-top:10px">
-<button onclick="casino.completeWithdrawal(${txnData.amount})" style="background:#28a745;color:white;border:none;padding:8px 10px;border-radius:4px;cursor:pointer;font-size:10px;flex:1">✅ Confirm</button>
-<button onclick="casino.closeWithdrawModal()" style="background:#dc3545;color:white;border:none;padding:8px 10px;border-radius:4px;cursor:pointer;font-size:10px;flex:1">❌ Cancel</button>
-</div>
-</div>`;
-document.body.appendChild(modal);
-}
 
-closeWithdrawModal(){
-const modal=document.getElementById('withdrawModal');
-if(modal)modal.remove();
-}
-
-async completeWithdrawal(amount){
-this.closeWithdrawModal();
-const success=await this.updateServerCredits('deduct_credits',amount);
-if(!success){
-this.casinoCredits-=amount;
-this.updateDisplay();
-this.updateCashierDisplay();
-}
-this.addTransaction('withdrawal',amount);
-this.notify(`💸 Withdrawal confirmed! ${amount.toFixed(8)} AMINA will be sent manually`);
-$('withdrawAmount').value='';
-}
 
 addTransaction(type,amount){
 const transactions=JSON.parse(localStorage.getItem('transactions')||'[]');
