@@ -289,6 +289,7 @@ if(bets.includes(curr))sel.value=curr;
 
 updateDisplay(){
 if(this.currency==='AMINA'){
+this.casinoCredits=this.getCasinoCredits(); // Force reload like cashier does
 const bal=this.casinoCredits||0;
 $('balanceAmount').textContent=bal.toFixed(8);
 }else{
