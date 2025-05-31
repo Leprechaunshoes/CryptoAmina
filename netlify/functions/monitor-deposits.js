@@ -1,4 +1,4 @@
-// monitor-deposits.js - FIXED
+// monitor-deposits.js - TIME WINDOW FIX
 const algosdk=require('algosdk');
 const fs = require('fs').promises;
 
@@ -10,7 +10,8 @@ const CASINO_ADDR=process.env.CASINO_ADDRESS||'UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCF
 const CREDITS_FILE = '/tmp/casino_credits.json';
 const PROCESSED_TXN_FILE = '/tmp/processed_transactions.json';
 
-let lastCheck=Date.now()-600000;
+// EXTENDED TIME WINDOW - Look back 2 hours instead of 10 minutes
+let lastCheck=Date.now()-(2*60*60*1000); // 2 hours ago
 
 // LOAD/SAVE CREDITS (same as casino-credits.js)
 async function loadCredits() {
@@ -69,14 +70,35 @@ const credits = await loadCredits();
 let processed=0;
 let creditedAmounts=[];
 
+console.log(`🔍 Scanning ${txns.length} transactions, processed set has ${processedTxns.size} entries`);
+
 for(const txn of txns){
-if(processedTxns.has(txn.id))continue;
-if(txn.timestamp<=lastCheck)continue;
-if(txn.assetId!==AMINA_ID)continue;
-if(txn.receiver!==CASINO_ADDR)continue;
+if(processedTxns.has(txn.id)){
+console.log(`⏭️ Skipping already processed: ${txn.id.slice(0,8)}...`);
+continue;
+}
+
+// EXTENDED TIME CHECK - Look back 2 hours instead of lastCheck
+const twoHoursAgo = now - (2*60*60*1000);
+if(txn.timestamp <= twoHoursAgo){
+console.log(`⏰ Skipping old transaction: ${txn.id.slice(0,8)}... (${new Date(txn.timestamp).toISOString()})`);
+continue;
+}
+
+if(txn.assetId!==AMINA_ID){
+console.log(`💎 Skipping non-AMINA asset: ${txn.assetId}`);
+continue;
+}
+
+if(txn.receiver!==CASINO_ADDR){
+console.log(`📍 Skipping wrong receiver: ${txn.receiver.slice(0,8)}...`);
+continue;
+}
 
 // Round UP to be generous
 const amount = Math.ceil((txn.amount/100000000) * 100000000) / 100000000;
+
+console.log(`💰 PROCESSING: ${amount} AMINA from ${txn.sender.slice(0,8)}... - TX: ${txn.id.slice(0,8)}...`);
 
 // ADD CREDITS TO USER ACCOUNT
 const currentBalance = credits[txn.sender] || 0;
@@ -88,7 +110,7 @@ processedTxns.add(txn.id);
 creditedAmounts.push({amount,wallet:txn.sender,txnId:txn.id});
 processed++;
 
-console.log(`✅ CREDITED: ${amount} AMINA to ${txn.sender.slice(0,8)}... - TX: ${txn.id.slice(0,8)}...`);
+console.log(`✅ CREDITED: ${amount} AMINA to ${txn.sender.slice(0,8)}... - New balance: ${credits[txn.sender]}`);
 }
 
 // SAVE UPDATED DATA
@@ -105,6 +127,8 @@ success:true,
 processed,
 credits:creditedAmounts,
 lastCheck:new Date(lastCheck).toISOString(),
+totalTransactionsScanned: txns.length,
+processedSetSize: processedTxns.size,
 message:processed>0?`Credited ${processed} deposits`:'No new deposits'
 })
 };
@@ -122,7 +146,7 @@ body:JSON.stringify({success:false,error:error.message})
 async function scanWalletTransactions(){
 try{
 const params={
-limit:50,
+limit:100, // Increased from 50 to 100
 'asset-id':AMINA_ID,
 'tx-type':'axfer'
 };
@@ -131,6 +155,13 @@ const txnResponse=await fetch(
 `https://mainnet-idx.algonode.cloud/v2/accounts/${CASINO_ADDR}/transactions?${new URLSearchParams(params)}`
 );
 const data=await txnResponse.json();
+
+if(!data.transactions) {
+console.log('❌ No transactions found in API response');
+return [];
+}
+
+console.log(`📊 API returned ${data.transactions.length} transactions`);
 
 return data.transactions
 .filter(tx=>tx['asset-transfer-transaction']&&tx['asset-transfer-transaction'].receiver===CASINO_ADDR)
