@@ -62,19 +62,33 @@ localStorage.removeItem('connected_wallet');
 }
 
 getCasinoCredits(){
-let stored=localStorage.getItem('casino_credits');
-if(!stored||stored==='null'||stored==='undefined'){
-stored=localStorage.getItem('casino_credits_backup');
+// Server-side storage - will be loaded async
+return 0;
 }
-const credits=stored?parseFloat(stored):0;
-return isNaN(credits)?0:credits;
+
+async loadCasinoCredits(){
+if(!this.wallet)return 0;
+try{
+const response=await fetch('/.netlify/functions/casino-credits',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({action:'get_balance',wallet:this.wallet})
+});
+const result=await response.json();
+if(result.success){
+this.casinoCredits=result.balance;
+this.updateDisplay();
+this.updateCashierDisplay();
+return result.balance;
+}
+}catch(error){
+console.error('Failed to load casino credits:',error);
+}
+return 0;
 }
 
 saveCasinoCredits(){
-const credits=this.casinoCredits.toString();
-localStorage.setItem('casino_credits',credits);
-localStorage.setItem('casino_credits_backup',credits);
-localStorage.setItem('casino_credits_timestamp',Date.now().toString());
+// Server-side storage - no local saving needed
 }
 
 async fetchAminaBalance(wallet){
@@ -242,7 +256,7 @@ const btn=$('walletBtn');
 btn.innerHTML=this.wallet?'🔓 '+this.wallet.slice(0,4)+'...'+this.wallet.slice(-4):'🔗 Connect Wallet';
 }
 
-async toggleCurrency(){
+toggleCurrency(){
 if(this.currency==='HC'&&!this.wallet){
 this.notify('🔗 Connect wallet for AMINA!');
 return;
@@ -261,6 +275,8 @@ await this.refreshAminaBalance();
 this.currency='AMINA';
 toggle.classList.add('amina');
 text.textContent='AMINA';
+// Force reload credits when switching to AMINA
+this.casinoCredits=this.getCasinoCredits();
 }else{
 this.currency='HC';
 toggle.classList.remove('amina');
@@ -268,6 +284,8 @@ text.textContent='HC';
 }
 this.updateBets();
 this.updateDisplay();
+// Force another update after 500ms
+setTimeout(()=>this.updateDisplay(),500);
 }
 
 updateBets(){
@@ -305,14 +323,25 @@ if(el)el.textContent=this.currency;
 
 async deductBalance(amt){
 if(this.currency==='AMINA'){
-if(this.casinoCredits<amt){
+try{
+const response=await fetch('/.netlify/functions/casino-credits',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({action:'deduct_credits',wallet:this.wallet,amount:amt})
+});
+const result=await response.json();
+if(result.success){
+this.casinoCredits=result.newBalance;
+this.updateDisplay();
+return 1;
+}else{
 this.notify('❌ Insufficient credits! Visit Cashier to deposit.');
 return 0;
 }
-this.casinoCredits-=amt;
-this.saveCasinoCredits();
-this.updateDisplay();
-return 1;
+}catch(error){
+this.notify('❌ Connection error. Try again.');
+return 0;
+}
 }else{
 if(this.balance.HC<amt){
 this.notify('Insufficient balance!');
@@ -327,9 +356,21 @@ return 1;
 
 async addBalance(amt){
 if(this.currency==='AMINA'){
-this.casinoCredits+=amt*0.99; // 1% rake - sustainable empire building!
-this.saveCasinoCredits();
+const winAmount=amt*0.99; // 1% rake
+try{
+const response=await fetch('/.netlify/functions/casino-credits',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({action:'add_credits',wallet:this.wallet,amount:winAmount})
+});
+const result=await response.json();
+if(result.success){
+this.casinoCredits=result.newBalance;
 this.updateDisplay();
+}
+}catch(error){
+console.error('Error adding balance:',error);
+}
 }else{
 this.balance.HC+=amt;
 this.saveHCBalance();
@@ -682,16 +723,21 @@ const response=await fetch('/.netlify/functions/monitor-deposits');
 const result=await response.json();
 if(result.success&&result.credits&&result.credits.length>0){
 let totalCredited=0;
-result.credits.forEach(credit=>{
+for(const credit of result.credits){
 if(credit.wallet===this.wallet){
-this.casinoCredits+=credit.amount;
+// Add credits to server-side storage
+await fetch('/.netlify/functions/casino-credits',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({action:'add_credits',wallet:this.wallet,amount:credit.amount})
+});
 totalCredited+=credit.amount;
 this.addTransaction('deposit',credit.amount);
 }
-});
+}
 
 if(totalCredited>0){
-this.saveCasinoCredits();
+await this.loadCasinoCredits(); // Reload from server
 this.updateCashierDisplay();
 this.updateDisplay();
 this.notify(`💰 Deposit confirmed! ${totalCredited.toFixed(8)} AMINA credited!`);
@@ -1397,7 +1443,7 @@ if(accounts&&accounts.length>0){
 this.wallet=accounts[0];
 this.saveWallet();
 this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
-this.casinoCredits=this.getCasinoCredits(); // Force reload casino credits
+await this.loadCasinoCredits(); // Load from server
 this.updateWalletUI();
 this.updateCashierDisplay();
 this.updateDisplay();
@@ -1406,7 +1452,7 @@ console.log('🔄 Wallet auto-reconnected with balance and credits');
 }catch(error){
 if(this.wallet){
 this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
-this.casinoCredits=this.getCasinoCredits(); // Force reload casino credits  
+await this.loadCasinoCredits(); // Load from server
 this.updateWalletUI();
 this.updateCashierDisplay();
 this.updateDisplay();
