@@ -24,6 +24,12 @@ if(this.wallet){
 this.autoReconnectWallet();
 this.updateWalletUI();
 }
+// Force update displays after everything loads
+setTimeout(()=>{
+this.casinoCredits=this.getCasinoCredits();
+this.updateDisplay();
+this.updateCashierDisplay();
+},1000);
 }
 
 getHCBalance(){
@@ -56,12 +62,19 @@ localStorage.removeItem('connected_wallet');
 }
 
 getCasinoCredits(){
-const stored=localStorage.getItem('casino_credits');
-return stored?parseFloat(stored):0;
+let stored=localStorage.getItem('casino_credits');
+if(!stored||stored==='null'||stored==='undefined'){
+stored=localStorage.getItem('casino_credits_backup');
+}
+const credits=stored?parseFloat(stored):0;
+return isNaN(credits)?0:credits;
 }
 
 saveCasinoCredits(){
-localStorage.setItem('casino_credits',this.casinoCredits.toString());
+const credits=this.casinoCredits.toString();
+localStorage.setItem('casino_credits',credits);
+localStorage.setItem('casino_credits_backup',credits);
+localStorage.setItem('casino_credits_timestamp',Date.now().toString());
 }
 
 async fetchAminaBalance(wallet){
@@ -403,7 +416,6 @@ this.updateCashierDisplay();
 $('depositBtn').onclick=()=>this.depositAmina();
 $('withdrawBtn').onclick=()=>this.withdrawAmina();
 this.updateTransactionList();
-console.log('🏦 Cashier initialized. Current balances:',{AMINA:this.balance.AMINA,Credits:this.casinoCredits});
 }
 
 updateCashierDisplay(){
@@ -640,6 +652,72 @@ list.innerHTML=transactions.map(tx=>`
 <div class="tx-time">${new Date(tx.timestamp).toLocaleTimeString()}</div>
 </div>
 `).join('');
+}
+
+addPendingDeposit(amount){
+const pending=JSON.parse(localStorage.getItem('pending_deposits')||'[]');
+const newDeposit={
+id:Date.now(),
+amount:amount,
+wallet:this.wallet,
+timestamp:new Date().toISOString(),
+status:'pending'
+};
+pending.push(newDeposit);
+localStorage.setItem('pending_deposits',JSON.stringify(pending));
+this.updatePendingStatus();
+}
+
+startDepositMonitoring(){
+if(this.monitoringActive)return;
+this.monitoringActive=true;
+this.monitorInterval=setInterval(()=>this.checkDepositStatus(),30000);
+this.checkDepositStatus();
+}
+
+async checkDepositStatus(){
+try{
+const response=await fetch('/.netlify/functions/monitor-deposits');
+const result=await response.json();
+if(result.success&&result.credits&&result.credits.length>0){
+let totalCredited=0;
+result.credits.forEach(credit=>{
+if(credit.wallet===this.wallet){
+this.casinoCredits+=credit.amount;
+totalCredited+=credit.amount;
+this.addTransaction('deposit',credit.amount);
+}
+});
+
+if(totalCredited>0){
+this.saveCasinoCredits();
+this.updateCashierDisplay();
+this.updateDisplay();
+this.notify(`💰 Deposit confirmed! ${totalCredited.toFixed(8)} AMINA credited!`);
+}
+}
+}catch(error){
+console.log('Monitor check failed:',error);
+}
+}
+
+async refreshUserBalances(){
+if(this.wallet){
+this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
+}
+this.casinoCredits=this.getCasinoCredits();
+this.updateCashierDisplay();
+this.updateDisplay();
+this.updatePendingStatus();
+}
+
+updatePendingStatus(){
+const pending=JSON.parse(localStorage.getItem('pending_deposits')||'[]');
+const activePending=pending.filter(p=>p.status==='pending'&&Date.now()-new Date(p.timestamp).getTime()<1800000);
+if(activePending.length===0&&this.monitoringActive){
+clearInterval(this.monitorInterval);
+this.monitoringActive=false;
+}
 }
 
 // === COSMIC CHAOS SLOTS ===
@@ -1277,8 +1355,8 @@ addBackendTestButton(){
 adminCreditUser(amount){
 this.casinoCredits+=amount;
 this.saveCasinoCredits();
-this.updateDisplay();
 this.updateCashierDisplay();
+this.updateDisplay();
 this.addTransaction('deposit',amount);
 this.notify(`🛠️ Admin credited ${amount} AMINA`);
 setTimeout(()=>this.forceUpdateCashier(),200);
@@ -1290,72 +1368,6 @@ console.log('Casino Credits:',this.casinoCredits);
 console.log('Wallet Balance:',this.balance.AMINA);
 console.log('Stored Credits:',localStorage.getItem('casino_credits'));
 console.log('Stored Wallet:',localStorage.getItem('connected_wallet'));
-}
-
-addPendingDeposit(amount){
-const pending=JSON.parse(localStorage.getItem('pending_deposits')||'[]');
-const newDeposit={
-id:Date.now(),
-amount:amount,
-wallet:this.wallet,
-timestamp:new Date().toISOString(),
-status:'pending'
-};
-pending.push(newDeposit);
-localStorage.setItem('pending_deposits',JSON.stringify(pending));
-this.updatePendingStatus();
-}
-
-startDepositMonitoring(){
-if(this.monitoringActive)return;
-this.monitoringActive=true;
-this.monitorInterval=setInterval(()=>this.checkDepositStatus(),30000);
-this.checkDepositStatus();
-}
-
-async checkDepositStatus(){
-try{
-const response=await fetch('/.netlify/functions/monitor-deposits');
-const result=await response.json();
-if(result.success&&result.credits&&result.credits.length>0){
-let totalCredited=0;
-result.credits.forEach(credit=>{
-if(credit.wallet===this.wallet){
-this.casinoCredits+=credit.amount;
-totalCredited+=credit.amount;
-this.addTransaction('deposit',credit.amount);
-}
-});
-
-if(totalCredited>0){
-this.saveCasinoCredits();
-this.updateCashierDisplay();
-this.updateDisplay();
-this.notify(`💰 Deposit confirmed! ${totalCredited.toFixed(8)} AMINA credited!`);
-}
-}
-}catch(error){
-console.log('Monitor check failed:',error);
-}
-}
-
-async refreshUserBalances(){
-if(this.wallet){
-this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
-}
-this.casinoCredits=this.getCasinoCredits();
-this.updateCashierDisplay();
-this.updateDisplay();
-this.updatePendingStatus();
-}
-
-updatePendingStatus(){
-const pending=JSON.parse(localStorage.getItem('pending_deposits')||'[]');
-const activePending=pending.filter(p=>p.status==='pending'&&Date.now()-new Date(p.timestamp).getTime()<1800000);
-if(activePending.length===0&&this.monitoringActive){
-clearInterval(this.monitorInterval);
-this.monitoringActive=false;
-}
 }
 
 adminViewPending(){
@@ -1432,7 +1444,7 @@ function closeDonationModal(){$('donationModal').style.display='none'}
 function copyDonationAddress(){
 const input=$('donationWallet');
 input.select();
-document.execComponent('copy');
+document.execCommand('copy');
 alert('Address copied! 🚀');
 }
 
