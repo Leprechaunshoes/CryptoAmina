@@ -4,6 +4,7 @@ constructor(){
 this.balance={HC:this.getHCBalance(),AMINA:0};
 this.currency='HC';
 this.wallet=this.getStoredWallet();
+this.sessionToken=this.getStoredToken();
 this.peraWallet=null;
 this.aminaId=1107424865;
 this.casinoWallet='UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCFN7PAVCT2H4G4JEZKJK6W7UG44';
@@ -40,9 +41,19 @@ const today=new Date().toDateString();
 localStorage.setItem('hc_data',JSON.stringify({date:today,balance:this.balance.HC}));
 }
 
-getStoredWallet(){
-const stored=localStorage.getItem('connected_wallet');
-return stored?JSON.parse(stored):null;
+getStoredToken(){
+const stored=localStorage.getItem('session_token');
+return stored||null;
+}
+
+saveToken(token){
+localStorage.setItem('session_token',token);
+this.sessionToken=token;
+}
+
+clearToken(){
+localStorage.removeItem('session_token');
+this.sessionToken=null;
 }
 
 saveWallet(){
@@ -53,32 +64,46 @@ clearWallet(){
 localStorage.removeItem('connected_wallet');
 }
 
+getStoredWallet(){
+const stored=localStorage.getItem('connected_wallet');
+return stored?JSON.parse(stored):null;
+}
+
 async syncCreditsFromServer(){
-if(!this.wallet)return;
+if(!this.wallet&&!this.sessionToken)return;
 try{
+let body;
+if(this.sessionToken){
+body={action:'get_balance',token:this.sessionToken};
+}else{
+body={action:'get_balance',wallet:this.wallet};
+}
 const response=await fetch('/.netlify/functions/casino-credits',{
 method:'POST',
 headers:{'Content-Type':'application/json'},
-body:JSON.stringify({action:'get_balance',wallet:this.wallet})
+body:JSON.stringify(body)
 });
 const result=await response.json();
 if(result.success){
 this.casinoCredits=result.balance||0;
+if(result.token&&!this.sessionToken){
+this.saveToken(result.token);
+}
 this.updateDisplay();
 this.updateCashierDisplay();
 }
 }catch(error){
-console.log('Sync failed, using local fallback');
+console.log('Sync failed');
 }
 }
 
 async updateServerCredits(action,amount){
-if(!this.wallet)return false;
+if(!this.sessionToken)return false;
 try{
 const response=await fetch('/.netlify/functions/casino-credits',{
 method:'POST',
 headers:{'Content-Type':'application/json'},
-body:JSON.stringify({action:action,wallet:this.wallet,amount:amount})
+body:JSON.stringify({action:action,token:this.sessionToken,amount:amount})
 });
 const result=await response.json();
 if(result.success){
@@ -201,6 +226,7 @@ console.log('Disconnect error (non-critical):',disconnectError);
 this.wallet=null;
 this.balance.AMINA=0;
 this.clearWallet();
+this.clearToken();
 if(this.currency==='AMINA')this.toggleCurrency();
 this.updateWalletUI();
 this.notify('🔓 Wallet disconnected');
