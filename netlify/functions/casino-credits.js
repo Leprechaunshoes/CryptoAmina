@@ -1,72 +1,8 @@
-// casino-credits.js - PERSISTENT STORAGE FINAL
-const STORAGE_URL = 'https://api.github.com/gists/f1e2d3c4b5a6789012345678901234567890abcd';
-const GITHUB_TOKEN = 'ghp_1234567890abcdef1234567890abcdef12345678';
+// casino-credits.js - SIMPLE STORAGE FIX
+// Using simple in-memory storage that persists during function lifetime
 
-async function loadCredits() {
-  try {
-    const response = await fetch(`${STORAGE_URL}`, {
-      headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
-    });
-    const gist = await response.json();
-    const content = gist.files['credits.json'].content;
-    return JSON.parse(content);
-  } catch (error) {
-    return {};
-  }
-}
-
-async function saveCredits(credits) {
-  try {
-    await fetch(STORAGE_URL, {
-      method: 'PATCH',
-      headers: {
-        'Authorization': `token ${GITHUB_TOKEN}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        files: {
-          'credits.json': { content: JSON.stringify(credits) }
-        }
-      })
-    });
-    return true;
-  } catch (error) {
-    return false;
-  }
-}
-
-async function loadProcessedTxns() {
-  try {
-    const response = await fetch(`${STORAGE_URL}`, {
-      headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
-    });
-    const gist = await response.json();
-    const content = gist.files['processed.json'].content;
-    return new Set(JSON.parse(content));
-  } catch (error) {
-    return new Set();
-  }
-}
-
-async function saveProcessedTxns(txnSet) {
-  try {
-    await fetch(STORAGE_URL, {
-      method: 'PATCH',
-      headers: {
-        'Authorization': `token ${GITHUB_TOKEN}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        files: {
-          'processed.json': { content: JSON.stringify([...txnSet]) }
-        }
-      })
-    });
-    return true;
-  } catch (error) {
-    return false;
-  }
-}
+let globalCredits = {};
+let globalProcessedTxns = new Set();
 
 exports.handler = async (event, context) => {
   if (event.httpMethod === 'OPTIONS') {
@@ -100,13 +36,11 @@ exports.handler = async (event, context) => {
       };
     }
 
-    const credits = await loadCredits();
-    const processedTxns = await loadProcessedTxns();
     let response = {};
 
     switch (action) {
       case 'get_balance':
-        const balance = credits[wallet] || 0;
+        const balance = globalCredits[wallet] || 0;
         response = {
           success: true,
           wallet: wallet,
@@ -124,7 +58,8 @@ exports.handler = async (event, context) => {
           };
         }
 
-        if (txnId && processedTxns.has(txnId)) {
+        // Check if transaction already processed (only for deposits with txnId)
+        if (txnId && globalProcessedTxns.has(txnId)) {
           return {
             statusCode: 400,
             headers: { 'Access-Control-Allow-Origin': '*' },
@@ -132,16 +67,16 @@ exports.handler = async (event, context) => {
           };
         }
         
-        const currentBalance = credits[wallet] || 0;
+        const currentBalance = globalCredits[wallet] || 0;
         const newBalance = currentBalance + amount;
-        credits[wallet] = newBalance;
+        globalCredits[wallet] = newBalance;
         
+        // Mark transaction as processed only if txnId provided (deposits)
         if (txnId) {
-          processedTxns.add(txnId);
-          await saveProcessedTxns(processedTxns);
+          globalProcessedTxns.add(txnId);
         }
         
-        await saveCredits(credits);
+        console.log(`✅ ADDED ${amount} to ${wallet.slice(0,8)}... - New balance: ${newBalance}`);
         
         response = {
           success: true,
@@ -163,7 +98,7 @@ exports.handler = async (event, context) => {
           };
         }
 
-        const walletBalance = credits[wallet] || 0;
+        const walletBalance = globalCredits[wallet] || 0;
         if (walletBalance < amount) {
           return {
             statusCode: 400,
@@ -177,8 +112,7 @@ exports.handler = async (event, context) => {
         }
 
         const updatedBalance = walletBalance - amount;
-        credits[wallet] = updatedBalance;
-        await saveCredits(credits);
+        globalCredits[wallet] = updatedBalance;
         
         response = {
           success: true,
@@ -190,6 +124,35 @@ exports.handler = async (event, context) => {
         };
         break;
 
+      case 'set_balance':
+        if (amount === undefined || amount < 0) {
+          return {
+            statusCode: 400,
+            headers: { 'Access-Control-Allow-Origin': '*' },
+            body: JSON.stringify({ success: false, error: 'Invalid balance amount' })
+          };
+        }
+
+        globalCredits[wallet] = amount;
+        
+        response = {
+          success: true,
+          wallet: wallet,
+          balance: amount,
+          message: `Set casino credits to ${amount.toFixed(8)} AMINA`
+        };
+        break;
+
+      case 'debug_info':
+        response = {
+          success: true,
+          totalWallets: Object.keys(globalCredits).length,
+          totalProcessedTxns: globalProcessedTxns.size,
+          allBalances: globalCredits,
+          processedTxnsList: [...globalProcessedTxns].slice(-10) // Last 10 txns
+        };
+        break;
+
       default:
         return {
           statusCode: 400,
@@ -197,7 +160,7 @@ exports.handler = async (event, context) => {
           body: JSON.stringify({ 
             success: false, 
             error: 'Invalid action',
-            supportedActions: ['get_balance', 'add_credits', 'deduct_credits']
+            supportedActions: ['get_balance', 'add_credits', 'deduct_credits', 'set_balance', 'debug_info']
           })
         };
     }
@@ -212,12 +175,14 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
+    console.error('Casino credits error:', error);
     return {
       statusCode: 500,
       headers: { 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({ 
         success: false, 
-        error: 'Internal server error'
+        error: 'Internal server error',
+        timestamp: new Date().toISOString()
       })
     };
   }
