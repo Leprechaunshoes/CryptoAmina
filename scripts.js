@@ -346,11 +346,8 @@ return 1;
 
 async addBalance(amt){
 if(this.currency==='AMINA'){
-const success=await this.updateServerCredits('add_credits',amt*0.99);
-if(!success){
-this.casinoCredits+=amt*0.99;
+// DO NOTHING - only monitor can add AMINA credits
 this.updateDisplay();
-}
 }else{
 this.balance.HC+=amt;
 this.saveHCBalance();
@@ -481,61 +478,53 @@ this.notify('❌ Wallet required for deposits');
 return;
 }
 
-this.notify('🔍 Verifying on blockchain...');
-this.syncCreditsFromServer();
+this.notify('🔍 Checking for your transaction...');
 
+// TRIGGER MONITOR TO CHECK FOR DEPOSITS
 try{
-const verified=await this.verifyBlockchainDeposit(amount);
-if(verified){
-const success=await this.updateServerCredits('add_credits',amount);
-if(!success){
-this.casinoCredits+=amount;
-this.updateDisplay();
-this.updateCashierDisplay();
-}
-this.addTransaction('deposit',amount);
-this.notify(`✅ Deposit verified! ${amount.toFixed(8)} AMINA credited!`);
-}else{
-this.notify('❌ No matching deposit found - send AMINA first!');
-}
+await fetch('/.netlify/functions/monitor-deposits',{
+method:'POST',
+headers:{'Content-Type':'application/json'}
+});
 }catch(error){
-this.notify('❌ Verification failed - contact support if you sent AMINA');
+console.log('Monitor call failed, continuing...');
 }
+
+// START POLLING FOR CREDITS
+this.startDepositPolling(amount);
 }
 
-async verifyBlockchainDeposit(expectedAmount){
-try{
-this.syncCreditsFromServer();
+startDepositPolling(expectedAmount){
+let attempts = 0;
+const maxAttempts = 20; // 2 minutes max
+const pollInterval = 6000; // Every 6 seconds
 
-const response=await fetch(`https://mainnet-idx.algonode.cloud/v2/accounts/${this.casinoWallet}/transactions?limit=200&asset-id=${this.aminaId}`);
-const data=await response.json();
+const poll = async () => {
+attempts++;
 
-if(!data.transactions)return false;
+// REFRESH BALANCE FROM SERVER
+await this.syncCreditsFromServer();
 
-const fifteenMinutesAgo=Date.now()-(15*60*1000);
-const expectedMicro=Math.floor(expectedAmount*100000000);
+this.notify(`🔍 Checking... (${attempts}/${maxAttempts})`);
 
-for(const tx of data.transactions){
-if(tx['round-time']*1000<fifteenMinutesAgo)continue;
-
-if(tx['tx-type']==='axfer'&&
-   tx['asset-transfer-transaction']?.['receiver']===this.casinoWallet&&
-   tx['asset-transfer-transaction']?.['sender']===this.wallet&&
-   tx['asset-transfer-transaction']?.['asset-id']===this.aminaId){
-
-const txAmount=tx['asset-transfer-transaction']['amount'];
-if(Math.abs(txAmount-expectedMicro)<=50000){
-this.notify(`🎯 Transaction found: ${tx.id.slice(0,8)}...`);
-return true;
+// CHECK IF WE HAVE ENOUGH NEW CREDITS
+if(this.casinoCredits >= expectedAmount){
+this.notify(`✅ Deposit confirmed! ${expectedAmount.toFixed(8)} AMINA credited!`);
+this.addTransaction('deposit', expectedAmount);
+$('depositAmount').value = '';
+return;
 }
-}
-}
-return false;
 
-}catch(error){
-this.syncCreditsFromServer();
-return false;
+if(attempts >= maxAttempts){
+this.notify('⏰ Deposit check timed out. If you sent AMINA, it may take a few more minutes to process.');
+return;
 }
+
+// CONTINUE POLLING
+setTimeout(poll, pollInterval);
+};
+
+poll();
 }
 
 async withdrawAmina(){
