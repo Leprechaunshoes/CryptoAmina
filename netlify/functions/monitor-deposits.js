@@ -1,13 +1,56 @@
-// AMINA CASINO - REAL TRANSACTION MONITORING WITH CREDITING
+// monitor-deposits.js - FIXED
 const algosdk=require('algosdk');
+const fs = require('fs').promises;
+
 const client=new algosdk.Algodv2('','https://mainnet-api.algonode.cloud','');
 const AMINA_ID=1107424865;
 const CASINO_ADDR=process.env.CASINO_ADDRESS||'UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCFN7PAVCT2H4G4JEZKJK6W7UG44';
-const TOLERANCE=0.00000001;
-const EXPIRE_TIME=30*60*1000; // 30 minutes
 
-let processedTxns=new Set();
-let lastCheck=Date.now()-600000; // Start 10 min ago
+// SHARED STORAGE FILES
+const CREDITS_FILE = '/tmp/casino_credits.json';
+const PROCESSED_TXN_FILE = '/tmp/processed_transactions.json';
+
+let lastCheck=Date.now()-600000;
+
+// LOAD/SAVE CREDITS (same as casino-credits.js)
+async function loadCredits() {
+  try {
+    const data = await fs.readFile(CREDITS_FILE, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    return {};
+  }
+}
+
+async function saveCredits(credits) {
+  try {
+    await fs.writeFile(CREDITS_FILE, JSON.stringify(credits, null, 2));
+    return true;
+  } catch (error) {
+    console.error('Failed to save credits:', error);
+    return false;
+  }
+}
+
+// LOAD/SAVE PROCESSED TRANSACTIONS
+async function loadProcessedTxns() {
+  try {
+    const data = await fs.readFile(PROCESSED_TXN_FILE, 'utf8');
+    return new Set(JSON.parse(data));
+  } catch (error) {
+    return new Set();
+  }
+}
+
+async function saveProcessedTxns(txnSet) {
+  try {
+    await fs.writeFile(PROCESSED_TXN_FILE, JSON.stringify([...txnSet]));
+    return true;
+  } catch (error) {
+    console.error('Failed to save processed txns:', error);
+    return false;
+  }
+}
 
 exports.handler=async(event,context)=>{
 if(event.httpMethod==='OPTIONS'){
@@ -21,6 +64,8 @@ body:''
 try{
 const now=Date.now();
 const txns=await scanWalletTransactions();
+const processedTxns = await loadProcessedTxns();
+const credits = await loadCredits();
 let processed=0;
 let creditedAmounts=[];
 
@@ -30,28 +75,25 @@ if(txn.timestamp<=lastCheck)continue;
 if(txn.assetId!==AMINA_ID)continue;
 if(txn.receiver!==CASINO_ADDR)continue;
 
-const amount=txn.amount/100000000;
+// Round UP to be generous
+const amount = Math.ceil((txn.amount/100000000) * 100000000) / 100000000;
 
-// Store credit information for frontend to retrieve
-const creditRecord={
-amount:amount,
-wallet:txn.sender,
-txnId:txn.id,
-timestamp:now,
-processed:true
-};
+// ADD CREDITS TO USER ACCOUNT
+const currentBalance = credits[txn.sender] || 0;
+credits[txn.sender] = currentBalance + amount;
 
-// Store in a way frontend can access (using simple storage)
-const existingCredits=getStoredCredits();
-existingCredits.push(creditRecord);
-storeCredits(existingCredits);
+// MARK TRANSACTION AS PROCESSED
+processedTxns.add(txn.id);
 
 creditedAmounts.push({amount,wallet:txn.sender,txnId:txn.id});
 processed++;
-processedTxns.add(txn.id);
 
-console.log(`✅ Processed deposit: ${amount} AMINA from ${txn.sender.slice(0,8)}... - TX: ${txn.id.slice(0,8)}...`);
+console.log(`✅ CREDITED: ${amount} AMINA to ${txn.sender.slice(0,8)}... - TX: ${txn.id.slice(0,8)}...`);
 }
+
+// SAVE UPDATED DATA
+await saveCredits(credits);
+await saveProcessedTxns(processedTxns);
 
 lastCheck=now;
 
@@ -63,7 +105,7 @@ success:true,
 processed,
 credits:creditedAmounts,
 lastCheck:new Date(lastCheck).toISOString(),
-message:processed>0?`Processed ${processed} deposits`:'No new deposits'
+message:processed>0?`Credited ${processed} deposits`:'No new deposits'
 })
 };
 
@@ -106,22 +148,5 @@ note:tx.note?Buffer.from(tx.note,'base64').toString():''
 }catch(error){
 console.error('Transaction scan error:',error);
 return[];
-}
-}
-
-function getStoredCredits(){
-// In production, this would be a database
-// For now, use a simple in-memory store that persists during function lifetime
-if(!global.aminaCasinoCredits){
-global.aminaCasinoCredits=[];
-}
-return global.aminaCasinoCredits;
-}
-
-function storeCredits(credits){
-global.aminaCasinoCredits=credits;
-// Keep only last 100 records to prevent memory issues
-if(credits.length>100){
-global.aminaCasinoCredits=credits.slice(-100);
 }
 }
