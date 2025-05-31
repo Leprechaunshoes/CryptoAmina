@@ -19,6 +19,12 @@ async function callSessionManager(action, data) {
 
 async function addCreditsToWallet(wallet, amount, txnId) {
   try {
+    // Check if transaction already processed
+    const checkResult = await callSessionManager('check_transaction', { txnId });
+    if (!checkResult.success || checkResult.processed) {
+      return false; // Already processed
+    }
+
     // Create or get session for wallet
     const sessionResult = await callSessionManager('create_session', { wallet });
     if (!sessionResult.success) return false;
@@ -29,7 +35,13 @@ async function addCreditsToWallet(wallet, amount, txnId) {
       amount: amount 
     });
     
-    return addResult.success;
+    if (addResult.success) {
+      // Mark transaction as processed
+      await callSessionManager('mark_transaction', { txnId, wallet, amount });
+      return true;
+    }
+    
+    return false;
   } catch (error) {
     return false;
   }
