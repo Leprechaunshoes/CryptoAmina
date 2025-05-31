@@ -1,39 +1,8 @@
-// casino-credits.js - PERSISTENT STORAGE FIX
-const JSONBIN_URL = 'https://api.jsonbin.io/v3/b/674c0000acd3cb34a8b85c42';
-const JSONBIN_KEY = '$2a$10$Vq3zY6HH.pK8dWxmfN9UXO7qE.M8BQK3p2Y4wZ9A1sN7fT2mL5gR6';
+// casino-credits.js - SIMPLE STORAGE FIX
+// Using simple in-memory storage that persists during function lifetime
 
-async function loadCredits() {
-  try {
-    const response = await fetch(`${JSONBIN_URL}/latest`, {
-      method: 'GET',
-      headers: {
-        'X-Master-Key': JSONBIN_KEY
-      }
-    });
-    const data = await response.json();
-    return data.record || {};
-  } catch (error) {
-    console.log('Loading credits from JSONBin failed, using empty:', error.message);
-    return {};
-  }
-}
-
-async function saveCredits(credits) {
-  try {
-    const response = await fetch(JSONBIN_URL, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_KEY
-      },
-      body: JSON.stringify(credits)
-    });
-    return response.ok;
-  } catch (error) {
-    console.error('Saving credits to JSONBin failed:', error);
-    return false;
-  }
-}
+let globalCredits = {};
+let globalProcessedTxns = new Set();
 
 exports.handler = async (event, context) => {
   if (event.httpMethod === 'OPTIONS') {
@@ -57,7 +26,7 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const { action, wallet, amount } = JSON.parse(event.body || '{}');
+    const { action, wallet, amount, txnId } = JSON.parse(event.body || '{}');
 
     if (!wallet || wallet.length !== 58) {
       return {
@@ -67,12 +36,11 @@ exports.handler = async (event, context) => {
       };
     }
 
-    const credits = await loadCredits();
     let response = {};
 
     switch (action) {
       case 'get_balance':
-        const balance = credits[wallet] || 0;
+        const balance = globalCredits[wallet] || 0;
         response = {
           success: true,
           wallet: wallet,
@@ -82,7 +50,6 @@ exports.handler = async (event, context) => {
         break;
 
       case 'add_credits':
-        // ALLOW add_credits for monitor function only
         if (!amount || amount <= 0) {
           return {
             statusCode: 400,
@@ -90,12 +57,24 @@ exports.handler = async (event, context) => {
             body: JSON.stringify({ success: false, error: 'Invalid amount' })
           };
         }
+
+        // Check if transaction already processed
+        if (txnId && globalProcessedTxns.has(txnId)) {
+          return {
+            statusCode: 400,
+            headers: { 'Access-Control-Allow-Origin': '*' },
+            body: JSON.stringify({ success: false, error: 'Transaction already processed' })
+          };
+        }
         
-        const currentBalance = credits[wallet] || 0;
+        const currentBalance = globalCredits[wallet] || 0;
         const newBalance = currentBalance + amount;
-        credits[wallet] = newBalance;
+        globalCredits[wallet] = newBalance;
         
-        await saveCredits(credits);
+        // Mark transaction as processed if txnId provided
+        if (txnId) {
+          globalProcessedTxns.add(txnId);
+        }
         
         response = {
           success: true,
@@ -103,6 +82,7 @@ exports.handler = async (event, context) => {
           amount: amount,
           oldBalance: currentBalance,
           newBalance: newBalance,
+          txnId: txnId,
           message: `Added ${amount.toFixed(8)} AMINA credits`
         };
         break;
@@ -116,7 +96,7 @@ exports.handler = async (event, context) => {
           };
         }
 
-        const walletBalance = credits[wallet] || 0;
+        const walletBalance = globalCredits[wallet] || 0;
         if (walletBalance < amount) {
           return {
             statusCode: 400,
@@ -130,9 +110,7 @@ exports.handler = async (event, context) => {
         }
 
         const updatedBalance = walletBalance - amount;
-        credits[wallet] = updatedBalance;
-        
-        await saveCredits(credits);
+        globalCredits[wallet] = updatedBalance;
         
         response = {
           success: true,
@@ -153,14 +131,23 @@ exports.handler = async (event, context) => {
           };
         }
 
-        credits[wallet] = amount;
-        await saveCredits(credits);
+        globalCredits[wallet] = amount;
         
         response = {
           success: true,
           wallet: wallet,
           balance: amount,
           message: `Set casino credits to ${amount.toFixed(8)} AMINA`
+        };
+        break;
+
+      case 'debug_info':
+        response = {
+          success: true,
+          totalWallets: Object.keys(globalCredits).length,
+          totalProcessedTxns: globalProcessedTxns.size,
+          allBalances: globalCredits,
+          processedTxnsList: [...globalProcessedTxns].slice(-10) // Last 10 txns
         };
         break;
 
@@ -171,7 +158,7 @@ exports.handler = async (event, context) => {
           body: JSON.stringify({ 
             success: false, 
             error: 'Invalid action',
-            supportedActions: ['get_balance', 'add_credits', 'deduct_credits', 'set_balance']
+            supportedActions: ['get_balance', 'add_credits', 'deduct_credits', 'set_balance', 'debug_info']
           })
         };
     }
