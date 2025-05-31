@@ -5,8 +5,15 @@ const AMINA_ID=1107424865;
 const CASINO_ADDR=process.env.CASINO_ADDRESS||'UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCFN7PAVCT2H4G4JEZKJK6W7UG44';
 
 // Shared storage with casino-credits
-let globalCredits = {};
-let globalProcessedTxns = new Set();
+if (!global.sharedCredits) {
+  global.sharedCredits = {};
+}
+if (!global.sharedProcessedTxns) {
+  global.sharedProcessedTxns = new Set();
+}
+
+let globalCredits = global.sharedCredits;
+let globalProcessedTxns = global.sharedProcessedTxns;
 
 exports.handler=async(event,context)=>{
 if(event.httpMethod==='OPTIONS'){
