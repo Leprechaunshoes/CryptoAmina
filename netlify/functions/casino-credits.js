@@ -1,5 +1,28 @@
-// AMINA CASINO - SERVER-SIDE CREDITS STORAGE
-const credits = new Map(); // In production, use a real database
+// AMINA CASINO - SERVER-SIDE CREDITS STORAGE WITH PERSISTENCE
+const fs = require('fs').promises;
+const path = require('path');
+
+// Use tmp directory for persistence (Netlify functions have limited file access)
+const STORAGE_FILE = '/tmp/casino_credits.json';
+
+async function loadCredits() {
+  try {
+    const data = await fs.readFile(STORAGE_FILE, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    return {}; // Return empty object if file doesn't exist
+  }
+}
+
+async function saveCredits(credits) {
+  try {
+    await fs.writeFile(STORAGE_FILE, JSON.stringify(credits, null, 2));
+    return true;
+  } catch (error) {
+    console.error('Failed to save credits:', error);
+    return false;
+  }
+}
 
 exports.handler = async (event, context) => {
   if (event.httpMethod === 'OPTIONS') {
@@ -33,11 +56,13 @@ exports.handler = async (event, context) => {
       };
     }
 
+    // Load current credits from persistent storage
+    const credits = await loadCredits();
     let response = {};
 
     switch (action) {
       case 'get_balance':
-        const balance = credits.get(wallet) || 0;
+        const balance = credits[wallet] || 0;
         response = {
           success: true,
           wallet: wallet,
@@ -55,9 +80,11 @@ exports.handler = async (event, context) => {
           };
         }
         
-        const currentBalance = credits.get(wallet) || 0;
+        const currentBalance = credits[wallet] || 0;
         const newBalance = currentBalance + amount;
-        credits.set(wallet, newBalance);
+        credits[wallet] = newBalance;
+        
+        await saveCredits(credits);
         
         response = {
           success: true,
@@ -78,7 +105,7 @@ exports.handler = async (event, context) => {
           };
         }
 
-        const walletBalance = credits.get(wallet) || 0;
+        const walletBalance = credits[wallet] || 0;
         if (walletBalance < amount) {
           return {
             statusCode: 400,
@@ -92,7 +119,9 @@ exports.handler = async (event, context) => {
         }
 
         const updatedBalance = walletBalance - amount;
-        credits.set(wallet, updatedBalance);
+        credits[wallet] = updatedBalance;
+        
+        await saveCredits(credits);
         
         response = {
           success: true,
@@ -113,7 +142,9 @@ exports.handler = async (event, context) => {
           };
         }
 
-        credits.set(wallet, amount);
+        credits[wallet] = amount;
+        await saveCredits(credits);
+        
         response = {
           success: true,
           wallet: wallet,
