@@ -22,6 +22,10 @@ this.init();
 if(this.wallet){
 this.updateWalletUI();
 this.syncCreditsFromServer();
+this.fetchAminaBalance(this.wallet).then(balance => {
+this.balance.AMINA = balance;
+this.updateCashierDisplay();
+});
 }
 }
 
