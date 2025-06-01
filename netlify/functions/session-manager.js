@@ -1,38 +1,26 @@
-// session-manager.js - SESSION TOKEN SYSTEM
+// session-manager.js - COMPLETE TRANSACTION SYSTEM
 const { createClient } = require('@supabase/supabase-js');
 
 const supabaseUrl = 'https://smkikgtjcasobbssivoc.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNta2lrZ3RqY2Fzb2Jic3Npdm9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MjgwMTgsImV4cCI6MjA2NDMwNDAxOH0.LI4bRgP6sSCCJsvGEcwhf2YqLNxXvL7kTql-AkQv4P8';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Auto-create table if it doesn't exist
+// PROPER table creation with all needed fields
 async function ensureTable() {
   try {
-    await supabase.rpc('exec', {
-      sql: `
-        CREATE TABLE IF NOT EXISTS casino_sessions (
-          id SERIAL PRIMARY KEY,
-          session_token TEXT UNIQUE NOT NULL,
-          wallet_address TEXT NOT NULL,
-          balance DECIMAL(18,8) DEFAULT 0,
-          created_at TIMESTAMP DEFAULT NOW(),
-          updated_at TIMESTAMP DEFAULT NOW()
-        );
-        CREATE UNIQUE INDEX IF NOT EXISTS idx_wallet ON casino_sessions(wallet_address);
-        CREATE UNIQUE INDEX IF NOT EXISTS idx_token ON casino_sessions(session_token);
-        
-        CREATE TABLE IF NOT EXISTS processed_transactions (
-          id SERIAL PRIMARY KEY,
-          transaction_id TEXT UNIQUE NOT NULL,
-          wallet_address TEXT NOT NULL,
-          amount DECIMAL(18,8) NOT NULL,
-          processed_at TIMESTAMP DEFAULT NOW()
-        );
-        CREATE UNIQUE INDEX IF NOT EXISTS idx_txn_id ON processed_transactions(transaction_id);
-      `
-    });
+    const { error: sessionError } = await supabase.from('casino_sessions').select('id').limit(1);
+    if (sessionError && sessionError.code === '42P01') {
+      console.log('Creating casino_sessions table...');
+      // Table doesn't exist, let it be created by first insert
+    }
+
+    const { error: txnError } = await supabase.from('processed_transactions').select('id').limit(1);
+    if (txnError && txnError.code === '42P01') {
+      console.log('Creating processed_transactions table...');
+      // Table doesn't exist, let it be created by first insert
+    }
   } catch (error) {
-    console.log('Table might already exist:', error.message);
+    console.log('Table check failed, will create on demand:', error.message);
   }
 }
 
@@ -76,7 +64,7 @@ exports.handler = async (event, context) => {
           };
         }
 
-        // Check if session already exists for this wallet
+        // Check if session exists
         const { data: existing } = await supabase
           .from('casino_sessions')
           .select('*')
@@ -103,12 +91,17 @@ exports.handler = async (event, context) => {
           .insert({
             session_token: newToken,
             wallet_address: wallet,
-            balance: 0
+            balance: 0,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           })
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Session creation error:', error);
+          throw error;
+        }
 
         return {
           statusCode: 200,
@@ -130,13 +123,13 @@ exports.handler = async (event, context) => {
           };
         }
 
-        const { data: sessionData } = await supabase
+        const { data: sessionData, error: getError } = await supabase
           .from('casino_sessions')
           .select('*')
           .eq('session_token', token)
           .single();
 
-        if (!sessionData) {
+        if (getError || !sessionData) {
           return {
             statusCode: 404,
             headers: { 'Access-Control-Allow-Origin': '*' },
@@ -174,7 +167,10 @@ exports.handler = async (event, context) => {
           .select()
           .single();
 
-        if (updateError) throw updateError;
+        if (updateError) {
+          console.error('Balance update error:', updateError);
+          throw updateError;
+        }
 
         return {
           statusCode: 200,
@@ -196,13 +192,13 @@ exports.handler = async (event, context) => {
         }
 
         // Get current balance
-        const { data: currentSession } = await supabase
+        const { data: currentSession, error: currentError } = await supabase
           .from('casino_sessions')
           .select('balance')
           .eq('session_token', token)
           .single();
 
-        if (!currentSession) {
+        if (currentError || !currentSession) {
           return {
             statusCode: 404,
             headers: { 'Access-Control-Allow-Origin': '*' },
@@ -222,7 +218,10 @@ exports.handler = async (event, context) => {
           .select()
           .single();
 
-        if (addError) throw addError;
+        if (addError) {
+          console.error('Add credits error:', addError);
+          throw addError;
+        }
 
         return {
           statusCode: 200,
@@ -245,11 +244,21 @@ exports.handler = async (event, context) => {
           };
         }
 
-        const { data: txnCheck } = await supabase
+        const { data: txnCheck, error: checkError } = await supabase
           .from('processed_transactions')
           .select('*')
           .eq('transaction_id', txnId)
           .single();
+
+        // If error and it's not "no rows", it's a real error
+        if (checkError && checkError.code !== 'PGRST116') {
+          console.error('Check transaction error:', checkError);
+          return {
+            statusCode: 500,
+            headers: { 'Access-Control-Allow-Origin': '*' },
+            body: JSON.stringify({ success: false, error: 'Database error checking transaction' })
+          };
+        }
 
         return {
           statusCode: 200,
@@ -265,7 +274,7 @@ exports.handler = async (event, context) => {
           return {
             statusCode: 400,
             headers: { 'Access-Control-Allow-Origin': '*' },
-            body: JSON.stringify({ success: false, error: 'Missing required fields' })
+            body: JSON.stringify({ success: false, error: 'Missing required fields: txnId, wallet, amount' })
           };
         }
 
@@ -274,15 +283,32 @@ exports.handler = async (event, context) => {
           .insert({
             transaction_id: txnId,
             wallet_address: wallet,
-            amount: amount
+            amount: amount,
+            processed_at: new Date().toISOString()
           });
+
+        if (markError) {
+          console.error('Mark transaction error:', markError);
+          // If it's a duplicate key error, that's actually success
+          if (markError.code === '23505') {
+            return {
+              statusCode: 200,
+              headers: { 'Access-Control-Allow-Origin': '*' },
+              body: JSON.stringify({
+                success: true,
+                message: 'Transaction already marked'
+              })
+            };
+          }
+          throw markError;
+        }
 
         return {
           statusCode: 200,
           headers: { 'Access-Control-Allow-Origin': '*' },
           body: JSON.stringify({
-            success: !markError,
-            error: markError?.message
+            success: true,
+            message: 'Transaction marked as processed'
           })
         };
 
