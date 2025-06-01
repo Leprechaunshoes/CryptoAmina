@@ -30,7 +30,38 @@ setupOrb(){const orb=$('cosmicOrb'),menu=$('orbitalMenu');let open=0;orb.onclick
 enterCasino(){$('welcomeScreen').classList.remove('active');$('mainCasino').classList.add('active');this.saveAppState();if(this.wallet){this.fetchAminaBalance(this.wallet).then(balance=>{this.balance.AMINA=balance;this.updateCashierDisplay();});this.syncCreditsFromServer();}if(this.music.audio&&!this.music.on){this.music.audio.play().then(()=>{this.music.on=1;$('musicToggle').innerHTML='🎵';}).catch(()=>{});}}
 async toggleWallet(){if(this.wallet){try{if(this.peraWallet&&typeof this.peraWallet.disconnect==='function'){await this.peraWallet.disconnect();}}catch(disconnectError){}this.wallet=null;this.balance.AMINA=0;this.clearWallet();this.clearToken();if(this.currency==='AMINA')this.toggleCurrency();this.updateWalletUI();this.notify('🔓 Wallet disconnected');}else{if(!this.peraWallet){this.notify('⚠️ Pera Wallet not available - using manual entry');const addr=prompt('Enter Algorand wallet:');if(addr&&addr.length===58){this.wallet=addr;this.saveWallet();this.balance.AMINA=await this.fetchAminaBalance(addr);this.updateWalletUI();this.syncCreditsFromServer();this.notify('✅ Wallet connected manually');if($('welcomeScreen').classList.contains('active')){setTimeout(()=>this.enterCasino(),1000);}}else if(addr){this.notify('❌ Invalid address');}return;}try{const reconnectedAccounts=await this.peraWallet.reconnectSession();if(reconnectedAccounts&&reconnectedAccounts.length>0){this.wallet=reconnectedAccounts[0];this.saveWallet();this.balance.AMINA=await this.fetchAminaBalance(this.wallet);this.updateWalletUI();this.syncCreditsFromServer();this.notify('🚀 Pera Wallet reconnected!');if($('welcomeScreen').classList.contains('active')){setTimeout(()=>this.enterCasino(),1000);}return;}const accounts=await this.peraWallet.connect();if(accounts&&accounts.length>0){this.wallet=accounts[0];this.saveWallet();this.balance.AMINA=await this.fetchAminaBalance(this.wallet);this.updateWalletUI();this.syncCreditsFromServer();this.notify('🚀 Pera Wallet connected!');if($('welcomeScreen').classList.contains('active')){setTimeout(()=>this.enterCasino(),1000);}}else{this.notify('❌ No accounts found');}}catch(error){if(error.type===4001||error.message?.includes('cancelled')){this.notify('❌ Connection cancelled');}else if(error.message?.includes('rejected')){this.notify('❌ Connection rejected');}else{this.notify('❌ Connection failed - check Pera Wallet app');}}}}
 updateWalletUI(){const btn=$('walletBtn');btn.innerHTML=this.wallet?'🔓 '+this.wallet.slice(0,4)+'...'+this.wallet.slice(-4):'🔗 Connect Wallet';}
-async toggleCurrency(){if(this.currency==='HC'&&!this.wallet){this.notify('🔗 Connect wallet for AMINA!');return;}const newCurrency=this.currency==='HC'?'AMINA':'HC';if(newCurrency==='AMINA'){if(!this.wallet){this.notify('🔗 Connect wallet first to use AMINA!');return;}this.notify('Switching to AMINA mode...');await this.refreshAminaBalance();this.currency='AMINA';}else{this.currency='HC';}this.updateCurrencyUI();this.updateBets();this.updateDisplay();}
+// FIXED TOGGLE CURRENCY FUNCTION
+async toggleCurrency(){
+    if(this.currency==='HC'&&!this.wallet){
+        this.notify('🔗 Connect wallet for AMINA!');
+        return;
+    }
+    
+    const newCurrency=this.currency==='HC'?'AMINA':'HC';
+    
+    if(newCurrency==='AMINA'){
+        if(!this.wallet){
+            this.notify('🔗 Connect wallet first to use AMINA!');
+            return;
+        }
+        this.notify('Switching to AMINA mode...');
+        await this.refreshAminaBalance();
+        this.currency='AMINA';
+    }else{
+        this.currency='HC';
+    }
+    
+    // FIXED: Update UI elements in the right order
+    this.updateCurrencyUI();
+    this.updateBets(); // Make sure this happens AFTER currency is set
+    this.updateDisplay();
+    
+    // FIXED: Force bet dropdown refresh for all games
+    setTimeout(() => {
+        this.updateBets();
+        console.log(`Currency switched to: ${this.currency}`);
+    }, 100);
+}
 updateBets(){const bets=this.currency==='HC'?['1','5','10']:['0.01','0.02','0.05'];['slots','plinko','blackjack','hilo','dice'].forEach(g=>{const sel=$(`${g}Bet`);if(sel){const curr=sel.value;sel.innerHTML='';bets.forEach(b=>{const opt=document.createElement('option');opt.value=opt.textContent=b;sel.appendChild(opt);});if(bets.includes(curr))sel.value=curr;}});}
 updateDisplay(){const bal=this.currency==='AMINA'?(this.casinoCredits||0):this.balance.HC;$('balanceAmount').textContent=bal.toFixed(this.currency==='AMINA'?8:0);$('currencySymbol').textContent=this.currency;['slots','plinko','blackjack','hilo','dice'].forEach(g=>{const el=$(`${g}Currency`);if(el)el.textContent=this.currency;});}
 async deductBalance(amt){if(this.currency==='AMINA'){if(this.casinoCredits<amt){this.notify('❌ Insufficient credits! Visit Cashier.');return 0;}const success=await this.updateServerCredits('deduct_credits',amt);if(!success){this.casinoCredits-=amt;this.updateDisplay();}return 1;}else{if(this.balance.HC<amt){this.notify('Insufficient balance!');return 0;}this.balance.HC-=amt;this.saveHCBalance();this.updateDisplay();return 1;}}
