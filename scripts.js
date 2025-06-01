@@ -18,17 +18,14 @@ dice:{bet:null,val1:1,val2:1,rolling:0}
 };
 this.music={on:0,audio:null};
 
-// Auto-restore cached balance for mobile
-this.restoreCachedBalance();
+// AGGRESSIVE MOBILE RESTORATION
+this.forceRestoreState();
 
 this.initPeraWallet();
 this.init();
-if(this.wallet){
-this.updateWalletUI();
-this.syncCreditsFromServer();
-// Auto-refresh balance after a short delay
-setTimeout(()=>this.refreshWalletBalance(), 1000);
-}
+
+// Force immediate state restoration
+this.checkAndRestoreSession();
 }
 
 getHCBalance(){
@@ -77,6 +74,8 @@ if(this.balance.AMINA > 0) {
   localStorage.setItem('cached_amina_balance', this.balance.AMINA.toString());
   sessionStorage.setItem('cached_amina_balance', this.balance.AMINA.toString());
 }
+// Save app state
+this.saveAppState();
 }
 
 clearWallet(){
@@ -84,6 +83,88 @@ localStorage.removeItem('connected_wallet');
 sessionStorage.removeItem('connected_wallet');
 localStorage.removeItem('cached_amina_balance');
 sessionStorage.removeItem('cached_amina_balance');
+localStorage.removeItem('app_state');
+sessionStorage.removeItem('app_state');
+}
+
+// Save current app state
+saveAppState() {
+  const state = {
+    inCasino: !$('welcomeScreen').classList.contains('active'),
+    currency: this.currency,
+    timestamp: Date.now()
+  };
+  localStorage.setItem('app_state', JSON.stringify(state));
+  sessionStorage.setItem('app_state', JSON.stringify(state));
+}
+
+// Restore app state aggressively
+forceRestoreState() {
+  console.log('🔄 Force restoring state...');
+  
+  // Restore cached balance immediately
+  const cached = localStorage.getItem('cached_amina_balance') || sessionStorage.getItem('cached_amina_balance');
+  if (cached && this.wallet) {
+    this.balance.AMINA = parseFloat(cached);
+    console.log('✅ Restored cached balance:', this.balance.AMINA);
+  }
+  
+  // Restore currency preference
+  const currencyStored = localStorage.getItem('last_currency') || sessionStorage.getItem('last_currency');
+  if (currencyStored) {
+    this.currency = currencyStored;
+  }
+}
+
+// Check and restore complete session
+async checkAndRestoreSession() {
+  if (!this.wallet) return;
+  
+  console.log('🔄 Checking session for wallet:', this.wallet);
+  
+  // Update UI immediately
+  this.updateWalletUI();
+  
+  // Check if we should be in casino
+  const appState = localStorage.getItem('app_state') || sessionStorage.getItem('app_state');
+  if (appState) {
+    const state = JSON.parse(appState);
+    const fiveMinutesAgo = Date.now() - (5 * 60 * 1000);
+    
+    // If user was in casino recently, auto-enter
+    if (state.inCasino && state.timestamp > fiveMinutesAgo) {
+      console.log('🚀 Auto-entering casino...');
+      setTimeout(() => this.enterCasino(), 100);
+      
+      // Restore currency
+      if (state.currency) {
+        this.currency = state.currency;
+        this.updateCurrencyUI();
+      }
+    }
+  }
+  
+  // Sync data
+  this.syncCreditsFromServer();
+  setTimeout(() => this.refreshWalletBalance(), 500);
+}
+
+// Update currency UI
+updateCurrencyUI() {
+  const toggle = $('currencyToggle');
+  const text = toggle?.querySelector('.currency-text');
+  
+  if (this.currency === 'AMINA') {
+    toggle?.classList.add('amina');
+    if (text) text.textContent = 'AMINA';
+  } else {
+    toggle?.classList.remove('amina');
+    if (text) text.textContent = 'HC';
+  }
+  
+  // Save currency preference
+  localStorage.setItem('last_currency', this.currency);
+  sessionStorage.setItem('last_currency', this.currency);
 }
 
 // Restore cached balance immediately (mobile fix)
@@ -304,6 +385,10 @@ orb.style.transform='scale(1)';
 enterCasino(){
 $('welcomeScreen').classList.remove('active');
 $('mainCasino').classList.add('active');
+
+// Save state immediately
+this.saveAppState();
+
 if(this.wallet){
 this.fetchAminaBalance(this.wallet).then(balance=>{
 this.balance.AMINA=balance;
@@ -349,6 +434,10 @@ this.balance.AMINA=await this.fetchAminaBalance(addr);
 this.updateWalletUI();
 this.syncCreditsFromServer();
 this.notify('✅ Wallet connected manually');
+// Auto-enter casino if not already in
+if($('welcomeScreen').classList.contains('active')) {
+  setTimeout(() => this.enterCasino(), 1000);
+}
 }else if(addr){
 this.notify('❌ Invalid address');
 }
@@ -363,6 +452,10 @@ this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
 this.updateWalletUI();
 this.syncCreditsFromServer();
 this.notify('🚀 Pera Wallet reconnected!');
+// Auto-enter casino if not already in
+if($('welcomeScreen').classList.contains('active')) {
+  setTimeout(() => this.enterCasino(), 1000);
+}
 return;
 }
 const accounts=await this.peraWallet.connect();
@@ -373,6 +466,10 @@ this.balance.AMINA=await this.fetchAminaBalance(this.wallet);
 this.updateWalletUI();
 this.syncCreditsFromServer();
 this.notify('🚀 Pera Wallet connected!');
+// Auto-enter casino if not already in
+if($('welcomeScreen').classList.contains('active')) {
+  setTimeout(() => this.enterCasino(), 1000);
+}
 }else{
 this.notify('❌ No accounts found');
 }
@@ -400,8 +497,6 @@ this.notify('🔗 Connect wallet for AMINA!');
 return;
 }
 const newCurrency=this.currency==='HC'?'AMINA':'HC';
-const toggle=$('currencyToggle');
-const text=toggle.querySelector('.currency-text');
 
 if(newCurrency==='AMINA'){
 if(!this.wallet){
@@ -411,13 +506,11 @@ return;
 this.notify('Switching to AMINA mode...');
 await this.refreshAminaBalance();
 this.currency='AMINA';
-toggle.classList.add('amina');
-text.textContent='AMINA';
 }else{
 this.currency='HC';
-toggle.classList.remove('amina');
-text.textContent='HC';
 }
+
+this.updateCurrencyUI();
 this.updateBets();
 this.updateDisplay();
 }
