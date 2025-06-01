@@ -53,6 +53,17 @@ exports.handler = async (event, context) => {
                 message: `Casino credits: ${result.balance.toFixed(8)} AMINA`
               })
             };
+          } else {
+            // Token expired or invalid - signal frontend to refresh
+            return {
+              statusCode: 404,
+              headers: { 'Access-Control-Allow-Origin': '*' },
+              body: JSON.stringify({
+                success: false,
+                error: 'Session not found',
+                needsRefresh: true
+              })
+            };
           }
         }
 
@@ -110,7 +121,11 @@ exports.handler = async (event, context) => {
           return {
             statusCode: 404,
             headers: { 'Access-Control-Allow-Origin': '*' },
-            body: JSON.stringify({ success: false, error: 'Session not found' })
+            body: JSON.stringify({ 
+              success: false, 
+              error: 'Session not found',
+              needsRefresh: true
+            })
           };
         }
 
