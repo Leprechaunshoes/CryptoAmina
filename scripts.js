@@ -91,7 +91,7 @@ sessionStorage.removeItem('app_state');
 saveAppState() {
   const state = {
     inCasino: !$('welcomeScreen').classList.contains('active'),
-    currency: this.currency,
+    currency: this.wallet ? 'AMINA' : this.currency, // Force AMINA if wallet exists
     timestamp: Date.now()
   };
   localStorage.setItem('app_state', JSON.stringify(state));
@@ -109,11 +109,25 @@ forceRestoreState() {
     console.log('✅ Restored cached balance:', this.balance.AMINA);
   }
   
-  // Restore currency preference
-  const currencyStored = localStorage.getItem('last_currency') || sessionStorage.getItem('last_currency');
-  if (currencyStored) {
-    this.currency = currencyStored;
+  // FORCE AMINA MODE if wallet exists - this is the priority!
+  if (this.wallet) {
+    console.log('🪙 Wallet detected - FORCING AMINA MODE');
+    this.currency = 'AMINA';
+    // Immediately update currency UI
+    const toggle = document.getElementById('currencyToggle');
+    const text = toggle?.querySelector('.currency-text');
+    if (toggle && text) {
+      toggle.classList.add('amina');
+      text.textContent = 'AMINA';
+    }
+  } else {
+    // Only use HC if no wallet
+    this.currency = 'HC';
   }
+  
+  // Save the currency state
+  localStorage.setItem('last_currency', this.currency);
+  sessionStorage.setItem('last_currency', this.currency);
 }
 
 // Check and restore complete session
@@ -121,6 +135,11 @@ async checkAndRestoreSession() {
   if (!this.wallet) return;
   
   console.log('🔄 Checking session for wallet:', this.wallet);
+  
+  // FORCE AMINA MODE IMMEDIATELY - wallet = AMINA priority!
+  this.currency = 'AMINA';
+  this.updateCurrencyUI();
+  this.updateDisplay();
   
   // Update UI immediately
   this.updateWalletUI();
@@ -135,12 +154,6 @@ async checkAndRestoreSession() {
     if (state.inCasino && state.timestamp > fiveMinutesAgo) {
       console.log('🚀 Auto-entering casino...');
       setTimeout(() => this.enterCasino(), 100);
-      
-      // Restore currency
-      if (state.currency) {
-        this.currency = state.currency;
-        this.updateCurrencyUI();
-      }
     }
   }
   
@@ -533,7 +546,11 @@ if(bets.includes(curr))sel.value=curr;
 }
 
 updateDisplay(){
-if(this.currency==='AMINA'){
+// WALLET PRIORITY: If wallet exists, always show AMINA balance
+if(this.wallet && this.currency === 'AMINA'){
+const bal=this.casinoCredits||0;
+$('balanceAmount').textContent=bal.toFixed(8);
+}else if(this.currency==='AMINA'){
 const bal=this.casinoCredits||0;
 $('balanceAmount').textContent=bal.toFixed(8);
 }else{
