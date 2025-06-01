@@ -13,6 +13,7 @@ async function callSessionManager(action, data) {
     });
     return await response.json();
   } catch (error) {
+    console.error('Session manager call failed:', error);
     return { success: false, error: error.message };
   }
 }
@@ -21,13 +22,22 @@ async function addCreditsToWallet(wallet, amount, txnId) {
   try {
     // Check if transaction already processed
     const checkResult = await callSessionManager('check_transaction', { txnId });
-    if (!checkResult.success || checkResult.processed) {
+    if (!checkResult.success) {
+      console.error('Failed to check transaction:', txnId);
+      return false;
+    }
+    
+    if (checkResult.processed) {
+      console.log('Transaction already processed:', txnId);
       return false; // Already processed
     }
 
     // Create or get session for wallet
     const sessionResult = await callSessionManager('create_session', { wallet });
-    if (!sessionResult.success) return false;
+    if (!sessionResult.success) {
+      console.error('Failed to create session for wallet:', wallet);
+      return false;
+    }
 
     // Add credits to session
     const addResult = await callSessionManager('add_credits', { 
@@ -37,12 +47,20 @@ async function addCreditsToWallet(wallet, amount, txnId) {
     
     if (addResult.success) {
       // Mark transaction as processed
-      await callSessionManager('mark_transaction', { txnId, wallet, amount });
-      return true;
+      const markResult = await callSessionManager('mark_transaction', { txnId, wallet, amount });
+      if (markResult.success) {
+        console.log(`✅ Credited ${amount} AMINA to ${wallet} for txn ${txnId}`);
+        return true;
+      } else {
+        console.error('Failed to mark transaction:', txnId);
+      }
+    } else {
+      console.error('Failed to add credits:', addResult.error);
     }
     
     return false;
   } catch (error) {
+    console.error('addCreditsToWallet error:', error);
     return false;
   }
 }
@@ -88,6 +106,7 @@ message:processed>0?`Credited ${processed} deposits`:'No new deposits'
 };
 
 }catch(error){
+console.error('Monitor deposits error:', error);
 return{
 statusCode:500,
 headers:{'Access-Control-Allow-Origin':'*'},
@@ -115,6 +134,7 @@ timestamp:tx['round-time']*1000
 }))
 .sort((a,b)=>b.timestamp-a.timestamp);
 }catch(error){
+console.error('scanWalletTransactions error:', error);
 return[];
 }
 }
