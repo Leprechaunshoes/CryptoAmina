@@ -1,82 +1,69 @@
-// monitor-deposits.js - BULLETPROOF TRANSACTION DETECTION
+// monitor-deposits.js - BULLETPROOF DEPOSIT DETECTION
 const algosdk = require('algosdk');
 
 const AMINA_ID = 1107424865;
 const CASINO_ADDR = process.env.CASINO_ADDRESS || 'UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCFN7PAVCT2H4G4JEZKJK6W7UG44';
 
 async function callSessionManager(action, data) {
-  try {
-    const response = await fetch('https://cryptoamina.netlify.app/.netlify/functions/session-manager', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, ...data })
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  const maxRetries = 3;
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      const response = await fetch('https://cryptoamina.netlify.app/.netlify/functions/session-manager', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, ...data })
+      });
+      
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.log(`Retry ${i + 1}/${maxRetries} failed:`, error.message);
+      if (i === maxRetries - 1) return { success: false, error: error.message };
+      await new Promise(r => setTimeout(r, 1000)); // Wait 1 second before retry
     }
-    
-    const result = await response.json();
-    console.log(`Session manager ${action}:`, result);
-    return result;
-  } catch (error) {
-    console.error(`Session manager ${action} failed:`, error);
-    return { success: false, error: error.message };
   }
 }
 
-async function addCreditsToWallet(wallet, amount, txnId) {
-  try {
-    console.log(`🔍 Processing transaction ${txnId} for ${wallet}: ${amount} AMINA`);
-    
-    // Step 1: Check if already processed
-    const checkResult = await callSessionManager('check_transaction', { txnId });
-    if (!checkResult.success) {
-      console.error('❌ Failed to check transaction:', checkResult.error);
-      return false;
-    }
-    
-    if (checkResult.processed) {
-      console.log('⏭️  Transaction already processed:', txnId);
-      return false;
-    }
-
-    // Step 2: Create or get session
-    const sessionResult = await callSessionManager('create_session', { wallet });
-    if (!sessionResult.success) {
-      console.error('❌ Failed to create session for wallet:', wallet, sessionResult.error);
-      return false;
-    }
-
-    console.log(`✅ Session ready for ${wallet}, token: ${sessionResult.token}`);
-
-    // Step 3: Add credits
-    const addResult = await callSessionManager('add_credits', { 
-      token: sessionResult.token, 
-      amount: amount 
-    });
-    
-    if (!addResult.success) {
-      console.error('❌ Failed to add credits:', addResult.error);
-      return false;
-    }
-
-    console.log(`💰 Credits added: ${amount} AMINA (${addResult.oldBalance} → ${addResult.newBalance})`);
-
-    // Step 4: Mark as processed
-    const markResult = await callSessionManager('mark_transaction', { txnId, wallet, amount });
-    if (!markResult.success) {
-      console.error('❌ Failed to mark transaction (but credits were added):', markResult.error);
-      // Don't return false here - credits were successfully added
-    } else {
-      console.log('✅ Transaction marked as processed:', txnId);
-    }
-
-    return true;
-  } catch (error) {
-    console.error('💥 addCreditsToWallet error:', error);
+async function processDeposit(wallet, amount, txnId) {
+  console.log(`🎯 PROCESSING: ${txnId} | ${wallet} | ${amount} AMINA`);
+  
+  // Check if already processed (prevent double crediting)
+  const checkResult = await callSessionManager('check_transaction', { txnId });
+  if (!checkResult.success) {
+    console.log('❌ Check failed:', checkResult.error);
     return false;
   }
+  
+  if (checkResult.processed) {
+    console.log('⚠️  Already processed:', txnId);
+    return true; // Not an error, just already done
+  }
+
+  // Get or create session
+  const sessionResult = await callSessionManager('create_session', { wallet });
+  if (!sessionResult.success) {
+    console.log('❌ Session failed:', sessionResult.error);
+    return false;
+  }
+
+  // Add credits
+  const addResult = await callSessionManager('add_credits', { 
+    token: sessionResult.token, 
+    amount: amount 
+  });
+  
+  if (!addResult.success) {
+    console.log('❌ Credit failed:', addResult.error);
+    return false;
+  }
+
+  console.log(`💰 CREDITED: ${amount} AMINA (${addResult.oldBalance} → ${addResult.newBalance})`);
+
+  // Mark as processed
+  await callSessionManager('mark_transaction', { txnId, wallet, amount });
+  
+  return true;
 }
 
 exports.handler = async (event, context) => {
@@ -92,79 +79,74 @@ exports.handler = async (event, context) => {
     };
   }
 
-  console.log('🔍 Monitor deposits starting...');
+  console.log('🚀 DEPOSIT MONITOR STARTING...');
+  const startTime = Date.now();
 
   try {
-    const now = Date.now();
-    const fourHoursAgo = now - (4 * 60 * 60 * 1000); // Extended to 4 hours
+    // Get target wallet and amount from request (for focused detection)
+    const body = event.body ? JSON.parse(event.body) : {};
+    const targetWallet = body.wallet;
+    const targetAmount = body.amount;
     
-    console.log('📡 Scanning wallet transactions...');
-    const txns = await scanWalletTransactions();
+    console.log(`🎯 Target: ${targetWallet || 'ALL'} | Amount: ${targetAmount || 'ANY'}`);
+
+    // Scan recent transactions (last 10 minutes for focused, 2 hours for general)
+    const timeWindow = targetWallet ? 10 * 60 * 1000 : 2 * 60 * 60 * 1000;
+    const cutoffTime = Date.now() - timeWindow;
     
-    console.log(`📊 Found ${txns.length} total transactions`);
-    
+    const transactions = await scanCasinoDeposits(cutoffTime);
+    console.log(`📊 Found ${transactions.length} recent AMINA deposits`);
+
     let processed = 0;
-    let creditedAmounts = [];
     let errors = [];
+    let credited = [];
 
-    for (const txn of txns) {
-      // Extended time window check
-      if (txn.timestamp <= fourHoursAgo) {
-        console.log(`⏰ Skipping old transaction: ${txn.id} (${new Date(txn.timestamp).toISOString()})`);
-        continue;
-      }
-      
-      // Filter for AMINA transfers to casino
-      if (txn.assetId !== AMINA_ID) {
-        console.log(`🚫 Skipping non-AMINA transaction: ${txn.id}`);
-        continue;
-      }
-      
-      if (txn.receiver !== CASINO_ADDR) {
-        console.log(`🚫 Skipping transaction not to casino: ${txn.id}`);
-        continue;
+    for (const txn of transactions) {
+      // If targeting specific deposit, filter more precisely
+      if (targetWallet && targetAmount) {
+        const amountMatch = Math.abs(txn.amount - targetAmount) < 0.00000001; // Handle floating point
+        const walletMatch = txn.sender === targetWallet;
+        const recentEnough = txn.timestamp > (Date.now() - 5 * 60 * 1000); // Last 5 minutes
+        
+        if (!amountMatch || !walletMatch || !recentEnough) {
+          continue;
+        }
+        
+        console.log(`🎯 TARGETED DEPOSIT FOUND: ${txn.id}`);
       }
 
-      console.log(`🎯 Processing deposit: ${txn.id} from ${txn.sender}`);
-      
-      // Convert micro-units to AMINA (8 decimals)
-      const amount = Math.round((txn.amount / 100000000) * 100000000) / 100000000;
-      
-      console.log(`💰 Amount: ${amount} AMINA (${txn.amount} micro-units)`);
-
-      const success = await addCreditsToWallet(txn.sender, amount, txn.id);
+      const success = await processDeposit(txn.sender, txn.amount, txn.id);
       
       if (success) {
-        creditedAmounts.push({
-          amount: amount,
-          wallet: txn.sender,
+        credited.push({
           txnId: txn.id,
+          wallet: txn.sender,
+          amount: txn.amount,
           timestamp: new Date(txn.timestamp).toISOString()
         });
         processed++;
-        console.log(`✅ Successfully credited ${amount} AMINA to ${txn.sender}`);
       } else {
         errors.push({
           txnId: txn.id,
           wallet: txn.sender,
-          amount: amount,
-          error: 'Credit processing failed'
+          amount: txn.amount,
+          error: 'Processing failed'
         });
-        console.log(`❌ Failed to credit ${amount} AMINA to ${txn.sender}`);
       }
     }
 
     const result = {
       success: true,
       processed: processed,
-      credits: creditedAmounts,
+      credits: credited,
       errors: errors,
-      totalScanned: txns.length,
-      message: processed > 0 ? `Credited ${processed} deposits` : 'No new deposits found',
+      totalScanned: transactions.length,
+      executionTime: Date.now() - startTime,
+      message: processed > 0 ? `✅ Processed ${processed} deposits` : 'No new deposits found',
       timestamp: new Date().toISOString()
     };
 
-    console.log('📈 Monitor deposits complete:', result);
+    console.log(`🏁 MONITOR COMPLETE: ${processed} processed in ${result.executionTime}ms`);
 
     return {
       statusCode: 200,
@@ -173,7 +155,7 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('💥 Monitor deposits error:', error);
+    console.error('💥 MONITOR ERROR:', error);
     return {
       statusCode: 500,
       headers: { 'Access-Control-Allow-Origin': '*' },
@@ -186,62 +168,74 @@ exports.handler = async (event, context) => {
   }
 };
 
-async function scanWalletTransactions() {
+async function scanCasinoDeposits(cutoffTime) {
   try {
-    console.log(`🔍 Scanning transactions for wallet: ${CASINO_ADDR}`);
+    console.log(`🔍 Scanning transactions since: ${new Date(cutoffTime).toISOString()}`);
     
-    const params = {
-      limit: 200, // Increased limit
-      'asset-id': AMINA_ID,
-      'tx-type': 'axfer'
-    };
+    // Use both mainnet-idx endpoints for redundancy
+    const endpoints = [
+      'https://mainnet-idx.algonode.cloud',
+      'https://mainnet-idx.4160.nodely.io'
+    ];
     
-    const url = `https://mainnet-idx.algonode.cloud/v2/accounts/${CASINO_ADDR}/transactions?${new URLSearchParams(params)}`;
-    console.log('🌐 API URL:', url);
+    let transactions = [];
     
-    const txnResponse = await fetch(url);
-    
-    if (!txnResponse.ok) {
-      throw new Error(`HTTP ${txnResponse.status}: ${txnResponse.statusText}`);
+    for (const endpoint of endpoints) {
+      try {
+        const url = `${endpoint}/v2/accounts/${CASINO_ADDR}/transactions?` + new URLSearchParams({
+          limit: 100,
+          'asset-id': AMINA_ID,
+          'tx-type': 'axfer'
+        });
+        
+        console.log(`🌐 Trying: ${endpoint}`);
+        
+        const response = await fetch(url, { timeout: 10000 });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const data = await response.json();
+        if (data.transactions && data.transactions.length > 0) {
+          transactions = data.transactions;
+          console.log(`✅ Got ${transactions.length} transactions from ${endpoint}`);
+          break; // Use first successful response
+        }
+      } catch (error) {
+        console.log(`❌ ${endpoint} failed:`, error.message);
+        continue;
+      }
     }
     
-    const data = await txnResponse.json();
-    
-    if (!data.transactions) {
-      console.log('⚠️  No transactions found in response');
+    if (transactions.length === 0) {
+      console.log('⚠️  No transactions found from any endpoint');
       return [];
     }
 
-    console.log(`📊 Raw transactions found: ${data.transactions.length}`);
-
-    const filtered = data.transactions
+    // Filter and format deposits
+    const deposits = transactions
       .filter(tx => {
         const assetTx = tx['asset-transfer-transaction'];
         const isToCasino = assetTx && assetTx.receiver === CASINO_ADDR;
         const isAmina = assetTx && assetTx['asset-id'] === AMINA_ID;
-        return isToCasino && isAmina;
+        const timestamp = tx['round-time'] * 1000;
+        const isRecent = timestamp > cutoffTime;
+        
+        return isToCasino && isAmina && isRecent;
       })
       .map(tx => ({
         id: tx.id,
-        amount: tx['asset-transfer-transaction'].amount,
-        assetId: tx['asset-transfer-transaction']['asset-id'],
+        amount: tx['asset-transfer-transaction'].amount / 100000000, // Convert to AMINA
         sender: tx.sender,
         receiver: tx['asset-transfer-transaction'].receiver,
-        timestamp: tx['round-time'] * 1000, // Convert to milliseconds
+        timestamp: tx['round-time'] * 1000,
         roundNumber: tx['confirmed-round']
       }))
       .sort((a, b) => b.timestamp - a.timestamp); // Newest first
 
-    console.log(`🎯 Filtered AMINA deposits: ${filtered.length}`);
+    console.log(`🎯 Filtered deposits: ${deposits.length}`);
     
-    // Log recent transactions for debugging
-    filtered.slice(0, 5).forEach(tx => {
-      console.log(`📋 Recent: ${tx.id} | ${tx.amount/100000000} AMINA | ${new Date(tx.timestamp).toISOString()}`);
-    });
-
-    return filtered;
+    return deposits;
   } catch (error) {
-    console.error('💥 scanWalletTransactions error:', error);
+    console.error('💥 Scan error:', error);
     return [];
   }
 }
