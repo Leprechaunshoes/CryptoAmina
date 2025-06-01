@@ -69,32 +69,80 @@ clearWallet(){
 localStorage.removeItem('connected_wallet');
 }
 
+// Mobile session refresh method
+async refreshSession() {
+  if (!this.wallet) return false;
+  
+  try {
+    // Clear old token and create fresh session
+    this.clearToken();
+    const result = await this.callSessionManager('create_session', { wallet: this.wallet });
+    
+    if (result.success) {
+      this.saveToken(result.token);
+      this.casinoCredits = result.balance || 0;
+      this.updateDisplay();
+      this.updateCashierDisplay();
+      return true;
+    }
+  } catch (error) {
+    console.log('Session refresh failed:', error);
+  }
+  return false;
+}
+
+// Helper method for session manager calls
+async callSessionManager(action, data) {
+  try {
+    const response = await fetch('/.netlify/functions/session-manager', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, ...data })
+    });
+    return await response.json();
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
 async syncCreditsFromServer(){
-if(!this.wallet&&!this.sessionToken)return;
-try{
-let body;
-if(this.sessionToken){
-body={action:'get_balance',token:this.sessionToken};
-}else{
-body={action:'get_balance',wallet:this.wallet};
-}
-const response=await fetch('/.netlify/functions/casino-credits',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify(body)
-});
-const result=await response.json();
-if(result.success){
-this.casinoCredits=result.balance||0;
-if(result.token&&!this.sessionToken){
-this.saveToken(result.token);
-}
-this.updateDisplay();
-this.updateCashierDisplay();
-}
-}catch(error){
-console.log('Sync failed');
-}
+  if(!this.wallet && !this.sessionToken) return;
+  
+  try{
+    let body;
+    if(this.sessionToken){
+      body = {action:'get_balance', token:this.sessionToken};
+    } else {
+      body = {action:'get_balance', wallet:this.wallet};
+    }
+    
+    const response = await fetch('/.netlify/functions/casino-credits',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    
+    const result = await response.json();
+    
+    if(result.success){
+      this.casinoCredits = result.balance || 0;
+      if(result.token && !this.sessionToken){
+        this.saveToken(result.token);
+      }
+      this.updateDisplay();
+      this.updateCashierDisplay();
+    } else if(result.needsRefresh && this.wallet) {
+      // Token expired - refresh session for mobile
+      console.log('Session expired, refreshing...');
+      await this.refreshSession();
+    }
+  } catch(error) {
+    console.log('Sync failed, attempting refresh...');
+    // If we have wallet but sync failed, try to refresh
+    if(this.wallet && !this.sessionToken) {
+      await this.refreshSession();
+    }
+  }
 }
 
 async updateServerCredits(action,amount){
@@ -209,6 +257,8 @@ this.fetchAminaBalance(this.wallet).then(balance=>{
 this.balance.AMINA=balance;
 this.updateCashierDisplay();
 });
+// Sync credits and refresh session if needed (mobile fix)
+this.syncCreditsFromServer();
 }
 if(this.music.audio&&!this.music.on){
 this.music.audio.play().then(()=>{
@@ -541,33 +591,35 @@ this.startDepositPolling(amount);
 }
 
 startDepositPolling(expectedAmount){
-let attempts = 0;
-const maxAttempts = 20;
-const pollInterval = 6000;
+  const startingBalance = this.casinoCredits; // Remember starting balance
+  let attempts = 0;
+  const maxAttempts = 20;
+  const pollInterval = 6000;
 
-const poll = async () => {
-attempts++;
+  const poll = async () => {
+    attempts++;
 
-await this.syncCreditsFromServer();
+    await this.syncCreditsFromServer();
 
-this.notify(`🔍 Checking... (${attempts}/${maxAttempts})`);
+    this.notify(`🔍 Checking... (${attempts}/${maxAttempts})`);
 
-if(this.casinoCredits >= expectedAmount){
-this.notify(`✅ Deposit confirmed! ${expectedAmount.toFixed(8)} AMINA credited!`);
-this.addTransaction('deposit', expectedAmount);
-$('depositAmount').value = '';
-return;
-}
+    // Check if balance increased by expected amount
+    if(this.casinoCredits >= startingBalance + expectedAmount){
+      this.notify(`✅ Deposit confirmed! ${expectedAmount.toFixed(8)} AMINA credited!`);
+      this.addTransaction('deposit', expectedAmount);
+      $('depositAmount').value = '';
+      return;
+    }
 
-if(attempts >= maxAttempts){
-this.notify('⏰ Deposit check timed out. If you sent AMINA, it may take a few more minutes to process.');
-return;
-}
+    if(attempts >= maxAttempts){
+      this.notify('⏰ Deposit check timed out. If you sent AMINA, it may take a few more minutes to process.');
+      return;
+    }
 
-setTimeout(poll, pollInterval);
-};
+    setTimeout(poll, pollInterval);
+  };
 
-poll();
+  poll();
 }
 
 async withdrawAmina(){
