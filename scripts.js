@@ -761,15 +761,39 @@ console.log('🔒 Deposit mode ON - Starting balance locked:', this.lockedStarti
 
 this.notify('🔍 Checking for your transaction...');
 
+// FORCE MONITOR TO RUN - Don't ignore errors
 try{
-await fetch('/.netlify/functions/monitor-deposits',{
+console.log('🚀 Calling monitor-deposits function...');
+const monitorResponse = await fetch('/.netlify/functions/monitor-deposits',{
 method:'POST',
-headers:{'Content-Type':'application/json'}
+headers:{'Content-Type':'application/json'},
+body: JSON.stringify({
+  wallet: this.wallet,
+  amount: amount,
+  timestamp: Date.now()
+})
 });
-}catch(error){
-console.log('Monitor call failed, continuing...');
+
+const monitorResult = await monitorResponse.json();
+console.log('📊 Monitor response:', monitorResult);
+
+if (monitorResult.success && monitorResult.processed > 0) {
+  // Monitor found and processed the deposit!
+  this.depositInProgress = false;
+  this.lockedStartingBalance = 0;
+  await this.syncCreditsFromServer();
+  this.notify(`✅ Deposit confirmed! ${amount.toFixed(8)} AMINA credited!`);
+  this.addTransaction('deposit', amount);
+  $('depositAmount').value = '';
+  return;
 }
 
+}catch(error){
+console.error('❌ Monitor call failed:', error);
+this.notify('⚠️ Monitor check failed, trying polling...');
+}
+
+// If monitor didn't work, fall back to polling
 this.startDepositPolling(amount);
 }
 
@@ -777,13 +801,45 @@ startDepositPolling(expectedAmount){
   // Use locked starting balance for stable comparison
   const startingBalance = this.lockedStartingBalance;
   let attempts = 0;
-  const maxAttempts = 20;
-  const pollInterval = 6000;
+  const maxAttempts = 15; // Reduced attempts since we have better monitor
+  const pollInterval = 8000; // Slower polling
 
   console.log(`🔍 Polling for deposit: ${expectedAmount} AMINA (Starting: ${startingBalance})`);
 
   const poll = async () => {
     attempts++;
+
+    // TRY MONITOR AGAIN on each poll attempt
+    if (attempts % 3 === 0) { // Every 3rd attempt
+      try {
+        console.log('🔄 Re-trying monitor function...');
+        const monitorResponse = await fetch('/.netlify/functions/monitor-deposits', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            wallet: this.wallet,
+            amount: expectedAmount,
+            attempt: attempts
+          })
+        });
+        
+        const monitorResult = await monitorResponse.json();
+        console.log(`📊 Monitor attempt ${attempts}:`, monitorResult);
+        
+        if (monitorResult.success && monitorResult.processed > 0) {
+          // Monitor worked!
+          this.depositInProgress = false;
+          this.lockedStartingBalance = 0;
+          await this.syncCreditsFromServer();
+          this.notify(`✅ Monitor found deposit! ${expectedAmount.toFixed(8)} AMINA credited!`);
+          this.addTransaction('deposit', expectedAmount);
+          $('depositAmount').value = '';
+          return;
+        }
+      } catch (error) {
+        console.log('Monitor retry failed:', error);
+      }
+    }
 
     // SAFE SYNC: Only sync credits, no session restoration during deposit
     try {
@@ -825,7 +881,7 @@ startDepositPolling(expectedAmount){
       this.lockedStartingBalance = 0;
       console.log('⏰ Deposit polling timeout. Clearing deposit mode.');
       
-      this.notify('⏰ Deposit check timed out. If you sent AMINA, it may take a few more minutes to process.');
+      this.notify('⏰ Deposit check timed out. Contact support if AMINA was sent.');
       return;
     }
 
