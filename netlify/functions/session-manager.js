@@ -64,7 +64,7 @@ exports.handler = async (event, context) => {
   try {
     await ensureTable();
     
-    const { action, wallet, token, amount } = JSON.parse(event.body || '{}');
+    const { action, wallet, token, amount, txnId } = JSON.parse(event.body || '{}');
 
     switch (action) {
       case 'create_session':
@@ -233,6 +233,56 @@ exports.handler = async (event, context) => {
             newBalance: parseFloat(addData.balance),
             amount: amount,
             message: `Added ${amount} credits`
+          })
+        };
+
+      case 'check_transaction':
+        if (!txnId) {
+          return {
+            statusCode: 400,
+            headers: { 'Access-Control-Allow-Origin': '*' },
+            body: JSON.stringify({ success: false, error: 'Transaction ID required' })
+          };
+        }
+
+        const { data: txnCheck } = await supabase
+          .from('processed_transactions')
+          .select('*')
+          .eq('transaction_id', txnId)
+          .single();
+
+        return {
+          statusCode: 200,
+          headers: { 'Access-Control-Allow-Origin': '*' },
+          body: JSON.stringify({
+            success: true,
+            processed: !!txnCheck
+          })
+        };
+
+      case 'mark_transaction':
+        if (!txnId || !wallet || !amount) {
+          return {
+            statusCode: 400,
+            headers: { 'Access-Control-Allow-Origin': '*' },
+            body: JSON.stringify({ success: false, error: 'Missing required fields' })
+          };
+        }
+
+        const { error: markError } = await supabase
+          .from('processed_transactions')
+          .insert({
+            transaction_id: txnId,
+            wallet_address: wallet,
+            amount: amount
+          });
+
+        return {
+          statusCode: 200,
+          headers: { 'Access-Control-Allow-Origin': '*' },
+          body: JSON.stringify({
+            success: !markError,
+            error: markError?.message
           })
         };
 
