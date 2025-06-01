@@ -17,11 +17,17 @@ hilo:{card:null,streak:0,bet:0,active:0},
 dice:{bet:null,val1:1,val2:1,rolling:0}
 };
 this.music={on:0,audio:null};
+
+// Auto-restore cached balance for mobile
+this.restoreCachedBalance();
+
 this.initPeraWallet();
 this.init();
 if(this.wallet){
 this.updateWalletUI();
 this.syncCreditsFromServer();
+// Auto-refresh balance after a short delay
+setTimeout(()=>this.refreshWalletBalance(), 1000);
 }
 }
 
@@ -57,19 +63,57 @@ this.sessionToken=null;
 }
 
 getStoredWallet(){
-const stored=localStorage.getItem('connected_wallet');
+// Try multiple storage methods for mobile Safari
+const stored=localStorage.getItem('connected_wallet') || sessionStorage.getItem('connected_wallet');
 return stored?JSON.parse(stored):null;
 }
 
 saveWallet(){
+// Save to both localStorage and sessionStorage for mobile reliability
 localStorage.setItem('connected_wallet',JSON.stringify(this.wallet));
+sessionStorage.setItem('connected_wallet',JSON.stringify(this.wallet));
+// Also save AMINA balance
+if(this.balance.AMINA > 0) {
+  localStorage.setItem('cached_amina_balance', this.balance.AMINA.toString());
+  sessionStorage.setItem('cached_amina_balance', this.balance.AMINA.toString());
+}
 }
 
 clearWallet(){
 localStorage.removeItem('connected_wallet');
+sessionStorage.removeItem('connected_wallet');
+localStorage.removeItem('cached_amina_balance');
+sessionStorage.removeItem('cached_amina_balance');
 }
 
-// Mobile session refresh method
+// Restore cached balance immediately (mobile fix)
+restoreCachedBalance() {
+  const cached = localStorage.getItem('cached_amina_balance') || sessionStorage.getItem('cached_amina_balance');
+  if (cached && this.wallet) {
+    this.balance.AMINA = parseFloat(cached);
+    console.log('Restored cached balance:', this.balance.AMINA);
+  }
+}
+
+// Force refresh wallet balance
+async refreshWalletBalance() {
+  if (!this.wallet) return;
+  
+  try {
+    console.log('Refreshing wallet balance for:', this.wallet);
+    const balance = await this.fetchAminaBalance(this.wallet);
+    this.balance.AMINA = balance;
+    
+    // Cache the new balance
+    localStorage.setItem('cached_amina_balance', balance.toString());
+    sessionStorage.setItem('cached_amina_balance', balance.toString());
+    
+    this.updateCashierDisplay();
+    console.log('Balance refreshed:', balance);
+  } catch (error) {
+    console.log('Balance refresh failed:', error);
+  }
+}
 async refreshSession() {
   if (!this.wallet) return false;
   
@@ -168,16 +212,24 @@ return false;
 
 async fetchAminaBalance(wallet){
 try{
+console.log('Fetching balance for wallet:', wallet);
 const response=await fetch(`https://mainnet-idx.algonode.cloud/v2/accounts/${wallet}/assets`);
 const data=await response.json();
 const aminaAsset=data.assets?.find(a=>a['asset-id']===this.aminaId);
 const balance=aminaAsset?aminaAsset.amount/100000000:0;
-console.log('AMINA Balance (8 decimals):',balance);
+console.log('AMINA Balance fetched (8 decimals):',balance);
+
+// Cache balance for mobile refresh reliability
+localStorage.setItem('cached_amina_balance', balance.toString());
+sessionStorage.setItem('cached_amina_balance', balance.toString());
+
 return balance;
 }catch(e){
 console.error('Balance fetch error:',e);
 this.notify('❌ Error fetching balance');
-return 0;
+// Return cached balance if fetch fails
+const cached = localStorage.getItem('cached_amina_balance') || sessionStorage.getItem('cached_amina_balance');
+return cached ? parseFloat(cached) : 0;
 }
 }
 
@@ -486,13 +538,12 @@ return;
 initCashier(){
 this.updateCashierDisplay();
 if(this.wallet){
-console.log('Fetching balance for:', this.wallet);
-this.fetchAminaBalance(this.wallet).then(balance => {
-console.log('Fetched balance:', balance);
-this.balance.AMINA = balance;
-this.updateCashierDisplay();
+console.log('Cashier: Fetching fresh balance for:', this.wallet);
+// Force fresh balance fetch when entering cashier
+this.refreshWalletBalance().then(() => {
+  console.log('Cashier balance updated:', this.balance.AMINA);
 }).catch(error => {
-console.log('Balance fetch failed:', error);
+  console.log('Cashier balance fetch failed:', error);
 });
 }
 $('depositBtn').onclick=()=>this.depositAmina();
