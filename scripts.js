@@ -9,6 +9,11 @@ this.peraWallet=null;
 this.aminaId=1107424865;
 this.casinoWallet='UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCFN7PAVCT2H4G4JEZKJK6W7UG44';
 this.casinoCredits=0;
+
+// DEPOSIT PROTECTION FLAGS
+this.depositInProgress = false;
+this.lockedStartingBalance = 0;
+
 this.games={
 slots:{symbols:['⭐','🌟','💫','🌌','🪐','🌙','☄️','🚀','👽','🛸'],scatter:'🌠',grid:[],spinning:0,win:0,mult:1,spins:0},
 plinko:{balls:[],max:5},
@@ -132,6 +137,12 @@ forceRestoreState() {
 
 // Check and restore complete session
 async checkAndRestoreSession() {
+  // DEPOSIT PROTECTION: Don't restore during deposit
+  if (this.depositInProgress) {
+    console.log('⏸️ Skipping session restore - deposit in progress');
+    return;
+  }
+  
   if (!this.wallet) return;
   
   console.log('🔄 Checking session for wallet:', this.wallet);
@@ -244,6 +255,12 @@ async callSessionManager(action, data) {
 }
 
 async syncCreditsFromServer(){
+  // DEPOSIT PROTECTION: Don't sync during deposit detection
+  if (this.depositInProgress) {
+    console.log('⏸️ Skipping sync - deposit in progress');
+    return;
+  }
+  
   if(!this.wallet && !this.sessionToken) return;
   
   try{
@@ -277,7 +294,7 @@ async syncCreditsFromServer(){
   } catch(error) {
     console.log('Sync failed, attempting refresh...');
     // If we have wallet but sync failed, try to refresh
-    if(this.wallet && !this.sessionToken) {
+    if(this.wallet && !this.sessionToken && !this.depositInProgress) {
       await this.refreshSession();
     }
   }
@@ -737,6 +754,11 @@ this.notify('❌ Wallet required for deposits');
 return;
 }
 
+// DEPOSIT PROTECTION: Set deposit mode
+this.depositInProgress = true;
+this.lockedStartingBalance = this.casinoCredits;
+console.log('🔒 Deposit mode ON - Starting balance locked:', this.lockedStartingBalance);
+
 this.notify('🔍 Checking for your transaction...');
 
 try{
@@ -752,27 +774,57 @@ this.startDepositPolling(amount);
 }
 
 startDepositPolling(expectedAmount){
-  const startingBalance = this.casinoCredits; // Remember starting balance
+  // Use locked starting balance for stable comparison
+  const startingBalance = this.lockedStartingBalance;
   let attempts = 0;
   const maxAttempts = 20;
   const pollInterval = 6000;
 
+  console.log(`🔍 Polling for deposit: ${expectedAmount} AMINA (Starting: ${startingBalance})`);
+
   const poll = async () => {
     attempts++;
 
-    await this.syncCreditsFromServer();
+    // SAFE SYNC: Only sync credits, no session restoration during deposit
+    try {
+      if (this.sessionToken) {
+        const response = await fetch('/.netlify/functions/casino-credits', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get_balance', token: this.sessionToken })
+        });
+        const result = await response.json();
+        if (result.success) {
+          this.casinoCredits = result.balance || 0;
+          this.updateDisplay();
+          this.updateCashierDisplay();
+        }
+      }
+    } catch (error) {
+      console.log('Deposit polling sync failed:', error);
+    }
 
     this.notify(`🔍 Checking... (${attempts}/${maxAttempts})`);
 
     // Check if balance increased by expected amount
-    if(this.casinoCredits >= startingBalance + expectedAmount){
+    if (this.casinoCredits >= startingBalance + expectedAmount) {
+      // DEPOSIT SUCCESS: Clear deposit mode
+      this.depositInProgress = false;
+      this.lockedStartingBalance = 0;
+      console.log('✅ Deposit detected! Clearing deposit mode.');
+      
       this.notify(`✅ Deposit confirmed! ${expectedAmount.toFixed(8)} AMINA credited!`);
       this.addTransaction('deposit', expectedAmount);
       $('depositAmount').value = '';
       return;
     }
 
-    if(attempts >= maxAttempts){
+    if (attempts >= maxAttempts) {
+      // DEPOSIT TIMEOUT: Clear deposit mode
+      this.depositInProgress = false;
+      this.lockedStartingBalance = 0;
+      console.log('⏰ Deposit polling timeout. Clearing deposit mode.');
+      
       this.notify('⏰ Deposit check timed out. If you sent AMINA, it may take a few more minutes to process.');
       return;
     }
