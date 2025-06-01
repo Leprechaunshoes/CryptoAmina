@@ -1,9 +1,10 @@
 {
   "name": "amina-casino-backend",
   "version": "1.0.0",
-  "description": "AMINA Casino backend functions for Algorand blockchain",
+  "description": "AMINA Casino backend functions",
   "dependencies": {
-    "algosdk": "^2.7.0"
+    "algosdk": "^2.7.0",
+    "@supabase/supabase-js": "^2.38.0"
   },
   "engines": {
     "node": ">=18.0.0"
