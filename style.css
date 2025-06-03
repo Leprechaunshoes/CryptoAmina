@@ -399,3 +399,165 @@ input,select,textarea{-webkit-user-select:text;user-select:text}
 .deposit-controls,.withdraw-controls{flex-direction:column}
 .deposit-controls input,.withdraw-controls input{min-width:unset}
 }
+@keyframes cardDealEpic {
+    from { opacity: 0; transform: translateY(-20px) rotateY(90deg); }
+    to { opacity: 1; transform: translateY(0) rotateY(0deg); }
+}
+
+@keyframes streakCardAppear {
+    from { opacity: 0; transform: scale(0.8) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes resumeGlow {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; text-shadow: 0 0 30px currentColor; }
+}
+
+@keyframes revealText {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+}
+
+@keyframes suspensePulse {
+    0%, 100% { opacity: 0; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.1); }
+}
+
+@keyframes multiplierPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+@keyframes blackjackFlash {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes bonusActivation {
+    0% { opacity: 0; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.1); }
+    100% { opacity: 0; transform: scale(0.9); }
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+@keyframes diceShine {
+    0%, 100% { transform: translateX(-100%); }
+    50% { transform: translateX(100%); }
+}
+
+@keyframes cardShine {
+    0%, 100% { transform: translateX(-100%); }
+    50% { transform: translateX(100%); }
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.2; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInTransaction {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.epic-spinning {
+    animation: spinSymbol 0.1s linear infinite !important;
+}
+
+.epic-rolling {
+    animation: diceRoll 1.5s ease-out !important;
+}
+
+.epic-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.epic-glow {
+    filter: drop-shadow(0 0 15px var(--cg));
+}
+
+.cosmic-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid transparent;
+    border-top: 2px solid var(--cg);
+    border-radius: 50%;
+    animation: rotate 1s linear infinite;
+}
+
+.balance-pulse {
+    animation: balanceGlow 0.6s ease-in-out;
+}
+
+.error-shake {
+    animation: buttonPress 0.15s ease-out 3;
+}
+
+.button-pop {
+    animation: buttonPress 0.2s ease-out;
+}
+
+.currency-shine {
+    animation: neonPulse 0.8s ease-in-out;
+}
+
+.bet-update {
+    animation: pulse 0.4s ease-in-out;
+}
+
+.currency-pop {
+    animation: winPulse 0.3s ease-in-out;
+}
+
+.stat-update {
+    animation: pulse 0.6s ease-in-out;
+}
+
+.currency-flash {
+    animation: neonPulse 0.3s ease-in-out;
+}
+
+.wallet-connected {
+    animation: trustButton 1s ease-in-out;
+}
+
+.toggle-active {
+    animation: buttonPress 0.3s ease-out;
+}
+
+.balance-update {
+    animation: balanceGlow 0.5s ease-in-out;
+}
+
+.epic-hit {
+    animation: multiplierHit 2s ease-in-out;
+}
+
+.game-exit {
+    animation: slideIn 0.2s ease reverse;
+}
+
+.game-enter {
+    animation: slideIn 0.5s ease;
+}
+
+.mega-win {
+    animation: rainbowFlash 1s ease-in-out infinite;
+}
