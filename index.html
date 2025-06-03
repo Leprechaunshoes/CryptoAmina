@@ -1,624 +1,659 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌟 AMINA Casino - Cosmic Gaming Experience</title>
-    
-    <!-- Fixed CSS path to match your file name -->
-    <link rel="stylesheet" href="style.css">
-    
-    <!-- Pera Wallet Connect -->
-    <script src="https://unpkg.com/@perawallet/connect@1.3.4/dist/index.umd.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amina Casino</title>
+<link rel="stylesheet" href="style.css">
+<meta name="apple-mobile-web-app-capable" content="yes">
 </head>
 <body>
-    <!-- Cosmic Background -->
-    <div class="cosmic-bg"></div>
-    
-    <!-- Welcome Screen -->
-    <div id="welcomeScreen" class="welcome-screen active">
-        <div class="welcome-content">
-            <div class="welcome-coin">🪙</div>
-            <h1 class="welcome-title">AMINA CASINO</h1>
-            <p class="welcome-text">Enter the cosmic realm of decentralized gaming</p>
-            
-            <div class="game-info">
-                <h3>🌌 Cosmic Games Available</h3>
-                <div class="welcome-description">
-                    Experience next-generation blockchain gaming with provably fair cosmic mechanics
-                </div>
-                
-                <div class="info-grid">
-                    <div class="info-item">
-                        <div class="info-icon">🎰</div>
-                        <div class="info-content">
-                            <h4>Cosmic Chaos Slots</h4>
-                            <p>6x5 cluster-pay slots with cosmic multipliers and free spins</p>
-                        </div>
-                    </div>
-                    
-                    <div class="info-item">
-                        <div class="info-icon">🌌</div>
-                        <div class="info-content">
-                            <h4>Stellar Plinko</h4>
-                            <p>Drop cosmic orbs through quantum pegs for stellar rewards</p>
-                        </div>
-                    </div>
-                    
-                    <div class="info-item get-amina-flash" onclick="openAminaExplorer()">
-                        <div class="info-icon">🪙</div>
-                        <div class="info-content">
-                            <h4>Get AMINA Tokens</h4>
-                            <p>Acquire AMINA tokens to unlock premium cosmic gaming</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <button id="enterCasino" class="enter-btn cosmic-btn">🚀 ENTER CASINO</button>
-        </div>
-    </div>
-    
-    <!-- Main Casino Interface -->
-    <div id="mainCasino" class="main-casino">
-        
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <div class="logo-section">
-                    <div class="amina-coin">🪙</div>
-                    <h1 class="logo">AMINA CASINO</h1>
-                </div>
-                
-                <div class="header-controls">
-                    <div class="balance-display">
-                        <span id="balanceAmount" class="balance-amount">1000</span>
-                        <span id="currencySymbol" class="currency-symbol">HC</span>
-                    </div>
-                    
-                    <div class="currency-toggle">
-                        <div id="currencyToggle" class="toggle-btn">
-                            <div class="toggle-slider"></div>
-                            <span class="currency-text">HC</span>
-                        </div>
-                    </div>
-                    
-                    <button id="walletBtn" class="wallet-btn">🔗 Connect Wallet</button>
-                </div>
-            </div>
-        </header>
-        
-        <!-- Cosmic Orb Menu -->
-        <div class="cosmic-orb-menu" id="cosmicOrbMenu">
-            <div id="cosmicOrb" class="cosmic-orb">
-                <div class="orb-core">🌌</div>
-            </div>
-            
-            <div id="orbitalMenu" class="orbital-menu">
-                <div class="orbital-item" data-game="slots" title="Cosmic Slots">🎰</div>
-                <div class="orbital-item" data-game="plinko" title="Stellar Plinko">🌌</div>
-                <div class="orbital-item" data-game="blackjack" title="Cosmic Blackjack">🃏</div>
-                <div class="orbital-item" data-game="hilo" title="Hi-Lo Prediction">🔮</div>
-                <div class="orbital-item" data-game="dice" title="Quantum Dice">🎲</div>
-                <div class="orbital-item" data-game="cashier" title="Cashier">💰</div>
-                <div class="orbital-item" data-game="about" title="About Casino">ℹ️</div>
-                <div class="orbital-item" data-game="rules" title="How to Play">📋</div>
-                <div class="orbital-item" data-game="whitepaper" title="Whitepaper">📄</div>
-            </div>
-        </div>
-        
-        <!-- Floating Actions -->
-        <div class="floating-actions">
-            <button id="musicToggle" class="floating-btn music-btn">🎵</button>
-            <button onclick="showDonationModal()" class="floating-btn donation-btn">💝</button>
-        </div>
-        
-        <!-- Main Content -->
-        <main class="main-content">
-            
-            <!-- Welcome Game Selection -->
-            <div id="welcome" class="game-screen active">
-                <div class="game-container">
-                    <div class="welcome-container">
-                        <div class="hero-coin">🪙</div>
-                        <h2 class="hero-title">Choose Your Cosmic Adventure</h2>
-                        <p class="hero-subtitle">Select a game to begin your journey through the stars</p>
-                    </div>
-                    
-                    <div class="game-grid">
-                        <div class="game-card" data-game="slots">
-                            <div class="game-icon">🎰</div>
-                            <h3>Cosmic Chaos Slots</h3>
-                            <p>6x5 cluster-pay slots with cascading symbols and cosmic multipliers</p>
-                            <div class="max-win">Max Win: 5000x</div>
-                        </div>
-                        
-                        <div class="game-card" data-game="plinko">
-                            <div class="game-icon">🌌</div>
-                            <h3>Stellar Plinko</h3>
-                            <p>Drop cosmic orbs through quantum pegs for stellar rewards</p>
-                            <div class="max-win">Max Win: 1000x</div>
-                        </div>
-                        
-                        <div class="game-card" data-game="blackjack">
-                            <div class="game-icon">🃏</div>
-                            <h3>Cosmic Blackjack</h3>
-                            <p>Classic 21 with cosmic twists and stellar side bets</p>
-                            <div class="max-win">Max Win: 21:1</div>
-                        </div>
-                        
-                        <div class="game-card" data-game="hilo">
-                            <div class="game-icon">🔮</div>
-                            <h3>Hi-Lo Prediction</h3>
-                            <p>Predict the cosmic flow with exponential multipliers</p>
-                            <div class="max-win">Max Win: 1024x</div>
-                        </div>
-                        
-                        <div class="game-card" data-game="dice">
-                            <div class="game-icon">🎲</div>
-                            <h3>Quantum Dice</h3>
-                            <p>Roll the cosmic dice with multiple betting options</p>
-                            <div class="max-win">Max Win: 8:1</div>
-                        </div>
-                        
-                        <div class="game-card" data-game="cashier">
-                            <div class="game-icon">💰</div>
-                            <h3>Cosmic Cashier</h3>
-                            <p>Manage your AMINA tokens and cosmic credits</p>
-                            <div class="max-win">Secure Banking</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Slots Game -->
-            <div id="slots" class="game-screen">
-                <div class="cosmic-chaos-machine">
-                    <div class="game-header">
-                        <h2>🎰 Cosmic Chaos Slots</h2>
-                        <div class="bet-controls">
-                            <label>Bet:</label>
-                            <select id="slotsBet">
-                                <option value="1">1</option>
-                                <option value="5">5</option>
-                                <option value="10">10</option>
-                            </select>
-                            <span id="slotsCurrency">HC</span>
-                        </div>
-                    </div>
-                    
-                    <div class="chaos-info-panel">
-                        <div class="multiplier-display">
-                            <span class="multiplier-label">Multiplier:</span>
-                            <span id="currentMultiplier" class="multiplier-value">1x</span>
-                        </div>
-                        <div class="free-spins-display">
-                            <span class="spins-label">Free Spins:</span>
-                            <span id="freeSpinsCount" class="spins-count">0</span>
-                        </div>
-                        <div class="win-display">
-                            <span class="win-label">Total Win:</span>
-                            <span id="totalWin" class="win-amount">0</span>
-                            <span id="winCurrency" class="win-currency">HC</span>
-                        </div>
-                    </div>
-                    
-                    <div class="chaos-grid-container">
-                        <div id="chaosGrid" class="chaos-grid"></div>
-                    </div>
-                    
-                    <div class="chaos-controls">
-                        <button id="spinBtn" class="cosmic-btn spin-btn">⚡ SPIN ⚡</button>
-                        <button id="buyBonusBtn" class="cosmic-btn buy-bonus-btn">🚀 BUY BONUS (100x)</button>
-                    </div>
-                    
-                    <div id="slotsResult" class="game-result"></div>
-                </div>
-            </div>
-            
-            <!-- Plinko Game -->
-            <div id="plinko" class="game-screen">
-                <div class="game-container">
-                    <div class="game-header">
-                        <h2>🌌 Stellar Plinko</h2>
-                        <div class="bet-controls">
-                            <label>Bet:</label>
-                            <select id="plinkoBet">
-                                <option value="1">1</option>
-                                <option value="5">5</option>
-                                <option value="10">10</option>
-                            </select>
-                            <span id="plinkoCurrency">HC</span>
-                        </div>
-                    </div>
-                    
-                    <div class="plinko-container">
-                        <div class="plinko-board">
-                            <canvas id="plinkoCanvas" width="400" height="420"></canvas>
-                        </div>
-                        
-                        <div class="multipliers-container">
-                            <div class="multipliers">
-                                <div class="multiplier" data-mult="10">10x</div>
-                                <div class="multiplier" data-mult="3">3x</div>
-                                <div class="multiplier" data-mult="1.5">1.5x</div>
-                                <div class="multiplier" data-mult="1.4">1.4x</div>
-                                <div class="multiplier" data-mult="1.1">1.1x</div>
-                                <div class="multiplier" data-mult="1">1x</div>
-                                <div class="multiplier" data-mult="0.5">0.5x</div>
-                                <div class="multiplier" data-mult="1">1x</div>
-                                <div class="multiplier" data-mult="1.1">1.1x</div>
-                                <div class="multiplier" data-mult="1.4">1.4x</div>
-                                <div class="multiplier" data-mult="1.5">1.5x</div>
-                                <div class="multiplier" data-mult="3">3x</div>
-                                <div class="multiplier" data-mult="10">10x</div>
-                            </div>
-                        </div>
-                        
-                        <button id="dropBtn" class="cosmic-btn plinko-drop-btn">🌌 DROP COSMIC ORB</button>
-                    </div>
-                    
-                    <div id="plinkoResult" class="game-result"></div>
-                </div>
-            </div>
-            
-            <!-- Blackjack Game -->
-            <div id="blackjack" class="game-screen">
-                <div class="game-container">
-                    <div class="game-header">
-                        <h2>🃏 Cosmic Blackjack</h2>
-                        <div class="bet-controls">
-                            <label>Bet:</label>
-                            <select id="blackjackBet">
-                                <option value="1">1</option>
-                                <option value="5">5</option>
-                                <option value="10">10</option>
-                            </select>
-                            <span id="blackjackCurrency">HC</span>
-                        </div>
-                    </div>
-                    
-                    <div class="blackjack-table">
-                        <div class="dealer-section">
-                            <h3>Dealer: <span id="dealerScore">0</span></h3>
-                            <div id="dealerCards" class="card-container"></div>
-                        </div>
-                        
-                        <div class="player-section">
-                            <h3>Player: <span id="playerScore">0</span></h3>
-                            <div id="playerCards" class="card-container"></div>
-                        </div>
-                        
-                        <div class="game-controls">
-                            <button id="dealBtn" class="cosmic-btn">🎯 DEAL</button>
-                            <button id="hitBtn" class="cosmic-btn" disabled>🃏 HIT</button>
-                            <button id="standBtn" class="cosmic-btn" disabled>✋ STAND</button>
-                        </div>
-                    </div>
-                    
-                    <div id="blackjackResult" class="game-result"></div>
-                </div>
-            </div>
-            
-            <!-- Hi-Lo Game -->
-            <div id="hilo" class="game-screen">
-                <div class="game-container">
-                    <div class="game-header">
-                        <h2>🔮 Hi-Lo Prediction</h2>
-                        <div class="bet-controls">
-                            <label>Bet:</label>
-                            <select id="hiloBet">
-                                <option value="1">1</option>
-                                <option value="5">5</option>
-                                <option value="10">10</option>
-                            </select>
-                            <span id="hiloCurrency">HC</span>
-                        </div>
-                    </div>
-                    
-                    <div class="hilo-game-container">
-                        <div class="current-card-display">
-                            <h3>Current Cosmic Card</h3>
-                            <div id="currentCard" class="hilo-card-area"></div>
-                        </div>
-                        
-                        <div class="prediction-controls">
-                            <p class="prediction-text">🔮 Will the next card be higher or lower?</p>
-                            <div class="hilo-buttons">
-                                <button id="higherBtn" class="hilo-btn higher-btn" disabled>⬆️ HIGHER</button>
-                                <button id="lowerBtn" class="hilo-btn lower-btn" disabled>⬇️ LOWER</button>
-                            </div>
-                        </div>
-                        
-                        <div class="streak-info">
-                            <div class="streak-display">
-                                <span class="streak-label">Cosmic Streak:</span>
-                                <span class="streak-count">0</span>
-                            </div>
-                            <div id="streakCards" class="mini-streak-cards"></div>
-                        </div>
-                        
-                        <div class="hilo-actions">
-                            <button id="dealHiloBtn" class="cosmic-btn start-btn">🌟 START PREDICTION</button>
-                            <button id="cashoutBtn" class="cosmic-btn cash-btn" disabled>💰 CASH OUT</button>
-                        </div>
-                    </div>
-                    
-                    <div id="hiloResult" class="game-result"></div>
-                </div>
-            </div>
-            
-            <!-- Dice Game -->
-            <div id="dice" class="game-screen">
-                <div class="game-container">
-                    <div class="game-header">
-                        <h2>🎲 Quantum Dice</h2>
-                        <div class="bet-controls">
-                            <label>Bet:</label>
-                            <select id="diceBet">
-                                <option value="1">1</option>
-                                <option value="5">5</option>
-                                <option value="10">10</option>
-                            </select>
-                            <span id="diceCurrency">HC</span>
-                        </div>
-                    </div>
-                    
-                    <div class="dice-game">
-                        <div class="dice-display">
-                            <div class="dice-container">
-                                <div id="dice1" class="dice">
-                                    <div class="dice-face face-1 active"><div class="dice-dot"></div></div>
-                                    <div class="dice-face face-2"><div class="dice-dot"></div><div class="dice-dot"></div></div>
-                                    <div class="dice-face face-3"><div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div></div>
-                                    <div class="dice-face face-4"><div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div></div>
-                                    <div class="dice-face face-5"><div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div></div>
-                                    <div class="dice-face face-6"><div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div></div>
-                                </div>
-                                
-                                <div id="dice2" class="dice">
-                                    <div class="dice-face face-1 active"><div class="dice-dot"></div></div>
-                                    <div class="dice-face face-2"><div class="dice-dot"></div><div class="dice-dot"></div></div>
-                                    <div class="dice-face face-3"><div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div></div>
-                                    <div class="dice-face face-4"><div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div></div>
-                                    <div class="dice-face face-5"><div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div></div>
-                                    <div class="dice-face face-6"><div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div></div>
-                                </div>
-                            </div>
-                            
-                            <div id="diceTotal" class="dice-total">Total: 2</div>
-                        </div>
-                        
-                        <div class="dice-betting">
-                            <h3>Choose Your Cosmic Prediction</h3>
-                            <div class="bet-options">
-                                <!-- Options will be populated by JavaScript -->
-                            </div>
-                            <div id="selectedBet" class="selected-bet">Choose your cosmic prediction</div>
-                        </div>
-                        
-                        <div class="dice-controls">
-                            <button id="rollBtn" class="cosmic-btn" disabled>🎲 ROLL DICE</button>
-                        </div>
-                    </div>
-                    
-                    <div id="diceResult" class="game-result"></div>
-                </div>
-            </div>
-            
-            <!-- Cashier -->
-            <div id="cashier" class="game-screen">
-                <div class="game-container">
-                    <div class="game-header">
-                        <h2>💰 Cosmic Cashier</h2>
-                    </div>
-                    
-                    <div class="cashier-content">
-                        <div class="balance-section">
-                            <div class="balance-card">
-                                <div class="balance-icon">🪙</div>
-                                <h3>Wallet Balance</h3>
-                                <div id="walletBalance" class="balance-amount">0.00000000 AMINA</div>
-                                <p>Your external AMINA tokens</p>
-                            </div>
-                            
-                            <div class="balance-card">
-                                <div class="balance-icon">🎰</div>
-                                <h3>Casino Credits</h3>
-                                <div id="casinoCredits" class="balance-amount">0.00000000 AMINA</div>
-                                <p>Available for cosmic gaming</p>
-                            </div>
-                        </div>
-                        
-                        <div class="cashier-actions">
-                            <div class="action-card">
-                                <h3>🏦 Deposit AMINA</h3>
-                                <p>Transfer AMINA tokens from your wallet to casino credits for gaming</p>
-                                <div class="deposit-controls">
-                                    <input id="depositAmount" type="number" placeholder="Amount to deposit" step="0.00000001" min="0">
-                                    <button id="depositBtn" class="cosmic-btn deposit-btn">💰 DEPOSIT</button>
-                                </div>
-                            </div>
-                            
-                            <div class="action-card">
-                                <h3>💸 Withdraw AMINA</h3>
-                                <p>Transfer casino credits back to your wallet as AMINA tokens</p>
-                                <div class="withdraw-controls">
-                                    <input id="withdrawAmount" type="number" placeholder="Amount to withdraw" step="0.00000001" min="0">
-                                    <button id="withdrawBtn" class="cosmic-btn withdraw-btn">🚀 WITHDRAW</button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="transaction-history">
-                            <h3>📊 Transaction History</h3>
-                            <div id="transactionList" class="transaction-list">
-                                <div class="transaction-placeholder">No transactions yet. Make your first deposit!</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- About Screen -->
-            <div id="about" class="game-screen">
-                <div class="game-container">
-                    <div class="info-header">
-                        <h2>ℹ️ About AMINA Casino</h2>
-                        <p class="info-subtitle">The future of decentralized cosmic gaming</p>
-                    </div>
-                    
-                    <div class="about-content">
-                        <div class="about-section">
-                            <div class="section-icon">🌌</div>
-                            <h3>Cosmic Vision</h3>
-                            <p>AMINA Casino represents the next evolution in blockchain gaming, where cosmic forces meet cutting-edge technology to create an unparalleled gaming experience.</p>
-                            <p>Our platform combines provably fair gaming mechanics with stunning visual effects and seamless wallet integration.</p>
-                        </div>
-                        
-                        <div class="about-section">
-                            <div class="section-icon">🎰</div>
-                            <h3>Game Features</h3>
-                            <ul>
-                                <li>🎯 Provably fair algorithms ensure cosmic justice</li>
-                                <li>🌟 Real-time multiplayer cosmic events</li>
-                                <li>💫 Dynamic difficulty based on stellar alignment</li>
-                                <li>🚀 Instant payouts via smart contracts</li>
-                            </ul>
-                        </div>
-                        
-                        <div class="about-section">
-                            <div class="section-icon">🔐</div>
-                            <h3>Security & Trust</h3>
-                            <p>Built on Algorand blockchain for maximum security and transparency. All game outcomes are verifiable on-chain.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Rules Screen -->
-            <div id="rules" class="game-screen">
-                <div class="game-container">
-                    <div class="info-header">
-                        <h2>📋 How to Play</h2>
-                        <p class="info-subtitle">Master the cosmic gaming mechanics</p>
-                    </div>
-                    
-                    <div class="rules-grid">
-                        <div class="rule-card">
-                            <div class="rule-icon">🎰</div>
-                            <h3>Cosmic Chaos Slots</h3>
-                            <div class="rule-content">
-                                <p><strong>Objective:</strong> Match cosmic symbols in clusters to win stellar rewards.</p>
-                                <ul>
-                                    <li>Land 5+ matching symbols for wins</li>
-                                    <li>Scatter symbols trigger free spins</li>
-                                    <li>Multipliers increase during bonus rounds</li>
-                                    <li>Buy bonus feature for instant action</li>
-                                </ul>
-                                <p><strong>Max Win:</strong> 5000x your cosmic bet!</p>
-                            </div>
-                        </div>
-                        
-                        <div class="rule-card">
-                            <div class="rule-icon">🌌</div>
-                            <h3>Stellar Plinko</h3>
-                            <div class="rule-content">
-                                <p><strong>Objective:</strong> Drop cosmic orbs and watch them bounce to multiplier slots.</p>
-                                <ul>
-                                    <li>Higher multipliers at the edges</li>
-                                    <li>Central slots offer steady returns</li>
-                                    <li>Physics-based realistic bouncing</li>
-                                    <li>Up to 5 orbs can be active simultaneously</li>
-                                </ul>
-                                <p><strong>Max Win:</strong> 1000x stellar multiplier!</p>
-                            </div>
-                        </div>
-                        
-                        <div class="rule-card">
-                            <div class="rule-icon">🃏</div>
-                            <h3>Cosmic Blackjack</h3>
-                            <div class="rule-content">
-                                <p><strong>Objective:</strong> Get as close to 21 as possible without going over.</p>
-                                <ul>
-                                    <li>Face cards worth 10, Aces worth 1 or 11</li>
-                                    <li>Double down on promising hands</li>
-                                    <li>Split pairs for multiple hands</li>
-                                    <li>Insurance available on dealer Ace</li>
-                                </ul>
-                                <p><strong>Blackjack pays:</strong> 3:2 cosmic ratio!</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Whitepaper Screen -->
-            <div id="whitepaper" class="game-screen">
-                <div class="game-container">
-                    <div class="whitepaper-content">
-                        <div class="wp-header">
-                            <div class="wp-logo">🪙</div>
-                            <h1>AMINA CASINO</h1>
-                            <h2>Cosmic Gaming Whitepaper</h2>
-                            <p class="wp-tagline">Revolutionizing Decentralized Entertainment</p>
-                            <div class="wp-meta">
-                                <p>Version 1.0 | Published 2024</p>
-                            </div>
-                        </div>
-                        
-                        <div class="wp-section">
-                            <h2>🌌 Executive Summary</h2>
-                            <p>AMINA Casino represents a paradigm shift in blockchain gaming, combining cutting-edge technology with engaging gameplay mechanics. Built on the Algorand blockchain, our platform offers provably fair gaming with instant transactions and transparent outcomes.</p>
-                            <p>Our vision is to create the most immersive and trustworthy decentralized casino experience, where players can enjoy cosmic-themed games while maintaining full control of their digital assets.</p>
-                        </div>
-                        
-                        <div class="wp-section">
-                            <h2>🎯 Problem Statement</h2>
-                            <p>Traditional online casinos suffer from several critical issues:</p>
-                            <ul>
-                                <li>Lack of transparency in game outcomes</li>
-                                <li>Centralized control over player funds</li>
-                                <li>High fees and slow withdrawal processes</li>
-                                <li>Limited player verification capabilities</li>
-                                <li>Regulatory compliance challenges</li>
-                            </ul>
-                            <p>AMINA Casino addresses these challenges through blockchain technology and smart contract automation.</p>
-                        </div>
-                        
-                        <div class="wp-section">
-                            <h2>🚀 Technology Stack</h2>
-                            <h3>Blockchain Infrastructure</h3>
-                            <p>Our platform is built on Algorand, chosen for its unique combination of security, scalability, and sustainability.</p>
-                        </div>
-                        
-                        <div class="wp-conclusion">
-                            🌌 AMINA Casino is positioned to become the leading decentralized gaming platform, offering unparalleled transparency, security, and entertainment value to the global crypto community.
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-        </main>
-    </div>
-    
-    <!-- Donation Modal -->
-    <div id="donationModal" class="modal-overlay" style="display:none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>💝 Support AMINA Casino</h3>
-                <button onclick="closeDonationModal()" class="modal-close">&times;</button>
-            </div>
-            <p>Help us build the future of cosmic gaming!</p>
-            <div class="wallet-input-group">
-                <input id="donationWallet" type="text" value="UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCFN7PAVCT2H4G4JEZKJK6W7UG44" readonly>
-                <button onclick="copyDonationAddress()" class="copy-btn">📋 Copy</button>
-            </div>
-            <p class="donation-note">Send any amount of AMINA tokens to support development! 🚀</p>
-        </div>
-    </div>
-    
-    <!-- Fixed JavaScript path to match your file name -->
-    <script src="scripts.js"></script>
+<div class="cosmic-bg"></div>
+<div id="welcomeScreen" class="welcome-screen active">
+<div class="welcome-content">
+<img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina" class="hero-coin">
+<h1 class="hero-title">AMINA CASINO</h1>
+<p class="hero-subtitle">Ultimate Cosmic Gaming</p>
+<div class="game-info">
+<h3>🚀 Ready to Play?</h3>
+<p class="welcome-description">Welcome to Amina Casino, the ultimate cosmic gaming experience built on the Algorand blockchain. Dive into a universe of provably fair games where your cosmic fortune awaits among the stars.</p>
+<div class="info-grid">
+<div class="info-item">
+<span class="info-icon">🔗</span>
+<div class="info-content">
+<h4>Connect & Bet</h4>
+<p>Start with 1000 HC or connect your wallet for AMINA crypto betting. Switch between currencies anytime for the perfect gaming experience.</p>
+</div>
+</div>
+<div class="info-item">
+<span class="info-icon">🎮</span>
+<div class="info-content">
+<h4>5 Cosmic Games</h4>
+<p>Cosmic Chaos Slots, Quantum Plinko, Galaxy Blackjack, Cosmic Hi-Lo, and Nebula Dice await your cosmic fortune with wins up to 1,000x your bet!</p>
+</div>
+</div>
+<div class="info-item get-amina-flash" onclick="openAminaExplorer()">
+<span class="info-icon">🪙</span>
+<div class="info-content">
+<h4>Get AMINA Tokens</h4>
+<p>Buy & opt-in to play with crypto on Algorand. Experience true decentralized gaming with AMINA tokens.</p>
+</div>
+</div>
+</div>
+</div>
+<button id="enterCasino" class="enter-btn">🚀 ENTER CASINO</button>
+</div>
+</div>
+<div id="mainCasino" class="main-casino">
+<header class="header">
+<div class="header-content">
+<div class="logo-section">
+<div class="amina-coin">
+<img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina" class="coin-image">
+</div>
+<h1 class="logo">AMINA CASINO</h1>
+</div>
+<div class="header-controls">
+<button id="walletBtn" class="wallet-btn">🔗 Connect Wallet</button>
+<div class="currency-toggle">
+<span class="currency-label">Currency:</span>
+<button id="currencyToggle" class="toggle-btn">
+<span class="toggle-slider"></span>
+<span class="currency-text">HC</span>
+</button>
+</div>
+<div class="balance-display">
+<span class="balance-label">Balance:</span>
+<span id="balanceAmount" class="balance-amount">1000</span>
+<span id="currencySymbol" class="currency-symbol">HC</span>
+</div>
+</div>
+</div>
+</header>
+<div class="cosmic-orb-menu">
+<button id="cosmicOrb" class="cosmic-orb">
+<div class="orb-core">👽</div>
+</button>
+<div id="orbitalMenu" class="orbital-menu">
+<button class="orbital-item" data-game="home" style="--angle: 0deg" title="Home">🏠</button>
+<button class="orbital-item" data-game="slots" style="--angle: 36deg" title="Cosmic Chaos">🎰</button>
+<button class="orbital-item" data-game="plinko" style="--angle: 72deg" title="Quantum Plinko">🌌</button>
+<button class="orbital-item" data-game="blackjack" style="--angle: 108deg" title="Galaxy Blackjack">♠️</button>
+<button class="orbital-item" data-game="hilo" style="--angle: 144deg" title="Cosmic Hi-Lo">📈</button>
+<button class="orbital-item" data-game="dice" style="--angle: 180deg" title="Nebula Dice">🎲</button>
+<button class="orbital-item" data-game="cashier" style="--angle: 216deg" title="Cashier">🏦</button>
+<button class="orbital-item" data-game="howtoplay" style="--angle: 252deg" title="How to Play">❓</button>
+<button class="orbital-item" data-game="about" style="--angle: 288deg" title="About">📜</button>
+<button class="orbital-item" data-game="whitepaper" style="--angle: 324deg" title="Whitepaper">🚀</button>
+</div>
+</div>
+<div class="floating-actions">
+<button class="floating-btn music-btn" id="musicToggle" title="Music">🎵</button>
+<button class="floating-btn donation-btn" onclick="showDonationModal()" title="Donate">💎</button>
+</div>
+<main class="main-content">
+<div id="home" class="game-screen active">
+<div class="welcome-container">
+<img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina" class="welcome-coin">
+<h2 class="welcome-title">Choose Your Game</h2>
+<p class="welcome-text">Experience cosmic gaming</p>
+<div class="game-grid">
+<div class="game-card" data-game="slots">
+<div class="game-icon">🎰</div>
+<h3>Cosmic Chaos</h3>
+<p>Cluster pays slots</p>
+<div class="max-win">Max Win: 1000x</div>
+</div>
+<div class="game-card" data-game="plinko">
+<div class="game-icon">🌌</div>
+<h3>Quantum Plinko</h3>
+<p>Physics ball drops</p>
+<div class="max-win">Max Win: 10x</div>
+</div>
+<div class="game-card" data-game="blackjack">
+<div class="game-icon">♠️</div>
+<h3>Galaxy Blackjack</h3>
+<p>Classic 21</p>
+<div class="max-win">Max Win: 2x</div>
+</div>
+<div class="game-card" data-game="hilo">
+<div class="game-icon">📈</div>
+<h3>Cosmic Hi-Lo</h3>
+<p>Higher or lower</p>
+<div class="max-win">Streak Wins</div>
+</div>
+<div class="game-card" data-game="dice">
+<div class="game-icon">🎲</div>
+<h3>Nebula Dice</h3>
+<p>Roll predictions</p>
+<div class="max-win">Max Win: 5x</div>
+</div>
+</div>
+</div>
+</div>
+<div id="slots" class="game-screen">
+<div class="game-container">
+<div class="game-header">
+<h2>🎰 Cosmic Chaos</h2>
+<div class="bet-controls">
+<label>Bet:</label>
+<select id="slotsBet">
+<option value="1">1</option>
+<option value="5">5</option>
+<option value="10">10</option>
+</select>
+<span id="slotsCurrency">HC</span>
+<button id="buyBonusBtn" class="buy-bonus-btn">🚀 Buy Bonus (100x)</button>
+</div>
+</div>
+<div class="cosmic-chaos-machine">
+<div class="chaos-info-panel">
+<div class="multiplier-display">
+<div class="current-multiplier">
+<span class="multiplier-label">Multiplier:</span>
+<span id="currentMultiplier" class="multiplier-value">1x</span>
+</div>
+<div class="free-spins-display">
+<span class="spins-label">Free Spins:</span>
+<span id="freeSpinsCount" class="spins-count">0</span>
+</div>
+</div>
+<div class="win-display">
+<span class="win-label">Total Win:</span>
+<span id="totalWin" class="win-amount">0</span>
+<span id="winCurrency" class="win-currency">HC</span>
+</div>
+</div>
+<div class="chaos-grid-container">
+<div id="chaosGrid" class="chaos-grid"></div>
+<div class="meteor-shower" id="meteorShower"></div>
+</div>
+<div class="chaos-controls">
+<button id="spinBtn" class="cosmic-btn spin-btn">⚡ SPIN ⚡</button>
+<div class="autoplay-controls">
+<button id="autoplayBtn" class="cosmic-btn auto-btn">🔄 Auto</button>
+<select id="autoplaySpins" class="auto-select">
+<option value="10">10</option>
+<option value="25">25</option>
+<option value="50">50</option>
+<option value="100">100</option>
+</select>
+</div>
+</div>
+<div class="chaos-features">
+<div class="feature-card">
+<h4>🌟 Cluster Pays</h4>
+<p>5+ connected symbols = WIN!</p>
+</div>
+<div class="feature-card">
+<h4>💥 Cascading Chaos</h4>
+<p>Wins explode, new symbols fall</p>
+</div>
+<div class="feature-card">
+<h4>☄️ Multiplier Meteors</h4>
+<p>Random 2x-100x multipliers</p>
+</div>
+<div class="feature-card">
+<h4>🌌 Free Spins</h4>
+<p>3+ scatters = 10 free spins</p>
+</div>
+</div>
+</div>
+<div id="slotsResult" class="game-result"></div>
+</div>
+</div>
+<div id="plinko" class="game-screen">
+<div class="game-container">
+<div class="game-header">
+<h2>🌌 Quantum Plinko</h2>
+<div class="bet-controls">
+<label>Bet:</label>
+<select id="plinkoBet">
+<option value="1">1</option>
+<option value="5">5</option>
+<option value="10">10</option>
+</select>
+<span id="plinkoCurrency">HC</span>
+</div>
+</div>
+<div class="plinko-container">
+<div class="plinko-board">
+<canvas id="plinkoCanvas" width="400" height="450"></canvas>
+</div>
+<div class="multipliers-container">
+<div class="multipliers">
+<div class="multiplier" data-mult="10">10x</div>
+<div class="multiplier" data-mult="3">3x</div>
+<div class="multiplier" data-mult="1.5">1.5x</div>
+<div class="multiplier" data-mult="1.4">1.4x</div>
+<div class="multiplier" data-mult="1.1">1.1x</div>
+<div class="multiplier" data-mult="1">1x</div>
+<div class="multiplier" data-mult="0.5">0.5x</div>
+<div class="multiplier" data-mult="1">1x</div>
+<div class="multiplier" data-mult="1.1">1.1x</div>
+<div class="multiplier" data-mult="1.4">1.4x</div>
+<div class="multiplier" data-mult="1.5">1.5x</div>
+<div class="multiplier" data-mult="3">3x</div>
+<div class="multiplier" data-mult="10">10x</div>
+</div>
+</div>
+<button id="dropBtn" class="cosmic-btn plinko-drop-btn">🌌 DROP BALL</button>
+</div>
+<div id="plinkoResult" class="game-result"></div>
+</div>
+</div>
+<div id="blackjack" class="game-screen">
+<div class="game-container">
+<div class="game-header">
+<h2>♠️ Galaxy Blackjack</h2>
+<div class="bet-controls">
+<label>Bet:</label>
+<select id="blackjackBet">
+<option value="1">1</option>
+<option value="5">5</option>
+<option value="10">10</option>
+</select>
+<span id="blackjackCurrency">HC</span>
+</div>
+</div>
+<div class="blackjack-table">
+<div class="dealer-section">
+<h3>Dealer: <span id="dealerScore">0</span></h3>
+<div id="dealerCards" class="card-container"></div>
+</div>
+<div class="player-section">
+<h3>You: <span id="playerScore">0</span></h3>
+<div id="playerCards" class="card-container"></div>
+</div>
+<div class="game-controls">
+<button id="dealBtn" class="cosmic-btn">DEAL</button>
+<button id="hitBtn" class="cosmic-btn" disabled>HIT</button>
+<button id="standBtn" class="cosmic-btn" disabled>STAND</button>
+</div>
+</div>
+<div id="blackjackResult" class="game-result"></div>
+</div>
+</div>
+<div id="hilo" class="game-screen">
+<div class="game-container">
+<div class="game-header">
+<h2>📈 Cosmic Hi-Lo</h2>
+<div class="bet-controls">
+<label>Bet:</label>
+<select id="hiloBet">
+<option value="1">1</option>
+<option value="5">5</option>
+<option value="10">10</option>
+</select>
+<span id="hiloCurrency">HC</span>
+</div>
+</div>
+<div class="hilo-game-container">
+<div class="current-card-display">
+<h3>Current Card</h3>
+<div id="currentCard" class="hilo-card-area">
+<div class="playing-card hilo-main-card">?</div>
+</div>
+</div>
+<div class="prediction-controls">
+<p class="prediction-text">Will the next card be higher or lower?</p>
+<div class="hilo-buttons">
+<button id="higherBtn" class="hilo-btn higher-btn" disabled>⬆️ HIGHER</button>
+<button id="lowerBtn" class="hilo-btn lower-btn" disabled>⬇️ LOWER</button>
+</div>
+</div>
+<div class="streak-info">
+<div class="streak-display">
+<span class="streak-label">🔥 Streak:</span>
+<span class="streak-count">0</span>
+</div>
+<div id="streakCards" class="mini-streak-cards">
+<div class="streak-placeholder">Start playing!</div>
+</div>
+</div>
+<div class="hilo-actions">
+<button id="dealHiloBtn" class="cosmic-btn start-btn">🚀 START GAME</button>
+<button id="cashoutBtn" class="cosmic-btn cash-btn" disabled>💰 CASH OUT</button>
+</div>
+</div>
+<div id="hiloResult" class="game-result"></div>
+</div>
+</div>
+<div id="dice" class="game-screen">
+<div class="game-container">
+<div class="game-header">
+<h2>🎲 Nebula Dice</h2>
+<div class="bet-controls">
+<label>Bet:</label>
+<select id="diceBet">
+<option value="1">1</option>
+<option value="5">5</option>
+<option value="10">10</option>
+</select>
+<span id="diceCurrency">HC</span>
+</div>
+</div>
+<div class="dice-game">
+<div class="dice-display">
+<div class="dice-container">
+<div id="dice1" class="dice">
+<div class="dice-face face-1"></div>
+<div class="dice-face face-2"></div>
+<div class="dice-face face-3"></div>
+<div class="dice-face face-4"></div>
+<div class="dice-face face-5"></div>
+<div class="dice-face face-6"></div>
+</div>
+<div id="dice2" class="dice">
+<div class="dice-face face-1"></div>
+<div class="dice-face face-2"></div>
+<div class="dice-face face-3"></div>
+<div class="dice-face face-4"></div>
+<div class="dice-face face-5"></div>
+<div class="dice-face face-6"></div>
+</div>
+</div>
+<div class="dice-total">Total: <span id="diceTotal">2</span></div>
+</div>
+<div class="dice-betting">
+<h3>Choose Your Bet:</h3>
+<div class="bet-options">
+<button class="bet-option" data-bet="low">LOW (2-6) - 2x</button>
+<button class="bet-option" data-bet="seven">SEVEN (7) - 5x</button>
+<button class="bet-option" data-bet="high">HIGH (8-12) - 2x</button>
+</div>
+<div class="selected-bet">Selected: <span id="selectedBet">None</span></div>
+</div>
+<div class="dice-controls">
+<button id="rollBtn" class="cosmic-btn" disabled>🎲 ROLL DICE</button>
+</div>
+</div>
+<div id="diceResult" class="game-result"></div>
+</div>
+</div>
+<div id="cashier" class="game-screen">
+<div class="game-container">
+<div class="info-header">
+<h2>🏦 Cashier</h2>
+<p class="info-subtitle">Deposit AMINA tokens to play or withdraw your winnings</p>
+</div>
+<div class="cashier-content">
+<div class="balance-section">
+<div class="balance-card">
+<div class="balance-icon">🪙</div>
+<h3>Wallet Balance</h3>
+<div class="balance-amount" id="walletBalance">0.00000000 AMINA</div>
+<p>Real AMINA in your Pera Wallet</p>
+</div>
+<div class="balance-card">
+<div class="balance-icon">🎰</div>
+<h3>Casino Credits</h3>
+<div class="balance-amount" id="casinoCredits">0.00000000 AMINA</div>
+<p>Available for gaming</p>
+</div>
+</div>
+<div class="cashier-actions">
+<div class="action-card">
+<h3>💰 Deposit AMINA</h3>
+<p>Send AMINA from your wallet to get casino credits</p>
+<div class="deposit-controls">
+<input type="number" id="depositAmount" placeholder="Amount to deposit" step="0.00000001" min="0">
+<button id="depositBtn" class="cosmic-btn deposit-btn">🔄 Deposit</button>
+</div>
+</div>
+<div class="action-card">
+<h3>💸 Withdraw Credits</h3>
+<p>Convert casino credits back to AMINA in your wallet</p>
+<div class="withdraw-controls">
+<input type="number" id="withdrawAmount" placeholder="Amount to withdraw" step="0.00000001" min="0">
+<button id="withdrawBtn" class="cosmic-btn withdraw-btn">💰 Withdraw</button>
+</div>
+</div>
+</div>
+<div class="transaction-history">
+<h3>📋 Recent Transactions</h3>
+<div id="transactionList" class="transaction-list">
+<div class="transaction-placeholder">No transactions yet. Make your first deposit!</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="howtoplay" class="game-screen">
+<div class="game-container">
+<div class="info-header">
+<h2>❓ How to Play</h2>
+<p class="info-subtitle">Master the cosmic games and maximize your wins</p>
+</div>
+<div class="rules-grid">
+<div class="rule-card slots-rule">
+<div class="rule-icon">🎰</div>
+<h3>Cosmic Chaos</h3>
+<div class="rule-content">
+<p><strong>Objective:</strong> Create clusters of 5+ identical symbols anywhere on the 6x5 grid</p>
+<p><strong>Cluster Pays:</strong></p>
+<ul>
+<li>5-9 symbols = 2x your bet</li>
+<li>10-14 symbols = 10x your bet</li>
+<li>15-19 symbols = 50x your bet</li>
+<li>20+ symbols = 500x your bet</li>
+</ul>
+<p><strong>Special Features:</strong></p>
+<ul>
+<li><strong>Cascading Wins:</strong> Winning symbols explode, new ones fall down</li>
+<li><strong>Multiplier Meteors:</strong> Random 2x-100x multipliers crash onto the reels</li>
+<li><strong>Cosmic Scatters:</strong> 3+ scatters trigger 10 free spins with enhanced multipliers</li>
+<li><strong>Buy Bonus:</strong> Purchase instant free spins for 100x your bet</li>
+</ul>
+<p><strong>Max Win:</strong> 1,000x your bet | <strong>RTP:</strong> 96.2% | <strong>Volatility:</strong> High</p>
+</div>
+</div>
+<div class="rule-card plinko-rule">
+<div class="rule-icon">🌌</div>
+<h3>Quantum Plinko</h3>
+<div class="rule-content">
+<p><strong>Objective:</strong> Drop balls through pegs to land in multiplier slots</p>
+<p><strong>Multipliers:</strong> 0.5x to 10x (higher multipliers on edges)</p>
+<p><strong>How to Play:</strong> Choose bet amount, click DROP BALL, and let physics determine your fate. Up to 5 balls can be active simultaneously.</p>
+<p><strong>Strategy:</strong> Edge slots offer higher multipliers but are harder to hit due to the physics simulation.</p>
+<p><strong>RTP:</strong> 97.2% | <strong>House Edge:</strong> 2.8%</p>
+</div>
+</div>
+<div class="rule-card blackjack-rule">
+<div class="rule-icon">♠️</div>
+<h3>Galaxy Blackjack</h3>
+<div class="rule-content">
+<p><strong>Objective:</strong> Get closer to 21 than the dealer without going over</p>
+<p><strong>Card Values:</strong> A=1/11, Face cards=10, Numbers=face value</p>
+<p><strong>How to Play:</strong> Place bet, get 2 cards, choose to HIT (take card) or STAND (keep total). Dealer hits on 16, stands on 17.</p>
+<p><strong>Winning:</strong> Beat dealer = 2x bet | Dealer busts = 2x bet | Push = bet returned</p>
+<p><strong>RTP:</strong> 99.4% | <strong>House Edge:</strong> 0.6%</p>
+</div>
+</div>
+<div class="rule-card hilo-rule">
+<div class="rule-icon">📈</div>
+<h3>Cosmic Hi-Lo</h3>
+<div class="rule-content">
+<p><strong>Objective:</strong> Predict if the next card will be higher or lower</p>
+<p><strong>Card Order:</strong> A(low) - 2 - 3 - 4 - 5 - 6 - 7 - 8 - 9 - 10 - J - Q - K(high)</p>
+<p><strong>How to Play:</strong> Start game to see first card, predict HIGHER or LOWER for next card. Win = 2x bet and continue streak.</p>
+<p><strong>Streak System:</strong> Each correct guess builds your streak and lets you continue for bigger wins!</p>
+<p><strong>Cash Out:</strong> Hit CASH OUT button anytime to secure your winnings!</p>
+<p><strong>RTP:</strong> 98.1% | <strong>House Edge:</strong> 1.9%</p>
+</div>
+</div>
+<div class="rule-card dice-rule">
+<div class="rule-icon">🎲</div>
+<h3>Nebula Dice</h3>
+<div class="rule-content">
+<p><strong>Objective:</strong> Predict the sum of two dice rolls</p>
+<p><strong>Betting Options:</strong></p>
+<ul>
+<li>HIGH (8-12) = 2x payout</li>
+<li>LOW (2-6) = 2x payout</li>
+<li>SEVEN (7) = 5x payout</li>
+</ul>
+<p><strong>How to Play:</strong> Select bet type, choose bet amount, roll dice. Win if your prediction matches the total.</p>
+<p><strong>RTP:</strong> 97.8% | <strong>House Edge:</strong> 2.2%</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="about" class="game-screen">
+<div class="game-container">
+<div class="info-header">
+<h2>📜 About Amina Casino</h2>
+<p class="info-subtitle">The future of decentralized gaming on Algorand</p>
+</div>
+<div class="about-content">
+<div class="about-section mission-section">
+<div class="section-icon">🌌</div>
+<h3>Our Cosmic Mission</h3>
+<p>Amina Casino represents the next evolution in online gaming - a fully decentralized, provably fair casino built on the Algorand blockchain. We're pioneering a new era where players can enjoy their favorite games with complete transparency, lightning-fast transactions, and absolute fairness guaranteed by blockchain technology.</p>
+<p>Our vision extends beyond traditional gaming. We're building a community-driven ecosystem where every spin, every bet, and every win contributes to a sustainable and rewarding experience for all cosmic travelers.</p>
+</div>
+<div class="about-section tech-section">
+<div class="section-icon">⚡</div>
+<h3>Why Algorand Blockchain?</h3>
+<div class="tech-features">
+<div class="tech-feature">
+<h4>🚀 Lightning Fast</h4>
+<p>4-second transaction finality means instant bets and immediate payouts</p>
+</div>
+<div class="tech-feature">
+<h4>💰 Ultra Low Fees</h4>
+<p>0.001 ALGO transaction costs - keep more of your winnings</p>
+</div>
+<div class="tech-feature">
+<h4>🌱 Carbon Negative</h4>
+<p>Environmentally sustainable blockchain with negative carbon footprint</p>
+</div>
+<div class="tech-feature">
+<h4>🔒 Bank-Level Security</h4>
+<p>Pure proof-of-stake consensus with cryptographic security</p>
+</div>
+</div>
+</div>
+<div class="about-section fairness-section">
+<div class="section-icon">🛡️</div>
+<h3>Provably Fair Gaming</h3>
+<p>Traditional online casinos ask you to trust them. We don't. Every game outcome in Amina Casino is verifiable on the Algorand blockchain:</p>
+<ul>
+<li><strong>Transparent Randomness:</strong> All random events use blockchain-generated entropy</li>
+<li><strong>No House Manipulation:</strong> Smart contracts execute automatically without human intervention</li>
+<li><strong>Public Verification:</strong> Every bet and outcome is recorded permanently on-chain</li>
+<li><strong>Open Source Logic:</strong> Game mechanics are transparent and auditable</li>
+</ul>
+<p>You don't have to trust us - you can verify us.</p>
+</div>
+<div class="about-section token-section">
+<div class="section-icon">🪙</div>
+<h3>AMINA Token Integration</h3>
+<p>AMINA (ASA #1107424865) is our native gaming token that powers the entire ecosystem:</p>
+<div class="token-features">
+<div class="token-feature">
+<h4>🎮 Gaming Currency</h4>
+<p>Use AMINA for all casino games with seamless wallet integration</p>
+</div>
+<div class="token-feature">
+<h4>🏆 Exclusive Benefits</h4>
+<p>AMINA holders get access to special tournaments and bonus rewards</p>
+</div>
+<div class="token-feature">
+<h4>🌟 Community Governance</h4>
+<p>Token holders influence future game development and platform decisions</p>
+</div>
+</div>
+<p><strong>Getting Started:</strong> Connect your Algorand wallet and opt-in to AMINA token to experience true decentralized gaming. New users start with 1000 House Coins for risk-free play!</p>
+</div>
+<div class="about-section contact-section">
+<div class="section-icon">📡</div>
+<h3>Join the Cosmic Community</h3>
+<p>Amina Casino is more than a platform - it's a community of cosmic gamers exploring the frontiers of decentralized entertainment. Whether you're a blockchain veteran or new to crypto gaming, you belong here among the stars.</p>
+<p><strong>Built for:</strong> Fair play enthusiasts, crypto natives, casual gamers, and anyone who believes gaming should be transparent, fast, and rewarding.</p>
+</div>
+</div>
+</div>
+</div>
+<div id="whitepaper" class="game-screen">
+<div class="game-container">
+<div class="whitepaper-content">
+<div class="wp-header">
+<img src="https://i.postimg.cc/nrMt6P0R/IMG-8041.png" alt="Amina" class="wp-logo">
+<h1>AMINA CASINO</h1>
+<h2>The Future of Decentralized Gaming</h2>
+<p class="wp-tagline">A Comprehensive Whitepaper on Blockchain-Powered Fair Gaming</p>
+<div class="wp-meta">
+<p>Version 1.0 | Published 2025 | Built on Algorand</p>
+</div>
+</div>
+<div class="wp-section">
+<h2>🚀 Executive Summary</h2>
+<p>Amina Casino represents a paradigm shift in online gaming, combining the excitement of traditional casino games with the transparency and fairness of blockchain technology. Built on the Algorand blockchain, our platform offers players a truly decentralized gaming experience where every outcome is verifiable, every transaction is instant, and every player has equal opportunity for cosmic fortune.</p>
+<p>The global online gambling market, valued at over $66 billion in 2024, suffers from a fundamental trust problem. Players must rely on centralized operators' promises of fairness, often facing slow withdrawals, high fees, and opaque game mechanics. Amina Casino solves these issues through blockchain integration, offering provably fair games, instant settlements, and complete transparency.</p>
+<p>Our ecosystem features five core games - Cosmic Chaos Slots, Quantum Plinko, Galaxy Blackjack, Cosmic Hi-Lo, and Nebula Dice - each designed with optimal RTPs and engaging mechanics. Players can bet using either House Coins (HC) for practice or AMINA tokens for real crypto gaming, creating a seamless bridge between traditional and decentralized gaming.</p>
+</div>
+<div class="wp-section">
+<h2>📊 Market Analysis & Opportunity</h2>
+<h3>Current Market Challenges</h3>
+<p>The traditional online casino industry faces several critical issues that blockchain technology can address:</p>
+<ul>
+<li><strong>Trust Deficit:</strong> Players cannot verify game fairness or RNG integrity</li>
+<li><strong>Payment Friction:</strong> Slow deposits/withdrawals, high fees, geographic restrictions</li>
+<li><strong>Regulatory Complexity:</strong> Licensing requirements create barriers and limit innovation</li>
+<li><strong>Centralized Control:</strong> Operators can modify rules, freeze accounts, or manipulate outcomes</li>
+</ul>
+<h3>Blockchain Gaming Advantages</h3>
+<p>Decentralized gaming platforms like Amina Casino offer compelling solutions:</p>
+<ul>
+<li><strong>Provable Fairness:</strong> Every game outcome verifiable on-chain</li>
+<li><strong>Instant Transactions:</strong> Blockchain-native payments with 4-second finality</li>
+<li><strong>Global Accessibility:</strong> No geographic restrictions or traditional banking requirements</li>
+<li><strong>Transparent Operations:</strong> Smart contracts execute automatically without human intervention</li>
+</ul>
+<h3>Algorand Ecosystem Growth</h3>
+<p>The Algorand blockchain provides an ideal foundation for gaming applications, with over 20 million accounts, $2.7 billion in total value locked, and growing DeFi adoption. As one of the first comprehensive gaming platforms on Algorand, Amina Casino is positioned to capture significant market share in the expanding ecosystem.</p>
+</div>
+<div class="wp-section">
+<h2>⚡ Technology & Architecture</h2>
+<p>Amina Casino leverages Algorand's unique properties to deliver superior gaming experiences, featuring automated game logic, provably fair outcomes, and seamless token integration across five engaging games with industry-competitive RTPs.</p>
+</div>
+<div class="wp-section">
+<h2>🪙 Tokenomics & AMINA Integration</h2>
+<p>The AMINA token (ASA #1107424865) serves as the primary gaming currency, enabling direct betting, governance participation, and exclusive access to premium features. Our dual currency system bridges traditional gaming with decentralized finance.</p>
+</div>
+<div class="wp-section">
+<h2>🛣️ Roadmap & Future Vision</h2>
+<p>Amina Casino aims to become the premier destination for decentralized gaming, setting industry standards for fairness, innovation, and player experience through continuous development and community-driven governance.</p>
+<p class="wp-conclusion"><strong>Welcome to the future of gaming. Welcome to Amina Casino. 🚀</strong></p>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<div id="donationModal" class="modal-overlay" style="display: none;">
+<div class="modal-content">
+<div class="modal-header">
+<h3>💎 Support Amina Casino</h3>
+<button class="modal-close" onclick="closeDonationModal()">&times;</button>
+</div>
+<div class="modal-body">
+<p>Support cosmic gaming with ALGO donations!</p>
+<div class="wallet-section">
+<label>🎯 Send ALGO to:</label>
+<div class="wallet-input-group">
+<input type="text" id="donationWallet" value="6ZL5LU6ZOG5SQLYD2GLBGFZK7TKM2BB7WGFZCRILWPRRHLH3NYVU5BASYI" readonly>
+<button class="copy-btn" onclick="copyDonationAddress()">Copy</button>
+</div>
+<p class="donation-note">💫 Keep the cosmic casino running!</p>
+</div>
+</div>
+</div>
+</div>
+<script src="https://unpkg.com/@perawallet/connect@1.3.4/dist/umd/index.js"></script>
+<script src="https://unpkg.com/algosdk@2.7.0/dist/browser/algosdk.min.js"></script>
+<script src="scripts.js"></script>
 </body>
 </html>
