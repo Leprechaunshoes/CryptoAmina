@@ -146,7 +146,7 @@ Tired of crypto casinos that:
 
 ## 🌟 Join the Cosmic Gaming Revolution
 
-**[🎰 PLAY NOW](https://cryptoamina.netlify.app)** | **[🪙 Get AMINA](https://cryptoamina.netlify.app)** | **[💬 Community](https://github.com/Leprechaunshoes/CryptoAmina/discussions)**
+**[🎰 PLAY NOW](https://aminacasino.us)** | **[🪙 Get AMINA](https://cryptoamina.netlify.app)** | **[💬 Community](https://github.com/Leprechaunshoes/CryptoAmina/discussions)**
 
 -----
 
