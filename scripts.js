@@ -1,37 +1,19 @@
 localStorage.clear();sessionStorage.clear()
 class AminaCasino{
 constructor(){
-this.b={HC:this.getHC(),AMINA:0};
-this.c=‘HC’;
-this.w=this.getW();
-this.t=this.getT();
-this.p=null;
-this.aid=1107424865;
-this.cw=‘UX3PHCY7QNGOHXWNWTZIXK5T3MBDZKYCFN7PAVCT2H4G4JEZKJK6W7UG44’;
+localStorage.clear();
+sessionStorage.clear();
+this.b={HC:1000,AMINA:0};
+this.c='HC';
+this.w=null;
+this.t=null;
 this.cc=0;
-this.dp=!1;
-this.ds=0;
-this.sq=[];
-this.ls=0;
-this.g={
-s:{syms:[‘⭐’,‘🌟’,‘💫’,‘🌌’,‘🪐’,‘🌙’,‘☄️’,‘🚀’,‘👽’,‘🛸’],sct:‘🌠’,grid:[],spin:0,win:0,mult:1,spins:0,state:null},
-p:{balls:[],max:5},
-bj:{pH:[],dH:[],deck:[],act:0,bet:0,dbl:0,spl:0,ins:0,spH:[],cDbl:0,cSpl:0},
-h:{card:null,strk:0,bet:0,act:0},
-d:{bet:null,v1:1,v2:1,roll:0,hot:[]}
-};
+this.g={s:{},p:{},bj:{},h:{},d:{}};
 this.m={on:0,aud:null};
-this.hap=navigator.vibrate||navigator.webkitVibrate;
-try{
-this.atomicRestore();
-this.initP();
-this.init();
-// this.check();
-}catch(e){
-console.error(‘Casino init error:’,e);
-this.forceHC();
-this.init();
-}
+setTimeout(()=>{
+this.setupUI();
+this.setupMusic();
+},100);
 }
 
 vib(p=50){if(this.hap&&‘ontouchstart’in window)try{this.hap.call(navigator,p)}catch(e){}}
