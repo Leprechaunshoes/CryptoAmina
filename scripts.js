@@ -1,3 +1,4 @@
+localStorage.clear();sessionStorage.clear()
 class AminaCasino{
 constructor(){
 this.b={HC:this.getHC(),AMINA:0};
