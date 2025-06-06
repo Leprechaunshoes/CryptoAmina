@@ -656,33 +656,7 @@
 <script src="https://unpkg.com/algosdk@2.7.0/dist/browser/algosdk.min.js"></script>
 <script src="scripts.js"></script><script src="scripts.js"></script>
 
-<!-- EMERGENCY CASINO FIX - ADD THIS -->
-<style>
-.main-casino { display: none !important; }
-.welcome-screen.active { display: flex !important; }
-.main-casino.active { display: block !important; }
-</style>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const welcomeScreen = document.getElementById('welcomeScreen');
-  const mainCasino = document.getElementById('mainCasino');
-  const enterBtn = document.getElementById('enterCasino');
-  
-  if (welcomeScreen) {
-    welcomeScreen.style.display = 'flex';
-    welcomeScreen.style.position = 'fixed';
-    welcomeScreen.style.top = '0';
-    welcomeScreen.style.left = '0';
-    welcomeScreen.style.width = '100vw';
-    welcomeScreen.style.height = '100vh';
-    welcomeScreen.style.zIndex = '9999';
-  }
-  
-  if (mainCasino) mainCasino.style.display = 'none';
-  
-  if (enterBtn) {
-    enterBtn.onclick = function(e) {
       e.preventDefault();
       if (welcomeScreen) welcomeScreen.style.display = 'none';
       if (mainCasino) mainCasino.style.display = 'block';
@@ -692,7 +666,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-</body>
-</html>
 </body>
 </html>
