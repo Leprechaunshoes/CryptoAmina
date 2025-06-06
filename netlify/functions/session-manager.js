@@ -309,143 +309,142 @@ try {
                         success: false,
                         error: 'Failed to update balance',
                         details: updateResult.error
-                    })
-                };
-            }
-
-            return {
-                statusCode: 200,
-                headers,
-                body: JSON.stringify({
-                    success: true,
-                    newBalance: parseFloat(updateResult.data.balance),
-                    message: `Balance updated to ${amount}`
                 })
             };
         }
 
-        case 'check_transaction': {
-            if (!txnId) {
-                return {
-                    statusCode: 400,
-                    headers,
-                    body: JSON.stringify({ success: false, error: 'Transaction ID required' })
-                };
-            }
+        return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+                success: true,
+                newBalance: parseFloat(updateResult.data.balance),
+                message: `Balance updated to ${amount}`
+            })
+        };
+    }
 
-            const txnResult = await safeQuery(
-                () => supabase
-                    .from('processed_transactions')
-                    .select('transaction_id')
-                    .eq('transaction_id', txnId)
-                    .single(),
-                'check_transaction'
-            );
-
-            return {
-                statusCode: 200,
-                headers,
-                body: JSON.stringify({
-                    success: true,
-                    processed: !!txnResult.data
-                })
-            };
-        }
-
-        case 'mark_transaction': {
-            if (!txnId || !wallet || !amount) {
-                return {
-                    statusCode: 400,
-                    headers,
-                    body: JSON.stringify({ success: false, error: 'Missing required fields' })
-                };
-            }
-
-            const markResult = await safeQuery(
-                () => supabase
-                    .from('processed_transactions')
-                    .insert({
-                        transaction_id: txnId,
-                        wallet_address: wallet,
-                        amount: amount,
-                        created_at: new Date().toISOString()
-                    })
-                    .select()
-                    .single(),
-                'mark_transaction'
-            );
-
-            if (!markResult.success) {
-                return {
-                    statusCode: 500,
-                    headers,
-                    body: JSON.stringify({
-                        success: false,
-                        error: 'Failed to mark transaction',
-                        details: markResult.error
-                    })
-                };
-            }
-
-            return {
-                statusCode: 200,
-                headers,
-                body: JSON.stringify({
-                    success: true,
-                    message: 'Transaction marked as processed'
-                })
-            };
-        }
-
-        case 'debug_session': {
-            // Special debug endpoint
-            const debugInfo = {
-                timestamp: new Date().toISOString(),
-                tables_accessible: await checkTables(),
-                request_body: body
-            };
-
-            if (wallet) {
-                const sessionCheck = await safeQuery(
-                    () => supabase
-                        .from('casino_sessions')
-                        .select('*')
-                        .eq('wallet_address', wallet),
-                    'debug_session_check'
-                );
-                debugInfo.session_data = sessionCheck;
-            }
-
-            return {
-                statusCode: 200,
-                headers,
-                body: JSON.stringify({
-                    success: true,
-                    debug: debugInfo
-                })
-            };
-        }
-
-        default:
+    case 'check_transaction': {
+        if (!txnId) {
             return {
                 statusCode: 400,
                 headers,
-                body: JSON.stringify({ success: false, error: 'Invalid action' })
+                body: JSON.stringify({ success: false, error: 'Transaction ID required' })
             };
+        }
+
+        const txnResult = await safeQuery(
+            () => supabase
+                .from('processed_transactions')
+                .select('transaction_id')
+                .eq('transaction_id', txnId)
+                .single(),
+            'check_transaction'
+        );
+
+        return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+                success: true,
+                processed: !!txnResult.data
+            })
+        };
     }
 
-} catch (error) {
-    console.error('💥 Session manager error:', error);
-    return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({
-            success: false,
-            error: 'Internal server error',
-            details: error.message
-        })
-    };
+    case 'mark_transaction': {
+        if (!txnId || !wallet || !amount) {
+            return {
+                statusCode: 400,
+                headers,
+                body: JSON.stringify({ success: false, error: 'Missing required fields' })
+            };
+        }
+
+        const markResult = await safeQuery(
+            () => supabase
+                .from('processed_transactions')
+                .insert({
+                    transaction_id: txnId,
+                    wallet_address: wallet,
+                    amount: amount,
+                    created_at: new Date().toISOString()
+                })
+                .select()
+                .single(),
+            'mark_transaction'
+        );
+
+        if (!markResult.success) {
+            return {
+                statusCode: 500,
+                headers,
+                body: JSON.stringify({
+                    success: false,
+                    error: 'Failed to mark transaction',
+                    details: markResult.error
+                })
+            };
+        }
+
+        return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+                success: true,
+                message: 'Transaction marked as processed'
+            })
+        };
+    }
+
+    case 'debug_session': {
+        // Special debug endpoint
+        const debugInfo = {
+            timestamp: new Date().toISOString(),
+            tables_accessible: await checkTables(),
+            request_body: body
+        };
+
+        if (wallet) {
+            const sessionCheck = await safeQuery(
+                () => supabase
+                    .from('casino_sessions')
+                    .select('*')
+                    .eq('wallet_address', wallet),
+                'debug_session_check'
+            );
+            debugInfo.session_data = sessionCheck;
+        }
+
+        return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+                success: true,
+                debug: debugInfo
+            })
+        };
+    }
+
+    default:
+        return {
+            statusCode: 400,
+            headers,
+            body: JSON.stringify({ success: false, error: 'Invalid action' })
+        };
 }
 ```
 
+} catch (error) {
+console.error(‘💥 Session manager error:’, error);
+return {
+statusCode: 500,
+headers,
+body: JSON.stringify({
+success: false,
+error: ‘Internal server error’,
+details: error.message
+})
+};
+}
 };
