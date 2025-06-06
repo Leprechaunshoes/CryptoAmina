@@ -26,7 +26,7 @@ try{
 this.atomicRestore();
 this.initP();
 this.init();
-this.check();
+// this.check();
 }catch(e){
 console.error(‘Casino init error:’,e);
 this.forceHC();
