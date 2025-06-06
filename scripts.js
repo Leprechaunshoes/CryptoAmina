@@ -1,8 +1,8 @@
 
 class AminaCasino{
 constructor(){
-localStorage.clear();
-sessionStorage.clear();
+//localStorage.clear();
+//sessionStorage.clear();
 this.b={HC:1000,AMINA:0};
 this.c='HC';
 this.w=null;
