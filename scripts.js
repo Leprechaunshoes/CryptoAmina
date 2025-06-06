@@ -1,4 +1,4 @@
-localStorage.clear();sessionStorage.clear()
+
 class AminaCasino{
 constructor(){
 localStorage.clear();
