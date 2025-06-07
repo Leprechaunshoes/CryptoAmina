@@ -1783,3 +1783,18 @@ setTimeout(function() {
     };
   });
 }, 2000);
+// Fix the cosmic orb
+setTimeout(function() {
+  const orb = document.getElementById('cosmicOrb');
+  const menu = document.getElementById('orbitalMenu');
+  
+  if (orb && menu) {
+    orb.onclick = function() {
+      if (menu.style.display === 'block') {
+        menu.style.display = 'none';
+      } else {
+        menu.style.display = 'block';
+      }
+    };
+  }
+}, 1000);
