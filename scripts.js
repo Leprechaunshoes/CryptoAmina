@@ -1759,7 +1759,12 @@ setTimeout(function() {
   cards.forEach(card => {
     card.onclick = function() {
       const game = card.getAttribute('data-game');
-      if (game) window.location.hash = game;
+if (game && window.casino) window.casino.switch(game)
     };
   });
-}, 1000);
+}, 1000);const orb = document.getElementById('cosmicOrb');
+if (orb) {
+  orb.onclick = function() {
+    const menu = document.getElementById('orbitalMenu');
+    if (menu) menu.classList.toggle('open');
+  };
