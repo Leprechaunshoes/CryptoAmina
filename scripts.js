@@ -518,6 +518,7 @@ this.notify(‘❌ Insufficient AMINA credits! Visit Cashier.’);
 this.vib(100);
 return 0;
 }
+if(this.cc < 0 || this.cc > 1000) this.cc = 0;
 this.cc-=amt;
 this.updDisp();
 const suc=await this.updServ(‘deduct_credits’,amt);
@@ -529,6 +530,7 @@ this.notify(‘❌ Insufficient HC balance!’);
 this.vib(100);
 return 0;
 }
+if(this.b.HC < 0 || this.b.HC > 10000) this.b.HC = 1000;
 this.b.HC-=amt;
 this.saveHC();
 this.updDisp();
@@ -538,12 +540,14 @@ return 1;
 
 async add(amt,src=‘win’){
 if(this.c===‘AMINA’&&src===‘win’){
+if(amt > 1000 || amt < 0) return;
 this.cc+=amt;
 this.updDisp();
 const suc=await this.updServ(‘add_credits’,amt);
 if(!suc)this.notify(‘⏸️ Sync pending…’);
 this.vib([25,50,25]);
 }else{
+if(amt > 1000 || amt < 0) return;
 this.b.HC+=amt;
 this.saveHC();
 this.updDisp();
