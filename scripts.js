@@ -328,7 +328,7 @@ orb.style.transform=‘scale(1)’;
 enter(){
 const btn=$(‘enterCasino’);
 this.load(btn,‘Entering…’);
-setTimeout(()=>{
+
 $(‘welcomeScreen’).classList.remove(‘active’);
 $(‘mainCasino’).classList.add(‘active’);
 this.saveApp();
@@ -346,7 +346,7 @@ $(‘musicToggle’).innerHTML=‘🎵’;
 }).catch(()=>{});
 }
 this.unload(btn,‘🚀 ENTER CASINO’);
-},800);
+}
 }
 
 async togWal(){
