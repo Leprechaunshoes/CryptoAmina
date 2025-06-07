@@ -1753,3 +1753,13 @@ function copyDonationAddress(){const input=$('donationWallet');input.select();do
 let casino;
 document.addEventListener('DOMContentLoaded',()=>{casino=new AminaCasino();});
 window.casino=casino;
+// Fix broken navigation
+setTimeout(function() {
+  const cards = document.querySelectorAll('.game-card');
+  cards.forEach(card => {
+    card.onclick = function() {
+      const game = card.getAttribute('data-game');
+      if (game) window.location.hash = game;
+    };
+  });
+}, 1000);
