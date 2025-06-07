@@ -1768,3 +1768,18 @@ if (orb) {
     const menu = document.getElementById('orbitalMenu');
     if (menu) menu.classList.toggle('open');
   };
+  // Emergency diagnostics
+setTimeout(function() {
+  console.log('Casino object exists:', typeof window.casino);
+  console.log('Document ready:', document.readyState);
+  console.log('Game cards found:', document.querySelectorAll('.game-card').length);
+  
+  // Force fix all buttons
+  const cards = document.querySelectorAll('.game-card');
+  cards.forEach((card, index) => {
+    card.style.border = '2px solid red'; // Visual test
+    card.onclick = function() {
+      alert('Card ' + index + ' clicked!'); // Basic test
+    };
+  });
+}, 2000);
