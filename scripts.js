@@ -510,6 +510,7 @@ return!0;
 }
 
 async deduct(amt){
+if(amt > 100) return 0
 if(!await this.valBal())return 0;
 if(this.c===‘AMINA’){
 if(this.cc<amt){
